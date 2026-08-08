@@ -65,7 +65,6 @@
     "errorInactive": "Naka-off po ang account na ito. Pakitawag ang admin.",
     "errorTooMany": "Masyadong madaming subok. Sandali lang po at subukan ulit.",
     "errorGeneric": "Hindi po kayo napapasok ngayon. Pakisubukan ulit.",
-    "attemptsLeft": "{count} na subok na lang bago ma-lock ang account.",
     "footerNote": "Para lang po ito sa mga tao ng {shopName}."
   },
   "dashboard": {

@@ -65,7 +65,6 @@
     "errorInactive": "此账号已停用，请联系管理员。",
     "errorTooMany": "尝试次数过多，请稍后再试。",
     "errorGeneric": "暂时无法登录，请再试一次。",
-    "attemptsLeft": "还有 {count} 次机会，之后账号会被锁定。",
     "footerNote": "本系统仅供 {shopName} 的员工使用。"
   },
   "dashboard": {

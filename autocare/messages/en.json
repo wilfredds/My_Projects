@@ -65,7 +65,6 @@
     "errorInactive": "This account has been turned off. Please ask your admin for help.",
     "errorTooMany": "Too many attempts. Please wait a moment and try again.",
     "errorGeneric": "We could not log you in right now. Please try again.",
-    "attemptsLeft": "{count} more tries before this account is locked.",
     "footerNote": "Only staff of {shopName} may use this system."
   },
   "dashboard": {

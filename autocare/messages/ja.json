@@ -65,7 +65,6 @@
     "errorInactive": "このアカウントは停止されています。管理者にご連絡ください。",
     "errorTooMany": "試行回数が多すぎます。少し待ってからお試しください。",
     "errorGeneric": "ログインできませんでした。もう一度お試しください。",
-    "attemptsLeft": "あと{count}回でアカウントがロックされます。",
     "footerNote": "{shopName}のスタッフ専用のシステムです。"
   },
   "dashboard": {

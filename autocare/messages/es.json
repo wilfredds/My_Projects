@@ -65,7 +65,6 @@
     "errorInactive": "Esta cuenta está desactivada. Pida ayuda al administrador.",
     "errorTooMany": "Demasiados intentos. Espere un momento e inténtelo de nuevo.",
     "errorGeneric": "No pudimos iniciar su sesión. Inténtelo de nuevo.",
-    "attemptsLeft": "Quedan {count} intentos antes de bloquear la cuenta.",
     "footerNote": "Solo el personal de {shopName} puede usar este sistema."
   },
   "dashboard": {
