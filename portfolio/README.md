@@ -4,7 +4,7 @@ Personal portfolio site for Francis Wilfred Antiporda, covering the five
 projects in this repository.
 
 **Stack:** static HTML, CSS and JavaScript. No build step, no bundler, no
-package manager — same discipline as `bike-guide-app` and
+package manager, the same as `bike-guide-app` and
 `corruption-reporting-system-final`.
 
 ## Running it
@@ -20,9 +20,9 @@ A plain static server is enough. Nothing here needs Node.
 
 ```
 portfolio/
-├── index.html              # the whole one-page site: hero, about, skills,
-│                           #   projects, timeline, contact
-├── resume.html             # printable résumé (Print → Save as PDF)
+├── index.html              # hero, about, skills, projects, timeline, contact
+├── resume.html             # printable résumé (Print, then Save as PDF)
+├── 404.html                # served by Vercel on a bad path
 ├── projects/               # one case-study page per project
 │   ├── autocare.html
 │   ├── rallyready.html
@@ -31,40 +31,70 @@ portfolio/
 │   └── corruption-watch-ph.html
 ├── css/style.css           # every style, one file, custom properties at the top
 ├── js/
-│   ├── boot.js             # adds .js to <html> before paint (see CSP note)
-│   └── site.js             # typing effect, counters, reveal, active nav link
-├── assets/img/             # portrait, avatar, project screenshots
+│   ├── boot.js             # adds .js to <html> before paint (see the CSP note)
+│   ├── site.js             # terminal, filters, copy, counters, reveal, progress
+│   └── notfound.js         # shows the path that 404'd
+├── assets/img/             # portrait, avatar, OG image, project screenshots
+├── robots.txt
+├── sitemap.xml
 └── vercel.json             # clean URLs, cache headers, CSP
 ```
+
+## Interactive bits
+
+- **The hero terminal actually works.** After the intro types itself out the
+  prompt becomes a real input. It understands `help`, `whoami`, `ls`,
+  `open <project>`, `skills`, `education`, `contact`, `resume`, `github`,
+  `clear` and `sudo`. Tab completes commands and project names, and the arrow
+  keys walk back through history. Commands live in the `PROJECTS` and
+  `COMMANDS` objects near the top of `site.js`, so adding one is a two-line
+  change.
+- **Project filtering.** The chips above the project list filter by stack,
+  driven by the `data-tech` attribute on each `.card`. Add a tech to a card and
+  a chip with the same `data-filter` value and it works.
+- **Copy buttons.** Any element with `data-copy="..."` copies that text and
+  shows confirmation for a moment.
+- **Reading progress and back to top.** The bar appears on case-study pages,
+  the button after 600px of scroll.
 
 ## Things worth knowing before editing
 
 - **Everything is progressive enhancement.** Every word on the page is in the
-  HTML. `site.js` only animates what is already there, so the site reads fine
-  with JavaScript off or broken.
+  HTML. `site.js` only animates and rearranges what is already there, so the
+  site reads fine with JavaScript off or broken. The terminal falls back to a
+  static block of text.
 - **No inline `<script>` or `style` attributes, on purpose.** The
   Content-Security-Policy in `vercel.json` forbids both, which is why the
-  one-line `boot.js` exists instead of an inline script in `<head>`. If you add
-  an inline script or a `style="..."` attribute, it will be blocked in
-  production — put it in `site.js` or `style.css` instead.
+  one-line `boot.js` exists instead of an inline script in `<head>`. Add an
+  inline script or a `style="..."` attribute and it will be blocked in
+  production. Put it in `site.js` or `style.css` instead.
+- **No em dashes in the prose.** That is a deliberate house style for this
+  site. Use commas, colons or a full stop.
 - **The screenshots are composites**, generated from the running apps at
-  1200×750 on the site's own background so all five cards match. They live in
+  1200x750 on the site's own background so all five cards match. They live in
   `assets/img/shot-*.jpg`. To regenerate one, screenshot the app and paste it
   onto a `#0b0e0b` canvas at that size.
 - **`cyclemind_ai` has no screenshot.** There is no Flutter SDK in the
   development environment, so its card shows a stylised placeholder rather than
-  a mock-up of a screen nobody ran. Drop a real screenshot in and swap the
+  a mock-up of a screen nobody ran. Drop in a real screenshot and swap the
   `.card-shot.is-empty` block for an `<img>` when one exists.
 - **Fonts come from Google Fonts.** Both faces have real fallbacks
   (`ui-monospace` and `system-ui`), so a blocked CDN changes the typography but
   not the layout.
+- **The timeline hashes are real.** They are the first commit touching each
+  project directory. If you rewrite history, regenerate them with
+  `git log --reverse --format='%h %as' -- <dir> | head -1`.
 
 ## Deploying to Vercel
 
-Import the repository, then set **Root Directory** to `portfolio`. Framework
-preset: **Other**. There is no build command and no output directory to set —
-Vercel serves the folder as-is and picks up `vercel.json` for headers and clean
-URLs.
+The project is linked to this repository. **Root Directory** must be
+`portfolio`, framework preset **Other**, with no build command and no output
+directory. Vercel serves the folder as-is and reads `vercel.json` for headers
+and clean URLs.
+
+The canonical URL, `robots.txt` and `sitemap.xml` all reference
+`https://wilfred-website.vercel.app`. If the Vercel project gets renamed,
+update those three places to match.
 
 ## CI
 

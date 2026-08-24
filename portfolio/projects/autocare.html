@@ -3,12 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AutoCare — Francis Wilfred Antiporda</title>
+<title>AutoCare | Francis Wilfred Antiporda</title>
 <meta name="description" content="A Next.js, Prisma and PostgreSQL job-management system that replaced a car care shop's paper notebook.">
 <meta name="theme-color" content="#0a0c0b">
+<meta name="color-scheme" content="dark">
 <meta property="og:type" content="article">
-<meta property="og:title" content="AutoCare — Francis Wilfred Antiporda">
+<meta property="og:title" content="AutoCare | Francis Wilfred Antiporda">
 <meta property="og:description" content="A Next.js, Prisma and PostgreSQL job-management system that replaced a car care shop's paper notebook.">
+<meta property="og:image" content="../assets/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0c0b'/><text y='72' x='16' font-size='62' font-family='monospace' fill='%237ee787'>&gt;</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,90 +34,93 @@
   </div>
 </nav>
 
+<div class="progress" id="progress" hidden><span id="progress-bar"></span></div>
+
 <main id="main" class="wrap detail">
   <header class="page-head">
     <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
     <h1>autocare<span class='slash'>/</span></h1>
-    <p class="lede">A job-management system for HI-OCTEN CAR CARE SERVICES. It replaces the shop's paper notebook: seven short screens to record a finished job, a running total the owner can never mistype, and a printable receipt for every one.</p>
+    <p class="lede">A job-management system for HI-OCTEN CAR CARE SERVICES. It takes over from the shop's paper notebook: seven short screens to record a finished job, a total the owner cannot mistype, and a printable receipt for every one.</p>
   </header>
 
   <dl class="meta">
-    <div><dt>role</dt><dd>Sole developer — schema, backend, UI, deployment</dd></div>
-    <div><dt>stack</dt><dd>Next.js 15 · Prisma · PostgreSQL · next-auth · next-intl · Tailwind</dd></div>
+    <div><dt>role</dt><dd>Sole developer. Schema, backend, interface, deployment</dd></div>
+    <div><dt>stack</dt><dd>Next.js 15 &middot; Prisma &middot; PostgreSQL &middot; next-auth &middot; next-intl</dd></div>
     <div><dt>started</dt><dd>August 2026</dd></div>
     <div><dt>status</dt><dd>Live on Vercel</dd></div>
   </dl>
 
   <figure class="shot-full reveal">
-    <img src="../assets/img/shot-autocare.jpg" width="1200" height="750" alt="The sign-in screen, in Filipino — the language the shop actually uses.">
-    <figcaption>The sign-in screen, in Filipino — the language the shop actually uses.</figcaption>
+    <img src="../assets/img/shot-autocare.jpg" width="1200" height="750" alt="The sign-in screen in Filipino, the language the shop actually uses." loading="lazy">
+    <figcaption>The sign-in screen in Filipino, the language the shop actually uses.</figcaption>
   </figure>
 
   <h2><span class="prompt">$</span>cat problem.md</h2>
   <p>
-    A car care shop recorded every job in a notebook: the customer, the car, the
-    parts, the labour, what was paid. Totals were added by hand at the counter, in
-    front of the customer, which is exactly when arithmetic goes wrong. Nobody could
-    answer "how much did we make last month" without turning pages, and a lost
-    notebook was a lost year.
+    The shop recorded every job in a notebook: the customer, the car, the parts, the
+    labour, what was paid. Totals were added by hand at the counter, in front of the
+    customer, which is exactly when arithmetic goes wrong. Nobody could answer "how
+    much did we make last month" without turning pages, and a lost notebook meant a
+    lost year.
   </p>
 
   <h2><span class="prompt">$</span>cat solution.md</h2>
   <p>
-    The whole system is shaped around one screen the owner uses fifty times a week:
-    <strong>Record New Job</strong>. It is a seven-step wizard with one decision per
-    screen, because a form with twenty fields on a phone at a counter is a form that
-    gets filled in wrong.
+    The system is shaped around one screen the owner uses fifty times a week,
+    <strong>Record New Job</strong>. It runs as a seven-step wizard with a single
+    decision on each screen, because a twenty-field form on a phone at a busy counter
+    is a form that gets filled in wrong.
   </p>
   <ul>
-    <li><strong>Home</strong> — today's jobs and income, this month's income, the unpaid total, and one very large button.</li>
-    <li><strong>Jobs</strong> — search and filter every job; open one to print or download its receipt as a PDF.</li>
-    <li><strong>Customers &amp; vehicles</strong> — people, their cars, and a full service history per customer.</li>
-    <li><strong>Reports</strong> — daily and monthly income, most-used spare parts, top customers, CSV and JSON backup.</li>
-    <li><strong>Users, settings, activity log</strong> — staff accounts, receipt details, and a record of every login and every change.</li>
+    <li><strong>Home</strong> shows today's jobs and income, this month's income, the unpaid total, and one very large button.</li>
+    <li><strong>Jobs</strong> lets you search and filter every job, then print or download its receipt as a PDF.</li>
+    <li><strong>Customers and vehicles</strong> holds people, their cars, and a full service history.</li>
+    <li><strong>Reports</strong> covers daily and monthly income, most-used spare parts, top customers, and CSV or JSON backup.</li>
+    <li><strong>Users, settings and the activity log</strong> handle staff accounts, receipt details, and a record of every login and every change.</li>
   </ul>
 
   <h2><span class="prompt">$</span>cat money.md</h2>
   <p>
-    Every peso in the system flows through one file, <code>lib/calc.ts</code>. The
-    browser imports it to render the live total; the server imports the
-    <strong>same function</strong> to compute what it stores. They cannot disagree.
+    Every peso in the system runs through one file, <code>lib/calc.ts</code>. The
+    browser imports it to render the live total. The server imports the same function
+    to compute what it stores. They cannot disagree.
   </p>
   <p>
-    Two rules are enforced rather than merely intended. <strong>The total is never an
-    input</strong> — in the UI it is rendered text, not a form field. And
-    <strong>the server never trusts the client</strong>: the validation schema does
-    not even accept <code>subtotal</code>, <code>total</code>, <code>balance</code>
-    or <code>status</code>, so a client that posts them has them silently dropped and
-    the server recomputes everything from the line items. There is a test that fails
-    if that ever stops being true.
+    Two rules are enforced rather than merely intended. The total is never an input:
+    in the interface it is rendered text, not a form field. And the server does not
+    trust the client. The validation schema will not even accept
+    <code>subtotal</code>, <code>total</code>, <code>balance</code> or
+    <code>status</code>, so a client that posts them has them dropped and the server
+    recomputes everything from the line items. A test fails if that stops being true.
   </p>
   <div class="callout">
-    Arithmetic runs in whole centavos, never floats. Adding ten ₱0.07 lines gives
-    exactly ₱0.70 — which is the kind of bug you only find after a customer does.
+    Arithmetic runs in whole centavos rather than floats. Adding ten lines of ₱0.07
+    gives exactly ₱0.70, which is the sort of bug you otherwise find after a customer
+    does.
   </div>
 
   <h2><span class="prompt">$</span>cat security.md</h2>
   <ul>
     <li>bcrypt at cost 12, a real password policy, lockout after five failed logins, and a rate limit on the login route.</li>
-    <li>JWT sessions in httpOnly, secure, sameSite cookies with a 30-minute idle timeout — and <strong>re-checked against the database on every request</strong>, so disabling an account logs it out now, not in half an hour.</li>
-    <li>Role-based access enforced in middleware <em>and</em> re-checked server-side inside every action, because a request can always be aimed straight at an endpoint.</li>
+    <li>JWT sessions in httpOnly, secure, sameSite cookies with a 30-minute idle timeout, re-checked against the database on every request. Disabling an account logs it out immediately rather than in half an hour.</li>
+    <li>Role-based access enforced in middleware and checked again inside every server action, because a request can always be aimed straight at an endpoint.</li>
     <li>A per-request nonce-based Content-Security-Policy with no <code>unsafe-inline</code>, generated in middleware in exactly one place.</li>
-    <li>Deletes go to a recoverable Trash; every change lands in an audit log.</li>
+    <li>Deletes go to a recoverable Trash, and every change lands in an audit log.</li>
   </ul>
 
   <h2><span class="prompt">$</span>cat details.md</h2>
   <p>
-    The interface ships in <strong>English and Filipino</strong>, switchable per
-    user, because the people using it think in Filipino and a translated app is not a
-    nice-to-have when it is someone's till. Receipts render to PDF in the browser.
+    The interface ships in English and Filipino, switchable per user. The people
+    running the shop think in Filipino, and a translation stops being a nice extra
+    when the app is somebody's till. Receipts render to PDF in the browser.
     Continuous integration runs lint, typecheck, unit tests, a migration, a seed,
     database-backed integrity and access-control tests, and a production build on
     every push.
   </p>
   <p>
-    Public sign-up, online payments, SMS and multi-branch support are deliberately
-    absent from v1 — but the schema leaves room for all of them, with notes on where.
+    Public sign-up, online payments, SMS and multi-branch support are all absent from
+    version one. The schema leaves room for each of them, with notes on where they
+    would go.
   </p>
 
   <div class="card-links card-links-end">
@@ -132,8 +138,12 @@
 
 <footer class="footer wrap">
   <span>&copy; <span id="year">2026</span> Francis Wilfred Antiporda</span>
-  <span>Built by hand — no framework, no build step.</span>
+  <span>Built by hand. No framework, no build step.</span>
 </footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 
 <script src="../js/site.js" defer></script>
 </body>

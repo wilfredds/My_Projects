@@ -3,17 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Francis Wilfred Antiporda — Full-stack Developer</title>
-<meta name="description" content="Fourth-year BS Information Technology student at Lyceum of the Philippines University — Cavite, and a full-stack developer. Next.js, React, Flutter and Firebase. Five shipped projects: a car-care job system, a badminton training PWA, an AI cycling coach, a cycling guide and a corruption reporting site.">
+<title>Francis Wilfred Antiporda | Full-stack Developer</title>
+<meta name="description" content="Fourth-year BS Information Technology student at Lyceum of the Philippines University, Cavite. Full-stack developer working in Next.js, React, Flutter and Firebase, with five shipped projects.">
 <meta name="author" content="Francis Wilfred Antiporda">
 <meta name="theme-color" content="#0a0c0b">
+<meta name="color-scheme" content="dark">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Francis Wilfred Antiporda — Full-stack Developer">
-<meta property="og:description" content="Five shipped projects across Next.js, React, Flutter and Firebase — with the tests and CI to back them.">
-<meta property="og:image" content="assets/img/avatar.jpg">
+<meta property="og:title" content="Francis Wilfred Antiporda | Full-stack Developer">
+<meta property="og:description" content="Five shipped projects across Next.js, React, Flutter and Firebase, with the tests and CI to back them.">
+<meta property="og:image" content="assets/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="assets/img/og.jpg">
 
+<link rel="canonical" href="https://wilfred-website.vercel.app/">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0c0b'/><text y='72' x='16' font-size='62' font-family='monospace' fill='%237ee787'>&gt;</text></svg>">
 <link rel="apple-touch-icon" href="assets/img/avatar-sm.jpg">
 
@@ -46,28 +51,40 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div>
-      <div class="term" id="hero-term">
+      <div class="term" id="term">
         <div class="term-bar">
           <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
           <span class="term-title">francis@portfolio: ~</span>
+          <span class="term-hint" id="term-hint" hidden>type <b>help</b></span>
         </div>
-        <div class="term-body">
-          <span class="line"><span class="prompt">$</span><span class="cmdtext">whoami</span></span>
-          <span class="line out-strong">francis &mdash; full-stack developer, Cavite, Philippines</span>
-          <span class="line"><span class="prompt">$</span><span class="cmdtext">ls ~/projects</span></span>
-          <span class="line out">autocare/  rallyready/  cyclemind_ai/  bike-guide-app/  corruption-watch/</span>
-          <span class="line"><span class="prompt">$</span><span class="cmdtext">cat status.txt</span></span>
-          <span class="line out">4th-year BSIT, LPU &mdash; Cavite &middot; open to OJT and freelance work</span>
-          <span class="line"><span class="prompt">$</span><span class="cursor" aria-hidden="true"></span></span>
+        <div class="term-body" id="term-body">
+          <div class="term-out" id="term-out">
+            <span class="line"><span class="prompt">$</span><span class="cmdtext">whoami</span></span>
+            <span class="line out-strong">francis, full-stack developer in General Trias, Cavite</span>
+            <span class="line"><span class="prompt">$</span><span class="cmdtext">ls ~/projects</span></span>
+            <span class="line out">autocare/  rallyready/  cyclemind_ai/  bike-guide-app/  corruption-watch/</span>
+            <span class="line"><span class="prompt">$</span><span class="cmdtext">cat status.txt</span></span>
+            <span class="line out">4th-year BSIT at LPU Cavite, looking for OJT and freelance work</span>
+          </div>
+
+          <span class="line" id="term-idle"><span class="prompt">$</span><span class="cursor" aria-hidden="true"></span></span>
+
+          <form class="term-form" id="term-form" hidden>
+            <label class="prompt" for="term-input">$</label>
+            <input id="term-input" name="command" type="text" autocomplete="off"
+                   autocapitalize="off" spellcheck="false"
+                   aria-label="Terminal command. Type help for a list of commands.">
+          </form>
         </div>
       </div>
 
       <h1>Francis Wilfred Antiporda</h1>
-      <p class="hero-role">full-stack developer &mdash; web, mobile, and the boring parts in between</p>
+      <p class="hero-role">Full-stack developer. Web, mobile, and the parts that never make it into a demo.</p>
       <p class="hero-blurb">
-        I build software people actually use: a job system that replaced a car shop's
-        paper notebook, a training app for a sport with no coach in the room, and an
-        AI cycling companion. Five projects, shipped, tested and running in CI.
+        I build things people actually use. One of them replaced a car shop's paper
+        notebook. Another calls out badminton drills so you can train with nobody
+        else in the room. Five projects live in one repository, each with its own
+        tests and its own CI pipeline.
       </p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#projects">
@@ -75,7 +92,7 @@
           View projects
         </a>
         <a class="btn" href="resume.html">Résumé</a>
-        <a class="btn" href="mailto:frncishub@gmail.com">Email me</a>
+        <button class="btn" type="button" data-copy="frncishub@gmail.com">Copy email</button>
       </div>
     </div>
 
@@ -110,34 +127,36 @@
     <div class="about-grid">
       <div class="prose reveal">
         <p>
-          I'm a fourth-year <strong>BS Information Technology</strong> student at
-          <strong>Lyceum of the Philippines University &mdash; Cavite</strong>,
-          graduating in 2027. I like problems with a real person on the other end of
-          them. <strong>AutoCare</strong> exists because a car
-          care shop was tracking every job in a notebook and losing money to
-          arithmetic. <strong>RallyReady</strong> exists because training badminton
-          alone means nobody calls the corners for you. <strong>Bike Guide PH</strong>
-          exists because beginner riders here have nowhere local to learn gearing.
+          I am a fourth-year <strong>BS Information Technology</strong> student at
+          <strong>Lyceum of the Philippines University, Cavite</strong>, graduating in
+          2027. Most of what I know came from building things that had to work for
+          somebody other than me.
         </p>
         <p>
-          I work across the stack &mdash; <strong>Next.js and Prisma</strong> on
-          Postgres, <strong>React and TypeScript</strong> on Supabase,
-          <strong>Flutter and Riverpod</strong> on Firebase &mdash; and I care about
-          the parts that do not demo well: database constraints that make bad data
-          impossible, security rules with assertions behind them, and CI that fails
-          before a user does.
+          <strong>AutoCare</strong> exists because a car care shop was writing every
+          job in a notebook and losing money to arithmetic done at the counter.
+          <strong>RallyReady</strong> exists because training badminton alone means
+          nobody is there to call the corners. <strong>Bike Guide PH</strong> exists
+          because beginner riders here have nowhere local to learn gearing.
         </p>
         <p>
-          Every project here is in one repository with its own pipeline. Nothing on
-          this page is a tutorial clone.
+          I work across the stack: Next.js and Prisma on Postgres, React and
+          TypeScript on Supabase, Flutter and Riverpod on Firebase. The parts I care
+          most about are the ones that never demo well. Database constraints that make
+          bad data impossible. Security rules with assertions behind them. A pipeline
+          that goes red before a user finds the bug.
+        </p>
+        <p>
+          Every project on this page sits in one repository with its own workflow.
+          None of it is a tutorial clone.
         </p>
       </div>
 
       <aside class="facts reveal">
         <dl>
           <dt>location</dt><dd>General Trias, Cavite</dd>
-          <dt>studies</dt><dd>BSIT, LPU &mdash; Cavite</dd>
-          <dt>year</dt><dd>4th &middot; grad 2027</dd>
+          <dt>studies</dt><dd>BSIT, LPU Cavite</dd>
+          <dt>year</dt><dd>4th, grad 2027</dd>
           <dt>focus</dt><dd>Full-stack</dd>
           <dt>languages</dt><dd>TypeScript, Dart</dd>
           <dt>writes</dt><dd>English, Filipino</dd>
@@ -207,25 +226,42 @@
   <div class="wrap">
     <div class="section-head">
       <h2><span class="prompt">$</span>ls ~/projects</h2>
-      <p>5 directories</p>
+      <p id="project-count">5 directories</p>
     </div>
 
-    <div class="projects">
+    <div class="filters" id="filters" hidden>
+      <span class="filters-label" id="filters-label">filter by stack</span>
+      <div class="filters-row" role="group" aria-labelledby="filters-label">
+        <button type="button" class="chip is-on" data-filter="all" aria-pressed="true">all</button>
+        <button type="button" class="chip" data-filter="typescript" aria-pressed="false">TypeScript</button>
+        <button type="button" class="chip" data-filter="react" aria-pressed="false">React</button>
+        <button type="button" class="chip" data-filter="nextjs" aria-pressed="false">Next.js</button>
+        <button type="button" class="chip" data-filter="flutter" aria-pressed="false">Flutter</button>
+        <button type="button" class="chip" data-filter="firebase" aria-pressed="false">Firebase</button>
+        <button type="button" class="chip" data-filter="postgres" aria-pressed="false">Postgres</button>
+        <button type="button" class="chip" data-filter="vanilla" aria-pressed="false">No framework</button>
+        <button type="button" class="chip" data-filter="pwa" aria-pressed="false">PWA</button>
+      </div>
+    </div>
+
+    <p class="filter-status" id="filter-status" role="status"></p>
+
+    <div class="projects" id="projects-list">
 
       <!-- ---------------------------------------------------- autocare -- -->
-      <article class="card reveal">
+      <article class="card reveal" data-tech="nextjs react typescript postgres">
         <a class="card-shot" href="projects/autocare.html" tabindex="-1" aria-hidden="true">
-          <img src="assets/img/shot-autocare.jpg" width="1200" height="750" loading="lazy"
-               alt="">
+          <img src="assets/img/shot-autocare.jpg" width="1200" height="750" loading="lazy" alt="">
         </a>
         <div class="card-body">
           <p class="card-kicker">Next.js &middot; Prisma &middot; PostgreSQL</p>
           <h3><a href="projects/autocare.html">autocare<span class="slash">/</span></a></h3>
           <p>
             A job-management system for a car care shop, built to replace a paper
-            notebook. Seven-step wizard, one decision per screen; the running total is
-            computed and can never be typed by hand. Prints a PDF receipt for every job.
-            Bilingual (English / Filipino), role-based, with an activity log of every change.
+            notebook. Recording a job takes seven short screens with one decision on
+            each. The running total is computed by the server and there is no field to
+            type it into. Every finished job prints a receipt. The whole interface
+            works in English or Filipino, and every change is written to an activity log.
           </p>
           <ul class="tags">
             <li>Next.js 15</li><li>Prisma</li><li>PostgreSQL</li><li>next-auth</li>
@@ -240,7 +276,7 @@
       </article>
 
       <!-- -------------------------------------------------- rallyready -- -->
-      <article class="card reveal">
+      <article class="card reveal" data-tech="react typescript pwa supabase postgres">
         <a class="card-shot" href="projects/rallyready.html" tabindex="-1" aria-hidden="true">
           <img src="assets/img/shot-rallyready.jpg" width="1200" height="750" loading="lazy" alt="">
         </a>
@@ -248,14 +284,15 @@
           <p class="card-kicker">React &middot; TypeScript &middot; Supabase</p>
           <h3><a href="projects/rallyready.html">rallyready<span class="slash">/</span></a></h3>
           <p>
-            Solo badminton training for a player with no coach and no partner. Every
-            corner call is spoken aloud, so you never look at the screen. Split-step
-            timing, audible fake calls, periodised programs, and a training-load model
-            that tells you when to back off. Installable, and the whole trainer works offline.
+            Badminton training for a player with no coach and no partner. Every corner
+            call is spoken out loud, so you never have to look at the screen. It times
+            your split-step, throws in audible fake calls, generates periodised
+            programs, and tracks how much load you are carrying so it can tell you to
+            back off. Installs to a phone, and the trainer runs with no connection.
           </p>
           <ul class="tags">
             <li>React 19</li><li>TypeScript</li><li>Vite</li><li>Supabase</li>
-            <li>Vitest &middot; 341 tests</li><li>PWA</li>
+            <li>Vitest, 341 tests</li><li>PWA</li>
           </ul>
           <div class="card-links">
             <a class="btn btn-primary" href="projects/rallyready.html">Case study</a>
@@ -266,7 +303,7 @@
       </article>
 
       <!-- ------------------------------------------------- cyclemind_ai -- -->
-      <article class="card reveal">
+      <article class="card reveal" data-tech="flutter dart firebase">
         <span class="card-shot is-empty" aria-hidden="true">
           $ flutter build web<br>
           <span class="ok">▸</span> built by CI, not by screenshot<br>
@@ -276,11 +313,11 @@
           <p class="card-kicker">Flutter &middot; Riverpod &middot; Firebase</p>
           <h3><a href="projects/cyclemind-ai.html">cyclemind_ai<span class="slash">/</span></a></h3>
           <p>
-            An AI cycling coach and bike doctor in one Flutter app. Photograph a bike
-            and a vision model returns a health report; the coach reads your rides and
-            plans the next one. Clean Architecture throughout &mdash; every external
-            dependency sits behind an interface, so the entire app runs on mocks with
-            zero config and no API key ever ships in the binary.
+            An AI cycling coach and a bike doctor in one Flutter app. Photograph a bike
+            and a vision model sends back a health report. The coach reads your rides
+            and plans the next one. Every external dependency sits behind an interface,
+            so the whole app runs on mock data with no keys and no setup, and no API
+            key ever ships inside the binary.
           </p>
           <ul class="tags">
             <li>Flutter</li><li>Dart</li><li>Riverpod</li><li>Firebase</li>
@@ -294,7 +331,7 @@
       </article>
 
       <!-- ---------------------------------------------- bike-guide-app -- -->
-      <article class="card reveal">
+      <article class="card reveal" data-tech="vanilla pwa firebase">
         <a class="card-shot" href="projects/bike-guide-ph.html" tabindex="-1" aria-hidden="true">
           <img src="assets/img/shot-bikeguide.jpg" width="1200" height="750" loading="lazy" alt="">
         </a>
@@ -302,11 +339,11 @@
           <p class="card-kicker">PWA &middot; Vanilla JS &middot; Firebase</p>
           <h3><a href="projects/bike-guide-ph.html">bike-guide-app<span class="slash">/</span></a></h3>
           <p>
-            A cycling companion for Filipino beginner-to-intermediate riders: a gear
-            simulator that explains which ring and cog to use on a climb, curated
-            Philippine routes, GPS ride recording and a 30-day challenge. No framework,
-            no bundler &mdash; sixteen pages of hand-written HTML, CSS and JavaScript
-            that installs like an app and works offline.
+            A cycling companion for Filipino beginners. The gear simulator shows which
+            ring and cog to use on a climb and warns you when the chain is crossed.
+            There are curated Philippine routes, GPS ride recording and a 30-day
+            challenge. Sixteen pages of hand-written HTML, CSS and JavaScript, with no
+            framework and no bundler, that installs like an app and works offline.
           </p>
           <ul class="tags">
             <li>Vanilla JS</li><li>Service Worker</li><li>Firebase</li>
@@ -320,7 +357,7 @@
       </article>
 
       <!-- ----------------------------------------- corruption reporting -- -->
-      <article class="card reveal">
+      <article class="card reveal" data-tech="vanilla firebase">
         <a class="card-shot" href="projects/corruption-watch-ph.html" tabindex="-1" aria-hidden="true">
           <img src="assets/img/shot-crs.jpg" width="1200" height="750" loading="lazy" alt="">
         </a>
@@ -328,11 +365,11 @@
           <p class="card-kicker">Firestore &middot; Security rules &middot; Static</p>
           <h3><a href="projects/corruption-watch-ph.html">corruption-watch-ph<span class="slash">/</span></a></h3>
           <p>
-            A public reporting site: a citizen picks a department, describes what
-            happened, and can file anonymously; an admin console reviews what comes in.
-            The interesting work is invisible &mdash; the Firestore rules that let anyone
-            write a report but nobody read someone else's, with 60 assertions run against
-            the real emulator in CI.
+            A public reporting site. A citizen picks a department, describes what
+            happened, and can file without giving a name. An admin console reviews what
+            comes in. The work that matters is the part nobody sees: Firestore rules
+            that let anyone write a report and stop anyone from reading someone else's,
+            with 60 assertions run against the real emulator in CI.
           </p>
           <ul class="tags">
             <li>Firebase</li><li>Firestore rules</li><li>Emulator tests</li>
@@ -346,6 +383,10 @@
       </article>
 
     </div>
+
+    <p class="filter-empty" id="filter-empty" hidden>
+      Nothing built with that yet. <button type="button" class="linkish" data-filter-reset>Show all five</button>
+    </p>
   </div>
 </section>
 
@@ -354,51 +395,51 @@
   <div class="wrap">
     <div class="section-head">
       <h2><span class="prompt">$</span>git log --oneline --reverse</h2>
-      <p>first commit dates</p>
+      <p>first commit per project</p>
     </div>
 
     <ol class="timeline reveal">
       <li>
         <span class="hash">0000000</span>
         <span class="when">init</span>
-        <span class="what">BS Information Technology — Lyceum of the Philippines University, Cavite</span>
-        <span class="note">Fourth year, graduating 2027. Everything below it was built alongside coursework, not for it.</span>
+        <span class="what">BS Information Technology, Lyceum of the Philippines University, Cavite</span>
+        <span class="note">Fourth year, graduating 2027. Everything below it was built next to coursework rather than for it.</span>
       </li>
       <li>
-        <span class="hash">a71c0de</span>
+        <span class="hash">a7eb1a1</span>
         <span class="when">2025-11</span>
-        <span class="what">Corruption Watch PH — first project in the repo</span>
-        <span class="note">Learning Firebase in public: a public report form, an admin console, and the first time security rules mattered more than the UI.</span>
+        <span class="what">Corruption Watch PH, the first project in the repo</span>
+        <span class="note">Learning Firebase in public. A report form, an admin console, and the first time security rules mattered more to me than the interface did.</span>
       </li>
       <li>
-        <span class="hash">3f9b214</span>
+        <span class="hash">ffe92d3</span>
         <span class="when">2026-05</span>
-        <span class="what">Bike Guide PH — sixteen pages, no framework</span>
-        <span class="note">A PWA built the hard way to understand what frameworks do for you: service worker caching, offline fallback, and a gear-ratio simulator drawn by hand.</span>
+        <span class="what">Bike Guide PH, sixteen pages and no framework</span>
+        <span class="note">Built the hard way to find out what a framework actually does for you. Service worker caching, an offline fallback, and a gear-ratio simulator written by hand.</span>
       </li>
       <li>
-        <span class="hash">c04e8aa</span>
+        <span class="hash">6e2b4b0</span>
         <span class="when">2026-06</span>
-        <span class="what">CycleMind AI — first Flutter app, first AI backend</span>
-        <span class="note">Clean Architecture with every dependency behind an interface, and the API key moved server-side into Cloud Functions where it belongs.</span>
+        <span class="what">CycleMind AI, first Flutter app and first AI backend</span>
+        <span class="note">Clean Architecture with every dependency behind an interface. This is where I moved the API key out of the app and into Cloud Functions, where it belongs.</span>
       </li>
       <li>
-        <span class="hash">d82f157</span>
+        <span class="hash">9696193</span>
         <span class="when">2026-08</span>
-        <span class="what">AutoCare — a real client, a real shop</span>
-        <span class="note">Next.js, Prisma and PostgreSQL for HI-OCTEN CAR CARE SERVICES. Money maths in one place, receipts, roles, an audit log, and a Filipino translation for the people using it.</span>
+        <span class="what">AutoCare, a real client and a real shop</span>
+        <span class="note">Next.js, Prisma and PostgreSQL for HI-OCTEN CAR CARE SERVICES. Money maths in one file, printable receipts, staff roles, an audit log, and a Filipino translation for the people at the counter.</span>
       </li>
       <li>
-        <span class="hash">6b1d90f</span>
+        <span class="hash">46fa322</span>
         <span class="when">2026-08</span>
-        <span class="what">RallyReady — five phases, 341 tests</span>
-        <span class="note">The most complete thing I have built: audio-first drills, a benchmark, conditioning, periodised programs and progress tracking, all verified by <code>npm run verify</code>.</span>
+        <span class="what">RallyReady, five phases and 341 tests</span>
+        <span class="note">The most complete thing I have built. Audio drills, a benchmark, conditioning, periodised programs and progress tracking, all gated by <code>npm run verify</code>.</span>
       </li>
       <li>
-        <span class="hash">9e1a721</span>
+        <span class="hash">ea41577</span>
         <span class="when">2026-08</span>
-        <span class="what">CI for all five, then this portfolio</span>
-        <span class="note">Every project got a path-filtered pipeline — lint, typecheck, tests, migrations, security rules — so nothing ships on trust alone.</span>
+        <span class="what">CI for all five, then this site</span>
+        <span class="note">Every project got a path-filtered pipeline covering lint, typecheck, tests, migrations and security rules, so nothing ships on trust alone.</span>
       </li>
     </ol>
   </div>
@@ -410,12 +451,13 @@
     <div class="contact-box reveal">
       <h2><span class="prompt">$</span>./say-hello.sh</h2>
       <p>
-        I'm looking for an <strong>OJT / internship placement</strong> and open to
-        <strong>freelance work</strong>. The fastest way to reach me is email — I
-        answer everything.
+        I am looking for an <strong>OJT placement</strong> and open to
+        <strong>freelance work</strong>. Email reaches me fastest and I answer
+        everything.
       </p>
       <div class="contact-actions">
         <a class="btn btn-primary" href="mailto:frncishub@gmail.com">frncishub@gmail.com</a>
+        <button class="btn" type="button" data-copy="frncishub@gmail.com">Copy address</button>
         <a class="btn" href="https://github.com/wilfredds" rel="me noopener">GitHub</a>
         <a class="btn" href="https://www.facebook.com/share/1QZud4faCn/" rel="me noopener" target="_blank">Facebook</a>
         <a class="btn" href="resume.html">Résumé</a>
@@ -428,8 +470,26 @@
 
 <footer class="footer wrap">
   <span>&copy; <span id="year">2026</span> Francis Wilfred Antiporda</span>
-  <span>Built by hand — no framework, no build step.</span>
+  <span>Built by hand. No framework, no build step.</span>
 </footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Francis Wilfred Antiporda",
+  "jobTitle": "Full-stack Developer",
+  "email": "mailto:frncishub@gmail.com",
+  "address": { "@type": "PostalAddress", "addressLocality": "General Trias", "addressRegion": "Cavite", "addressCountry": "PH" },
+  "alumniOf": { "@type": "CollegeOrUniversity", "name": "Lyceum of the Philippines University, Cavite" },
+  "knowsAbout": ["TypeScript", "React", "Next.js", "Flutter", "Firebase", "PostgreSQL", "Prisma"],
+  "sameAs": ["https://github.com/wilfredds"]
+}
+</script>
 
 <script src="js/site.js" defer></script>
 </body>
