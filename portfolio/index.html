@@ -117,7 +117,7 @@
 <section class="section" aria-label="At a glance">
   <div class="wrap">
     <div class="stats reveal">
-      <div class="stat"><b data-count="5">5</b><span>projects shipped</span></div>
+      <div class="stat"><b data-count="9">9</b><span>projects</span></div>
       <div class="stat"><b data-count="413">413</b><span>automated tests</span></div>
       <div class="stat"><b data-count="5">5</b><span>CI pipelines</span></div>
       <div class="stat"><b data-count="3">3</b><span>databases in prod</span></div>
@@ -267,6 +267,7 @@
         <p class="cert-meta">Completed 4 February 2026 &middot; through LPU Cavite</p>
       </li>
       <li class="cert reveal">
+        <span class="cert-issuer">Cisco Networking Academy</span>
         <h3>Ethical Hacker</h3>
         <p class="cert-meta">Issued 19 July 2026</p>
       </li>
@@ -284,7 +285,7 @@
   <div class="wrap">
     <div class="section-head">
       <h2><span class="prompt">$</span>ls ~/projects</h2>
-      <p id="project-count">6 directories</p>
+      <p id="project-count">9 projects</p>
     </div>
 
     <div class="filters" id="filters" hidden>
@@ -296,6 +297,8 @@
         <button type="button" class="chip" data-filter="nextjs" aria-pressed="false">Next.js</button>
         <button type="button" class="chip" data-filter="flutter" aria-pressed="false">Flutter</button>
         <button type="button" class="chip" data-filter="iot" aria-pressed="false">IoT</button>
+        <button type="button" class="chip" data-filter="supabase" aria-pressed="false">Supabase</button>
+        <button type="button" class="chip" data-filter="unity" aria-pressed="false">Unity</button>
         <button type="button" class="chip" data-filter="firebase" aria-pressed="false">Firebase</button>
         <button type="button" class="chip" data-filter="postgres" aria-pressed="false">Postgres</button>
         <button type="button" class="chip" data-filter="vanilla" aria-pressed="false">No framework</button>
@@ -386,6 +389,56 @@
         </div>
       </article>
 
+
+      <!-- ------------------------------------------------- badminton-ph -- -->
+      <article class="card reveal" data-tech="react firebase">
+        <span class="card-shot is-empty" aria-hidden="true">
+          $ open badminton-ph.web.app<br>
+          <span class="ok">▸</span> live, on Firebase Hosting<br>
+          <span class="faint">real-time scoring &middot; rankings &middot; admin</span>
+        </span>
+        <div class="card-body">
+          <p class="card-kicker">React &middot; Firebase Hosting</p>
+          <h3><a href="https://badminton-ph.web.app" rel="noopener" target="_blank">badminton-ph<span class="slash">/</span></a></h3>
+          <p>
+            A tournament-management platform for badminton, built and deployed on my
+            own. It runs real-time scoring, rankings and multi-category tournaments,
+            with an admin dashboard behind them. I owned the interface, the performance
+            work and the security work.
+          </p>
+          <ul class="tags">
+            <li>React</li><li>Firebase Hosting</li><li>Real-time scoring</li>
+            <li>Admin dashboard</li>
+          </ul>
+          <div class="card-links">
+            <a class="btn btn-primary" href="https://badminton-ph.web.app" rel="noopener" target="_blank">Live site</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ---------------------------------------------- hiroshi samgyup -- -->
+      <article class="card reveal" data-tech="nextjs react typescript supabase postgres">
+        <span class="card-shot is-empty" aria-hidden="true">
+          $ git log --author=client<br>
+          <span class="ok">▸</span> first paying client<br>
+          <span class="faint">booking &middot; staff roles &middot; Supabase auth</span>
+        </span>
+        <div class="card-body">
+          <p class="card-kicker">Next.js &middot; TypeScript &middot; Supabase</p>
+          <h3>hiroshi-master-grill<span class="slash">/</span></h3>
+          <p>
+            My first real client. A branded website for Hiroshi Master Grill
+            Samgyupsal with an online booking and reservation system behind it, plus a
+            staff dashboard with role-based access. Authentication and the database run
+            on Supabase.
+          </p>
+          <ul class="tags">
+            <li>Next.js</li><li>TypeScript</li><li>Tailwind CSS</li>
+            <li>Supabase</li><li>Client work</li>
+          </ul>
+        </div>
+      </article>
+
       <!-- ------------------------------------------------- cyclemind_ai -- -->
       <article class="card reveal" data-tech="flutter dart firebase">
         <span class="card-shot is-empty" aria-hidden="true">
@@ -463,6 +516,29 @@
             <a class="btn btn-primary" href="projects/corruption-watch-ph.html">Case study</a>
             <a class="btn" href="https://github.com/wilfredds/my_projects/tree/main/corruption-reporting-system-final">Source</a>
           </div>
+        </div>
+      </article>
+
+
+      <!-- ------------------------------------------------------- hiraya -- -->
+      <article class="card reveal" data-tech="unity csharp">
+        <span class="card-shot is-empty" aria-hidden="true">
+          $ unity build<br>
+          <span class="ok">▸</span> in progress<br>
+          <span class="faint">Unity 6 &middot; C# &middot; Filipino-themed</span>
+        </span>
+        <div class="card-body">
+          <p class="card-kicker">Unity 6 &middot; C# &middot; Self project</p>
+          <h3>hiraya<span class="slash">/</span></h3>
+          <p>
+            A Filipino MMORPG I am building in Unity 6 with C#, designed around the
+            community rather than the shop. It is the project I work on for its own
+            sake. I also wrote a formal five-page QA report on a separate MMORPG beta,
+            which taught me more about writing a defect up clearly than any class did.
+          </p>
+          <ul class="tags">
+            <li>Unity 6</li><li>C#</li><li>Game design</li><li>QA reporting</li>
+          </ul>
         </div>
       </article>
 

@@ -111,6 +111,9 @@
   /* ==================================================================== */
 
   var PROJECTS = {
+    floodguard: {
+      line: 'Capstone. IoT and AI flood warning, Noveleta.'
+    },
     autocare: {
       path: 'projects/autocare.html',
       line: 'Next.js and Postgres. Job system for a car shop.'
@@ -118,6 +121,13 @@
     rallyready: {
       path: 'projects/rallyready.html',
       line: 'React and TypeScript. Badminton drills, 341 tests.'
+    },
+    'badminton-ph': {
+      href: 'https://badminton-ph.web.app',
+      line: 'React. Live tournament platform on Firebase.'
+    },
+    'hiroshi-master-grill': {
+      line: 'Next.js and Supabase. Client site with bookings.'
     },
     cyclemind_ai: {
       path: 'projects/cyclemind-ai.html',
@@ -130,6 +140,9 @@
     'corruption-watch': {
       path: 'projects/corruption-watch-ph.html',
       line: 'Firebase. Anonymous reporting, tested rules.'
+    },
+    hiraya: {
+      line: 'Unity 6 and C#. Filipino MMORPG, in progress.'
     }
   };
 
@@ -328,8 +341,23 @@
         return;
       }
 
-      line('Opening ' + key + '.');
-      go(PROJECTS[key].path);
+      var entry = PROJECTS[key];
+
+      if (entry.path) {
+        line('Opening ' + key + '.');
+        go(entry.path);
+        return;
+      }
+
+      if (entry.href) {
+        line('Opening ' + entry.href + ' in a new tab.');
+        window.open(entry.href, '_blank', 'noopener');
+        return;
+      }
+
+      line(key, 'out-strong');
+      line(entry.line);
+      line('No write-up page for this one yet. Run "contact" to ask me about it.', 'faint');
     }
 
     function go(href) {
@@ -491,7 +519,7 @@
       });
 
       if (count) {
-        count.textContent = shown + (shown === 1 ? ' directory' : ' directories');
+        count.textContent = shown + (shown === 1 ? ' project' : ' projects');
       }
 
       if (status) {
