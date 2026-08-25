@@ -190,15 +190,25 @@ database, which is why forging the UI achieves nothing.
 
 # Part 3 — Vercel (~20 min)
 
-## Step 9. Merge to your default branch
+## Step 9. Merge to your default branch — ✅ ALREADY DONE
 
-```bash
-git checkout main
-git merge claude/new-session-7spck4
-git push origin main
-```
+`main` now contains `hiroshi-grill/` (merge commit `46b9288`). Nothing to do.
+
+> Worth knowing why this mattered: before the merge, the entire project existed
+> only on `claude/new-session-7spck4` and `main` had no `hiroshi-grill` folder
+> at all. Importing into Vercel with Root Directory `hiroshi-grill` would have
+> failed on the first build, because Vercel builds your production branch and
+> the folder wasn't there.
 
 ## Step 10. Create the project
+
+> I cannot do this one. Project creation returns
+> `403: You don't have permission to create the project` for my token — I tried
+> four times across two different tools and both names of your repo. It is a
+> permission on your Vercel account, so it needs your own login.
+>
+> Note your repo appears in Vercel as **`My_Projects`** — that was its old name
+> and GitHub still redirects. Same repository.
 
 1. [vercel.com](https://vercel.com) → **Add New** → **Project**.
 2. **Import** `wilfredds/CorruptionReportSystem`.
