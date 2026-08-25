@@ -134,8 +134,8 @@
   };
 
   var COMMANDS = [
-    'help', 'whoami', 'ls', 'open', 'skills', 'education',
-    'contact', 'resume', 'github', 'clear', 'sudo'
+    'help', 'whoami', 'ls', 'open', 'skills', 'education', 'capstone',
+    'certs', 'contact', 'resume', 'github', 'clear', 'sudo'
   ];
 
   var term = document.getElementById('term');
@@ -213,6 +213,8 @@
           line('  open <name>  open a project write-up');
           line('  skills       what I work with');
           line('  education    where I study');
+          line('  capstone     the FloodGuard project');
+          line('  certs        certifications');
           line('  contact      how to reach me');
           line('  resume       open the résumé');
           line('  github       open my GitHub');
@@ -242,9 +244,11 @@
           break;
 
         case 'skills':
-          line('languages   TypeScript, JavaScript, Dart, SQL, Python');
+          line('languages   TypeScript, JavaScript, Dart, C#, Python, SQL');
           line('frontend    React, Next.js, Flutter, Vite, Tailwind, PWA');
-          line('backend     Prisma, PostgreSQL, Firebase, Supabase, Cloud Functions');
+          line('backend     Node.js, Prisma, PostgreSQL, Firebase, Supabase');
+          line('networking  Cisco CCNA, Networking Basics, Ethical Hacker');
+          line('games       Unity 6, C#');
           line('testing     Vitest, node:test, Playwright, Firestore emulator');
           line('deploy      Vercel, Firebase Hosting, Neon, GitHub Pages');
           break;
@@ -252,11 +256,28 @@
         case 'education':
           line('Lyceum of the Philippines University, Cavite', 'out-strong');
           line('BS Information Technology, 4th year, expected 2027.');
+          line('Capstone: FloodGuard. Run "capstone" for the details.');
+          break;
+
+        case 'capstone':
+          line('FloodGuard', 'out-strong');
+          line('A Predictive IoT and Artificial Intelligence Flood Monitoring and');
+          line('Early Warning System with Automated SMS Notification for the');
+          line('Municipality of Noveleta, Cavite.');
+          blank();
+          line('Role: team leader.', 'out-strong');
+          break;
+
+        case 'certs':
+          line('Cisco Networking Academy   CCNA: Introduction to Networks   Jan 2026');
+          line('Cisco Networking Academy   Networking Basics                Feb 2026');
+          line('Ethical Hacker                                              Jul 2026');
           break;
 
         case 'contact':
           line('email     frncishub@gmail.com');
           line('github    github.com/wilfredds');
+          line('linkedin  linkedin.com/in/francis-wilfred-antiporda-530273345');
           line('location  General Trias, Cavite, Philippines');
           blank();
           link('Send me an email', 'mailto:frncishub@gmail.com');
