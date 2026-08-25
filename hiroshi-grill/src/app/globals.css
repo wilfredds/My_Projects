@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens.
+   Tailwind v4 is configured in CSS, not in a JS config file. Every name
+   declared under `@theme` becomes a utility class: `--color-lacquer` gives you
+   `bg-lacquer`, `text-lacquer`, `border-lacquer`, and so on.
+
+   The four brand colours come from the demo:
+     paper   #FBF6EF  warm paper — the page ground
+     lacquer #B01E24  lacquer red — the brand accent, buttons, headings
+     sumi    #17130F  sumi ink — body text and dark panels
+     gold    #C9A24B  gold — decoration only (see the contrast note below)
+--------------------------------------------------------------------------- */
+@theme {
+  --color-paper: #fbf6ef;
+  --color-paper-warm: #f4eadd;
+  --color-paper-edge: #e6d9c7;
+
+  --color-lacquer: #b01e24;
+  --color-lacquer-deep: #8a171c;
+
+  --color-sumi: #17130f;
+  --color-sumi-soft: #2a231d;
+  --color-sumi-muted: #5b524a;
+
+  --color-gold: #c9a24b;
+  --color-gold-deep: #9a7830;
+}
+
+/* Fonts arrive as CSS variables from `next/font` in layout.tsx. `@theme inline`
+   keeps the var() reference instead of freezing today's value, which is what we
+   want because Next generates a new hashed font name on every build. */
+@theme inline {
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-hanken);
+}
+
+/* Accessibility note on gold: #C9A24B on #FBF6EF is about a 2.2:1 contrast
+   ratio — far below the 4.5:1 WCAG AA needs for body text. So gold is used only
+   for hairlines, borders and dividers on paper, or as *text on sumi* (7.4:1,
+   comfortably AA). Never gold text on a light background. */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-sumi);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A keyboard user must always be able to see where they are. */
+:focus-visible {
+  outline: 2px solid var(--color-lacquer);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
