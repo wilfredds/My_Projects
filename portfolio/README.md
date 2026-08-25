@@ -56,6 +56,13 @@ portfolio/
   shows confirmation for a moment.
 - **Reading progress and back to top.** The bar appears on case-study pages,
   the button after 600px of scroll.
+- **Light and dark themes.** Dark is the default and the identity. The toggle in
+  the nav writes `data-theme` on `<html>` and remembers the choice in
+  `localStorage`; `boot.js` reapplies it before the first paint so there is no
+  flash. With no stored choice the system preference wins. The terminal window
+  stays dark in both themes, the way an embedded editor does, which works
+  because `.term` redefines the colour tokens on itself and everything inside
+  inherits them.
 
 ## Things worth knowing before editing
 
@@ -68,8 +75,15 @@ portfolio/
   one-line `boot.js` exists instead of an inline script in `<head>`. Add an
   inline script or a `style="..."` attribute and it will be blocked in
   production. Put it in `site.js` or `style.css` instead.
-- **No em dashes in the prose.** That is a deliberate house style for this
-  site. Use commas, colons or a full stop.
+- **No em dashes in the prose.** House style for this site. Use commas, colons
+  or a full stop. Check with `grep -rn "—\|–" portfolio/`, which should print
+  nothing.
+- **Colours come from tokens, never literals.** Every colour lives in the
+  custom properties at the top of `style.css`, which is what makes the light
+  theme a block of overrides rather than a rewrite. A hard-coded hex in a rule
+  will look wrong in one of the two themes.
+- **Contrast is checked, not assumed.** Body and secondary text clear 4.5:1 in
+  both themes. If you darken `--faint` or `--dim`, re-check them.
 - **The screenshots are composites**, generated from the running apps at
   1200x750 on the site's own background so all five cards match. They live in
   `assets/img/shot-*.jpg`. To regenerate one, screenshot the app and paste it

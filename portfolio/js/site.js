@@ -10,6 +10,45 @@
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* -------------------------------------------------------------- theme --
+     boot.js has already applied any saved choice. This only handles the
+     button, and keeps its label describing what pressing it will do.       */
+  var themeToggle = document.getElementById('theme-toggle');
+
+  if (themeToggle) {
+    var systemLight = window.matchMedia('(prefers-color-scheme: light)');
+
+    var currentTheme = function () {
+      var set = document.documentElement.getAttribute('data-theme');
+      if (set === 'light' || set === 'dark') return set;
+      return systemLight.matches ? 'light' : 'dark';
+    };
+
+    var describe = function () {
+      var next = currentTheme() === 'dark' ? 'light' : 'dark';
+      themeToggle.setAttribute('aria-label', 'Switch to ' + next + ' theme');
+    };
+
+    themeToggle.addEventListener('click', function () {
+      var next = currentTheme() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+
+      try {
+        window.localStorage.setItem('theme', next);
+      } catch (e) {
+        // Nothing to do. The choice still holds for this page view.
+      }
+
+      describe();
+    });
+
+    // Somebody who never pressed the button should follow their system when
+    // it changes under them.
+    systemLight.addEventListener('change', describe);
+
+    describe();
+  }
+
   /* --------------------------------------------------------------- year -- */
   var year = document.getElementById('year');
   if (year) year.textContent = String(new Date().getFullYear());

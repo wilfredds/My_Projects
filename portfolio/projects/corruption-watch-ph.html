@@ -5,13 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Corruption Watch PH | Francis Wilfred Antiporda</title>
 <meta name="description" content="A public corruption reporting site backed by Firestore security rules with 60 assertions tested against the real emulator in CI.">
-<meta name="theme-color" content="#0a0c0b">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0c0b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f7f4" media="(prefers-color-scheme: light)">
+<meta name="color-scheme" content="dark light">
+<meta property="og:url" content="https://wilfred-website.vercel.app/projects/corruption-watch-ph">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Corruption Watch PH | Francis Wilfred Antiporda">
 <meta property="og:description" content="A public corruption reporting site backed by Firestore security rules with 60 assertions tested against the real emulator in CI.">
-<meta property="og:image" content="../assets/img/og.jpg">
+<meta property="og:image" content="https://wilfred-website.vercel.app/assets/img/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://wilfred-website.vercel.app/projects/corruption-watch-ph">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0c0b'/><text y='72' x='16' font-size='62' font-family='monospace' fill='%237ee787'>&gt;</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,6 +34,10 @@
       <li><a href="../index.html#projects">projects</a></li>
       <li><a href="../index.html#contact">contact</a></li>
     </ul>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
   </div>
 </nav>
 
@@ -40,7 +47,7 @@
   <header class="page-head">
     <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
     <h1>corruption-watch-ph<span class='slash'>/</span></h1>
-    <p class="lede">A public reporting site. A citizen picks a department, describes what happened, and can file without giving a name. An admin console reviews what arrives. The hard part is not the form. It is making sure nobody except an admin can ever read it.</p>
+    <p class="lede">A public reporting site. A citizen picks a department, describes what happened, and can file without giving a name. An admin console reviews what arrives. The form is the easy half. The hard half is making sure nobody except an admin can ever read what it collects.</p>
   </header>
 
   <dl class="meta">
