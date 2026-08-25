@@ -3,12 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RallyReady — Francis Wilfred Antiporda</title>
+<title>RallyReady | Francis Wilfred Antiporda</title>
 <meta name="description" content="An audio-first badminton training PWA for solo players: spoken corner calls, periodised programs, 341 tests.">
 <meta name="theme-color" content="#0a0c0b">
+<meta name="color-scheme" content="dark">
 <meta property="og:type" content="article">
-<meta property="og:title" content="RallyReady — Francis Wilfred Antiporda">
+<meta property="og:title" content="RallyReady | Francis Wilfred Antiporda">
 <meta property="og:description" content="An audio-first badminton training PWA for solo players: spoken corner calls, periodised programs, 341 tests.">
+<meta property="og:image" content="../assets/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0c0b'/><text y='72' x='16' font-size='62' font-family='monospace' fill='%237ee787'>&gt;</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,74 +34,76 @@
   </div>
 </nav>
 
+<div class="progress" id="progress" hidden><span id="progress-bar"></span></div>
+
 <main id="main" class="wrap detail">
   <header class="page-head">
     <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
     <h1>rallyready<span class='slash'>/</span></h1>
-    <p class="lede">Self-directed badminton training for a player with no coach and no partner. The app is the random caller: every corner is spoken aloud, so you can finish a whole session without once looking at the screen.</p>
+    <p class="lede">Self-directed badminton training for a player with no coach and no partner. The app is the random caller. Every corner is spoken out loud, so a whole session can go by without you looking at the screen once.</p>
   </header>
 
   <dl class="meta">
-    <div><dt>role</dt><dd>Sole developer — product, UI, data model, tests</dd></div>
-    <div><dt>stack</dt><dd>React 19 · TypeScript · Vite · Supabase · Vitest · PWA</dd></div>
+    <div><dt>role</dt><dd>Sole developer. Product, interface, data model, tests</dd></div>
+    <div><dt>stack</dt><dd>React 19 &middot; TypeScript &middot; Vite &middot; Supabase &middot; Vitest</dd></div>
     <div><dt>started</dt><dd>August 2026</dd></div>
     <div><dt>status</dt><dd>Live on Vercel</dd></div>
   </dl>
 
   <figure class="shot-full reveal">
-    <img src="../assets/img/shot-rallyready.jpg" width="1200" height="750" alt="The Train screen: pick an intent, the app picks the drill.">
-    <figcaption>The Train screen: pick an intent, the app picks the drill.</figcaption>
+    <img src="../assets/img/shot-rallyready.jpg" width="1200" height="750" alt="The Train screen. You pick an intent, the app picks the drill." loading="lazy">
+    <figcaption>The Train screen. You pick an intent, the app picks the drill.</figcaption>
   </figure>
 
   <h2><span class="prompt">$</span>cat problem.md</h2>
   <p>
-    Badminton footwork is trained by someone shouting a corner at you. Alone, you
-    have nobody to shout, no partner to feed, and often no court. What is left is a
-    dozen YouTube tabs and no record of whether any of it is working.
+    Badminton footwork gets trained by someone shouting a corner at you. Alone, there
+    is nobody to shout, no partner to feed, and often no court. What is left is a
+    dozen YouTube tabs and no record of whether any of it worked.
   </p>
 
   <h2><span class="prompt">$</span>cat solution.md</h2>
   <ul>
-    <li><strong>Audio-first.</strong> Every call is spoken, carries a distinct tone and buzzes the phone. You cannot watch a screen and move to a corner at the same time, so the screen is optional.</li>
-    <li><strong>Split-step training.</strong> An optional metronome tick fires a configurable 0.2–0.7s before each call, so you learn to land the split-step as the call arrives — the single most common club-player fault.</li>
-    <li><strong>Real deception.</strong> A fake call, then the real one, forcing a second split-step. The fake sounds <em>identical</em>; a fake you can hear coming trains nothing.</li>
-    <li><strong>Training load, not minutes.</strong> One tap rates effort 1–10; effort × minutes is the number that compares a brutal ten minutes with an easy half hour — and the app watches the ramp, because training alone means nobody else is watching for the overuse injury.</li>
-    <li><strong>It adjusts to you.</strong> Three taps — sleep, legs, energy — and the session bends lighter or heavier. A written plan cannot tell you slept four hours.</li>
-    <li><strong>Periodised programs.</strong> 4–16 week plans generated from four choices: Base → Build → Sharpen, a deload every fourth week, a taper at the end. Today's session is the first card on the home screen.</li>
+    <li><strong>Audio first.</strong> Every call is spoken, carries its own tone and buzzes the phone. You cannot watch a screen and move to a corner at the same time, so the screen is optional.</li>
+    <li><strong>Split-step training.</strong> An optional metronome tick fires a configurable 0.2 to 0.7 seconds before each call, so you learn to land the split-step as the call arrives. That timing is the most common club-player fault I know of.</li>
+    <li><strong>Deception that actually deceives.</strong> A fake call, then the real one, forcing a second split-step. The fake sounds identical to the real thing, because a fake you can hear coming trains nothing.</li>
+    <li><strong>Load instead of minutes.</strong> One tap rates effort from 1 to 10. Effort multiplied by minutes is the number that compares a brutal ten minutes against an easy half hour, and the app watches the ramp. Training alone means nobody else is watching for the overuse injury.</li>
+    <li><strong>It bends to the day.</strong> Three taps for sleep, legs and energy, and the session gets lighter or heavier. A written plan cannot tell that you slept four hours.</li>
+    <li><strong>Periodised programs.</strong> Four to sixteen week plans built from four choices, moving through Base, Build and Sharpen, with a deload every fourth week and a taper at the end. Today's session is the first card on the home screen.</li>
   </ul>
 
   <figure class="shot-full reveal">
-    <img src="../assets/img/shot-rallyready-2.jpg" width="1200" height="750" alt="Programs: periodised plans that decide what to train and when.">
+    <img src="../assets/img/shot-rallyready-2.jpg" width="1200" height="750" alt="Programs: periodised plans that decide what to train and when." loading="lazy">
     <figcaption>Programs: periodised plans that decide what to train and when.</figcaption>
   </figure>
 
   <h2><span class="prompt">$</span>cat engineering.md</h2>
   <p>
-    <strong>341 tests</strong> run under Vitest, and <code>npm run verify</code> —
-    typecheck, lint, tests, build — is what CI runs on every push. The drill engine,
-    the load model, the program generator and the benchmark scoring are pure
-    functions with tests, precisely so the parts that decide how hard someone trains
-    are not guesswork.
+    There are <strong>341 tests</strong> under Vitest, and <code>npm run verify</code>
+    (typecheck, lint, tests, build) is what CI runs on every push. The drill engine,
+    the load model, the program generator and the benchmark scoring are all pure
+    functions with tests behind them, because those are the parts deciding how hard
+    somebody trains.
   </p>
   <p>
-    It installs as a PWA: the timer, the drills and the coaching notes work with no
-    connection at all, and sessions still log, syncing to Supabase when the network
-    comes back. Auth, progress and published programs live in Postgres behind
-    Supabase's row-level security.
+    It installs as a PWA. The timer, the drills and the coaching notes work with no
+    connection at all, sessions still log, and everything syncs to Supabase once the
+    network comes back. Auth, progress and published programs live in Postgres behind
+    row-level security.
   </p>
 
   <div class="callout">
-    One thing the brief asked for is deliberately absent: curated third-party video.
+    One thing in the original brief is missing on purpose: curated third-party video.
     Embedding other people's coaching clips means shipping a library I do not own and
-    cannot keep alive. The reference library is written instead — and that decision
-    is documented rather than quietly skipped.
+    cannot keep alive. The reference library is written instead, and that call is
+    documented rather than quietly skipped.
   </div>
 
   <h2><span class="prompt">$</span>cat why-it-matters.md</h2>
   <p>
-    It is the most complete thing I have built: five phases, a real domain model, an
+    It is the most complete thing I have built. Five phases, a real domain model, an
     offline story, an audio pipeline, and enough tests that I can change the program
-    generator on a Tuesday without fear.
+    generator on a Tuesday without being afraid of it.
   </p>
 
   <div class="card-links card-links-end">
@@ -116,8 +121,12 @@
 
 <footer class="footer wrap">
   <span>&copy; <span id="year">2026</span> Francis Wilfred Antiporda</span>
-  <span>Built by hand — no framework, no build step.</span>
+  <span>Built by hand. No framework, no build step.</span>
 </footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 
 <script src="../js/site.js" defer></script>
 </body>

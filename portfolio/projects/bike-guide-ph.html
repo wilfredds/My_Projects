@@ -3,12 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bike Guide PH — Francis Wilfred Antiporda</title>
-<meta name="description" content="An offline-first cycling PWA for Filipino riders: gear guidance, local routes, GPS ride recording and a 30-day challenge — no framework, no bundler.">
+<title>Bike Guide PH | Francis Wilfred Antiporda</title>
+<meta name="description" content="An offline-first cycling PWA for Filipino riders: gear guidance, local routes, GPS ride recording and a 30-day challenge, with no framework.">
 <meta name="theme-color" content="#0a0c0b">
+<meta name="color-scheme" content="dark">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Bike Guide PH — Francis Wilfred Antiporda">
-<meta property="og:description" content="An offline-first cycling PWA for Filipino riders: gear guidance, local routes, GPS ride recording and a 30-day challenge — no framework, no bundler.">
+<meta property="og:title" content="Bike Guide PH | Francis Wilfred Antiporda">
+<meta property="og:description" content="An offline-first cycling PWA for Filipino riders: gear guidance, local routes, GPS ride recording and a 30-day challenge, with no framework.">
+<meta property="og:image" content="../assets/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0c0b'/><text y='72' x='16' font-size='62' font-family='monospace' fill='%237ee787'>&gt;</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,63 +34,65 @@
   </div>
 </nav>
 
+<div class="progress" id="progress" hidden><span id="progress-bar"></span></div>
+
 <main id="main" class="wrap detail">
   <header class="page-head">
     <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
     <h1>bike-guide-app<span class='slash'>/</span></h1>
-    <p class="lede">A cycling companion for Filipino beginner-to-intermediate riders. Sixteen pages of hand-written HTML, CSS and JavaScript that installs like an app, works with no signal, and explains the one thing nobody explains: which gear to be in.</p>
+    <p class="lede">A cycling companion for Filipino beginner and intermediate riders. Sixteen pages of hand-written HTML, CSS and JavaScript that installs like an app, works with no signal, and explains the one thing nobody explains: which gear to be in.</p>
   </header>
 
   <dl class="meta">
-    <div><dt>role</dt><dd>Sole developer — everything, by hand</dd></div>
-    <div><dt>stack</dt><dd>Vanilla JS · Service Worker · Firebase · Geolocation API</dd></div>
+    <div><dt>role</dt><dd>Sole developer. Everything, by hand</dd></div>
+    <div><dt>stack</dt><dd>Vanilla JS &middot; Service Worker &middot; Firebase &middot; Geolocation API</dd></div>
     <div><dt>started</dt><dd>May 2026</dd></div>
     <div><dt>status</dt><dd>Installable PWA</dd></div>
   </dl>
 
   <figure class="shot-full reveal">
-    <img src="../assets/img/shot-bikeguide.jpg" width="1200" height="750" alt="Home, the gear master simulator, and curated Philippine routes.">
+    <img src="../assets/img/shot-bikeguide.jpg" width="1200" height="750" alt="Home, the gear master simulator, and curated Philippine routes." loading="lazy">
     <figcaption>Home, the gear master simulator, and curated Philippine routes.</figcaption>
   </figure>
 
   <h2><span class="prompt">$</span>cat problem.md</h2>
   <p>
-    New riders in the Philippines buy a bike with 21 gears and are never told what any
-    of them are for. The advice online is written for other countries — other roads,
-    other traffic, other weather — and it assumes a data connection on a ride where
-    there often is not one.
+    New riders here buy a bike with 21 gears and never get told what any of them are
+    for. The advice online is written for other countries, with other roads, other
+    traffic and other weather, and it assumes a data connection on a ride where there
+    often is not one.
   </p>
 
   <h2><span class="prompt">$</span>ls features/</h2>
   <ul>
-    <li><strong>Gear guide and simulator.</strong> Tap any front-ring / rear-cog pair and it shows the ratio, the terrain it suits, and whether it cross-chains. Uphill, flat, downhill and sprint each get their own explanation.</li>
-    <li><strong>Routes.</strong> Curated Philippine rides with distance, elevation, difficulty, best time to go and what the traffic is like.</li>
-    <li><strong>Ride recorder.</strong> Live GPS tracking — speed, distance and route map — through the Geolocation API.</li>
-    <li><strong>30-day challenge</strong>, plus maintenance, safety, warm-up, diet, and a carbon-saved calculator.</li>
+    <li><strong>Gear guide and simulator.</strong> Tap any front-ring and rear-cog pair to see the ratio, the terrain it suits, and whether it cross-chains. Uphill, flat, downhill and sprint each get their own explanation.</li>
+    <li><strong>Routes.</strong> Curated Philippine rides with distance, elevation, difficulty, best time to go, and what the traffic is like.</li>
+    <li><strong>Ride recorder.</strong> Live GPS tracking for speed, distance and route map, through the Geolocation API.</li>
+    <li><strong>A 30-day challenge</strong>, plus maintenance, safety, warm-up, diet and a carbon-saved calculator.</li>
   </ul>
 
   <h2><span class="prompt">$</span>cat engineering.md</h2>
   <p>
-    No framework, no bundler, no package manager — deliberately. Building a PWA by
-    hand is how you learn what a framework is actually doing for you: the service
-    worker and its cache-versioning discipline, the offline fallback page, the
-    install manifest, and the fact that a stale cache is the most common way to ship
-    a change that appears not to work.
+    No framework, no bundler and no package manager, by choice. Building a PWA by hand
+    is how you find out what a framework has been doing for you: the service worker
+    and its cache-versioning discipline, the offline fallback page, the install
+    manifest, and the fact that a stale cache is the most common way to ship a change
+    that appears not to work.
   </p>
   <p>
-    <strong>Identity was the interesting bug.</strong> The first version identified a
-    user by a <code>crypto.randomUUID()</code> kept in localStorage and sent as part
-    of the Firestore document path. The rules engine cannot verify a value like that
-    — a caller claims whichever ID it likes — so ownership was unenforceable and
-    anyone who learned a UUID could read that rider's history. It now signs in with
-    <strong>Firebase Anonymous Authentication</strong> and ownership is checked
-    server-side against <code>request.auth.uid</code>. Same invisible experience, an
-    actual boundary underneath.
+    <strong>Identity turned out to be the interesting bug.</strong> The first version
+    identified a rider by a <code>crypto.randomUUID()</code> kept in localStorage and
+    sent as part of the Firestore document path. The rules engine cannot verify a
+    value like that, since a caller claims whichever ID it likes, so ownership was
+    unenforceable and anyone who learned a UUID could read that rider's history. It
+    now signs in with <strong>Firebase Anonymous Authentication</strong> and ownership
+    is checked server-side against <code>request.auth.uid</code>. Same invisible
+    experience for the rider, with an actual boundary underneath.
   </p>
   <div class="callout">
-    The Firebase web API key in the client is a public identifier, not a secret. What
-    protects the data is <code>firestore.rules</code> — which is why those rules have
-    their own test suite running against the real emulator in CI.
+    The Firebase web API key in the client is a public identifier and not a secret.
+    What protects the data is <code>firestore.rules</code>, which is why those rules
+    have their own test suite running against the real emulator in CI.
   </div>
 
   <div class="card-links card-links-end">
@@ -104,8 +109,12 @@
 
 <footer class="footer wrap">
   <span>&copy; <span id="year">2026</span> Francis Wilfred Antiporda</span>
-  <span>Built by hand — no framework, no build step.</span>
+  <span>Built by hand. No framework, no build step.</span>
 </footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 
 <script src="../js/site.js" defer></script>
 </body>

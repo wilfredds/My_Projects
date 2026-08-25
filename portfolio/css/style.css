@@ -1,6 +1,6 @@
 /* ==========================================================================
-   Francis Wilfred Antiporda — portfolio
-   Terminal aesthetic: mono for structure, sans for prose, one phosphor accent.
+   Francis Wilfred Antiporda, portfolio
+   Terminal look: mono for structure, sans for prose, one phosphor accent.
    No build step. Plain CSS, custom properties, no framework.
    ========================================================================== */
 
@@ -37,6 +37,10 @@
 /* --------------------------------------------------------------- reset -- */
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
+
+/* Author rules like `.line { display: block }` beat the browser's own
+   [hidden] rule, so state it once here and stop that whole class of bug. */
+[hidden] { display: none !important; }
 
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
@@ -721,3 +725,196 @@ code {
 .page-head h1 .slash { color: var(--faint); font-weight: 400; }
 
 .contact-box p strong { color: var(--text); font-weight: 600; }
+
+/* ==========================================================================
+   Interactive pieces
+   ========================================================================== */
+
+/* ------------------------------------------------------ live terminal --- */
+.term-hint {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--faint);
+  white-space: nowrap;
+}
+.term-hint b { color: var(--green); font-weight: 500; }
+
+.js .term-body { height: clamp(13rem, 34vh, 19rem); }
+
+.term-body {
+  max-height: min(58vh, 30rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.term-body::-webkit-scrollbar { width: 8px; }
+.term-body::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+
+.term-out .line { white-space: pre-wrap; word-break: break-word; }
+.term-out .err { color: var(--red); }
+.term-out a { text-decoration: underline; text-underline-offset: 3px; }
+
+.term-form {
+  display: flex;
+  align-items: baseline;
+  gap: 0.1rem;
+  margin-top: 0.15rem;
+}
+.term-form .prompt { cursor: text; }
+
+#term-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  caret-color: var(--green);
+}
+#term-input:focus { outline: none; }
+#term-input::placeholder { color: var(--faint); }
+
+.js .term:focus-within {
+  border-color: #33422f;
+  box-shadow: 0 24px 60px -30px rgb(0 0 0 / 90%), 0 0 0 1px rgb(126 231 135 / 18%);
+}
+
+/* --------------------------------------------------------- filter chips -- */
+.filters { margin-bottom: 1.5rem; }
+
+.filters-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--faint);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 0.6rem;
+}
+
+.filters-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.chip {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--dim);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.chip:hover { color: var(--text); border-color: #33422f; }
+.chip.is-on {
+  color: #06210a;
+  background: var(--green);
+  border-color: var(--green);
+  font-weight: 700;
+}
+
+.filter-status {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--faint);
+  min-height: 1.2rem;
+  margin-bottom: 0.6rem;
+}
+.filter-status:empty { margin-bottom: 0; }
+
+.filter-empty {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--dim);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.linkish {
+  font: inherit;
+  color: var(--green);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.card[hidden] { display: none; }
+
+/* --------------------------------------------------------- copy button -- */
+.btn.is-copied {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* ------------------------------------------------------- reading bar ---- */
+.progress {
+  position: sticky;
+  top: 52px;
+  z-index: 35;
+  height: 2px;
+  background: transparent;
+}
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--green);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+/* --------------------------------------------------------- back to top -- */
+.to-top {
+  position: fixed;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(1rem, 3vw, 2rem);
+  z-index: 45;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgb(16 19 16 / 92%);
+  backdrop-filter: blur(8px);
+  color: var(--dim);
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+.to-top:hover { color: var(--green); border-color: var(--green); transform: translateY(-2px); }
+.to-top svg { width: 18px; height: 18px; }
+.to-top[hidden] { display: none; }
+
+/* ------------------------------------------------------------ 404 page -- */
+.notfound {
+  min-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+  padding-block: clamp(3rem, 10vw, 6rem);
+  max-width: 720px;
+}
+.notfound h1 {
+  font-family: var(--mono);
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
+  letter-spacing: -0.03em;
+}
+.notfound p { color: var(--dim); }
+
+/* `ls` output: keep wrapped descriptions under the description column rather
+   than sliding back under the project name. */
+.term-out .ls-row { padding-left: 20ch; text-indent: -20ch; }
+@media (max-width: 520px) {
+  .term-out .ls-row { padding-left: 0; text-indent: 0; }
+}
+
+/* A space between the prompt and what follows it, in the live input too. */
+.term-form { gap: 0.55ch; }

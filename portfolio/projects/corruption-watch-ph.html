@@ -3,12 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Corruption Watch PH — Francis Wilfred Antiporda</title>
+<title>Corruption Watch PH | Francis Wilfred Antiporda</title>
 <meta name="description" content="A public corruption reporting site backed by Firestore security rules with 60 assertions tested against the real emulator in CI.">
 <meta name="theme-color" content="#0a0c0b">
+<meta name="color-scheme" content="dark">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Corruption Watch PH — Francis Wilfred Antiporda">
+<meta property="og:title" content="Corruption Watch PH | Francis Wilfred Antiporda">
 <meta property="og:description" content="A public corruption reporting site backed by Firestore security rules with 60 assertions tested against the real emulator in CI.">
+<meta property="og:image" content="../assets/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0c0b'/><text y='72' x='16' font-size='62' font-family='monospace' fill='%237ee787'>&gt;</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,67 +34,68 @@
   </div>
 </nav>
 
+<div class="progress" id="progress" hidden><span id="progress-bar"></span></div>
+
 <main id="main" class="wrap detail">
   <header class="page-head">
     <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
     <h1>corruption-watch-ph<span class='slash'>/</span></h1>
-    <p class="lede">A public reporting site: a citizen picks a department, describes what happened, and can file anonymously; an admin console reviews what comes in. The hard part is not the form — it is making sure nobody but the admins can ever read it.</p>
+    <p class="lede">A public reporting site. A citizen picks a department, describes what happened, and can file without giving a name. An admin console reviews what arrives. The hard part is not the form. It is making sure nobody except an admin can ever read it.</p>
   </header>
 
   <dl class="meta">
-    <div><dt>role</dt><dd>Sole developer — site, admin console, security rules</dd></div>
-    <div><dt>stack</dt><dd>Firebase · Firestore rules · Vanilla JS · Emulator tests</dd></div>
+    <div><dt>role</dt><dd>Sole developer. Site, admin console, security rules</dd></div>
+    <div><dt>stack</dt><dd>Firebase &middot; Firestore rules &middot; Vanilla JS &middot; Emulator tests</dd></div>
     <div><dt>started</dt><dd>November 2025</dd></div>
     <div><dt>status</dt><dd>First project in the repo</dd></div>
   </dl>
 
   <figure class="shot-full reveal">
-    <img src="../assets/img/shot-crs.jpg" width="1200" height="750" alt="The role picker on first visit: citizen or administrator.">
+    <img src="../assets/img/shot-crs.jpg" width="1200" height="750" alt="The role picker on first visit: citizen or administrator." loading="lazy">
     <figcaption>The role picker on first visit: citizen or administrator.</figcaption>
   </figure>
 
   <h2><span class="prompt">$</span>cat problem.md</h2>
   <p>
-    Reporting corruption is only safe if the report is genuinely private. A form that
-    accepts anonymous submissions but leaves them world-readable is worse than no
-    form at all: it collects exactly the people who most needed protection and puts
-    them somewhere findable.
+    Reporting corruption is only safe if the report stays private. A form that accepts
+    anonymous submissions but leaves them world-readable is worse than no form at all.
+    It collects exactly the people who most needed protecting and puts them somewhere
+    findable.
   </p>
 
   <h2><span class="prompt">$</span>cat solution.md</h2>
   <ul>
-    <li>A public report form — department, description, optional anonymity — plus an inline help responder for people who are not sure what counts.</li>
+    <li>A public report form covering department, description and optional anonymity, with an inline help responder for people who are not sure what counts.</li>
     <li>An admin console that lists submissions and lets a reviewer work through them.</li>
-    <li>Firestore security rules that let <em>anyone</em> create a report and let <em>nobody</em> read one back unless they are an admin.</li>
+    <li>Firestore security rules that let anyone create a report and let nobody read one back unless they are an admin.</li>
   </ul>
 
   <h2><span class="prompt">$</span>cat rules.md</h2>
   <p>
-    The rules are the product. They are exercised by a test suite that boots the
-    <strong>real Firestore emulator</strong> and runs assertions as an anonymous
-    visitor, a signed-in non-admin and an admin — <strong>60 assertions</strong>
-    across this project and Bike Guide PH, on every push and every pull request that
-    touches either rules file.
+    The rules are the product. They get exercised by a test suite that boots the real
+    Firestore emulator and runs assertions as an anonymous visitor, a signed-in
+    non-admin and an admin. That is <strong>60 assertions</strong> across this project
+    and Bike Guide PH, on every push and every pull request touching either rules
+    file.
   </p>
   <div class="callout">
-    The suite was verified to fail, not just to pass. Temporarily loosening one
-    collection to <code>allow read: if true</code> turned five denial assertions red
-    and exited non-zero. A test suite that cannot go red guards nothing — so I made
-    it go red on purpose before trusting it.
+    The suite was verified to fail, not only to pass. Loosening one collection to
+    <code>allow read: if true</code> turned five denial assertions red and exited
+    non-zero. A test suite that cannot go red guards nothing, so I made it go red on
+    purpose before trusting it.
   </div>
 
   <h2><span class="prompt">$</span>cat honest-notes.md</h2>
   <p>
-    This is the oldest project here and it shows its age: the behaviour lives in
-    inline <code>&lt;script&gt;</code> blocks inside the HTML, and two JavaScript
-    files sit empty as stubs from a refactor I never finished. The styling leans on a
-    CDN, which is a dependency on someone else's uptime that I would not choose
-    again.
+    This is the oldest project here and it shows. The behaviour lives in inline
+    <code>&lt;script&gt;</code> blocks inside the HTML, and two JavaScript files sit
+    empty as stubs from a refactor I never finished. The styling leans on a CDN, which
+    is a dependency on somebody else's uptime that I would not choose again.
   </p>
   <p>
-    I keep it in the portfolio because it is where I learned the lesson the other
-    four projects are built on: the visible part of an app is rarely the part that
-    protects anyone.
+    It stays in the portfolio because it is where I learned the lesson the other four
+    projects are built on. The visible part of an app is rarely the part protecting
+    anyone.
   </p>
 
   <div class="card-links card-links-end">
@@ -108,8 +112,12 @@
 
 <footer class="footer wrap">
   <span>&copy; <span id="year">2026</span> Francis Wilfred Antiporda</span>
-  <span>Built by hand — no framework, no build step.</span>
+  <span>Built by hand. No framework, no build step.</span>
 </footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 
 <script src="../js/site.js" defer></script>
 </body>

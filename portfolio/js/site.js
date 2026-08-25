@@ -1,6 +1,8 @@
 /* ==========================================================================
-   Portfolio behaviour. Progressive enhancement only — every word on the page
-   is in the HTML, so nothing here is required to read the site.
+   Portfolio behaviour.
+
+   Everything here is an enhancement. Every word on every page is already in
+   the HTML, so the site reads fine with this file blocked or broken.
    ========================================================================== */
 
 (function () {
@@ -8,11 +10,11 @@
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* --- current year in the footer ------------------------------------- */
+  /* --------------------------------------------------------------- year -- */
   var year = document.getElementById('year');
   if (year) year.textContent = String(new Date().getFullYear());
 
-  /* --- reveal on scroll ------------------------------------------------ */
+  /* ----------------------------------------------------- reveal on scroll */
   var revealables = document.querySelectorAll('.reveal');
 
   if (reduceMotion || !('IntersectionObserver' in window)) {
@@ -29,11 +31,9 @@
     revealables.forEach(function (el) { revealObserver.observe(el); });
   }
 
-  /* --- stat counters ---------------------------------------------------
+  /* ----------------------------------------------------------- counters --
      The final number is already the element's text, so a browser without
-     IntersectionObserver simply shows it.                                */
-  var counters = document.querySelectorAll('[data-count]');
-
+     IntersectionObserver just shows it.                                    */
   if (!reduceMotion && 'IntersectionObserver' in window) {
     var countObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -43,7 +43,9 @@
       });
     }, { threshold: 0.6 });
 
-    counters.forEach(function (el) { countObserver.observe(el); });
+    document.querySelectorAll('[data-count]').forEach(function (el) {
+      countObserver.observe(el);
+    });
   }
 
   function countUp(el) {
@@ -56,7 +58,6 @@
     function step(now) {
       if (started === null) started = now;
       var progress = Math.min((now - started) / duration, 1);
-      // ease-out cubic: fast first, settles on the number
       var eased = 1 - Math.pow(1 - progress, 3);
       el.textContent = String(Math.round(target * eased));
       if (progress < 1) requestAnimationFrame(step);
@@ -66,72 +67,495 @@
     requestAnimationFrame(step);
   }
 
-  /* --- hero terminal typing -------------------------------------------
-     Each `.line` is already written out in the HTML. We hide them, then
-     replay them: command lines are typed a character at a time, output
-     lines appear whole, the way a real shell behaves.                    */
-  var term = document.getElementById('hero-term');
+  /* ==================================================================== */
+  /*  Interactive terminal                                                */
+  /* ==================================================================== */
 
-  if (term && !reduceMotion) {
-    var lines = Array.prototype.slice.call(term.querySelectorAll('.line'));
-    var originals = lines.map(function (line) { return line.innerHTML; });
+  var PROJECTS = {
+    autocare: {
+      path: 'projects/autocare.html',
+      line: 'Next.js and Postgres. Job system for a car shop.'
+    },
+    rallyready: {
+      path: 'projects/rallyready.html',
+      line: 'React and TypeScript. Badminton drills, 341 tests.'
+    },
+    cyclemind_ai: {
+      path: 'projects/cyclemind-ai.html',
+      line: 'Flutter and Firebase. AI coach and bike doctor.'
+    },
+    'bike-guide-app': {
+      path: 'projects/bike-guide-ph.html',
+      line: 'Vanilla JS PWA. Gear guide, routes, offline.'
+    },
+    'corruption-watch': {
+      path: 'projects/corruption-watch-ph.html',
+      line: 'Firebase. Anonymous reporting, tested rules.'
+    }
+  };
 
-    lines.forEach(function (line) { line.style.visibility = 'hidden'; });
+  var COMMANDS = [
+    'help', 'whoami', 'ls', 'open', 'skills', 'education',
+    'contact', 'resume', 'github', 'clear', 'sudo'
+  ];
 
-    var index = 0;
+  var term = document.getElementById('term');
 
-    function playLine() {
-      if (index >= lines.length) return;
+  if (term) {
+    var out = document.getElementById('term-out');
+    var body = document.getElementById('term-body');
+    var form = document.getElementById('term-form');
+    var input = document.getElementById('term-input');
+    var idle = document.getElementById('term-idle');
+    var hint = document.getElementById('term-hint');
 
-      var line = lines[index];
-      var cmd = line.querySelector('.cmdtext');
-      line.style.visibility = 'visible';
+    var history = [];
+    var historyAt = -1;
 
-      if (!cmd) {
-        index += 1;
-        setTimeout(playLine, 190);
+    /* --- printing ----------------------------------------------------- */
+    function line(text, cls) {
+      var el = document.createElement('span');
+      el.className = 'line ' + (cls || 'out');
+      el.textContent = text;
+      out.appendChild(el);
+      return el;
+    }
+
+    function blank() {
+      line(' ', 'out');
+    }
+
+    function echo(command) {
+      var el = document.createElement('span');
+      el.className = 'line';
+
+      var p = document.createElement('span');
+      p.className = 'prompt';
+      p.textContent = '$';
+
+      var c = document.createElement('span');
+      c.className = 'cmdtext';
+      c.textContent = command;
+
+      el.appendChild(p);
+      el.appendChild(c);
+      out.appendChild(el);
+    }
+
+    function link(text, href) {
+      var el = document.createElement('span');
+      el.className = 'line out';
+
+      var a = document.createElement('a');
+      a.href = href;
+      a.textContent = text;
+
+      el.appendChild(a);
+      out.appendChild(el);
+    }
+
+    function scrollDown() {
+      body.scrollTop = body.scrollHeight;
+    }
+
+    /* --- commands ------------------------------------------------------ */
+    function run(raw) {
+      var parts = raw.trim().split(/\s+/);
+      var cmd = (parts[0] || '').toLowerCase();
+      var arg = parts.slice(1).join(' ').toLowerCase();
+
+      if (!cmd) return;
+
+      switch (cmd) {
+        case 'help':
+          line('Commands you can run here:', 'out-strong');
+          line('  whoami       who is behind this site');
+          line('  ls           list the five projects');
+          line('  open <name>  open a project write-up');
+          line('  skills       what I work with');
+          line('  education    where I study');
+          line('  contact      how to reach me');
+          line('  resume       open the résumé');
+          line('  github       open my GitHub');
+          line('  clear        wipe the screen');
+          blank();
+          line('Tab completes, arrow keys walk your history.', 'faint');
+          break;
+
+        case 'whoami':
+          line('Francis Wilfred Antiporda', 'out-strong');
+          line('Fourth-year BSIT at Lyceum of the Philippines University, Cavite.');
+          line('Full-stack developer in General Trias, Cavite.');
+          line('Looking for an OJT placement and open to freelance work.');
+          break;
+
+        case 'ls':
+          Object.keys(PROJECTS).forEach(function (name) {
+            line(pad(name + '/') + PROJECTS[name].line, 'out ls-row');
+          });
+          blank();
+          line('Run "open autocare" to read one of them.', 'faint');
+          break;
+
+        case 'open':
+        case 'cd':
+          openProject(arg);
+          break;
+
+        case 'skills':
+          line('languages   TypeScript, JavaScript, Dart, SQL, Python');
+          line('frontend    React, Next.js, Flutter, Vite, Tailwind, PWA');
+          line('backend     Prisma, PostgreSQL, Firebase, Supabase, Cloud Functions');
+          line('testing     Vitest, node:test, Playwright, Firestore emulator');
+          line('deploy      Vercel, Firebase Hosting, Neon, GitHub Pages');
+          break;
+
+        case 'education':
+          line('Lyceum of the Philippines University, Cavite', 'out-strong');
+          line('BS Information Technology, 4th year, expected 2027.');
+          break;
+
+        case 'contact':
+          line('email     frncishub@gmail.com');
+          line('github    github.com/wilfredds');
+          line('location  General Trias, Cavite, Philippines');
+          blank();
+          link('Send me an email', 'mailto:frncishub@gmail.com');
+          break;
+
+        case 'resume':
+          line('Opening the résumé.');
+          go('resume.html');
+          break;
+
+        case 'github':
+          line('Opening github.com/wilfredds in a new tab.');
+          window.open('https://github.com/wilfredds', '_blank', 'noopener');
+          break;
+
+        case 'clear':
+          out.innerHTML = '';
+          break;
+
+        case 'sudo':
+          line('Nice try. You already have everything you need on this page.', 'out-strong');
+          line('Try "contact" instead.', 'faint');
+          break;
+
+        default:
+          line('command not found: ' + cmd, 'err');
+          line('Type "help" to see what works.', 'faint');
+      }
+    }
+
+    function pad(text) {
+      while (text.length < 20) text += ' ';
+      return text;
+    }
+
+    function openProject(name) {
+      if (!name) {
+        line('Which one? Try: open autocare', 'err');
         return;
       }
 
-      var text = cmd.textContent;
-      cmd.textContent = '';
-      var char = 0;
+      var key = Object.keys(PROJECTS).filter(function (p) {
+        return p === name || p.indexOf(name) === 0 || p.replace(/[-_]/g, '') === name.replace(/[-_ ]/g, '');
+      })[0];
 
-      (function type() {
-        if (char <= text.length) {
-          cmd.textContent = text.slice(0, char);
-          char += 1;
-          setTimeout(type, 34);
-          return;
-        }
-        index += 1;
-        setTimeout(playLine, 240);
-      })();
+      if (!key) {
+        line('No project called "' + name + '". Run "ls" to see them.', 'err');
+        return;
+      }
+
+      line('Opening ' + key + '.');
+      go(PROJECTS[key].path);
     }
 
-    // Restore everything if the tab is hidden mid-animation, so nobody comes
-    // back to a half-typed prompt.
-    document.addEventListener('visibilitychange', function () {
-      if (!document.hidden || index >= lines.length) return;
-      lines.forEach(function (line, i) {
-        line.innerHTML = originals[i];
-        line.style.visibility = 'visible';
+    function go(href) {
+      window.setTimeout(function () { window.location.href = href; }, 350);
+    }
+
+    /* --- start it up ---------------------------------------------------- */
+    function enable() {
+      if (idle) idle.hidden = true;
+      if (hint) hint.hidden = false;
+      form.hidden = false;
+    }
+
+    var introLines = Array.prototype.slice.call(out.querySelectorAll('.line'));
+
+    if (reduceMotion) {
+      enable();
+    } else {
+      var originals = introLines.map(function (el) { return el.innerHTML; });
+      introLines.forEach(function (el) { el.style.visibility = 'hidden'; });
+
+      var at = 0;
+
+      var play = function () {
+        if (at >= introLines.length) {
+          enable();
+          return;
+        }
+
+        var el = introLines[at];
+        var cmd = el.querySelector('.cmdtext');
+        el.style.visibility = 'visible';
+
+        if (!cmd) {
+          at += 1;
+          window.setTimeout(play, 190);
+          return;
+        }
+
+        var text = cmd.textContent;
+        cmd.textContent = '';
+        var char = 0;
+
+        (function type() {
+          if (char <= text.length) {
+            cmd.textContent = text.slice(0, char);
+            char += 1;
+            window.setTimeout(type, 34);
+            return;
+          }
+          at += 1;
+          window.setTimeout(play, 240);
+        })();
+      };
+
+      // Somebody who tabs away and comes back should not find a half-typed
+      // prompt waiting for them.
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden || at >= introLines.length) return;
+        introLines.forEach(function (el, i) {
+          el.innerHTML = originals[i];
+          el.style.visibility = 'visible';
+        });
+        at = introLines.length;
+        enable();
       });
-      index = lines.length;
+
+      window.setTimeout(play, 260);
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      var raw = input.value;
+      if (!raw.trim()) return;
+
+      echo(raw);
+      history.push(raw);
+      historyAt = history.length;
+
+      run(raw);
+      input.value = '';
+      scrollDown();
     });
 
-    setTimeout(playLine, 260);
+    input.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowUp') {
+        if (!history.length) return;
+        event.preventDefault();
+        historyAt = Math.max(0, historyAt - 1);
+        input.value = history[historyAt];
+        return;
+      }
+
+      if (event.key === 'ArrowDown') {
+        if (!history.length) return;
+        event.preventDefault();
+        historyAt = Math.min(history.length, historyAt + 1);
+        input.value = historyAt === history.length ? '' : history[historyAt];
+        return;
+      }
+
+      if (event.key === 'Tab') {
+        var value = input.value;
+        var words = value.split(/\s+/);
+        var pool = words.length > 1 ? Object.keys(PROJECTS) : COMMANDS;
+        var stub = words[words.length - 1].toLowerCase();
+        if (!stub) return;
+
+        var hit = pool.filter(function (c) { return c.indexOf(stub) === 0; })[0];
+        if (!hit) return;
+
+        event.preventDefault();
+        words[words.length - 1] = hit;
+        input.value = words.join(' ') + ' ';
+      }
+    });
+
+    // Clicking anywhere in the terminal focuses the prompt, the way a real one
+    // behaves. Selecting text is left alone.
+    body.addEventListener('click', function () {
+      if (form.hidden) return;
+      if (String(window.getSelection())) return;
+      input.focus();
+    });
   }
 
-  /* --- résumé: print / save as PDF -------------------------------------- */
+  /* ==================================================================== */
+  /*  Project filtering                                                   */
+  /* ==================================================================== */
+
+  var filters = document.getElementById('filters');
+
+  if (filters) {
+    var cards = Array.prototype.slice.call(
+      document.querySelectorAll('#projects-list .card')
+    );
+    var chips = Array.prototype.slice.call(filters.querySelectorAll('.chip'));
+    var status = document.getElementById('filter-status');
+    var empty = document.getElementById('filter-empty');
+    var count = document.getElementById('project-count');
+
+    filters.hidden = false;
+
+    function apply(tech) {
+      var shown = 0;
+
+      cards.forEach(function (card) {
+        var tags = (card.getAttribute('data-tech') || '').split(/\s+/);
+        var match = tech === 'all' || tags.indexOf(tech) !== -1;
+        card.hidden = !match;
+        if (match) shown += 1;
+      });
+
+      chips.forEach(function (chip) {
+        var on = chip.getAttribute('data-filter') === tech;
+        chip.classList.toggle('is-on', on);
+        chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+
+      if (count) {
+        count.textContent = shown + (shown === 1 ? ' directory' : ' directories');
+      }
+
+      if (status) {
+        status.textContent = tech === 'all'
+          ? ''
+          : 'Showing ' + shown + ' of ' + cards.length + ' projects built with ' + label(tech) + '.';
+      }
+
+      if (empty) empty.hidden = shown !== 0;
+    }
+
+    function label(tech) {
+      var chip = chips.filter(function (c) {
+        return c.getAttribute('data-filter') === tech;
+      })[0];
+      return chip ? chip.textContent : tech;
+    }
+
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        apply(chip.getAttribute('data-filter'));
+      });
+    });
+
+    var reset = document.querySelector('[data-filter-reset]');
+    if (reset) {
+      reset.addEventListener('click', function () { apply('all'); });
+    }
+  }
+
+  /* ==================================================================== */
+  /*  Copy to clipboard                                                   */
+  /* ==================================================================== */
+
+  document.querySelectorAll('[data-copy]').forEach(function (button) {
+    var original = button.textContent;
+
+    button.addEventListener('click', function () {
+      var text = button.getAttribute('data-copy');
+
+      copy(text).then(function (ok) {
+        button.textContent = ok ? 'Copied' : text;
+        button.classList.toggle('is-copied', ok);
+
+        window.setTimeout(function () {
+          button.textContent = original;
+          button.classList.remove('is-copied');
+        }, 1800);
+      });
+    });
+  });
+
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text)
+        .then(function () { return true; })
+        .catch(function () { return false; });
+    }
+
+    // Older browsers, and any page served over plain http.
+    var field = document.createElement('textarea');
+    field.value = text;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.opacity = '0';
+    document.body.appendChild(field);
+    field.select();
+
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(field);
+
+    return Promise.resolve(ok);
+  }
+
+  /* ==================================================================== */
+  /*  Reading progress, back to top, active section                       */
+  /* ==================================================================== */
+
+  var progress = document.getElementById('progress');
+  var progressBar = document.getElementById('progress-bar');
+  var toTop = document.getElementById('to-top');
+
+  if (progress && progressBar) progress.hidden = false;
+
+  if (toTop) {
+    toTop.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
+  }
+
+  var ticking = false;
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+
+    window.requestAnimationFrame(function () {
+      var top = window.scrollY || document.documentElement.scrollTop;
+
+      if (progressBar) {
+        var height = document.documentElement.scrollHeight - window.innerHeight;
+        var pct = height > 0 ? Math.min(top / height, 1) : 0;
+        progressBar.style.transform = 'scaleX(' + pct + ')';
+      }
+
+      if (toTop) toTop.hidden = top < 600;
+
+      ticking = false;
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* --- résumé: print / save as PDF ------------------------------------- */
   var printBtn = document.getElementById('print-cv');
   if (printBtn) {
     printBtn.addEventListener('click', function () { window.print(); });
   }
 
-  /* --- highlight the section you are reading --------------------------- */
-  // Sub-pages link back with "../index.html#about", which is not a selector —
-  // only same-page hashes describe a section on this page.
+  /* --- highlight the section being read --------------------------------
+     Sub-pages link back with "../index.html#about", which is not a
+     selector, so only same-page hashes are considered.                    */
   var navLinks = Array.prototype.slice.call(
     document.querySelectorAll('.nav-links a[href^="#"]')
   );

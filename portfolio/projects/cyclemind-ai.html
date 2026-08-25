@@ -3,12 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CycleMind AI — Francis Wilfred Antiporda</title>
+<title>CycleMind AI | Francis Wilfred Antiporda</title>
 <meta name="description" content="A Flutter app pairing an AI cycling coach with an AI bike doctor, built on Clean Architecture with Riverpod and Firebase.">
 <meta name="theme-color" content="#0a0c0b">
+<meta name="color-scheme" content="dark">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CycleMind AI — Francis Wilfred Antiporda">
+<meta property="og:title" content="CycleMind AI | Francis Wilfred Antiporda">
 <meta property="og:description" content="A Flutter app pairing an AI cycling coach with an AI bike doctor, built on Clean Architecture with Riverpod and Firebase.">
+<meta property="og:image" content="../assets/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0c0b'/><text y='72' x='16' font-size='62' font-family='monospace' fill='%237ee787'>&gt;</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,85 +34,87 @@
   </div>
 </nav>
 
+<div class="progress" id="progress" hidden><span id="progress-bar"></span></div>
+
 <main id="main" class="wrap detail">
   <header class="page-head">
     <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
     <h1>cyclemind_ai<span class='slash'>/</span></h1>
-    <p class="lede">An AI cycling companion that unites a coach and a bike doctor in one Flutter app. Photograph a bike and a vision model returns a health report; the coach reads your rides and plans the next one.</p>
+    <p class="lede">An AI cycling companion that puts a coach and a bike doctor in the same Flutter app. Photograph a bike and a vision model returns a health report. The coach reads your rides and plans the next one.</p>
   </header>
 
   <dl class="meta">
-    <div><dt>role</dt><dd>Sole developer — architecture, Flutter app, Cloud Functions</dd></div>
-    <div><dt>stack</dt><dd>Flutter · Dart · Riverpod · Firebase · Cloud Functions · Claude API</dd></div>
+    <div><dt>role</dt><dd>Sole developer. Architecture, Flutter app, Cloud Functions</dd></div>
+    <div><dt>stack</dt><dd>Flutter &middot; Dart &middot; Riverpod &middot; Firebase &middot; Cloud Functions</dd></div>
     <div><dt>started</dt><dd>June 2026</dd></div>
     <div><dt>status</dt><dd>Runs on mocks with zero config</dd></div>
   </dl>
 
   <h2><span class="prompt">$</span>cat problem.md</h2>
   <p>
-    Two things stop a self-coached cyclist improving: nobody is reading their ride
-    data and telling them what to do next, and nobody is looking at their bike until
-    something snaps. Both are judgement problems, and both are ones a model with the
-    right context can help with.
+    Two things stop a self-coached cyclist from improving. Nobody is reading their
+    ride data and telling them what to do next, and nobody looks at the bike until
+    something snaps. Both are judgement calls, and both are the sort of thing a model
+    with the right context can help with.
   </p>
 
   <h2><span class="prompt">$</span>cat architecture.md</h2>
   <p>
     This is the project where I took architecture seriously. It follows
-    <strong>Clean Architecture</strong> with a feature-first layout and the
-    repository pattern, and three decisions drive everything else:
+    <strong>Clean Architecture</strong> with a feature-first layout and the repository
+    pattern, and three decisions drive everything else.
   </p>
   <ul>
     <li>
       <strong>Every external dependency sits behind an interface.</strong> Auth,
       Firestore, Storage, text AI and vision are each reached through a Dart
-      <code>abstract interface class</code>. Mock or real is chosen in <em>one</em>
-      place per dependency, by a Riverpod provider reading a single flag. That is
-      dependency inversion in practice — and it is why the entire app runs offline,
-      on mock data, with no API keys and no setup.
+      <code>abstract interface class</code>. Mock or real gets chosen in one place per
+      dependency, by a Riverpod provider reading a single flag. That is dependency
+      inversion doing something useful: the entire app runs offline, on mock data,
+      with no API keys and no setup.
     </li>
     <li>
       <strong>The API key never ships in the app.</strong> Real AI and vision calls
-      are made by Cloud Functions that hold the key server-side; the Flutter client
-      only POSTs to those endpoints. The mobile binary contains no secret — which
-      matters, because a binary is not a place you can keep one.
+      are made by Cloud Functions that hold the key server-side, and the Flutter
+      client only POSTs to those endpoints. A mobile binary is not a place you can
+      keep a secret.
     </li>
     <li>
-      <strong>Errors never leak across layers.</strong> Data sources throw;
-      repositories catch and return a <code>Result&lt;T&gt;</code> wrapping a typed
-      failure; the UI folds over the result. No exception crosses a layer boundary,
-      so no screen has to guess what went wrong.
+      <strong>Errors never leak across layers.</strong> Data sources throw.
+      Repositories catch and return a <code>Result&lt;T&gt;</code> wrapping a typed
+      failure. The interface folds over the result. No exception crosses a layer
+      boundary, so no screen has to guess what went wrong.
     </li>
   </ul>
   <p>
-    There is also no code generation — hand-written immutable models and hand-written
-    providers instead of freezed, json_serializable and riverpod_generator. It
+    There is no code generation either. Hand-written immutable models and hand-written
+    providers, instead of freezed, json_serializable and riverpod_generator. It
     compiles with a plain <code>flutter pub get</code>, with no build_runner step to
     go stale.
   </p>
 
   <h2><span class="prompt">$</span>ls lib/</h2>
   <ul>
-    <li><strong>auth</strong> — email/password and Google sign-in, profile creation.</li>
-    <li><strong>dashboard</strong> — readiness, weekly stats, AI recommendations, bike health at a glance.</li>
-    <li><strong>coach</strong> — rides, trends, goals, a training plan and a readiness score.</li>
-    <li><strong>bike_doctor</strong> — photo → vision analysis → health report, then a chat with a virtual mechanic.</li>
-    <li><strong>bikes</strong> — multiple bikes, components, mileage and maintenance reminders.</li>
-    <li><strong>profile</strong> — goals and preferences.</li>
+    <li><strong>auth</strong>: email and password sign-in, Google sign-in, profile creation.</li>
+    <li><strong>dashboard</strong>: readiness, weekly stats, AI recommendations and bike health at a glance.</li>
+    <li><strong>coach</strong>: rides, trends, goals, a training plan and a readiness score.</li>
+    <li><strong>bike_doctor</strong>: photo, vision analysis, health report, then a chat with a virtual mechanic.</li>
+    <li><strong>bikes</strong>: multiple bikes, components, mileage and maintenance reminders.</li>
+    <li><strong>profile</strong>: goals and preferences.</li>
   </ul>
 
   <div class="callout">
-    Honest note: the screenshots on this page are missing on purpose. This app is
-    built for web by its own GitHub Actions workflow and published to Pages — but the
-    environment I write from has no Flutter SDK, so I would rather show you the
-    architecture than a mock-up of a screen I could not run.
+    The screenshots on this page are missing on purpose. The app is built for web by
+    its own GitHub Actions workflow and published to Pages, but the environment I
+    write from has no Flutter SDK. I would rather show you the architecture than a
+    mock-up of a screen I never ran.
   </div>
 
   <h2><span class="prompt">$</span>cat takeaway.md</h2>
   <p>
-    Material 3, go_router and Riverpod throughout. The thing I would carry to any
-    future project is the mock-first rule: if a new developer cannot clone the repo
-    and see the app work in one command, the architecture is wrong.
+    Material 3, go_router and Riverpod throughout. The rule I want to carry into every
+    future project is the mock-first one: if somebody cannot clone the repo and see
+    the app work in a single command, the architecture is wrong.
   </p>
 
   <div class="card-links card-links-end">
@@ -126,8 +131,12 @@
 
 <footer class="footer wrap">
   <span>&copy; <span id="year">2026</span> Francis Wilfred Antiporda</span>
-  <span>Built by hand — no framework, no build step.</span>
+  <span>Built by hand. No framework, no build step.</span>
 </footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 
 <script src="../js/site.js" defer></script>
 </body>
