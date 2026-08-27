@@ -23,6 +23,7 @@ on:
       - "bike-guide-app/**"
       - "portfolio/**"
       - ".github/scripts/check-static-js.mjs"
+      - ".github/scripts/check-links.mjs"
       - ".github/workflows/static-sites-ci.yml"
   pull_request:
     paths:
@@ -30,6 +31,7 @@ on:
       - "bike-guide-app/**"
       - "portfolio/**"
       - ".github/scripts/check-static-js.mjs"
+      - ".github/scripts/check-links.mjs"
       - ".github/workflows/static-sites-ci.yml"
   workflow_dispatch:
 
@@ -59,6 +61,15 @@ jobs:
         run: >-
           node --experimental-vm-modules --no-warnings
           .github/scripts/check-static-js.mjs
+          corruption-reporting-system-final
+          bike-guide-app
+          portfolio
+
+      # Relative links and in-page anchors only. External URLs are not checked
+      # here: they need the network and go stale on somebody else's schedule.
+      - name: Check internal links
+        run: >-
+          node .github/scripts/check-links.mjs
           corruption-reporting-system-final
           bike-guide-app
           portfolio
