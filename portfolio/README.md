@@ -123,6 +123,28 @@ rather than snap, then removes it.
   project directory. If you rewrite history, regenerate them with
   `git log --reverse --format='%h %as' -- <dir> | head -1`.
 
+## The résumé PDF
+
+`assets/francis-wilfred-antiporda-cv.pdf` is **generated from `resume.html`**, not
+maintained separately. That is deliberate: one source of truth means the PDF and
+the page cannot drift apart, which is exactly how the old CV ended up describing
+AutoCare with the wrong stack and linking to a dead portfolio URL.
+
+Regenerate it after editing `resume.html`:
+
+```bash
+cd portfolio && python3 -m http.server 8090 &
+# then, with Playwright available:
+#   page.goto('http://localhost:8090/resume.html')
+#   page.emulate_media(media='print')
+#   page.pdf(path='assets/francis-wilfred-antiporda-cv.pdf', format='A4',
+#            margin={'top':'13mm','bottom':'13mm','left':'14mm','right':'14mm'})
+```
+
+Or simply open `/resume` and use the browser's Print, then Save as PDF. The
+print stylesheet at the bottom of `style.css` is tuned so the result lands on
+two A4 pages; if you add a project, check it still does.
+
 ## Deploying to Vercel
 
 The project is linked to this repository. **Root Directory** must be
