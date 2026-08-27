@@ -148,6 +148,7 @@
       line: 'React. Live tournament platform on Firebase.'
     },
     'hiroshi-master-grill': {
+      href: 'https://hiroshi-grill.vercel.app/',
       line: 'Next.js and Supabase. Client site with bookings.'
     },
     cyclemind_ai: {
@@ -282,6 +283,7 @@
           line('frontend    React, Next.js, Flutter, Vite, Tailwind, PWA');
           line('backend     Node.js, Prisma, PostgreSQL, Firebase, Supabase');
           line('networking  Cisco CCNA, Networking Basics, Ethical Hacker');
+          line('cloud       AWS Educate, Vercel, Firebase Hosting, Neon');
           line('games       Unity 6, C#');
           line('testing     Vitest, node:test, Playwright, Firestore emulator');
           line('deploy      Vercel, Firebase Hosting, Neon, GitHub Pages');
@@ -303,9 +305,11 @@
           break;
 
         case 'certs':
-          line('Cisco Networking Academy   CCNA: Introduction to Networks   Jan 2026');
-          line('Cisco Networking Academy   Networking Basics                Feb 2026');
-          line('Ethical Hacker                                              Jul 2026');
+          line('Cisco NetAcad     Ethical Hacker                     Jul 2026');
+          line('Cisco NetAcad     Networking Basics                  Feb 2026');
+          line('Cisco NetAcad     CCNA: Introduction to Networks     Jan 2026');
+          line('Cisco / OpenEDG   Python Essentials 2                May 2024');
+          line('AWS Educate       Getting Started with Compute       trained');
           break;
 
         case 'contact':
