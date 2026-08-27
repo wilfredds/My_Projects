@@ -67,7 +67,7 @@ export function Segmented<T extends string>({
               'focus-visible:ring-ring rounded-lg font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none',
               stacked
                 ? 'flex min-h-[4.25rem] flex-col justify-center gap-0.5 border px-3 py-2.5 text-left text-sm'
-                : 'h-9 flex-1 px-3 text-sm',
+                : 'h-11 flex-1 px-3 text-sm',
               selected
                 ? stacked
                   ? 'border-primary bg-accent text-accent-foreground'

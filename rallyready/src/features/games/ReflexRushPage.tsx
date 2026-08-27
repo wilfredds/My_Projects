@@ -178,6 +178,30 @@ export function ReflexRushPage() {
     return () => cancelAnimationFrame(frame)
   }, [phase, finish])
 
+  /*
+   * Leaving mid-game abandons it rather than scoring it.
+   *
+   * The loop runs on `requestAnimationFrame`, which stops in a hidden tab
+   * while the clock does not, so a game backgrounded for a notification would
+   * come back over and resolve to whatever had been tapped before you left.
+   * Recording a score of two as an attempt is not a result; it is a
+   * misunderstanding of what happened.
+   */
+  useEffect(() => {
+    if (phase !== 'playing') return
+    const onVisibility = () => {
+      if (document.visibilityState !== 'hidden') return
+      clock.current.current = null
+      setTarget(null)
+      setFlash(null)
+      setLiveScore(0)
+      setRemainingMs(GAME_MS)
+      setPhase('ready')
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [phase])
+
   const tap = (corner: CornerId) => {
     if (phase !== 'playing') return
     const state = clock.current
@@ -358,11 +382,11 @@ export function ReflexRushPage() {
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row">
-              <Button size="lg" className="flex-1" onClick={start}>
+              <Button size="lg" className="sm:flex-1" onClick={start}>
                 <RotateCcw />
                 Go again
               </Button>
-              <Button asChild variant="outline" size="lg" className="flex-1">
+              <Button asChild variant="outline" size="lg" className="sm:flex-1">
                 <Link to="/">Back to Train</Link>
               </Button>
             </div>

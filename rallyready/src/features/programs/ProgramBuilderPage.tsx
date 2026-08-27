@@ -151,7 +151,10 @@ export function ProgramBuilderPage() {
                 rows={3}
                 onChange={(event) => update({ description: event.target.value })}
                 placeholder="Who is it for, and what will it do for them?"
-                className="border-input bg-background focus-visible:ring-ring placeholder:text-muted-foreground w-full resize-y rounded-lg border p-3 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                // `text-base`, like every other field: iOS zooms the whole
+                // page in when a focused input is under 16px, and it does not
+                // zoom back out.
+                className="border-input bg-background focus-visible:ring-ring placeholder:text-muted-foreground w-full resize-y rounded-lg border p-3 text-base focus-visible:ring-2 focus-visible:outline-none"
               />
             </div>
           </CardContent>

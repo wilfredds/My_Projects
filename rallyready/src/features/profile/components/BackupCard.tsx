@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { backupFilename, buildBackup, parseBackup, planRestore } from '@/lib/data/backup'
 import { useRepositories } from '@/lib/data/context'
+import { downloadBlob } from '@/lib/download'
 import { pluralize } from '@/lib/utils'
 
 /**
@@ -35,12 +36,7 @@ export function BackupCard() {
       ])
       const file = buildBackup({ profile, sessions, metrics, benchmarks, readiness })
       const blob = new Blob([JSON.stringify(file, null, 2)], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = backupFilename()
-      link.click()
-      URL.revokeObjectURL(url)
+      downloadBlob(blob, backupFilename())
       setMessage({
         tone: 'ok',
         text: `Exported ${pluralize(sessions.length, 'session')} and ${pluralize(benchmarks.length, 'benchmark')}.`,

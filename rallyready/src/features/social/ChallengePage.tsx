@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { useRepositories } from '@/lib/data/context'
 import { decodeChallenge, type Challenge } from '@/lib/social/challenge'
 import { configFromDrill } from '@/lib/timer/plan'
@@ -74,12 +75,18 @@ export function ChallengePage() {
             <label htmlFor="challenge-code" className="text-sm font-medium">
               Paste a challenge code
             </label>
-            <input
+            {/* The shared Input, not a hand-rolled one: this was 14px text in
+                a 38px box, and iOS zooms the whole page in on any field under
+                16px — on the one screen somebody is pasting into. */}
+            <Input
               id="challenge-code"
               value={pasted}
               onChange={(event) => setPasted(event.target.value)}
               placeholder="1,ABC,G,BN,U,1C8,4M,six-corner-shadow,Wilfred"
-              className="border-input bg-background focus-visible:ring-ring mt-2 w-full rounded-lg border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+              className="mt-2"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
             />
             {pasted.trim() !== '' && !decoded.ok && (
               <p className="text-destructive mt-2 text-xs" role="status">

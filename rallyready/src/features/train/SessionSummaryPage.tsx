@@ -227,7 +227,7 @@ export function SessionSummaryPage() {
 
       <div className="flex flex-col gap-3 sm:flex-row">
         {drill && (
-          <Button asChild size="lg" className="flex-1">
+          <Button asChild size="lg" className="sm:flex-1">
             <Link to={`/run/${drill.slug}`}>Go again</Link>
           </Button>
         )}
@@ -248,7 +248,7 @@ export function SessionSummaryPage() {
             }),
           }}
         />
-        <Button asChild variant="outline" size="lg" className="flex-1">
+        <Button asChild variant="outline" size="lg" className="sm:flex-1">
           <Link to="/">Back to Train</Link>
         </Button>
       </div>

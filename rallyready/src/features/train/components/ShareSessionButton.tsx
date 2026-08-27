@@ -2,6 +2,7 @@ import { Check, Download, Loader2, Share2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { downloadBlob } from '@/lib/download'
 import { canShareImages, renderShareCard, type ShareCardData } from '@/lib/share/card'
 
 /**
@@ -34,12 +35,7 @@ export function ShareSessionButton({ data }: { data: ShareCardData }) {
           text: `${data.drillName} — ${data.durationLabel} of solo badminton training.`,
         })
       } else {
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.download = 'rallyready-session.png'
-        link.click()
-        URL.revokeObjectURL(url)
+        downloadBlob(blob, 'rallyready-session.png')
       }
       setState('done')
       window.setTimeout(() => setState('idle'), 2200)
@@ -51,7 +47,7 @@ export function ShareSessionButton({ data }: { data: ShareCardData }) {
   }
 
   return (
-    <Button variant="outline" size="lg" className="flex-1" onClick={() => void run()}>
+    <Button variant="outline" size="lg" className="sm:flex-1" onClick={() => void run()}>
       {state === 'working' ? (
         <Loader2 className="animate-spin" />
       ) : state === 'done' ? (

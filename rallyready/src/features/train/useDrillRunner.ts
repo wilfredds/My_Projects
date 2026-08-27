@@ -289,6 +289,34 @@ export function useDrillRunner({ plan, preferences, onComplete }: UseDrillRunner
     setStatus('running')
   }, [])
 
+  /*
+   * A phone call, a notification tap, or switching apps mid-drill.
+   *
+   * `requestAnimationFrame` stops in a hidden tab but `performance.now()` does
+   * not, so the first frame after coming back hands the cursor every event
+   * from the whole absence at once. Two things follow from that, and both are
+   * worse than they sound: every skipped corner is counted as answered, and if
+   * the session's `complete` event is anywhere in that batch, a drill
+   * abandoned at round two logs itself as finished. The stale-cue guard keeps
+   * the speech quiet but does nothing about the bookkeeping.
+   *
+   * So the clock stops when the page goes away. That is also simply the honest
+   * reading — you were not training — and this app's entire claim is that
+   * everything on the Progress screen is something you actually did.
+   *
+   * Deliberately no auto-resume: coming back to a drill already shouting
+   * corners while the phone is still in your hand is worse than pressing one
+   * button. The paused screen has that button.
+   */
+  useEffect(() => {
+    if (status !== 'running') return
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') pause()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [status, pause])
+
   const togglePause = useCallback(() => {
     if (clockRef.current.isPaused) resume()
     else pause()

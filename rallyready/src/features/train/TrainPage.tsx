@@ -174,10 +174,10 @@ export function TrainPage() {
               built on.
             </p>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <Button asChild size="lg" className="flex-1">
+              <Button asChild size="lg" className="sm:flex-1">
                 <Link to="/focus/fundamentals">Learn the basics</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="flex-1">
+              <Button asChild variant="outline" size="lg" className="sm:flex-1">
                 <Link to="/onboarding">I have played before</Link>
               </Button>
             </div>
