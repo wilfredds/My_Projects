@@ -96,10 +96,12 @@ rather than snap, then removes it.
 - **No em dashes in the prose.** House style for this site. Use commas, colons
   or a full stop. Check with `grep -rn "—\|–" portfolio/`, which should print
   nothing.
-- **External URLs are not checked by CI and go stale.** The two Vercel demo
-  links were dead for a while because a short `*.vercel.app` alias had been
-  assumed rather than read. The source of truth is the project's own domain
-  list in the Vercel dashboard or API. Check there before writing one down.
+- **External URLs are not checked by CI.** The source of truth for a Vercel
+  domain is the project's own domain list. One trap when reading it: while a
+  deployment is `QUEUED` or `BUILDING`, that list shows only the long
+  `*-<team>.vercel.app` domains and **omits the short aliases**, which makes a
+  perfectly good URL look dead. Always read the list against a deployment whose
+  `readyState` is `READY`, or the check is worthless.
 - **Colours come from tokens, never literals.** Every colour lives in the
   custom properties at the top of `style.css`, which is what makes the light
   theme a block of overrides rather than a rewrite. A hard-coded hex in a rule
