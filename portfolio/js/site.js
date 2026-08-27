@@ -29,8 +29,19 @@
       themeToggle.setAttribute('aria-label', 'Switch to ' + next + ' theme');
     };
 
+    var fadeTimer = null;
+
     themeToggle.addEventListener('click', function () {
       var next = currentTheme() === 'dark' ? 'light' : 'dark';
+
+      if (!reduceMotion) {
+        document.documentElement.classList.add('theme-switching');
+        window.clearTimeout(fadeTimer);
+        fadeTimer = window.setTimeout(function () {
+          document.documentElement.classList.remove('theme-switching');
+        }, 320);
+      }
+
       document.documentElement.setAttribute('data-theme', next);
 
       try {
@@ -60,10 +71,20 @@
     revealables.forEach(function (el) { el.classList.add('in'); });
   } else {
     var revealObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('in');
-        revealObserver.unobserve(entry.target);
+      // Stagger by arrival, not by position in the document. A row of cards
+      // scrolled into view together cascades; a single card that comes into
+      // view on its own appears immediately, with nothing to wait for.
+      var arriving = entries
+        .filter(function (entry) { return entry.isIntersecting; })
+        .map(function (entry) { return entry.target; })
+        .sort(function (a, b) {
+          return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+        });
+
+      arriving.forEach(function (el, i) {
+        el.style.setProperty('--d', Math.min(i, 6) * 70 + 'ms');
+        el.classList.add('in');
+        revealObserver.unobserve(el);
       });
     }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
 
@@ -508,8 +529,20 @@
       cards.forEach(function (card) {
         var tags = (card.getAttribute('data-tech') || '').split(/\s+/);
         var match = tech === 'all' || tags.indexOf(tech) !== -1;
+        var wasHidden = card.hidden;
+
         card.hidden = !match;
-        if (match) shown += 1;
+        if (!match) return;
+
+        shown += 1;
+
+        // display:none swallows transitions, so a card returning to the list
+        // replays a one-shot animation instead.
+        if (wasHidden && !reduceMotion) {
+          card.classList.remove('is-entering');
+          void card.offsetWidth;
+          card.classList.add('is-entering');
+        }
       });
 
       chips.forEach(function (chip) {
@@ -611,6 +644,18 @@
     });
   }
 
+  // Parallax is a desktop-pointer nicety. On a touch screen it competes with
+  // the scroll itself, and with reduced motion it should not run at all.
+  var portrait = null;
+  var portraitTop = 0;
+
+  if (!reduceMotion && window.matchMedia('(pointer: fine)').matches) {
+    portrait = document.querySelector('.portrait img');
+    if (portrait) {
+      portraitTop = portrait.getBoundingClientRect().top + window.scrollY;
+    }
+  }
+
   var ticking = false;
 
   function onScroll() {
@@ -627,6 +672,13 @@
       }
 
       if (toTop) toTop.hidden = top < 600;
+
+      if (portrait) {
+        // A few pixels of drift against the scroll. Clamped so the image never
+        // pulls away from its frame.
+        var drift = Math.max(-14, Math.min(14, (top - portraitTop) * 0.03));
+        portrait.style.transform = 'translate3d(0,' + drift.toFixed(1) + 'px,0) scale(1.06)';
+      }
 
       ticking = false;
     });

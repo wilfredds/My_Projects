@@ -776,7 +776,13 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 /* --------------------------------------------------- reveal on scroll --- */
 .js .reveal { opacity: 0; transform: translateY(14px); }
-.js .reveal.in { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.6s ease; }
+/* The delay has to live in this shorthand. Setting transition-delay in a
+   less specific rule loses to it, and the stagger silently does nothing. */
+.js .reveal.in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s ease var(--d, 0ms), transform 0.6s ease var(--d, 0ms);
+}
 @media (prefers-reduced-motion: reduce) {
   .js .reveal { opacity: 1; transform: none; }
 }
@@ -1114,3 +1120,107 @@ code {
 /* A certificate whose issuer is not named on the certificate itself keeps its
    title flush with the others. */
 .cert h3:first-child { margin-top: 0.15rem; }
+
+/* ==========================================================================
+   Motion
+
+   Three rules govern everything below.
+
+   1. Nothing here is load-bearing. Every animated element is readable in its
+      finished state, and `prefers-reduced-motion` turns the lot off.
+   2. Only transform and opacity are animated, so the compositor does the work
+      and nothing triggers layout.
+   3. Movement is small and quick. A portfolio that makes a recruiter wait for
+      a card to slide in is a portfolio they close.
+   ========================================================================== */
+
+/* Staggered reveal: `--d` is set from a data-i attribute in site.js and read
+   by the .reveal.in shorthand above, so a row of cards arrives in sequence
+   rather than all at once. */
+
+/* Filtering swaps `hidden`, which display:none cancels transitions through.
+   So a card that comes back plays a one-shot animation instead. */
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.995); }
+  to   { opacity: 1; transform: none; }
+}
+.js .card.is-entering { animation: card-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Buttons and chips acknowledge a press. Small enough to feel mechanical
+   rather than bouncy. */
+.btn:active,
+.chip:active,
+.theme-toggle:active,
+.to-top:active { transform: translateY(0) scale(0.97); }
+
+.btn, .chip, .theme-toggle, .to-top { will-change: transform; }
+
+/* The active nav link grows an underline from the left. */
+.nav-links a {
+  position: relative;
+  padding-bottom: 2px;
+}
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--green);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-links a[aria-current="true"]::after,
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-links a:hover { text-decoration: none; }
+
+/* Section headings: the prompt slides in just ahead of the command, which is
+   what a shell looks like when it is about to be typed into. */
+@keyframes prompt-in {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+.js .section-head h2 .prompt { animation: prompt-in 0.4s ease both; }
+
+/* Stat tiles lift very slightly under the pointer, enough to read as a group
+   of separate things rather than one striped block. */
+.stat { transition: background 0.2s ease; }
+.stat:hover { background: var(--surface-2); }
+
+/* Project cards already move on hover. The screenshot inside gets a slower
+   ease so the two do not travel together. */
+.card-shot img { transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Certificates pick up the same treatment as cards. */
+.cert { transition: border-color 0.2s ease, transform 0.2s ease; }
+.cert:hover { border-color: var(--edge); transform: translateY(-2px); }
+
+/* Switching theme should look like a dimmer, not a strobe. The class is added
+   for the length of the fade and then removed, so the transition never
+   interferes with anything else. */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: background-color 0.3s ease,
+              color 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease !important;
+}
+
+/* The portrait drifts a few pixels against the scroll. Pointer-fine only, so
+   it never runs on a phone where it would fight the scroll. */
+@media (pointer: fine) {
+  .portrait img { will-change: transform; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .card.is-entering,
+  .js .section-head h2 .prompt { animation: none; }
+  .js .reveal { transition-delay: 0ms; }
+  .btn:active, .chip:active, .theme-toggle:active, .to-top:active { transform: none; }
+  .nav-links a::after { transition: none; }
+  .theme-switching, .theme-switching * { transition: none !important; }
+}
