@@ -1061,3 +1061,56 @@ code {
 @media (max-width: 640px) {
   .theme-toggle { margin-left: 0.5rem; }
 }
+
+/* ----------------------------------------------------------------- certs -- */
+.certs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+}
+
+.cert {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--green);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface);
+  padding: 1.1rem 1.25rem;
+}
+
+.cert-issuer {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--amber);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 0.5rem;
+}
+
+.cert h3 {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+.cert-meta {
+  font-family: var(--mono);
+  font-size: 0.73rem;
+  color: var(--faint);
+  margin-top: 0.5rem;
+}
+
+.certs-note {
+  color: var(--dim);
+  font-size: 0.93rem;
+  max-width: 64ch;
+  margin-top: 1.25rem;
+}
+
+/* A certificate whose issuer is not named on the certificate itself keeps its
+   title flush with the others. */
+.cert h3:first-child { margin-top: 0.15rem; }
