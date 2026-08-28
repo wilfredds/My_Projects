@@ -820,7 +820,7 @@ code {
 .cv-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 2.5rem; }
 
 @media print {
-  body { background: #fff !important; color: #111 !important; font-size: 10.5pt; }
+  body { background: #fff !important; color: #111 !important; }
   body::before { display: none; }
   .nav, .cv-actions, .footer { display: none !important; }
   .cv { max-width: none; padding: 0; }
@@ -1223,4 +1223,33 @@ code {
   .btn:active, .chip:active, .theme-toggle:active, .to-top:active { transform: none; }
   .nav-links a::after { transition: none; }
   .theme-switching, .theme-switching * { transition: none !important; }
+}
+
+/* ---------------------------------------------------------- printed CV -- */
+@media print {
+  @page { size: A4; margin: 13mm 14mm; }
+
+  /* Denser than the screen version. A résumé that runs to three pages because
+     of leading is a résumé nobody finishes. */
+  body { font-size: 9.5pt; line-height: 1.4; }
+
+  /* Name on the left, contact details on the right, on one line. */
+  .cv-head { flex-wrap: nowrap; align-items: flex-start; gap: 2rem; }
+  .cv-head h1 { font-size: 20pt; }
+  .cv-head .role { font-size: 9.5pt; margin-top: 0.2rem; }
+
+  /* Paper has no hover and no click, so the layout can be denser and the
+     links have to say where they go. */
+  .cv-head { padding-bottom: 0.55rem; }
+  .cv h2 { margin-top: 0.7rem; margin-bottom: 0.3rem; font-size: 8pt; letter-spacing: 0.12em; }
+  .cv-entry { margin-bottom: 0.45rem; break-inside: avoid; page-break-inside: avoid; }
+  .cv-entry h3 { font-size: 10pt; }
+  .cv-entry .when { font-size: 8pt; }
+  .cv-entry p, .cv-entry ul { font-size: 9pt; margin-top: 0.15rem; }
+  .cv-entry ul { padding-left: 0.9rem; }
+  .cv-entry ul li { margin-bottom: 0.04rem; }
+  .cv-skills { gap: 0.25rem 1.4rem; font-size: 8.5pt; break-inside: avoid; page-break-inside: avoid; }
+  .lede-prose { font-size: 9pt; max-width: none; }
+  .cv-contact { line-height: 1.5; font-size: 8.5pt; }
+  .cv h2, .cv-entry h3 { break-after: avoid; page-break-after: avoid; }
 }
