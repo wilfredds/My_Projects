@@ -53,7 +53,7 @@
   <dl class="meta">
     <div><dt>role</dt><dd>Sole developer. Schema, policies, API, interface</dd></div>
     <div><dt>stack</dt><dd>Next.js 16 &middot; TypeScript &middot; Supabase &middot; Tailwind v4 &middot; Zod</dd></div>
-    <div><dt>tests</dt><dd>132, plus 37 policy tests</dd></div>
+    <div><dt>tests</dt><dd>132, plus 43 policy tests</dd></div>
     <div><dt>status</dt><dd>Live on Vercel</dd></div>
   </dl>
 
@@ -130,7 +130,7 @@
       denies by default, so what a role can do is exactly what a policy says. A
       customer holding the public key with dev tools open still cannot read one
       reservation, because the database refuses before any of our code runs.
-      37 policy tests cover it.
+      43 policy tests cover it, run against a real Postgres in CI.
     </li>
   </ul>
 
@@ -149,9 +149,11 @@
     none of them get missed.
   </p>
   <p>
-    The 132 tests run with no server and no database. The policy tests need a
-    scratch database and run separately. Neither suite is wired into this
-    repository's CI yet, which is the next thing this project needs.
+    The 132 tests run with no server and no database. The 43 policy tests need a
+    scratch Postgres, which CI now provides as a service container, so both
+    suites run on every push that touches this project. The policy tests are the
+    ones worth having there: a policy loosened by a later migration would not
+    fail any of the others.
   </p>
 
   <div class="card-links card-links-end">
