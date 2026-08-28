@@ -46,7 +46,7 @@ site.
 | # | Milestone | State |
 | --- | --- | --- |
 | 1 | Scaffold, design tokens, public site | **Done** |
-| 2 | Supabase tables, RLS policies | **Done** — 37 policy tests pass |
+| 2 | Supabase tables, RLS policies | **Done** — 43 policy tests pass |
 | 3 | `/api/reservations` — server validation + rate limit | **Done** — 29 endpoint tests |
 | 4 | Supabase Auth login at `/portal` | **Done** — 32 sign-in tests |
 | 5 | `/portal/dashboard` with role-aware controls | **Done** — 28 dashboard tests |
@@ -322,7 +322,7 @@ src/
   proxy.ts            per-request CSP nonce
 supabase/
   schema.sql          tables, policies, triggers, the masked staff view
-  verify-rls.sql      37 policy tests
+  verify-rls.sql      43 policy tests
   local/              Supabase shim so the tests run without a project
 tests/
   reservation-handler.test.ts   npm test
