@@ -141,15 +141,15 @@
     },
     rallyready: {
       path: 'projects/rallyready.html',
-      line: 'React and TypeScript. Badminton drills, 341 tests.'
+      line: 'React and TypeScript. Badminton drills, 478 tests.'
     },
     'badminton-ph': {
       href: 'https://badminton-ph.web.app',
       line: 'React. Live tournament platform on Firebase.'
     },
-    'hiroshi-master-grill': {
-      href: 'https://hiroshi-grill.vercel.app/',
-      line: 'Next.js and Supabase. Client site with bookings.'
+    'hiroshi-grill': {
+      path: 'projects/hiroshi-master-grill.html',
+      line: 'Next.js 16 and Supabase. Client booking app.'
     },
     cyclemind_ai: {
       path: 'projects/cyclemind-ai.html',
