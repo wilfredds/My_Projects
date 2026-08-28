@@ -1,6 +1,6 @@
 # CorruptionReportSystem — repository guide
 
-This repository is a **monorepo of six unrelated projects**. Despite the
+This repository is a **monorepo of seven unrelated projects**. Despite the
 repository name, most of the code here has nothing to do with corruption
 reporting — the name is historical. There is no shared build, no workspace
 tooling, and no dependency between projects. Treat each directory as its own
@@ -13,6 +13,7 @@ codebase and work inside it.
 | `cyclemind_ai/` | AI cycling coach and bike doctor | Flutter, Riverpod, Firebase | **No — no Flutter SDK** |
 | `corruption-reporting-system-final/` | Corruption reporting site | Static HTML/CSS/JS, Firebase | No build step |
 | `bike-guide-app/` | Cycling guide PWA | Static HTML/CSS/JS, Firebase | No build step |
+| `hiroshi-grill/` | Restaurant reservation app (client work) | Next.js 16, TypeScript, Supabase | Yes — full |
 | `portfolio/` | Personal portfolio site | Static HTML/CSS/JS | No build step |
 
 Each project has its own `CLAUDE.md` (or, for `portfolio/`, a `README.md`)
@@ -67,7 +68,8 @@ Every project now has a workflow, each path-filtered to its own directory:
 | Workflow | Covers |
 |---|---|
 | `autocare-ci.yml` | lint, typecheck, test, migrate, seed, DB tests, build |
-| `rallyready-ci.yml` | `npm run verify` — typecheck, lint, 473 tests, build |
+| `rallyready-ci.yml` | `npm run verify` — typecheck, lint, 478 tests, build |
+| `hiroshi-ci.yml` | lint, 132 tests, build, 43 RLS policy tests against a Postgres service |
 | `firestore-rules-ci.yml` | 60 rules assertions against the real Firestore emulator |
 | `static-sites-ci.yml` | parses all JS in the three static sites |
 | `deploy-web.yml` | builds `cyclemind_ai` for web and publishes to Pages |

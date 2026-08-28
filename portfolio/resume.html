@@ -127,7 +127,7 @@
     <p class="when">Live at hiroshi-grill.vercel.app &middot; Next.js 16, TypeScript, Supabase, Zod &middot; External client</p>
     <ul>
       <li>First paying client. Public booking site plus a staff portal behind Supabase Auth, with role-aware controls.</li>
-      <li>Row Level Security denying by default, 37 policy tests, and 132 endpoint and sign-in tests.</li>
+      <li>Row Level Security denying by default, with 43 policy tests and 132 endpoint and sign-in tests, both run in CI against a real Postgres.</li>
       <li>Nonce-based CSP so the App Router's inline scripts work without <code>unsafe-inline</code>, and rate limiting in Postgres because in-memory limits do not survive serverless.</li>
     </ul>
   </div>
