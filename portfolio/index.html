@@ -118,7 +118,7 @@
   <div class="wrap">
     <div class="stats reveal">
       <div class="stat"><b data-count="9">9</b><span>projects</span></div>
-      <div class="stat"><b data-count="413">413</b><span>automated tests</span></div>
+      <div class="stat"><b data-count="698">698</b><span>automated tests</span></div>
       <div class="stat"><b data-count="5">5</b><span>CI pipelines</span></div>
       <div class="stat"><b data-count="3">3</b><span>databases in prod</span></div>
       <div class="stat"><b data-count="5">5</b><span>certifications</span></div>
@@ -390,7 +390,7 @@
           </p>
           <ul class="tags">
             <li>React 19</li><li>TypeScript</li><li>Vite</li><li>Supabase</li>
-            <li>Vitest, 341 tests</li><li>PWA</li>
+            <li>Vitest, 478 tests</li><li>PWA</li>
           </ul>
           <div class="card-links">
             <a class="btn btn-primary" href="projects/rallyready.html">Case study</a>
@@ -430,25 +430,29 @@
       <!-- ---------------------------------------------- hiroshi samgyup -- -->
       <article class="card reveal" data-tech="nextjs react typescript supabase postgres">
         <span class="card-shot is-empty" aria-hidden="true">
-          $ open hiroshi-grill.vercel.app<br>
-          <span class="ok">▸</span> live, first paying client<br>
-          <span class="faint">booking &middot; staff roles &middot; Supabase auth</span>
+          $ npm test<br>
+          <span class="ok">▸</span> 132 passing, 0 failing<br>
+          <span class="faint">RLS &middot; nonce CSP &middot; Postgres rate limit</span>
         </span>
         <div class="card-body">
-          <p class="card-kicker">Next.js &middot; TypeScript &middot; Supabase</p>
-          <h3>hiroshi-master-grill<span class="slash">/</span></h3>
+          <p class="card-kicker">Next.js 16 &middot; Supabase &middot; Client work</p>
+          <h3><a href="projects/hiroshi-master-grill.html">hiroshi-grill<span class="slash">/</span></a></h3>
           <p>
-            My first real client. A branded website for Hiroshi Master Grill
-            Samgyupsal with an online booking and reservation system behind it, plus a
-            staff dashboard with role-based access. Authentication and the database run
-            on Supabase.
+            My first paying client. A reservation app for an unli samgyupsal
+            restaurant: a public site anyone can book from, and a staff portal behind
+            a login showing each night's bookings with only the controls that role is
+            allowed. One Zod schema validates in the browser and again on the server.
+            Row Level Security denies by default, so a customer with dev tools open
+            still cannot read a single reservation.
           </p>
           <ul class="tags">
-            <li>Next.js</li><li>TypeScript</li><li>Tailwind CSS</li>
-            <li>Supabase</li><li>Client work</li>
+            <li>Next.js 16</li><li>TypeScript</li><li>Supabase</li>
+            <li>Row Level Security</li><li>132 tests</li><li>Client work</li>
           </ul>
           <div class="card-links">
-            <a class="btn btn-primary" href="https://hiroshi-grill.vercel.app/" rel="noopener" target="_blank">Live site</a>
+            <a class="btn btn-primary" href="projects/hiroshi-master-grill.html">Case study</a>
+            <a class="btn" href="https://hiroshi-grill.vercel.app/" rel="noopener" target="_blank">Live site</a>
+            <a class="btn" href="https://github.com/wilfredds/My_Projects/tree/main/hiroshi-grill">Source</a>
           </div>
         </div>
       </article>
@@ -606,14 +610,14 @@
       <li>
         <span class="hash">46fa322</span>
         <span class="when">2026-08</span>
-        <span class="what">RallyReady, five phases and 341 tests</span>
+        <span class="what">RallyReady, five phases and 478 tests</span>
         <span class="note">The most complete thing I have built. Audio drills, a benchmark, conditioning, periodised programs and progress tracking, all gated by <code>npm run verify</code>.</span>
       </li>
       <li>
         <span class="hash">ea41577</span>
         <span class="when">2026-08</span>
         <span class="what">CI for all five, then this site</span>
-        <span class="note">Every project got a path-filtered pipeline covering lint, typecheck, tests, migrations and security rules, so nothing ships on trust alone.</span>
+        <span class="note">The five projects in this repo at the time each got a path-filtered pipeline covering lint, typecheck, tests, migrations and security rules. Hiroshi Master Grill arrived later and still needs one.</span>
       </li>
     </ol>
   </div>

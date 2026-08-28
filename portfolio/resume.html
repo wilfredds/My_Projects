@@ -63,7 +63,7 @@
     end to end: schema, backend, interface, and the pipeline that keeps it honest.
     Nine shipped and in-progress projects across Next.js, React, Flutter, Unity and
     Firebase, including a job-management system now replacing a car care shop's paper
-    records, and a training app carrying 341 automated tests. Comfortable owning the
+    records, and a training app carrying 478 automated tests. Comfortable owning the
     security-sensitive parts: role-based access control, Firestore rules with
     emulator-backed assertions, and money arithmetic that never trusts the client.
   </p>
@@ -108,7 +108,7 @@
     <ul>
       <li>Audio-first drill engine with spoken corner calls, distinct tones, haptics and configurable split-step timing, usable without looking at the screen.</li>
       <li>Training-load model (effort multiplied by minutes) with ramp detection, plus a readiness input that reshapes each session, and a periodised 4 to 16 week program generator.</li>
-      <li>341 tests under Vitest. <code>npm run verify</code> (typecheck, lint, test, build) gates every push.</li>
+      <li>478 tests under Vitest. <code>npm run verify</code> (typecheck, lint, test, build) gates every push.</li>
       <li>Installable and offline-capable. The trainer runs with no connection and syncs sessions when it returns.</li>
     </ul>
   </div>
@@ -124,10 +124,11 @@
 
   <div class="cv-entry">
     <h3>Hiroshi Master Grill Samgyupsal, restaurant site and reservation system</h3>
-    <p class="when">Live at hiroshi-grill.vercel.app &middot; Next.js, TypeScript, Tailwind CSS, Supabase &middot; External client</p>
+    <p class="when">Live at hiroshi-grill.vercel.app &middot; Next.js 16, TypeScript, Supabase, Zod &middot; External client</p>
     <ul>
-      <li>First paying client. Branded site with an online booking and reservation system.</li>
-      <li>Staff dashboard with role-based access. Authentication and database on Supabase.</li>
+      <li>First paying client. Public booking site plus a staff portal behind Supabase Auth, with role-aware controls.</li>
+      <li>Row Level Security denying by default, 37 policy tests, and 132 endpoint and sign-in tests.</li>
+      <li>Nonce-based CSP so the App Router's inline scripts work without <code>unsafe-inline</code>, and rate limiting in Postgres because in-memory limits do not survive serverless.</li>
     </ul>
   </div>
 

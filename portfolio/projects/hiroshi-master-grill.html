@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hiroshi Master Grill | Francis Wilfred Antiporda</title>
+<meta name="description" content="A reservation web app for an unli samgyupsal restaurant: Next.js 16, Supabase and Row Level Security, with a nonce-based CSP and rate limiting done in Postgres.">
+<meta name="theme-color" content="#0a0c0b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f7f4" media="(prefers-color-scheme: light)">
+<meta name="color-scheme" content="dark light">
+<meta property="og:url" content="https://wilfred-website.vercel.app/projects/hiroshi-master-grill">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hiroshi Master Grill | Francis Wilfred Antiporda">
+<meta property="og:description" content="A reservation web app for an unli samgyupsal restaurant: Next.js 16, Supabase and Row Level Security.">
+<meta property="og:image" content="https://wilfred-website.vercel.app/assets/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://wilfred-website.vercel.app/projects/hiroshi-master-grill">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0c0b'/><text y='72' x='16' font-size='62' font-family='monospace' fill='%237ee787'>&gt;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/boot.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="wrap nav-inner">
+    <a class="nav-brand" href="../index.html"><span class="caret">&gt;</span> francis<span class="caret">_</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html#about">about</a></li>
+      <li><a href="../index.html#skills">skills</a></li>
+      <li><a href="../index.html#projects">projects</a></li>
+      <li><a href="../index.html#contact">contact</a></li>
+    </ul>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+  </div>
+</nav>
+
+<div class="progress" id="progress" hidden><span id="progress-bar"></span></div>
+
+<main id="main" class="wrap detail">
+  <header class="page-head">
+    <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
+    <h1>hiroshi-grill<span class="slash">/</span></h1>
+    <p class="lede">A reservation web app for Hiroshi Master Grill Samgyupsal, an unli samgyupsal restaurant in General Trias, Cavite. My first paying client. Two faces on one codebase: a public site anyone can browse and book from, and a staff portal behind a login.</p>
+  </header>
+
+  <dl class="meta">
+    <div><dt>role</dt><dd>Sole developer. Schema, policies, API, interface</dd></div>
+    <div><dt>stack</dt><dd>Next.js 16 &middot; TypeScript &middot; Supabase &middot; Tailwind v4 &middot; Zod</dd></div>
+    <div><dt>tests</dt><dd>132, plus 37 policy tests</dd></div>
+    <div><dt>status</dt><dd>Live on Vercel</dd></div>
+  </dl>
+
+  <h2><span class="prompt">$</span>cat problem.md</h2>
+  <p>
+    An unli samgyupsal place takes bookings over Facebook Messenger, which means
+    the reservation for Friday evening lives in a chat thread somewhere and the
+    staff on shift cannot see it. The restaurant needed a page a guest could book
+    from, and a screen the people working that night could actually open.
+  </p>
+
+  <h2><span class="prompt">$</span>cat solution.md</h2>
+  <ul>
+    <li><strong>Public site.</strong> Branding, the unli sets, the rice and ramen menu, house rules, location, and a reservation request form. No login, because asking a hungry stranger to make an account loses the booking.</li>
+    <li><strong>Staff portal.</strong> Sign-in at <code>/portal</code>, then a dashboard listing each day's bookings with only the controls that role is allowed to use.</li>
+    <li><strong>One schema, two runs.</strong> The browser validates as the guest types, for friendly errors. The API re-runs the <em>same</em> Zod schema on what actually arrived, and that is the run that protects the database.</li>
+  </ul>
+
+  <h2><span class="prompt">$</span>cat security.md</h2>
+  <p>
+    This is the project where the security work went in at the start rather than
+    at the end, and where several decisions came with a cost worth stating.
+  </p>
+  <ul>
+    <li>
+      <strong>A nonce-based Content-Security-Policy.</strong> A flat
+      <code>script-src 'self'</code> looks strict and quietly breaks the App
+      Router, because Next boots React from inline scripts: the browser blocks
+      them, hydration never runs, and the reservation form becomes dead HTML.
+      This project hit exactly that. The tempting fix, <code>unsafe-inline</code>,
+      throws away the thing a CSP is for. A per-response random nonce, stamped
+      on the scripts we trust, is the real one. The cost is written down in the
+      file: a nonce is per-response, so those pages render per request instead
+      of coming from a build-time cache.
+    </li>
+    <li>
+      <strong>The endpoint stores the schema's output, not the body it was
+      sent.</strong> Trimmed, coerced, unknown keys dropped. Passing the raw
+      body onward after validating it is a quiet way to undo the validation you
+      just did.
+    </li>
+    <li>
+      <strong>Rate limiting in Postgres, not in a JavaScript variable.</strong>
+      On Vercel each serverless instance has its own memory, so a bot that trips
+      an in-memory limit just lands on a fresh instance. The counter is one
+      atomic <code>INSERT … ON CONFLICT DO UPDATE</code>, because the obvious
+      read-then-write races under exactly the burst it exists to stop. Verified
+      with 30 concurrent connections against a limit of 10, and exactly 10 got
+      through.
+    </li>
+    <li>
+      <strong>IPs are salted and hashed, never stored.</strong> The limiter only
+      needs to answer "same caller as before?" and a hash does that while
+      leaving the database holding no record of who visited. Unsalted would be
+      pointless: there are about four billion IPv4 addresses, so a plain
+      SHA-256 is reversible in seconds.
+    </li>
+    <li>
+      <strong>Trusting the right header.</strong> <code>x-forwarded-for</code> is
+      client-supplied and can say anything, so taking its leftmost value lets an
+      attacker use a fresh fake address per request and never hit the cap. On
+      Vercel, <code>x-vercel-forwarded-for</code> is set by the platform, so that
+      is the one to prefer.
+    </li>
+    <li>
+      <strong>A honeypot that lies politely.</strong> A hidden field a real guest
+      never sees. When it is filled, the response is the same cheerful
+      <code>201</code> a real booking gets, and the record is dropped without
+      touching the database. Telling a bot it was caught teaches whoever wrote it
+      to stop filling the field.
+    </li>
+    <li>
+      <strong>Row Level Security is what makes the rest real.</strong> Every table
+      denies by default, so what a role can do is exactly what a policy says. A
+      customer holding the public key with dev tools open still cannot read one
+      reservation, because the database refuses before any of our code runs.
+      37 policy tests cover it.
+    </li>
+  </ul>
+
+  <div class="callout">
+    Dates are judged in <code>Asia/Manila</code>, not in the server's UTC.
+    Otherwise a 9pm booking made in Manila gets rejected for being yesterday.
+  </div>
+
+  <h2><span class="prompt">$</span>cat honest-notes.md</h2>
+  <p>
+    Every business detail on the site is still a placeholder, and they live in two
+    files so they can be corrected in one place. That matters more than it sounds:
+    the address, phone and hours are also fed to Google as structured data, and
+    publishing wrong ones there is worse than publishing none. The repo has a
+    go-live document listing every placeholder field and what each one feeds, so
+    none of them get missed.
+  </p>
+  <p>
+    The 132 tests run with no server and no database. The policy tests need a
+    scratch database and run separately. Neither suite is wired into this
+    repository's CI yet, which is the next thing this project needs.
+  </p>
+
+  <div class="card-links card-links-end">
+    <a class="btn btn-primary" href="https://github.com/wilfredds/My_Projects/tree/main/hiroshi-grill">View source on GitHub</a>
+    <a class="btn" href="https://hiroshi-grill.vercel.app/" rel="noopener" target="_blank">Live site</a>
+    <a class="btn" href="../index.html#projects">All projects</a>
+    <a class="btn" href="mailto:frncishub@gmail.com">Ask me about it</a>
+  </div>
+
+  <nav class="pager" aria-label="Project navigation">
+    <a href="rallyready.html">&larr; RallyReady</a>
+    <a href="cyclemind-ai.html">CycleMind AI &rarr;</a>
+  </nav>
+</main>
+
+<footer class="footer wrap">
+  <span>&copy; <span id="year">2026</span> Francis Wilfred Antiporda</span>
+  <span>Built by hand. No framework, no build step.</span>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../js/site.js" defer></script>
+</body>
+</html>

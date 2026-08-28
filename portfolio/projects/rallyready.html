@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RallyReady | Francis Wilfred Antiporda</title>
-<meta name="description" content="An audio-first badminton training PWA for solo players: spoken corner calls, periodised programs, 341 tests.">
+<meta name="description" content="An audio-first badminton training PWA for solo players: spoken corner calls, periodised programs, 478 tests.">
 <meta name="theme-color" content="#0a0c0b" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f6f7f4" media="(prefers-color-scheme: light)">
 <meta name="color-scheme" content="dark light">
 <meta property="og:url" content="https://wilfred-website.vercel.app/projects/rallyready">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RallyReady | Francis Wilfred Antiporda">
-<meta property="og:description" content="An audio-first badminton training PWA for solo players: spoken corner calls, periodised programs, 341 tests.">
+<meta property="og:description" content="An audio-first badminton training PWA for solo players: spoken corner calls, periodised programs, 478 tests.">
 <meta property="og:image" content="https://wilfred-website.vercel.app/assets/img/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://wilfred-website.vercel.app/projects/rallyready">
@@ -86,7 +86,7 @@
 
   <h2><span class="prompt">$</span>cat engineering.md</h2>
   <p>
-    There are <strong>341 tests</strong> under Vitest, and <code>npm run verify</code>
+    There are <strong>478 tests</strong> under Vitest, and <code>npm run verify</code>
     (typecheck, lint, tests, build) is what CI runs on every push. The drill engine,
     the load model, the program generator and the benchmark scoring are all pure
     functions with tests behind them, because those are the parts deciding how hard
@@ -106,6 +106,56 @@
     down in the repo rather than quietly dropping the feature.
   </div>
 
+
+  <h2><span class="prompt">$</span>cat six-bugs.md</h2>
+  <p>
+    The tests were green and the app was still wrong in ways only using it on a
+    phone would show. Six of them, found by treating it like a real session
+    rather than a test run.
+  </p>
+  <ul>
+    <li>
+      <strong>A drill interrupted by a phone call logged itself as complete.</strong>
+      <code>requestAnimationFrame</code> stops in a hidden tab while
+      <code>performance.now()</code> keeps counting, so the first frame back
+      delivered every event from the whole absence at once. Every skipped corner
+      counted as answered, and if the session's completion event landed in that
+      batch, a drill abandoned at round two wrote itself to the log as finished.
+      The clock now stops when the page goes away, which is also the truthful
+      reading: you were not training. Reflex Rush had the same shape and now
+      abandons a backgrounded game rather than scoring whatever had been tapped.
+    </li>
+    <li>
+      <strong>The session summary's three buttons were 24px tall.</strong>
+      <code>flex-1</code> inside a <code>flex-col</code> sets
+      <code>flex-basis: 0</code> on the <em>height</em>, so three buttons shared
+      75px on every phone. Four other button groups had it too.
+    </li>
+    <li>
+      <strong>Export could silently do nothing.</strong> Both download paths
+      revoked the object URL on the line after <code>click()</code>, which can
+      pull the blob out from under a download that has only been queued. Chrome
+      tolerates it, WebKit often does not, and neither anchor was in the document,
+      which Firefox requires. This one mattered because local storage is the only
+      place training data lives.
+    </li>
+    <li>
+      <strong>Two fields made iOS zoom the page in</strong> and never zoom back
+      out, because Safari does that to anything under 16px on focus.
+    </li>
+    <li>
+      <strong>Filter chips at 30px and segmented controls at 36px</strong> were
+      both under the 44px touch minimum the rest of the app already kept.
+    </li>
+  </ul>
+  <div class="callout">
+    Verified across 65 route, viewport and theme combinations, the full first-run
+    path, an eyes-free drill run to completion, and offline, corrupt-storage,
+    back-button and rapid-navigation passes. The lesson I keep from it: a green
+    suite tells you the code does what you wrote down, not that the app works in
+    a hand.
+  </div>
+
   <h2><span class="prompt">$</span>cat why-it-matters.md</h2>
   <p>
     It is the most complete thing I have built. Five phases, a real domain model, an
@@ -122,7 +172,7 @@
 
   <nav class="pager" aria-label="Project navigation">
     <a href="autocare.html">&larr; AutoCare</a>
-    <a href="cyclemind-ai.html">CycleMind AI &rarr;</a>
+    <a href="hiroshi-master-grill.html">Hiroshi Master Grill &rarr;</a>
   </nav>
 </main>
 
