@@ -16,6 +16,12 @@ on:
 permissions:
   contents: write
 
+# Shared with deploy-bike-guide.yml: both workflows push to gh-pages, and two
+# concurrent pushes to the same branch race.
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
