@@ -40,6 +40,7 @@
       <li><a href="#about">about</a></li>
       <li><a href="#skills">skills</a></li>
       <li><a href="#certs">certs</a></li>
+      <li><a href="#security">security</a></li>
       <li><a href="#projects">projects</a></li>
       <li><a href="#timeline">timeline</a></li>
       <li><a href="#contact">contact</a></li>
@@ -291,6 +292,101 @@
   </div>
 </section>
 
+<!-- ========================================================== security -- -->
+<section class="section" id="security">
+  <div class="wrap">
+    <div class="section-head">
+      <h2><span class="prompt">$</span>cat security.md</h2>
+      <p>~/security</p>
+    </div>
+
+    <p class="prose reveal">
+      The part of this work I care about most, and the part that never shows up in a
+      screenshot. Each line below is something in one of the projects above, not a
+      list of things I have read about.
+    </p>
+
+    <div class="secgrid">
+      <div class="seccard reveal">
+        <h3>The database refuses first</h3>
+        <p>
+          Hiroshi's tables deny by default under Row Level Security, so a customer
+          holding the public key with dev tools open cannot read one reservation. The
+          Firestore rules behind Corruption Watch PH do the same for anonymous
+          reports. Neither depends on the interface behaving.
+        </p>
+        <p class="secmeta">43 policy tests &middot; 60 rules assertions &middot; both in CI</p>
+      </div>
+
+      <div class="seccard reveal">
+        <h3>Rules that were made to fail</h3>
+        <p>
+          A test suite that cannot go red guards nothing. The Firestore rules were
+          loosened on purpose to <code>allow read: if true</code>, five denial
+          assertions turned red, and only then was the suite trusted. The Postgres
+          rate limiter was proved with 30 concurrent connections against a limit of
+          10, and exactly 10 got through.
+        </p>
+        <p class="secmeta">Verified by breaking it, not by reading it</p>
+      </div>
+
+      <div class="seccard reveal">
+        <h3>The server never trusts the client</h3>
+        <p>
+          AutoCare's validation schema will not even accept a total, so a client that
+          posts one has it dropped and the server recomputes from the line items.
+          Hiroshi runs one Zod schema in the browser for friendly errors and again on
+          the server, then stores the schema's output rather than the body it was
+          sent.
+        </p>
+        <p class="secmeta">Enforced by tests, not by convention</p>
+      </div>
+
+      <div class="seccard reveal">
+        <h3>Secrets stay server-side</h3>
+        <p>
+          CycleMind's model API keys live in Cloud Functions, so no key ships inside
+          the mobile binary. Bike Guide PH used to identify riders by a UUID in
+          localStorage, which rules cannot verify; it signs in with Firebase Anonymous
+          Auth now, and ownership is checked against <code>request.auth.uid</code>.
+        </p>
+        <p class="secmeta">A binary is not a place to keep a secret</p>
+      </div>
+
+      <div class="seccard reveal">
+        <h3>Sessions that can actually be revoked</h3>
+        <p>
+          AutoCare hashes with bcrypt at cost 12, locks out after five failed logins,
+          rate-limits the login route, and re-checks every request against the
+          database, so disabling an account logs it out immediately rather than
+          whenever the token expires. Role checks run in middleware and again inside
+          each server action.
+        </p>
+        <p class="secmeta">Plus an audit log of every change</p>
+      </div>
+
+      <div class="seccard reveal">
+        <h3>A CSP with nothing switched off</h3>
+        <p>
+          A flat <code>script-src 'self'</code> breaks the Next.js App Router, and
+          <code>unsafe-inline</code> would throw away the point of having a policy.
+          Both AutoCare and Hiroshi stamp a fresh nonce per response instead. This
+          site carries no inline script or style at all, which is why its own policy
+          can forbid both outright.
+        </p>
+        <p class="secmeta">Rate limiting lives in Postgres, because serverless memory does not</p>
+      </div>
+    </div>
+
+    <p class="certs-note reveal">
+      Studied alongside it: Cisco's Ethical Hacker course, and Information Assurance
+      and Security coursework covering SOC toolkit assembly, Linux server log analysis
+      and MITRE ATT&amp;CK mapping. Found a problem with this site or any project on
+      it? <a href="/.well-known/security.txt">There is a security contact</a>.
+    </p>
+  </div>
+</section>
+
 <!-- ========================================================== projects -- -->
 <section class="section" id="projects">
   <div class="wrap">
@@ -325,9 +421,9 @@
       <!-- --------------------------------------------------- floodguard -- -->
       <article class="card reveal" data-tech="iot capstone">
         <span class="card-shot is-empty" aria-hidden="true">
-          $ cat capstone/README<br>
-          <span class="ok">▸</span> in progress, graduating 2027<br>
-          <span class="faint">sensors &middot; prediction &middot; SMS gateway</span>
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l4.5-4.5a2 2 0 0 1 2.8 0L15 15"/><circle cx="15.5" cy="8.5" r="1.5"/></svg>
+          <b>Still being built</b>
+          <span>Capstone, due 2027. Sensors, prediction and an SMS gateway.</span>
         </span>
         <div class="card-body">
           <p class="card-kicker">Capstone &middot; IoT &middot; AI</p>
@@ -404,9 +500,9 @@
       <!-- ------------------------------------------------- badminton-ph -- -->
       <article class="card reveal" data-tech="react firebase">
         <span class="card-shot is-empty" aria-hidden="true">
-          $ open badminton-ph.web.app<br>
-          <span class="ok">▸</span> live, on Firebase Hosting<br>
-          <span class="faint">real-time scoring &middot; rankings &middot; admin</span>
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l4.5-4.5a2 2 0 0 1 2.8 0L15 15"/><circle cx="15.5" cy="8.5" r="1.5"/></svg>
+          <b>No screenshot yet</b>
+          <span>It is live at badminton-ph.web.app. Open it and see the real thing.</span>
         </span>
         <div class="card-body">
           <p class="card-kicker">React &middot; Firebase Hosting</p>
@@ -429,11 +525,9 @@
 
       <!-- ---------------------------------------------- hiroshi samgyup -- -->
       <article class="card reveal" data-tech="nextjs react typescript supabase postgres">
-        <span class="card-shot is-empty" aria-hidden="true">
-          $ npm test<br>
-          <span class="ok">▸</span> 132 passing, 0 failing<br>
-          <span class="faint">RLS &middot; nonce CSP &middot; Postgres rate limit</span>
-        </span>
+        <a class="card-shot" href="projects/hiroshi-master-grill.html" tabindex="-1" aria-hidden="true">
+          <img src="assets/img/shot-hiroshi.jpg" width="1200" height="750" loading="lazy" alt="">
+        </a>
         <div class="card-body">
           <p class="card-kicker">Next.js 16 &middot; Supabase &middot; Client work</p>
           <h3><a href="projects/hiroshi-master-grill.html">hiroshi-grill<span class="slash">/</span></a></h3>
@@ -460,9 +554,9 @@
       <!-- ------------------------------------------------- cyclemind_ai -- -->
       <article class="card reveal" data-tech="flutter dart firebase">
         <span class="card-shot is-empty" aria-hidden="true">
-          $ flutter build web<br>
-          <span class="ok">▸</span> built by CI, not by screenshot<br>
-          <span class="faint">lib/ &middot; clean architecture &middot; 6 features</span>
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l4.5-4.5a2 2 0 0 1 2.8 0L15 15"/><circle cx="15.5" cy="8.5" r="1.5"/></svg>
+          <b>No screenshot</b>
+          <span>A Flutter app. Its own workflow builds it for web and publishes to Pages.</span>
         </span>
         <div class="card-body">
           <p class="card-kicker">Flutter &middot; Riverpod &middot; Firebase</p>
@@ -541,9 +635,9 @@
       <!-- ------------------------------------------------------- hiraya -- -->
       <article class="card reveal" data-tech="unity csharp">
         <span class="card-shot is-empty" aria-hidden="true">
-          $ unity build<br>
-          <span class="ok">▸</span> in progress<br>
-          <span class="faint">Unity 6 &middot; C# &middot; Filipino-themed</span>
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l4.5-4.5a2 2 0 0 1 2.8 0L15 15"/><circle cx="15.5" cy="8.5" r="1.5"/></svg>
+          <b>Still being built</b>
+          <span>A Unity 6 game, worked on for its own sake rather than to a deadline.</span>
         </span>
         <div class="card-body">
           <p class="card-kicker">Unity 6 &middot; C# &middot; Self project</p>

@@ -1,0 +1,7 @@
+# If you find a security problem with this site, or with any of the projects
+# linked from it, please tell me. I would rather hear it from you than not.
+
+Contact: mailto:frncishub@gmail.com
+Preferred-Languages: en, fil
+Canonical: https://wilfred-website.vercel.app/.well-known/security.txt
+Expires: 2027-12-31T23:59:59.000Z
