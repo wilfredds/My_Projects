@@ -102,6 +102,14 @@ rather than snap, then removes it.
   `*-<team>.vercel.app` domains and **omits the short aliases**, which makes a
   perfectly good URL look dead. Always read the list against a deployment whose
   `readyState` is `READY`, or the check is worthless.
+- **Two live links depend on the repository name.** The CycleMind AI and Bike
+  Guide demos are served by GitHub Pages from the `gh-pages` branch, at
+  `wilfredds.github.io/My_Projects/` and `.../bike-guide-app/`. Renaming the
+  repository changes those paths. It has already broken once: `deploy-web.yml`
+  hardcoded the old name in `--base-href`, so after the rename every asset in
+  the published Flutter app resolved to a path that no longer existed and the
+  demo loaded to a blank page. The workflow now reads the name off the event,
+  but the two hrefs here are still plain text. Check them after any rename.
 - **Colours come from tokens, never literals.** Every colour lives in the
   custom properties at the top of `style.css`, which is what makes the light
   theme a block of overrides rather than a rewrite. A hard-coded hex in a rule
