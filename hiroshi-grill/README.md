@@ -47,11 +47,16 @@ site.
 | --- | --- | --- |
 | 1 | Scaffold, design tokens, public site | **Done** |
 | 2 | Supabase tables, RLS policies | **Done** — 43 policy tests pass |
-| 3 | `/api/reservations` — server validation + rate limit | **Done** — 29 endpoint tests |
-| 4 | Supabase Auth login at `/portal` | **Done** — 32 sign-in tests |
+| 3 | `/api/reservations` — server validation + rate limit | **Done** — 35 endpoint tests |
+| 4 | Supabase Auth login at `/portal` | **Done** — 31 sign-in tests |
 | 5 | `/portal/dashboard` with role-aware controls | **Done** — 28 dashboard tests |
-| 6 | Honeypot/Turnstile, per-role testing | **Done** — Turnstile optional; CSP under test |
+| 6 | Honeypot/Turnstile, per-role testing | **Done** — Turnstile optional, 14 tests; 24 CSP tests |
 | 7 | SEO + deploy | Site ready; deploy needs your Supabase project |
+
+`npm test` runs 132 of those; the 43 policy tests are separate and need a
+database, so they run under `npm run db:test`. Both suites run in CI on every
+push that touches this project. If you change a count here, run the suite first
+— these numbers drifted once already.
 
 ## ⚠️ Before this goes public
 
@@ -324,12 +329,12 @@ supabase/
   schema.sql          tables, policies, triggers, the masked staff view
   verify-rls.sql      43 policy tests
   local/              Supabase shim so the tests run without a project
-tests/
-  reservation-handler.test.ts   npm test
-  login.test.ts
-  reservation-status.test.ts
-  turnstile.test.ts
-  csp.test.ts
+tests/                          npm test — 132 in total
+  reservation-handler.test.ts   35
+  login.test.ts                 31
+  reservation-status.test.ts    28
+  csp.test.ts                   24
+  turnstile.test.ts             14
 scripts/
   create-staff.mjs    the only way an account gets a role
   db-test.sh          npm run db:test
