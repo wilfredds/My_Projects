@@ -1,0 +1,45 @@
+name: Deploy Bike Guide PH (GitHub Pages)
+
+# Publishes bike-guide-app/ to the gh-pages branch under /bike-guide-app/, so
+# it is served at https://<owner>.github.io/<repo>/bike-guide-app/.
+#
+# The site uses relative paths throughout, so unlike the CycleMind build it
+# needs no base-href and is unaffected by a repository rename.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "bike-guide-app/**"
+      - ".github/workflows/deploy-bike-guide.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Shared with deploy-web.yml: both workflows push to gh-pages, and two
+# concurrent pushes to the same branch race. cancel-in-progress stays false
+# because these publish different directories, so cancelling one would drop
+# the other project's deploy rather than superseding it.
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Publish bike-guide-app to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./bike-guide-app
+          publish_branch: gh-pages
+          destination_dir: bike-guide-app
+          # keep_files preserves the CycleMind build at the branch root.
+          keep_files: true
+          commit_message: "deploy(bike-guide): publish to /bike-guide-app/"

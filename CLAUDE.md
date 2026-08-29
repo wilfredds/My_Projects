@@ -73,6 +73,7 @@ Every project now has a workflow, each path-filtered to its own directory:
 | `firestore-rules-ci.yml` | 60 rules assertions against the real Firestore emulator |
 | `static-sites-ci.yml` | parses all JS in the three static sites |
 | `deploy-web.yml` | builds `cyclemind_ai` for web and publishes to Pages |
+| `deploy-bike-guide.yml` | publishes `bike-guide-app/` to Pages under `/bike-guide-app/` |
 
 Known coverage gaps, so nobody assumes more than is there:
 
