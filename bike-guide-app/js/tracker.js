@@ -1,11 +1,17 @@
 import { db } from './firebase-config.js';
+import { uid } from './auth.js';
 import { collection, addDoc, getDocs, deleteDoc, doc, orderBy, query, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-const userId = () => localStorage.getItem('bikeUserId') || 'anonymous';
+// Identity comes from Firebase Anonymous Auth, not localStorage. The previous
+// `localStorage.getItem('bikeUserId') || 'anonymous'` had a nasty edge: any
+// device without that key wrote into a single shared 'anonymous' bucket, so
+// those users saw each other's rides. Awaiting the real UID removes that case
+// entirely — there is no fallback identity to collide on.
 
 export async function logRide(rideData) {
-  return addDoc(collection(db, 'users', userId(), 'rides'), {
+  const id = await uid();
+  return addDoc(collection(db, 'users', id, 'rides'), {
     ...rideData,
     timestamp: serverTimestamp(),
   });
@@ -13,14 +19,16 @@ export async function logRide(rideData) {
 
 export async function getRides() {
   try {
-    const q = query(collection(db, 'users', userId(), 'rides'), orderBy('timestamp', 'desc'));
+    const id = await uid();
+    const q = query(collection(db, 'users', id, 'rides'), orderBy('timestamp', 'desc'));
     const snap = await getDocs(q);
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch { return []; }
 }
 
 export async function deleteRide(rideId) {
-  return deleteDoc(doc(db, 'users', userId(), 'rides', rideId));
+  const id = await uid();
+  return deleteDoc(doc(db, 'users', id, 'rides', rideId));
 }
 
 export function calcStats(rides) {

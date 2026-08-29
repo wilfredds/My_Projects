@@ -3,15 +3,16 @@ import { initUI, toast, countUp, haptic, confetti, setTheme, getTheme, toggleThe
 // Re-export shared UX helpers so any page importing from app.js can use them.
 export { toast, countUp, haptic, confetti, setTheme, getTheme, toggleTheme };
 
-// ── User identity (device-based, no login required) ──
-export function getUserId() {
-  let id = localStorage.getItem('bikeUserId');
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem('bikeUserId', id);
-  }
-  return id;
-}
+// ── User identity ──
+//
+// Identity lives in js/auth.js now. Import `uid()` from there and await it;
+// it signs in anonymously on first use and returns a Firebase Auth UID that
+// Firestore rules can actually verify.
+//
+// The old `getUserId()` returned a localStorage UUID that the rules engine had
+// no way to check, so any caller could claim any user's data. It is gone rather
+// than deprecated, because a synchronous identity getter cannot be made safe —
+// the real UID is only known after sign-in resolves.
 
 // ── Rider level ──
 export function getRiderLevel() {

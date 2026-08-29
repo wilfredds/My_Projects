@@ -1,4 +1,5 @@
 import { db } from './firebase-config.js';
+import { uid } from './auth.js';
 import { doc, setDoc, getDocs, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { isPremium } from './app.js';
 
@@ -42,9 +43,8 @@ const CHALLENGE_PLAN = [
 export { CHALLENGE_PLAN };
 
 export async function getDayStatus() {
-  const userId = localStorage.getItem('bikeUserId');
-  if (!userId) return {};
   try {
+    const userId = await uid();
     const snap = await getDocs(collection(db, 'users', userId, 'challenge'));
     const status = {};
     snap.forEach(d => { status[d.id] = d.data(); });
@@ -53,8 +53,7 @@ export async function getDayStatus() {
 }
 
 export async function markDayComplete(day) {
-  const userId = localStorage.getItem('bikeUserId');
-  if (!userId) return;
+  const userId = await uid();
   await setDoc(doc(db, 'users', userId, 'challenge', `day_${String(day).padStart(2,'0')}`), {
     day,
     completed: true,

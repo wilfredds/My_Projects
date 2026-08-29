@@ -179,6 +179,7 @@
 <script type="module">
   import { initPage, getDailyTip, getRiderLevel, countUp } from './js/app.js';
   import { db } from './js/firebase-config.js';
+  import { uid } from './js/auth.js';
   import { collection, query, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
   initPage('home');
@@ -209,7 +210,9 @@
   }
 
   // 2) Refresh from Firestore in the background, then animate to live values
-  const userId = localStorage.getItem('bikeUserId');
+  // Identity comes from Firebase Anonymous Auth; awaiting it also triggers
+  // sign-in and the one-time migration of any pre-auth data on this device.
+  const userId = await uid().catch(() => null);
   if (userId && db) {
     try {
       const [snap, cSnap] = await Promise.all([

@@ -153,15 +153,19 @@
   </div>
 
   <script>
-    // Check if already onboarded — skip to dashboard
-    if (localStorage.getItem('riderLevel') && localStorage.getItem('bikeUserId')) {
+    // Check if already onboarded — skip to dashboard.
+    //
+    // This used to also require `bikeUserId`. Identity is now handled by
+    // Firebase Anonymous Auth (js/auth.js), which signs in on demand, so the
+    // only thing that marks a user as onboarded is having picked a rider level.
+    if (localStorage.getItem('riderLevel')) {
       window.location.href = 'dashboard.html';
     }
 
-    // Generate user ID on first visit
-    if (!localStorage.getItem('bikeUserId')) {
-      localStorage.setItem('bikeUserId', crypto.randomUUID());
-    }
+    // No user ID is generated here any more. `bikeUserId` is retained on
+    // devices that already have one, purely so js/auth.js can migrate that
+    // user's rides and challenge progress across to their authenticated
+    // account on next launch. New devices never get one.
 
     let selectedLevel = null;
 

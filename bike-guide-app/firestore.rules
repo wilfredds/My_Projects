@@ -1,0 +1,167 @@
+rules_version = '2';
+
+// Firestore security rules for Bike Guide PH.
+//
+// Identity is Firebase Anonymous Authentication. The user never sees a login —
+// no email, no password, no account — but every request carries a real
+// `request.auth.uid` that these rules compare against the document path. That
+// makes ownership enforceable server-side.
+//
+// This replaced a model where a user was a `crypto.randomUUID()` held in
+// localStorage and sent as part of the path. The rules engine could not verify
+// such a value: a caller simply claimed whichever ID it liked, so the data was
+// protected only by the UUID being hard to guess, and one user could read
+// another's rides given their ID. Nothing here relies on secrecy any more.
+//
+// See the migration block below for how pre-auth data is carried across, which
+// is the one place this file deliberately trades a little strictness for not
+// destroying people's ride history.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------- helpers
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Migration bridge.
+    //
+    // Existing users have data under their old localStorage UUID. After signing
+    // in they get a different UID, so without this their rides would be
+    // stranded at a path they no longer own.
+    //
+    // A user's profile document may claim one `legacyId`. This grants read and
+    // delete on that old subtree — exactly what the one-time copy in
+    // js/auth.js needs — and nothing else. Three things keep it narrow:
+    //
+    //   * the claimer must be signed in, so the access is attributable
+    //   * `legacyId` is write-once (see the update rule below), so a profile
+    //     cannot be re-pointed from one victim to the next
+    //   * it grants no write access to the legacy subtree beyond delete
+    //
+    // It is not airtight: someone who already knows a victim's old UUID can
+    // claim it. But knowing that UUID granted *full* access under the previous
+    // rules, so this is strictly narrower than the model it replaces, not a new
+    // hole. Once the userbase has opened the app once, delete this function and
+    // the `|| claimsLegacy(...)` clauses — see CLAUDE.md.
+    function claimsLegacy(legacyId) {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid))
+             .data.get('legacyId', '') == legacyId;
+    }
+
+    // --------------------------------------------------------- user profile
+
+    match /users/{userId} {
+
+      allow get: if isOwner(userId);
+      // Nobody enumerates the user list, owner included.
+      allow list: if false;
+
+      allow create: if isOwner(userId) && isValidProfile();
+
+      // `legacyId` is immutable once written. Without this a user could migrate
+      // their own data, then rewrite the claim to point at somebody else's.
+      allow update: if isOwner(userId)
+        && isValidProfile()
+        && request.resource.data.get('legacyId', '') == resource.data.get('legacyId', '');
+
+      allow delete: if false;
+
+      // ------------------------------------------------------------- rides
+
+      match /rides/{rideId} {
+        allow read: if isOwner(userId) || claimsLegacy(userId);
+        allow create, update: if isOwner(userId) && isValidRide();
+        // Delete is open to the legacy claim so migration can clear the old
+        // copy after it has been written to the new location.
+        allow delete: if isOwner(userId) || claimsLegacy(userId);
+      }
+
+      // --------------------------------------------------------- challenge
+
+      match /challenge/{dayId} {
+        allow read: if isOwner(userId) || claimsLegacy(userId);
+        allow create, update: if isOwner(userId) && isValidChallengeDay();
+        allow delete: if isOwner(userId) || claimsLegacy(userId);
+      }
+    }
+
+    function isValidProfile() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['createdAt', 'legacyId'])
+        && (!('createdAt' in d) || d.createdAt is string)
+        && (!('legacyId' in d) || (d.legacyId is string && d.legacyId.size() <= 100));
+    }
+
+    function isValidRide() {
+      let d = request.resource.data;
+      return d.size() <= 20
+        && (!('distanceKm' in d) || d.distanceKm is number)
+        && (!('durationMinutes' in d) || d.durationMinutes is number)
+        && (!('notes' in d) || (d.notes is string && d.notes.size() <= 2000));
+    }
+
+    function isValidChallengeDay() {
+      let d = request.resource.data;
+      return d.size() <= 10
+        && (!('day' in d) || d.day is int)
+        && (!('completed' in d) || d.completed is bool);
+    }
+
+    // ------------------------------------------------------- premium requests
+    //
+    // Filed when a user claims they have paid via GCash. Carries a payment
+    // reference, so it is write-only from the browser: a signed-in user may
+    // submit one and may never read one back. Review happens in the Firebase
+    // console or via the Admin SDK, neither of which is bound by these rules.
+
+    match /premiumRequests/{requestId} {
+      allow create: if isSignedIn() && isValidPremiumRequest();
+      allow read, update, delete: if false;
+    }
+
+    function isValidPremiumRequest() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['deviceId', 'gcashRef', 'amount', 'status', 'submittedAt'])
+        && d.keys().hasAll(['deviceId', 'gcashRef', 'status', 'submittedAt'])
+        // The request must be filed under the caller's own identity, so a
+        // request cannot be attributed to somebody else's account.
+        && d.deviceId == request.auth.uid
+        // Always starts pending — nobody files a pre-approved request.
+        && d.status == 'pending'
+        && d.submittedAt == request.time
+        && d.gcashRef is string && d.gcashRef.size() > 0 && d.gcashRef.size() <= 100
+        && (!('amount' in d) || d.amount is number);
+    }
+
+    // ---------------------------------------------------------- premium users
+    //
+    // The entitlement record the app checks on launch. Readable by its owner,
+    // and by a user whose profile claims it as their legacy ID so that anyone
+    // who paid before the move to authentication keeps what they paid for.
+    //
+    // Writable by nobody: if a client could write here it would simply set
+    // activated = true and take the paid tier for free. Only an admin grants
+    // premium, from the console or the Admin SDK.
+
+    match /premiumUsers/{userId} {
+      allow get: if isOwner(userId) || claimsLegacy(userId);
+      allow list: if false;
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------------- catch-all
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
