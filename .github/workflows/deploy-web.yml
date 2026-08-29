@@ -7,7 +7,7 @@ name: Deploy CycleMind AI (web demo)
 on:
   push:
     branches:
-      - claude/cyclemind-ai-vision-r19yap
+      - main
     paths:
       - "cyclemind_ai/**"
       - ".github/workflows/deploy-web.yml"
@@ -46,11 +46,14 @@ jobs:
         run: flutter test
         continue-on-error: true
 
-      # base-href must match the repo name so assets resolve on
-      # https://<owner>.github.io/corruptionreportsystem/
+      # base-href has to match the path GitHub Pages serves this repo from,
+      # which is /<repo name>/. Hardcoding it broke the demo once already: the
+      # repo was renamed and the published build kept pointing at the old name,
+      # so every asset 404'd. Read it off the event instead so a rename cannot
+      # silently break the deploy again.
       - name: Build web (mock mode)
         working-directory: cyclemind_ai
-        run: flutter build web --release --base-href /corruptionreportsystem/
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
 
       - name: Publish to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
@@ -58,4 +61,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./cyclemind_ai/build/web
           publish_branch: gh-pages
-          force_orphan: true
+          # Not force_orphan: bike-guide-app/ is published to the same branch
+          # by its own workflow, and orphaning would delete it.
+          keep_files: true
+          commit_message: "deploy(cyclemind): publish web demo to gh-pages"
