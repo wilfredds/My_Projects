@@ -128,7 +128,6 @@
    does. Redefining the tokens on the wrapper means everything inside follows
    without a single override. */
 .term,
-.card-shot.is-empty,
 .portrait figcaption {
   --text:      #dbe3d8;
   --dim:       #93a08f;
@@ -1252,4 +1251,76 @@ code {
   .lede-prose { font-size: 9pt; max-width: none; }
   .cv-contact { line-height: 1.5; font-size: 8.5pt; }
   .cv h2, .cv-entry h3 { break-after: avoid; page-break-after: avoid; }
+}
+
+/* ------------------------------------------------------------- security -- */
+.secgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.seccard {
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--green);
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--surface);
+  padding: 1.15rem 1.25rem 1.25rem;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.seccard:hover { border-color: var(--edge); border-top-color: var(--green); transform: translateY(-2px); }
+
+.seccard h3 {
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.6rem;
+}
+
+.seccard p { color: var(--dim); font-size: 0.92rem; }
+
+.secmeta {
+  font-family: var(--mono);
+  font-size: 0.71rem;
+  color: var(--faint);
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--line-soft);
+}
+
+/* ---------------------------------------------- placeholder screenshots --
+   Some projects genuinely cannot be screenshotted from here: no Flutter SDK,
+   no Unity, and a capstone that is still being built. The tile should read as
+   a deliberate panel rather than a picture that failed to load.             */
+/* A tile for a project that genuinely cannot be screenshotted from here: no
+   Flutter SDK, no Unity, a capstone still being built, and one site that is
+   live but unreachable from this build environment. It has to read as a
+   deliberate panel. A dark box inside a light card reads as a failed image. */
+.card-shot.is-empty {
+  gap: 0.35rem;
+  padding: 2rem 1.5rem;
+  border: 1px dashed var(--line);
+  background: var(--surface-2);
+  color: var(--dim);
+  text-align: center;
+  line-height: 1.6;
+}
+.card-shot.is-empty .empty-icon {
+  width: 26px;
+  height: 26px;
+  color: var(--faint);
+  margin-bottom: 0.35rem;
+}
+.card-shot.is-empty b {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.card-shot.is-empty span {
+  font-family: var(--sans);
+  font-size: 0.83rem;
+  max-width: 34ch;
 }
