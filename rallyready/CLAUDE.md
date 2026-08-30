@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **515 tests across 32 files, all passing** — if you
+individually. Baseline is **518 tests across 32 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -79,12 +79,15 @@ see fewer, something is being skipped.
   gets an animation, and nothing on the runner may force a layout or a paint
   per tick; `TimerDial.tsx` explains why its sweep has no CSS transition.
 - **A figure that contradicts its cue is worse than no figure.** The renderer
-  draws a *front view*; `MobilityPose.ground` tips the whole body over, which
-  covers push-ups and planks but cannot express a side-view silhouette. Four
-  strength exercises therefore ship with no diagram and a comment saying why,
-  and `circuit.test.ts` asserts that anything opting out still has cues to
-  stand on. Render a contact sheet and look at a new pose before shipping it —
-  every figure defect in this app has been found that way, never by reading.
+  mirrors left and right, which makes it a *front view* by construction;
+  `MobilityPose.ground` tips the whole body over for anything done on the floor
+  and `MobilityPose.profile` turns the mirroring off for anything that has to
+  be seen edge-on. In profile an angle means "degrees forward from straight
+  down", and the sliver between the near and far limbs is added in screen space
+  after the tip, not as a shoulder width — a body-space offset rotates with the
+  figure and floats one foot off the floor. Render a contact sheet and look at
+  a new pose before shipping it — every figure defect in this app has been
+  found that way, never by reading.
 - **A premium block is weeks, not a flag.** `lib/premium/commitment` records
   what was bought and derives delivery from sessions that were actually logged.
   Any week inside a block that the entitlement did not cover is `uncovered` and

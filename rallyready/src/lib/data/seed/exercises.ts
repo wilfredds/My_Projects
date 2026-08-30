@@ -101,6 +101,21 @@ export interface MobilityPose {
    * poses read the same way whichever way up the figure is.
    */
   ground?: number
+  /**
+   * Draw the figure edge-on instead of face-on.
+   *
+   * The mirroring in `step` is what makes this a front view: left limbs get
+   * `side: -1` and right limbs `+1`, so a symmetric pair of angles splays them
+   * apart across the body. That is right for a star jump and hopeless for a
+   * glute bridge, where both legs move together in the plane you are looking
+   * through.
+   *
+   * In profile both limbs take the same side, so every angle reads as "degrees
+   * forward from straight down" — which is exactly how a side-view pose is
+   * described out loud. The far arm and leg still draw, faded, slightly behind,
+   * which is what stops the figure reading as one-armed.
+   */
+  profile?: boolean
 }
 
 export interface Exercise {
@@ -585,13 +600,36 @@ export const EXERCISES: Exercise[] = [
     substitute: 'Bend the bottom knee and rest it on the floor for a shorter lever.',
     recommendedReps: '2 holds of 20–30 seconds each side.',
     /*
-     * No diagram on purpose.
+     * Drawn in profile, because a side plank *is* the profile: edge-on is the
+     * only angle from which the line from head to heels is a line rather than a
+     * foreshortened blob. Both legs take the same angle, which is what makes
+     * the feet read as stacked rather than apart.
      *
-     * The figure renderer draws a front view. A side plank is defined by the
-     * body being edge-on to the viewer, which a front view cannot show without
-     * looking like somebody lying diagonally. A wrong diagram is worse than
-     * none, so this ships on its cues.
+     * The hip drive is in the cues rather than in the frames. Animating it
+     * would mean drawing the sagged hip the cues tell you to avoid, and a
+     * figure spending half its time in the fault is teaching the fault. The top
+     * arm going up is the honest movement here, and it is the other cue.
      */
+    mobility: [
+      mob('Elbow under shoulder', {
+        profile: true,
+        ground: 78,
+        armR: 78,
+        elbowR: 90,
+        armL: 0,
+        legL: 0,
+        legR: 0,
+      }),
+      mob('Top arm to the sky', {
+        profile: true,
+        ground: 78,
+        armR: 78,
+        elbowR: 90,
+        armL: -102,
+        legL: 0,
+        legR: 0,
+      }),
+    ],
   },
   {
     slug: 'str-glute-bridge',
@@ -613,12 +651,47 @@ export const EXERCISES: Exercise[] = [
     substitute: null,
     recommendedReps: '3 sets of 12–15 with a one-second squeeze at the top.',
     /*
-     * No diagram on purpose.
+     * The knee angle stays at 90° and the thigh comes up to horizontal, which
+     * puts the foot within a pixel of where it was in the frame before: the
+     * heels stay planted and the hips travel, which is the whole movement.
      *
-     * The figure renderer draws a front view. A side plank is defined by being
-     * edge-on to the viewer, which a front view can only draw as somebody
-     * lying diagonally. Ships on its cues.
+     * The torso is rigid here — head, neck and hip are one straight line — so a
+     * bridge deep enough to put the shoulders on the floor would bury the head
+     * under it. `ground: -108` is the compromise: the head rests on the floor,
+     * the shoulders sit just above it, and the ramp still reads as a ramp.
      */
+    mobility: [
+      mob('Hips down', {
+        profile: true,
+        ground: -84,
+        armL: -1,
+        armR: -1,
+        legL: 68,
+        legR: 68,
+        kneeL: 124,
+        kneeR: 124,
+      }),
+      mob('Drive the hips up', {
+        profile: true,
+        ground: -108,
+        armL: -39,
+        armR: -39,
+        legL: -18,
+        legR: -18,
+        kneeL: 90,
+        kneeR: 90,
+      }),
+      mob('Pause at the top', {
+        profile: true,
+        ground: -108,
+        armL: -39,
+        armR: -39,
+        legL: -18,
+        legR: -18,
+        kneeL: 90,
+        kneeR: 90,
+      }),
+    ],
   },
   {
     slug: 'str-dead-bug',
@@ -687,12 +760,34 @@ export const EXERCISES: Exercise[] = [
     substitute: 'Lift the opposite arm and leg only, alternating.',
     recommendedReps: '3 sets of 10 with a one-second hold at the top.',
     /*
-     * No diagram on purpose.
+     * Both ends leave the floor and the hip stays on it, so the lift frame is a
+     * shallow V pivoting on the hip — which is exactly what the grounding code
+     * does anyway, since the hip is the lowest joint once everything else has
+     * risen.
      *
-     * The figure renderer draws a front view. Lying face down with the chest
-     * and thighs lifted is a shallow side-view arc, and a front view flattens
-     * it into a horizontal smudge. Ships on its cues.
+     * The arms stop a little short of full extension overhead. Flat out they
+     * reach x=114, the exact edge of the canvas, and a round line cap would be
+     * sliced off there.
      */
+    mobility: [
+      mob('Face down', { profile: true, ground: 80, armL: 143, armR: 143, legL: 0, legR: 0 }),
+      mob('Lift chest and thighs', {
+        profile: true,
+        ground: 70,
+        armL: 185,
+        armR: 185,
+        legL: -40,
+        legR: -40,
+      }),
+      mob('Hold for a second', {
+        profile: true,
+        ground: 70,
+        armL: 185,
+        armR: 185,
+        legL: -40,
+        legR: -40,
+      }),
+    ],
   },
   {
     slug: 'str-bird-dog',
@@ -926,12 +1021,41 @@ export const EXERCISES: Exercise[] = [
     substitute: 'Keep the heels on the floor, or sit more upright.',
     recommendedReps: '3 sets of 20 total turns, slow and controlled.',
     /*
-     * No diagram on purpose.
+     * The rotation itself happens about the axis the viewer is looking down, so
+     * no side view can draw it. What a side view *can* draw is its projection:
+     * hands held in front of the chest travel down to beside the hip as the
+     * ribs come round, and back up through centre on the way to the other side.
+     * That is the movement in these two frames, and it is real rather than
+     * mimed — turning either way projects to the same place.
      *
-     * The figure renderer draws a front view. Sitting back on the tailbone with
-     * the knees up is a side-view shape, and rotating a front view put the
-     * figure in mid-air. Ships on its cues.
+     * The seat is the half people get wrong anyway. Leaned back to 45° with the
+     * knees up and the feet just off the floor is the position the first cue is
+     * describing, and it is drawn exactly.
      */
+    mobility: [
+      mob('Sit back', {
+        profile: true,
+        ground: -45,
+        armL: -5,
+        armR: -5,
+        elbowL: 100,
+        elbowR: 100,
+        legL: 85,
+        legR: 85,
+        kneeL: 80,
+        kneeR: 80,
+      }),
+      mob('Turn to one side', {
+        profile: true,
+        ground: -45,
+        armL: 7,
+        armR: 7,
+        legL: 85,
+        legR: 85,
+        kneeL: 80,
+        kneeR: 80,
+      }),
+    ],
   },
 
   /* ------------------------------------------------- warm-up: raise the heart rate */

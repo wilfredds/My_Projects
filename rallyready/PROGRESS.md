@@ -22,7 +22,7 @@ the way.
 | **10 — Off-court training, strokes, integrity** | ✅ **Done — ready for review** |
 
 All ten phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 515 unit tests passing, production build clean.
+errors/warnings, 518 unit tests passing, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -65,13 +65,29 @@ jump smash is what wrecks ankles, so the calves get a slot of their own. Every
 one has form cues, the common faults and a substitute, because "do fewer" is
 not a scaling strategy.
 
-Four ship with **no diagram at all**. A glute bridge, a superman, a seated
-twist and a side plank are each defined by a side-view silhouette, and this
-renderer draws a front view; every attempt came out as a person folded over
-backwards. Each carries a comment saying so and the guard test now asserts that
-anything opting out still has cues to stand on. Every pose was rendered to a
-contact sheet and looked at — the only way figure defects here have ever been
-found — which is how the four were identified in the first place.
+Four of them shipped at first with **no diagram at all**. A glute bridge, a
+superman, a seated twist and a side plank are each defined by a side-view
+silhouette, and the renderer drew a front view; every attempt came out as a
+person folded over backwards. Every pose was rendered to a contact sheet and
+looked at — the only way figure defects here have ever been found — which is
+how the four were identified in the first place.
+
+They are drawn now. The mirroring in `step` is what made the renderer a front
+view: left limbs get `side: -1` and right limbs `+1`, so a symmetric pair of
+angles splays them apart instead of moving them together. `MobilityPose.profile`
+turns that off, both limbs take the same side, and every angle becomes "degrees
+forward from straight down" — which is how a side-view pose gets described out
+loud anyway. The few pixels that keep the far limb from hiding exactly behind
+the near one moved out of the shoulder width and into a screen-space stagger
+applied after the body is tipped over: as a shoulder width it rotated with
+everything else, so a figure on its back stood one foot on the floor and held
+the other four pixels above it.
+
+What a side view still cannot show is a rotation about the axis you are looking
+down, which is the seated twist. Its two frames draw the projection of that
+rotation instead — hands travelling from in front of the chest to beside the
+hip and back — because turning either way projects to the same place, and the
+seat is the half people get wrong anyway.
 
 Three workouts use them, under a new Strength category and focus area.
 
@@ -116,7 +132,7 @@ Still no payment provider, and the page still says so above the prices.
 
 ### Verified
 
-- `npm run verify`: 515 tests across 32 files.
+- `npm run verify`: 518 tests across 32 files.
 - 90 route/viewport/theme combinations, including the new screens: no console
   errors, no page errors, nothing scrolls sideways.
 - A stroke drill run end to end with speech stubbed: twelve calls, every one

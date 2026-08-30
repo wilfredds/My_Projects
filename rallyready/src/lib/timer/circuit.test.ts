@@ -194,43 +194,29 @@ describe('the exercise catalogue', () => {
     }
   })
 
-  it('draws the exercises the figure can honestly represent', () => {
+  it('draws every exercise that is a movement rather than a position', () => {
     /*
      * The rule is "a drawing that contradicts the cue is worse than no
-     * drawing", not "everything must be drawn".
+     * drawing", and for a while four strength exercises were opted out under
+     * it: a glute bridge, a superman, a seated twist and a side plank are all
+     * defined by a side-view silhouette, which a front view can only draw as
+     * somebody lying diagonally. `MobilityPose.profile` turns the left/right
+     * mirroring off and gives the renderer that side view, so all four are
+     * drawn now and the opt-out list is empty.
      *
      * There are two renderers. `poses` is the parametric one — squat, air,
      * tuck, arms — which suits a jump and cannot express an arm circle.
-     * `mobility` is the jointed skeleton, which can now also tip the whole
-     * body over and so covers push-ups and planks. A bodyweight exercise may
+     * `mobility` is the jointed skeleton, which also tips the whole body over
+     * and so covers everything done on the floor. A bodyweight exercise may
      * use either.
-     *
-     * Four of the strength exercises use neither, on purpose: a glute bridge,
-     * a superman, a seated twist and a side plank are all defined by a
-     * side-view silhouette, and this renderer draws a front view. Each of them
-     * carries a comment saying so. They ship on their cues.
      */
-    const UNDRAWABLE = new Set([
-      'str-glute-bridge',
-      'str-superman',
-      'str-russian-twist',
-      'str-side-plank',
-    ])
-
     for (const exercise of EXERCISES) {
       // Ladder work is a footfall pattern; trained movement is drawn as poses.
       if (exercise.kind === 'ladder') expect(exercise.pattern?.length).toBeGreaterThan(2)
-      if (
-        (exercise.kind === 'plyometric' || exercise.kind === 'bodyweight') &&
-        !UNDRAWABLE.has(exercise.slug)
-      ) {
+      if (exercise.kind === 'plyometric' || exercise.kind === 'bodyweight') {
         const frames = exercise.poses?.length ?? exercise.mobility?.length ?? 0
         expect(frames, `${exercise.slug} has no diagram`).toBeGreaterThan(1)
-      }
-      // Anything opted out of a diagram must still say what to do instead.
-      if (UNDRAWABLE.has(exercise.slug)) {
-        expect(exercise.poses, `${exercise.slug}`).toBeUndefined()
-        expect(exercise.mobility, `${exercise.slug}`).toBeUndefined()
+        // A diagram is an addition to the cues, never a replacement for them.
         expect(exercise.cues.length, `${exercise.slug}`).toBeGreaterThan(2)
       }
       // Mobility and stretching are deliberately allowed to have no diagram.

@@ -4,6 +4,7 @@ import { EXERCISES, findExercise, type MobilityPose } from '@/lib/data/seed/exer
 import { TECHNIQUE_TOPICS } from '@/lib/data/seed/technique'
 
 import {
+  blend,
   build,
   footSpread,
   lowestY,
@@ -15,6 +16,7 @@ import {
   HEAD_Y,
   HIP_SPREAD,
   MIN_TRAVEL,
+  PROFILE_HALF,
   VIEW_W,
 } from './skeleton'
 
@@ -108,6 +110,42 @@ describe('the sign convention', () => {
       if (!pose) continue // the pose was renamed; the coverage test below still guards the rest
       expect(footSpread(pose), `${slug} / ${label}`).toBeGreaterThan(HIP_SPREAD)
     }
+  })
+})
+
+describe('a profile pose', () => {
+  const both = { armL: 60, armR: 60, legL: 20, legR: 20 }
+
+  it('swings both limbs the same way instead of mirroring them', () => {
+    const front = build({ label: 'front', ...both })
+    const side = build({ label: 'side', ...both, profile: true })
+
+    expect(front.handL.x).toBeLessThan(front.shoulderL.x)
+    expect(side.handL.x).toBeGreaterThan(side.shoulderL.x)
+    // Edge-on the two hands are all but on top of each other; the sliver
+    // between them is what stops the figure reading as one-armed.
+    expect(Math.abs(side.handR.x - side.handL.x)).toBeLessThan(PROFILE_HALF * 2 + 0.001)
+  })
+
+  it('keeps both feet on the floor whichever way the body is tipped', () => {
+    // The near/far separation is a drawing convention, not anatomy. Applied as
+    // a shoulder width it rotates with everything else, and a figure on its
+    // back ends up with one foot several pixels above the floor the other is
+    // standing on — which is exactly how it looked before it moved down here.
+    for (const ground of [-120, -90, -45, 0, 45, 78, 90]) {
+      const figure = build({ label: 'tipped', ...both, legL: 0, legR: 0, profile: true, ground })
+      expect(figure.footL.y, `ground ${ground}`).toBeCloseTo(figure.footR.y, 5)
+      expect(figure.handL.y, `ground ${ground}`).toBeCloseTo(figure.handR.y, 5)
+    }
+  })
+
+  it('never blends halfway into profile', () => {
+    // Half a rotation into the page is not a pose; it is the far limb swinging
+    // across the body for a few frames on the way.
+    const front: MobilityPose = { label: 'front', ...both }
+    const side: MobilityPose = { ...front, label: 'side', profile: true }
+    expect(blend(front, side, 0.25).profile).toBeFalsy()
+    expect(blend(front, side, 0.75).profile).toBe(true)
   })
 })
 

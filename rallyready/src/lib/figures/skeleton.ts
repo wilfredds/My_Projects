@@ -19,6 +19,16 @@ import type { MobilityPose } from '@/lib/data/seed/exercises'
  * so a symmetric pose is written with the same number on the left and the
  * right. Writing `legL: -16, legR: 16` does not produce a wide stance; it
  * produces a figure leaning to one side with its feet together.
+ *
+ * ## Profile poses
+ *
+ * That mirroring is precisely what makes the default a *front* view, and it is
+ * why a glute bridge could not be drawn at all: both legs have to move
+ * together, in the plane you are looking through, and mirroring splays them
+ * apart instead. `pose.profile` turns the mirroring off — both limbs take the
+ * same side — so an angle becomes "degrees forward from straight down" and the
+ * body is seen edge-on. The shoulders and hips narrow to almost nothing at the
+ * same time, because that is what a torso looks like from the side.
  */
 
 export const VIEW_W = 100
@@ -36,6 +46,8 @@ export const HEAD_R = 8.5
 
 export const SHOULDER_HALF = 11
 export const HIP_HALF = 7.5
+/** Half-width of a torso seen edge-on. Enough to keep the far limb behind. */
+export const PROFILE_HALF = 2.5
 export const UPPER_ARM = 15
 export const FOREARM = 14
 
@@ -140,7 +152,18 @@ export function build(pose: MobilityPose): Figure {
   const lift = Math.max(0, pose.lift ?? 0)
   const lean = pose.lean ?? 0
   const twist = pose.twist ?? 0
-  const shoulderHalf = SHOULDER_HALF * Math.cos(rad(twist))
+  const profile = pose.profile === true
+
+  /*
+   * Edge-on, the shoulders and hips have no width worth drawing. The sliver
+   * that keeps the far limb from hiding exactly behind the near one is added
+   * further down, after the body has been tipped over, because it is a drawing
+   * convention rather than anatomy.
+   */
+  const shoulderHalf = profile ? 0 : SHOULDER_HALF * Math.cos(rad(twist))
+  const hipHalf = profile ? 0 : HIP_HALF
+  /** In profile both limbs swing the same way; face-on they mirror. */
+  const far: 1 | -1 = profile ? 1 : -1
 
   const hip: Point = { x: 50, y: HIP_Y - lift }
   // The torso leans from the hip, so the shoulders and head travel with it.
@@ -152,17 +175,17 @@ export function build(pose: MobilityPose): Figure {
 
   const shoulderL: Point = { x: neck.x - shoulderHalf, y: neck.y }
   const shoulderR: Point = { x: neck.x + shoulderHalf, y: neck.y }
-  const hipL: Point = { x: hip.x - HIP_HALF, y: hip.y }
-  const hipR: Point = { x: hip.x + HIP_HALF, y: hip.y }
+  const hipL: Point = { x: hip.x - hipHalf, y: hip.y }
+  const hipR: Point = { x: hip.x + hipHalf, y: hip.y }
 
-  const elbowL = step(shoulderL, UPPER_ARM, pose.armL, -1)
+  const elbowL = step(shoulderL, UPPER_ARM, pose.armL, far)
   const elbowR = step(shoulderR, UPPER_ARM, pose.armR, 1)
-  const handL = step(elbowL, FOREARM, pose.armL + (pose.elbowL ?? 0), -1)
+  const handL = step(elbowL, FOREARM, pose.armL + (pose.elbowL ?? 0), far)
   const handR = step(elbowR, FOREARM, pose.armR + (pose.elbowR ?? 0), 1)
 
-  const kneeL = step(hipL, THIGH, pose.legL, -1)
+  const kneeL = step(hipL, THIGH, pose.legL, far)
   const kneeR = step(hipR, THIGH, pose.legR, 1)
-  const footL = step(kneeL, SHIN, pose.legL - (pose.kneeL ?? 0), -1)
+  const footL = step(kneeL, SHIN, pose.legL - (pose.kneeL ?? 0), far)
   const footR = step(kneeR, SHIN, pose.legR - (pose.kneeR ?? 0), 1)
 
   const figure: Figure = {
@@ -201,6 +224,25 @@ export function build(pose: MobilityPose): Figure {
   }
 
   /*
+   * Stagger the two sides of a profile figure, in screen space.
+   *
+   * Edge-on the limbs are genuinely on top of each other, so they need pulling
+   * apart by a few pixels or the figure looks like it has one arm and one leg.
+   * The separation is applied here rather than as a shoulder width because a
+   * body-space offset gets rotated with everything else: tip a figure onto its
+   * back and the two hips end up stacked *vertically*, which floats the near
+   * foot several pixels above a floor the far one is standing on. Horizontal in
+   * the drawing is the only direction that reads as "the far side, behind" from
+   * every angle.
+   */
+  if (profile) {
+    for (const key of Object.keys(figure) as (keyof Figure)[]) {
+      if (key.endsWith('L')) figure[key].x -= PROFILE_HALF
+      else if (key.endsWith('R')) figure[key].x += PROFILE_HALF
+    }
+  }
+
+  /*
    * Stand the figure on the floor.
    *
    * A fixed hip height only works while both legs are straight. Kneel, lunge or
@@ -234,6 +276,9 @@ export function blend(from: MobilityPose, to: MobilityPose, t: number): Mobility
     kneeR: lerp(from.kneeR ?? 0, to.kneeR ?? 0, t),
     twist: lerp(from.twist ?? 0, to.twist ?? 0, t),
     lift: lerp(from.lift ?? 0, to.lift ?? 0, t),
+    // Not interpolated: a figure cannot be half in profile, and blending it
+    // would swing the far limb across the body mid-transition.
+    profile: t < 0.5 ? from.profile : to.profile,
     lean: lerp(from.lean ?? 0, to.lean ?? 0, t),
     ground: lerp(from.ground ?? 0, to.ground ?? 0, t),
   }
