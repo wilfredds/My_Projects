@@ -1,8 +1,10 @@
-import { ArrowLeft, Check, Info, Sparkles } from 'lucide-react'
+import { ArrowLeft, Check, Info, ShieldCheck, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { PageHeader } from '@/components/PageHeader'
+import { useProgramState } from '../programs/useProgramState'
+import { CommitmentCard } from './components/CommitmentCard'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,6 +14,7 @@ import {
   ALWAYS_FREE,
   BUNDLES,
   COACH_SESSION_PHP,
+  GUARANTEES,
   PREMIUM_FEATURES,
   type Bundle,
 } from '@/lib/premium/entitlements'
@@ -26,8 +29,16 @@ import { usePremium, usePremiumStore } from '@/store/premiumStore'
  * thing that loses someone's trust permanently. So the buttons here say what
  * they actually do, and the honest note sits above them rather than below.
  */
+/**
+ * Sessions a week a block is built around when nothing else says otherwise.
+ * Three is what the built-in programs assume for a club player, and a block
+ * has to ask for *something* or there is nothing to be held to.
+ */
+const DEFAULT_SESSIONS_PER_WEEK = 3
+
 export function PremiumPage() {
   const premium = usePremium()
+  const { program } = useProgramState()
   const unlock = usePremiumStore((state) => state.unlock)
   const cancel = usePremiumStore((state) => state.cancel)
   const [chosen, setChosen] = useState<Bundle>(BUNDLES.find((bundle) => bundle.best) ?? BUNDLES[0]!)
@@ -48,7 +59,9 @@ export function PremiumPage() {
         description="The free app is a very good training tool. Premium is the coach on top of it — the part that decides what you do today, and why."
       />
 
-      {premium.active && (
+      <CommitmentCard />
+
+      {premium.active && !premium.commitment && (
         <Card level="lead" className="mb-6">
           <CardContent className="flex items-start gap-3 p-5">
             <span className="bg-primary text-primary-foreground grid size-9 shrink-0 place-items-center rounded-xl">
@@ -154,7 +167,9 @@ export function PremiumPage() {
         <Button
           size="xl"
           className="w-full"
-          onClick={() => unlock(chosen, 'preview')}
+          onClick={() =>
+            unlock(chosen, 'preview', program?.sessionsPerWeek ?? DEFAULT_SESSIONS_PER_WEEK)
+          }
           disabled={premium.active}
         >
           {/* Buttons are `whitespace-nowrap`, and this label is long enough to
@@ -168,8 +183,32 @@ export function PremiumPage() {
         </p>
       </section>
 
+      <section className="mb-8">
+        <h2 className="type-headline mb-1 text-lg">What we owe you</h2>
+        <p className="text-muted-foreground type-body mb-3">
+          Three promises, each one enforced by code rather than by good intentions.
+        </p>
+        <ul className="space-y-3">
+          {GUARANTEES.map((guarantee) => (
+            <li key={guarantee.title}>
+              <Card>
+                <CardContent className="flex gap-3 p-4">
+                  <ShieldCheck className="text-primary mt-0.5 size-4 shrink-0" aria-hidden />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">{guarantee.title}</p>
+                    <p className="text-muted-foreground type-meta mt-0.5 leading-relaxed">
+                      {guarantee.body}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section>
-        <h2 className="mb-1 text-lg font-semibold tracking-tight">Free, for ever</h2>
+        <h2 className="type-headline mb-1 text-lg">Free, for ever</h2>
         <p className="text-muted-foreground mb-3 text-sm leading-relaxed">
           None of this ever goes behind the paywall. Nothing that keeps you uninjured should cost
           money.

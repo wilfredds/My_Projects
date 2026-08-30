@@ -18,10 +18,11 @@ the way.
 | 6 — Load, readiness, why                | ✅ Done                        |
 | 7 — Finding your way in                 | ✅ Done                        |
 | 8 — Coach, rating, game, premium        | ✅ Done                        |
-| **9 — Making it feel alive**            | ✅ **Done — ready for review** |
+| 9 — Making it feel alive                | ✅ Done                        |
+| **10 — Off-court training, strokes, integrity** | ✅ **Done — ready for review** |
 
-All nine phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 473 unit tests passing, production build clean.
+All ten phases are built. `npm run verify` is green: 0 type errors, 0 lint
+errors/warnings, 515 unit tests passing, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -32,6 +33,96 @@ Earlier phases, one line each — the detail is in the git history:
   catalogue, and drawn demos.
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
+
+---
+
+## Phase 10 — the other half of a session
+
+Came from watching a real club train. Between court reps the players were on
+the floor doing push-ups, planks and lunges, and half of what the coach shouted
+was the *shot*, not the corner. Neither was in the app.
+
+### Strength, and a renderer that can draw it
+
+The catalogue had twenty-eight exercises and almost no strength in it: four
+ladder patterns, five jumps, sixteen mobility and stretching drills, and for
+actual bodyweight work one lunge and one plank. The reason was technical. The
+figure renderer draws an upright skeleton — limbs rotating from a standing body
+— so anything performed on the floor could not be drawn, and the catalogue
+quietly drifted towards things you do standing up.
+
+`MobilityPose.ground` now tips the whole body over, applied after every joint
+so limb angles stay relative to the torso: `armL: 90` is "arm perpendicular to
+the body" whether you are standing with it raised or lying on it in a plank.
+Grounding was widened to match — it used to consider only feet and knees, which
+is right for everything upright and wrong for a push-up, which is held on the
+hands.
+
+Fourteen exercises follow, chosen for badminton rather than for a gym: the
+lunge is the sport, so single-leg work outranks two-legged; the smash is a
+rotation, so the core work is anti-rotation rather than sit-ups; landing from a
+jump smash is what wrecks ankles, so the calves get a slot of their own. Every
+one has form cues, the common faults and a substitute, because "do fewer" is
+not a scaling strategy.
+
+Four ship with **no diagram at all**. A glute bridge, a superman, a seated
+twist and a side plank are each defined by a side-view silhouette, and this
+renderer draws a front view; every attempt came out as a person folded over
+backwards. Each carries a comment saying so and the guard test now asserts that
+anything opting out still has cues to stand on. Every pose was rendered to a
+contact sheet and looked at — the only way figure defects here have ever been
+found — which is how the four were identified in the first place.
+
+Three workouts use them, under a new Strength category and focus area.
+
+### The shot, not just the corner
+
+Every drill called a place and you moved to it. That is half of what a coach
+shouts; the other half is the shot, because where you go and what you play once
+you arrive are separate decisions and the second changes the whole movement.
+
+Strokes mode calls both — "rear left, smash", corner first because you start
+moving before the second word lands. Which shots are legal from where is
+encoded rather than left to chance: net gets net shots, lifts and pushes; mid
+gets drives, blocks and pushes; rear gets clears, drops and smashes. A caller
+that asks for a smash while you are standing at the net has not added variety,
+it has told you it does not know the game.
+
+The shot is chosen when the timeline is built, from the same seeded generator
+the corners come from — a challenge has to replay the same shots as well as the
+same corners or two people are doing different sessions under one name. Feints
+stay silent about the shot, because a fake that named a stroke would give
+itself away every time.
+
+### What "premium" actually owes you
+
+Buying three months of coaching is buying a *block* — twelve weeks with
+sessions in them — and until now the app modelled that as a boolean and an
+expiry date.
+
+`lib/premium/commitment` records what was bought and derives delivery from
+sessions that were actually logged. The account it produces is deliberately
+two-sided: weeks the player fell short are shown, and so are weeks premium did
+not cover. The second kind are **credited back automatically** — added to the
+end date without anyone having to notice or ask. It is the only promise in the
+app that costs the app something, which is what makes it worth making.
+
+The promises are checked rather than asserted: the card reads them through the
+same entitlement function the rest of the app gates on, so it cannot claim a
+feature is delivered while the app quietly refuses it. Three guarantees are
+written into `entitlements.ts` beside `ALWAYS_FREE`, each enforced by code.
+
+Still no payment provider, and the page still says so above the prices.
+
+### Verified
+
+- `npm run verify`: 515 tests across 32 files.
+- 90 route/viewport/theme combinations, including the new screens: no console
+  errors, no page errors, nothing scrolls sideways.
+- A stroke drill run end to end with speech stubbed: twelve calls, every one
+  legal for the zone it came from, none impossible.
+- The account screen in three states — on track, behind, and eight weeks
+  uncovered with the end date extended to match.
 
 ---
 

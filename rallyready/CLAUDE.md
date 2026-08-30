@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **473 tests across 29 files, all passing** — if you
+individually. Baseline is **515 tests across 32 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -78,6 +78,19 @@ see fewer, something is being skipped.
   `transform` and `opacity` only. Nothing on `lib/timer/*` or `lib/audio/*`
   gets an animation, and nothing on the runner may force a layout or a paint
   per tick; `TimerDial.tsx` explains why its sweep has no CSS transition.
+- **A figure that contradicts its cue is worse than no figure.** The renderer
+  draws a *front view*; `MobilityPose.ground` tips the whole body over, which
+  covers push-ups and planks but cannot express a side-view silhouette. Four
+  strength exercises therefore ship with no diagram and a comment saying why,
+  and `circuit.test.ts` asserts that anything opting out still has cues to
+  stand on. Render a contact sheet and look at a new pose before shipping it —
+  every figure defect in this app has been found that way, never by reading.
+- **A premium block is weeks, not a flag.** `lib/premium/commitment` records
+  what was bought and derives delivery from sessions that were actually logged.
+  Any week inside a block that the entitlement did not cover is `uncovered` and
+  is added back to the end date by `creditedEnd`. `GUARANTEES` in
+  `entitlements.ts` states the three promises in the words they are made in;
+  each is enforced by code, so do not weaken one without deleting its text.
 - **A reward fires once.** `lib/rewards` compares what has been earned against
   a persisted record of what has been shown. That record is `string[] | null`,
   and `null` means "never looked" — an install from before rewards existed —
@@ -96,7 +109,7 @@ see fewer, something is being skipped.
   `onboarding` is still the profile questionnaire it hands over to.
 - `src/lib/` — `audio`, `timer`, `motion`, `programs`, `data`, `supabase`,
   `auth`, `coach`, `figures`, `games`, `library`, `premium`, `share`, `social`,
-  `firstRun.ts`, `pageDirection.ts`, `rewards.ts`, `theme.ts`
+  `download.ts`, `firstRun.ts`, `pageDirection.ts`, `rewards.ts`, `theme.ts`
 - `src/store/` — Zustand state · `src/hooks/` · `src/components/`
 - `supabase/schema.sql` — database schema
 - `scripts/generate-seed-sql.mjs` — run via `npm run seed:sql`

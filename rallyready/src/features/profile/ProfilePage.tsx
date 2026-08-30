@@ -6,6 +6,7 @@ import {
   LogOut,
   Palette,
   PlayCircle,
+  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   Trash2,
@@ -26,6 +27,7 @@ import { WELCOME_PATH } from '@/lib/firstRun'
 import type { ThemePreference } from '@/lib/theme'
 import { formatDuration, pluralize } from '@/lib/utils'
 import { useDrillConfigStore } from '@/store/drillConfigStore'
+import { usePremium } from '@/store/premiumStore'
 
 import { BackupCard } from './components/BackupCard'
 
@@ -47,6 +49,7 @@ export function ProfilePage() {
   const auth = useAuth()
   const queryClient = useQueryClient()
   const { preference, setPreference } = useTheme()
+  const premium = usePremium()
   const clearAllConfigs = useDrillConfigStore((state) => state.clearAll)
 
   const { data: sessions = [] } = useQuery({
@@ -137,6 +140,27 @@ export function ProfilePage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Anyone who has bought a block can see the account for it, without
+            going hunting through a sales page for it. */}
+        {premium.commitment && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldCheck className="text-primary size-4" aria-hidden />
+                Your Premium block
+              </CardTitle>
+              <CardDescription>
+                What you bought, and what has actually been delivered — week by week.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/premium">See the account</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/*
          * The introduction, on demand.

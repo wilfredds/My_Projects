@@ -75,6 +75,30 @@ export const ALWAYS_FREE: string[] = [
   'Export and import of everything you have logged',
 ]
 
+/**
+ * What is promised in return for the money, in the words it is promised in.
+ *
+ * Lives beside `ALWAYS_FREE` and for the same reason: a commitment written
+ * into a file that explains itself is harder to quietly walk back than one
+ * written into a marketing paragraph. Each of these is enforced somewhere —
+ * the first by `weeksOf` and `creditedEnd`, the second by `ALWAYS_FREE` and
+ * its test, the third by the entitlement check the whole app gates on.
+ */
+export const GUARANTEES: { title: string; body: string }[] = [
+  {
+    title: 'You get the weeks you paid for',
+    body: 'A bundle is a training block with weeks in it, not a switch. Any week inside it that we fail to cover is added back to the end date automatically — you do not have to notice it or ask for it.',
+  },
+  {
+    title: 'Nothing you have done is ever taken away',
+    body: 'Your sessions, your history, the drills, the warm-up and every safety feature stay free and stay yours when a block ends. Premium is the coaching on top; it is not the door.',
+  },
+  {
+    title: 'The account is shown to you, both sides',
+    body: 'Week by week, what the block asked of you and what you did — and every promise checked against whether it is actually switched on. If we are not delivering, the same screen says so.',
+  },
+]
+
 export interface Bundle {
   id: string
   name: string
