@@ -89,6 +89,18 @@ export interface MobilityPose {
   lift?: number
   /** Forward lean at the hip, degrees. */
   lean?: number
+  /**
+   * Whole-body rotation away from standing, in degrees, applied *after* every
+   * joint angle. 0 stands up; 90 lies face-down on the hands or elbows;
+   * -90 lies face-up.
+   *
+   * This is what lets the same skeleton draw a push-up, a plank and a glute
+   * bridge. Because the rotation happens last, every limb angle stays relative
+   * to the torso — `armL: 90` is "arm perpendicular to the body" whether you
+   * are standing with it out in front or lying on it holding a plank — so the
+   * poses read the same way whichever way up the figure is.
+   */
+  ground?: number
 }
 
 export interface Exercise {
@@ -422,6 +434,504 @@ export const EXERCISES: Exercise[] = [
       pose('Tap', 0.95, 0, 0.15, 0.85, 0.7),
       pose('Return', 0.95, 0, 0.15, -0.35, 0.7),
     ],
+  },
+
+  /* ------------------------------------------------------------- strength */
+
+  /*
+   * Bodyweight strength.
+   *
+   * This is the half of a real session that happens off the court, and until
+   * now the catalogue barely had it: four ladder patterns, five jumps, ten
+   * mobility drills, and for strength a single lunge and a single plank. Watch
+   * any club train and between court reps they are on the floor doing exactly
+   * this.
+   *
+   * Chosen for badminton rather than for a gym. The lunge is the sport's
+   * signature movement, so single-leg work outranks two-legged work; the smash
+   * is a rotation, so the core work is anti-rotation and anti-extension rather
+   * than sit-ups; landing from a jump smash is what wrecks ankles, so the
+   * calves get their own slot. Nothing here needs equipment, because the whole
+   * app assumes a garage.
+   *
+   * Every one carries a substitute. "Do fewer" is not a scaling strategy —
+   * somebody who cannot do a push-up needs a different push-up, not three of
+   * the wrong one.
+   */
+  {
+    slug: 'str-push-up',
+    name: 'Push-ups',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'Hands under the shoulders, body in one line, chest to within a fist of the floor.',
+    cues: [
+      'Hands under the shoulders, elbows tracking back at about 45°, not flared to the sides.',
+      'Squeeze the glutes. A push-up is a moving plank — the hips must not lead or sag.',
+      'Lower under control for two counts, push back up in one.',
+      'Full lockout at the top; that last few degrees is where the shoulder gets its strength.',
+    ],
+    faults: [
+      'Hips sagging, which turns the effort into a lower-back exercise.',
+      'Elbows flared straight out to the sides — the fastest route to a sore shoulder.',
+      'Half-repetitions: stopping a foot above the floor and calling it a rep.',
+    ],
+    substitute: 'Hands on a chair, a step or a wall. The higher the hands, the easier it gets.',
+    recommendedReps: '3 sets of 8–15, or 40 seconds of quality work.',
+    mobility: [
+      mob('Top', { ground: 71, armL: 85, armR: 85, legL: 10, legR: 10 }),
+      mob('Chest down', {
+        ground: 81,
+        armL: 60,
+        armR: 60,
+        elbowL: 110,
+        elbowR: 110,
+        legL: 8,
+        legR: 8,
+      }),
+      mob('Drive up', { ground: 71, armL: 85, armR: 85, legL: 10, legR: 10 }),
+    ],
+  },
+  {
+    slug: 'str-knee-push-up',
+    name: 'Knee push-ups',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'The same push-up from the knees, so the line from head to knee stays straight.',
+    cues: [
+      'Knees, hips and shoulders in one line — the shortcut is bending at the hip.',
+      'Hands still under the shoulders, elbows still tracking back.',
+      'Pad the knees with a towel if the floor is hard.',
+      'Move to full push-ups one repetition at a time, not all at once.',
+    ],
+    faults: [
+      'Hinging at the hip so only the shoulders travel.',
+      'Hands creeping forward, which loads the shoulder instead of the chest.',
+    ],
+    substitute: null,
+    recommendedReps: '3 sets of 10–15, held in a straight line throughout.',
+    mobility: [
+      mob('Top', { ground: 66, armL: 90, armR: 90, legL: 25, legR: 25, kneeL: 80, kneeR: 80 }),
+      mob('Chest down', {
+        ground: 74,
+        armL: 62,
+        armR: 62,
+        elbowL: 100,
+        elbowR: 100,
+        legL: 22,
+        legR: 22,
+        kneeL: 80,
+        kneeR: 80,
+      }),
+      mob('Drive up', { ground: 66, armL: 90, armR: 90, legL: 25, legR: 25, kneeL: 80, kneeR: 80 }),
+    ],
+  },
+  {
+    slug: 'str-plank',
+    name: 'Forearm plank',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'Elbows under the shoulders, one straight line from head to heels, and hold.',
+    cues: [
+      'Elbows directly under the shoulders, forearms flat.',
+      'Tuck the tailbone slightly and brace as if about to take a punch.',
+      'Push the floor away — the upper back should be flat, not collapsed between the shoulders.',
+      'Breathe. Holding your breath makes 30 seconds feel like a minute and trains nothing extra.',
+    ],
+    faults: [
+      'Hips high, turning it into a rest.',
+      'Hips low, turning it into a lower-back squeeze.',
+      'Holding until failure every time. Quality beats duration here.',
+    ],
+    substitute: 'Drop to the knees, or put the elbows on a chair seat and angle the body up.',
+    recommendedReps: '3 holds of 30–45 seconds, stopping while the line is still good.',
+    mobility: [
+      mob('Set the line', {
+        ground: 81,
+        armL: 100,
+        armR: 100,
+        elbowL: 75,
+        elbowR: 75,
+        legL: 8,
+        legR: 8,
+      }),
+      mob('Brace and hold', {
+        ground: 81,
+        armL: 100,
+        armR: 100,
+        elbowL: 75,
+        elbowR: 75,
+        legL: 8,
+        legR: 8,
+      }),
+    ],
+  },
+  {
+    slug: 'str-side-plank',
+    name: 'Side plank',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'On one forearm, hips stacked and lifted. The side of the body that holds a lunge.',
+    cues: [
+      'Elbow under the shoulder, feet stacked or staggered for a wider base.',
+      'Drive the bottom hip up until the body is one line from head to feet.',
+      'Top arm reaching for the ceiling keeps the chest open.',
+      'Both sides, equal time — the racket side is almost always the stronger one.',
+    ],
+    faults: [
+      'Hips sinking towards the floor as the hold goes on.',
+      'Rolling the chest towards the floor instead of stacking the shoulders.',
+      'Doing one side and forgetting the other.',
+    ],
+    substitute: 'Bend the bottom knee and rest it on the floor for a shorter lever.',
+    recommendedReps: '2 holds of 20–30 seconds each side.',
+    /*
+     * No diagram on purpose.
+     *
+     * The figure renderer draws a front view. A side plank is defined by the
+     * body being edge-on to the viewer, which a front view cannot show without
+     * looking like somebody lying diagonally. A wrong diagram is worse than
+     * none, so this ships on its cues.
+     */
+  },
+  {
+    slug: 'str-glute-bridge',
+    name: 'Glute bridges',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'On your back, heels close, drive the hips up until the body is a ramp.',
+    cues: [
+      'Heels a hand-span from your backside, toes lightly lifted to keep the load in the glutes.',
+      'Squeeze the glutes first, then lift — do not arch the lower back to get higher.',
+      'Pause for a full second at the top. The pause is the exercise.',
+      'This is the hip drive behind every jump smash.',
+    ],
+    faults: [
+      'Arching the lower back instead of extending the hip.',
+      'Pushing through the toes, which hands the work to the quads.',
+      'Bouncing up and down with no pause.',
+    ],
+    substitute: null,
+    recommendedReps: '3 sets of 12–15 with a one-second squeeze at the top.',
+    /*
+     * No diagram on purpose.
+     *
+     * The figure renderer draws a front view. A side plank is defined by being
+     * edge-on to the viewer, which a front view can only draw as somebody
+     * lying diagonally. Ships on its cues.
+     */
+  },
+  {
+    slug: 'str-dead-bug',
+    name: 'Dead bugs',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'On your back, opposite arm and leg reaching away while the lower back stays down.',
+    cues: [
+      'Press the lower back into the floor before you move, and keep it there.',
+      'Opposite arm and leg, slowly, only as far as you can go without the back lifting.',
+      'Exhale as the limbs reach away.',
+      'If the back lifts, you have found your range. Stop short of it.',
+    ],
+    faults: [
+      'Racing, which is how the lower back arches without you noticing.',
+      'Reaching further than the core can hold, which trains the back rather than the core.',
+    ],
+    substitute: 'Move one limb at a time until holding the back down is easy.',
+    recommendedReps: '3 sets of 8 slow repetitions each side.',
+    mobility: [
+      mob('Ready', {
+        ground: -88,
+        armL: 88,
+        armR: 88,
+        legL: 84,
+        legR: 84,
+        kneeL: 88,
+        kneeR: 88,
+      }),
+      mob('Reach away', {
+        ground: -88,
+        armL: 88,
+        armR: 150,
+        legL: 30,
+        legR: 84,
+        kneeL: 20,
+        kneeR: 88,
+      }),
+      mob('Back to centre', {
+        ground: -88,
+        armL: 88,
+        armR: 88,
+        legL: 84,
+        legR: 84,
+        kneeL: 88,
+        kneeR: 88,
+      }),
+    ],
+  },
+  {
+    slug: 'str-superman',
+    name: 'Supermans',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'Face down, lift the chest and the thighs together. The back half of the body.',
+    cues: [
+      'Look at the floor, not forward — the neck follows the spine.',
+      'Lift the chest and the thighs at the same time, and hold for a second.',
+      'Squeeze the glutes rather than cranking the lower back.',
+      'Small range done well beats a big range done with a shrug.',
+    ],
+    faults: [
+      'Craning the neck up, which is where the ache the next day comes from.',
+      'Lifting only the arms and calling it done.',
+    ],
+    substitute: 'Lift the opposite arm and leg only, alternating.',
+    recommendedReps: '3 sets of 10 with a one-second hold at the top.',
+    /*
+     * No diagram on purpose.
+     *
+     * The figure renderer draws a front view. Lying face down with the chest
+     * and thighs lifted is a shallow side-view arc, and a front view flattens
+     * it into a horizontal smudge. Ships on its cues.
+     */
+  },
+  {
+    slug: 'str-bird-dog',
+    name: 'Bird dogs',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'On hands and knees, opposite arm and leg out straight, hips level.',
+    cues: [
+      'Hands under the shoulders, knees under the hips.',
+      'Reach the arm forward and the opposite leg back until both are level with the body.',
+      'Hips stay square — imagine a glass of water balanced on your lower back.',
+      'Two seconds out, two seconds back.',
+    ],
+    faults: [
+      'Twisting the hips open as the leg goes back.',
+      'Lifting the leg higher than the body, which is just a back arch.',
+    ],
+    substitute: 'Arm only, then leg only, before combining them.',
+    recommendedReps: '3 sets of 8 each side, held two seconds.',
+    mobility: [
+      mob('Set', {
+        ground: 66,
+        armL: 90,
+        armR: 90,
+        legL: 25,
+        legR: 25,
+        kneeL: 80,
+        kneeR: 80,
+      }),
+      mob('Reach', {
+        ground: 66,
+        armL: 90,
+        armR: 138,
+        legL: 25,
+        legR: -8,
+        kneeL: 80,
+        kneeR: 4,
+      }),
+      mob('Return', {
+        ground: 66,
+        armL: 90,
+        armR: 90,
+        legL: 25,
+        legR: 25,
+        kneeL: 80,
+        kneeR: 80,
+      }),
+    ],
+  },
+  {
+    slug: 'str-squat',
+    name: 'Bodyweight squats',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'Feet shoulder width, sit down between the hips, chest up, drive through the floor.',
+    cues: [
+      'Feet a little wider than the hips, toes turned out a touch.',
+      'Sit back and down together; the knees travel forward over the toes, which is fine.',
+      'Chest up and heels down — if the heels lift, go less deep for now.',
+      'Stand all the way up and squeeze the glutes at the top.',
+    ],
+    faults: [
+      'Knees collapsing inwards on the way up.',
+      'Heels lifting, which usually means going deeper than the ankles allow yet.',
+      'Rounding the lower back at the bottom.',
+    ],
+    substitute: 'Squat down to a chair and stand back up, touching lightly rather than sitting.',
+    recommendedReps: '3 sets of 15–20, or 45 seconds at a steady tempo.',
+    mobility: [
+      mob('Stand', { legL: 8, legR: 8, armL: 10, armR: 10 }),
+      mob('Sit down', {
+        legL: 20,
+        legR: 20,
+        kneeL: 88,
+        kneeR: 88,
+        armL: 74,
+        armR: 74,
+        elbowL: 14,
+        elbowR: 14,
+        lean: 14,
+      }),
+      mob('Drive up', { legL: 8, legR: 8, armL: 10, armR: 10 }),
+    ],
+  },
+  {
+    slug: 'str-split-squat',
+    name: 'Split squats',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'One foot forward, one back, drop the back knee towards the floor. The lunge, loaded.',
+    cues: [
+      'A long stride: front shin roughly vertical at the bottom.',
+      'Drop straight down, not forward — the back knee travels towards the floor.',
+      'Weight through the whole front foot, chest tall.',
+      'This is the single-leg strength every badminton lunge is paid for out of.',
+    ],
+    faults: [
+      'Too short a stride, which turns it into a knee-forward grind.',
+      'Leaning over the front thigh.',
+      'Doing far more repetitions on the stronger leg.',
+    ],
+    substitute: 'Hold a wall or a chair with one hand for balance until the pattern is steady.',
+    recommendedReps: '3 sets of 8–12 each leg.',
+    mobility: [
+      mob('Split stance', { legL: 26, legR: 22, kneeL: 12, kneeR: 14, armL: 14, armR: 14 }),
+      mob('Knee down', {
+        legL: 30,
+        legR: 40,
+        kneeL: 74,
+        kneeR: 96,
+        armL: 26,
+        armR: 26,
+        lean: 8,
+      }),
+      mob('Drive up', { legL: 26, legR: 22, kneeL: 12, kneeR: 14, armL: 14, armR: 14 }),
+    ],
+  },
+  {
+    slug: 'str-reverse-lunge',
+    name: 'Reverse lunges',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'Step back, drop the knee, drive back to standing. The recovery step, trained.',
+    cues: [
+      'Step back far enough that the front shin stays vertical.',
+      'Drop the back knee to just above the floor.',
+      'Push through the front heel to return — that is the recovery you make after every lunge on court.',
+      'Alternate legs, or finish all of one side then the other.',
+    ],
+    faults: [
+      'A short step back, which puts the whole load on the front knee.',
+      'Bouncing the back knee off the floor.',
+    ],
+    substitute: 'Hold a wall for balance, or shorten the range until it is controlled.',
+    recommendedReps: '3 sets of 10 each leg.',
+    mobility: [
+      mob('Stand tall', { legL: 6, legR: 6, armL: 10, armR: 10 }),
+      mob('Step back', {
+        legL: 20,
+        legR: 36,
+        kneeL: 42,
+        kneeR: 78,
+        armL: 30,
+        armR: 18,
+        lean: 6,
+      }),
+      mob('Drive back', { legL: 6, legR: 6, armL: 10, armR: 10 }),
+    ],
+  },
+  {
+    slug: 'str-calf-raise',
+    name: 'Calf raises',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'Up onto the toes, hold, and lower slowly. The ankles that survive landing.',
+    cues: [
+      'All the way up onto the balls of the feet, then a one-second hold at the top.',
+      'Lower over three slow counts — the lowering is what builds the tendon.',
+      'Keep the ankles tracking straight; do not roll out to the little toes.',
+      'Single leg once both legs feel easy.',
+    ],
+    faults: [
+      'Bouncing, which trains nothing and irritates the achilles.',
+      'Half a range at the top.',
+    ],
+    substitute: 'Hold a wall for balance; that changes nothing about the work the calf does.',
+    recommendedReps: '3 sets of 15–20, three seconds down each time.',
+    mobility: [
+      mob('Down', { legL: 5, legR: 5, armL: 8, armR: 8 }),
+      mob('Up on the toes', { legL: 5, legR: 5, armL: 10, armR: 10, lift: 18 }),
+      mob('Slow lower', { legL: 5, legR: 5, armL: 9, armR: 9, lift: 7 }),
+    ],
+  },
+  {
+    slug: 'str-wall-sit',
+    name: 'Wall sit',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'Back flat to a wall, thighs parallel to the floor, and stay there.',
+    cues: [
+      'Slide down until the thighs are parallel and the knees are over the ankles.',
+      'Whole back flat against the wall, hands off the thighs.',
+      'Breathe steadily. This is the burn a long rally feels like.',
+      'Come out of it before the knees start shaking, not after.',
+    ],
+    faults: [
+      'Resting the hands on the thighs, which takes a third of the load away.',
+      'Sitting too high to make the time.',
+    ],
+    substitute: 'Sit higher — anywhere above parallel still works, and it is honest.',
+    recommendedReps: '3 holds of 30–60 seconds.',
+    mobility: [
+      mob('Slide down', {
+        legL: 30,
+        legR: 30,
+        kneeL: 90,
+        kneeR: 90,
+        armL: 34,
+        armR: 34,
+        elbowL: 10,
+        elbowR: 10,
+      }),
+      mob('Hold', {
+        legL: 34,
+        legR: 34,
+        kneeL: 94,
+        kneeR: 94,
+        armL: 30,
+        armR: 30,
+        elbowL: 8,
+        elbowR: 8,
+      }),
+    ],
+  },
+  {
+    slug: 'str-russian-twist',
+    name: 'Seated twists',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'Sit back on the tailbone, feet light, rotate the ribs from side to side.',
+    cues: [
+      'Lean back until you feel the stomach switch on, then stop there.',
+      'Turn the ribs and the shoulders, not just the arms.',
+      'Chest stays lifted; the moment the back rounds, sit up taller.',
+      'The smash is a rotation, and this is where the rotation comes from.',
+    ],
+    faults: [
+      'Waving the hands side to side while the torso stays still.',
+      'Rounding the lower back and rocking.',
+    ],
+    substitute: 'Keep the heels on the floor, or sit more upright.',
+    recommendedReps: '3 sets of 20 total turns, slow and controlled.',
+    /*
+     * No diagram on purpose.
+     *
+     * The figure renderer draws a front view. Sitting back on the tailbone with
+     * the knees up is a side-view shape, and rotating a front view put the
+     * figure in mid-air. Ships on its cues.
+     */
   },
 
   /* ------------------------------------------------- warm-up: raise the heart rate */

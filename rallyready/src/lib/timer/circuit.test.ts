@@ -195,17 +195,45 @@ describe('the exercise catalogue', () => {
   })
 
   it('draws the exercises the figure can honestly represent', () => {
+    /*
+     * The rule is "a drawing that contradicts the cue is worse than no
+     * drawing", not "everything must be drawn".
+     *
+     * There are two renderers. `poses` is the parametric one — squat, air,
+     * tuck, arms — which suits a jump and cannot express an arm circle.
+     * `mobility` is the jointed skeleton, which can now also tip the whole
+     * body over and so covers push-ups and planks. A bodyweight exercise may
+     * use either.
+     *
+     * Four of the strength exercises use neither, on purpose: a glute bridge,
+     * a superman, a seated twist and a side plank are all defined by a
+     * side-view silhouette, and this renderer draws a front view. Each of them
+     * carries a comment saying so. They ship on their cues.
+     */
+    const UNDRAWABLE = new Set([
+      'str-glute-bridge',
+      'str-superman',
+      'str-russian-twist',
+      'str-side-plank',
+    ])
+
     for (const exercise of EXERCISES) {
       // Ladder work is a footfall pattern; trained movement is drawn as poses.
       if (exercise.kind === 'ladder') expect(exercise.pattern?.length).toBeGreaterThan(2)
-      if (exercise.kind === 'plyometric' || exercise.kind === 'bodyweight') {
-        expect(exercise.poses?.length).toBeGreaterThan(1)
+      if (
+        (exercise.kind === 'plyometric' || exercise.kind === 'bodyweight') &&
+        !UNDRAWABLE.has(exercise.slug)
+      ) {
+        const frames = exercise.poses?.length ?? exercise.mobility?.length ?? 0
+        expect(frames, `${exercise.slug} has no diagram`).toBeGreaterThan(1)
+      }
+      // Anything opted out of a diagram must still say what to do instead.
+      if (UNDRAWABLE.has(exercise.slug)) {
+        expect(exercise.poses, `${exercise.slug}`).toBeUndefined()
+        expect(exercise.mobility, `${exercise.slug}`).toBeUndefined()
+        expect(exercise.cues.length, `${exercise.slug}`).toBeGreaterThan(2)
       }
       // Mobility and stretching are deliberately allowed to have no diagram.
-      // The pose model is squat/air/tuck/arms/split — it cannot express an arm
-      // circle or a hamstring stretch, and a drawing that says something other
-      // than the cue does is worse than no drawing. The board falls back to the
-      // cues, which is what you would read anyway.
       if (exercise.poses) expect(exercise.poses.length).toBeGreaterThan(1)
     }
   })

@@ -467,6 +467,142 @@ export const SEED_DRILLS: Drill[] = [
     equipment: [],
   },
 
+  /* --------------------------------------------------------- strength work */
+
+  /*
+   * The half of a session that happens off the court.
+   *
+   * Watch a club train and between court reps the players are on the floor:
+   * push-ups, planks, lunges, calf work. None of it is badminton and all of it
+   * is why they can still lunge in the third game. These three cover the whole
+   * body without equipment, because the app assumes a garage rather than a gym.
+   *
+   * Timed rather than counted, because the engine calls time and a phone cannot
+   * count your repetitions. The target rep range is in every exercise's own
+   * notes; the clock is there so you do not have to look at the screen.
+   */
+  {
+    id: 'strength-foundation',
+    slug: 'strength-foundation',
+    name: 'Foundation Strength',
+    category: 'strength',
+    style: 'custom',
+    description:
+      'Push, squat, hinge and brace — the four things a body does, in the versions a badminton player needs. No equipment, twelve minutes, anywhere.',
+    coachingCues: [
+      'Quality over count. When the form goes, the set is over, whatever the clock says.',
+      'Every exercise has an easier version in its own notes. Using it is not a step down.',
+      'Breathe out on the effort. Holding your breath makes everything feel twice as hard.',
+    ],
+    commonFaults: [
+      'Racing the clock and losing the position — the position is the exercise.',
+      'Skipping the easier version and doing five bad repetitions instead of twelve good ones.',
+    ],
+    defaultWorkSec: 40,
+    defaultRestSec: 25,
+    defaultRounds: 3,
+    corners: 4,
+    videoUrl: null,
+    isPublic: true,
+    createdBy: null,
+    defaultIntervalMs: 1000,
+    defaultCallMode: 'random',
+    enabledCorners: null,
+    defaultWarmupSec: 0,
+    defaultCooldownSec: 90,
+    level: 'beginner',
+    circuit: [
+      { exerciseSlug: 'str-squat', workSec: 45, restSec: 20 },
+      { exerciseSlug: 'str-push-up', workSec: 40, restSec: 25 },
+      { exerciseSlug: 'str-glute-bridge', workSec: 40, restSec: 20 },
+      { exerciseSlug: 'str-plank', workSec: 35, restSec: 25 },
+    ],
+    circuitRounds: 3,
+    location: 'anywhere',
+    equipment: [],
+  },
+  {
+    id: 'strength-legs',
+    slug: 'strength-legs',
+    name: 'Lunge Legs',
+    category: 'strength',
+    style: 'custom',
+    description:
+      'Single-leg strength and the ankles that survive landing. The lunge is the sport, and this is where the lunge gets paid for.',
+    coachingCues: [
+      'Both legs get equal work, even though one of them will be noticeably better at this.',
+      'Front shin vertical on every lunge. A short stride grinds the knee and trains nothing.',
+      'Lower slowly on the calf raises — the lowering is what builds the tendon.',
+    ],
+    commonFaults: [
+      'Far more repetitions on the racket-side leg, which is how the imbalance got there.',
+      'Bouncing out of the bottom instead of driving out of it.',
+    ],
+    defaultWorkSec: 40,
+    defaultRestSec: 25,
+    defaultRounds: 3,
+    corners: 4,
+    videoUrl: null,
+    isPublic: true,
+    createdBy: null,
+    defaultIntervalMs: 1000,
+    defaultCallMode: 'random',
+    enabledCorners: null,
+    defaultWarmupSec: 0,
+    defaultCooldownSec: 120,
+    level: 'intermediate',
+    circuit: [
+      { exerciseSlug: 'str-split-squat', workSec: 40, restSec: 20 },
+      { exerciseSlug: 'str-reverse-lunge', workSec: 40, restSec: 20 },
+      { exerciseSlug: 'str-wall-sit', workSec: 45, restSec: 25 },
+      { exerciseSlug: 'str-calf-raise', workSec: 40, restSec: 25 },
+    ],
+    circuitRounds: 3,
+    location: 'anywhere',
+    equipment: [],
+  },
+  {
+    id: 'strength-core',
+    slug: 'strength-core',
+    name: 'Smash Core',
+    category: 'strength',
+    style: 'custom',
+    description:
+      'The core work a smash actually needs: resisting rotation and extension, not sit-ups. Ten minutes on the floor.',
+    coachingCues: [
+      'Slow is the whole method here. Every one of these is easy done fast and useless done fast.',
+      'Lower back stays where you put it. When it lifts, you have found the edge of your range.',
+      'Both sides get the same time, including the side you will want to skip.',
+    ],
+    commonFaults: [
+      'Rushing the dead bugs so the back arches unnoticed.',
+      'Holding a plank past the point where the hips have already sagged.',
+    ],
+    defaultWorkSec: 35,
+    defaultRestSec: 25,
+    defaultRounds: 3,
+    corners: 4,
+    videoUrl: null,
+    isPublic: true,
+    createdBy: null,
+    defaultIntervalMs: 1000,
+    defaultCallMode: 'random',
+    enabledCorners: null,
+    defaultWarmupSec: 0,
+    defaultCooldownSec: 90,
+    level: 'beginner',
+    circuit: [
+      { exerciseSlug: 'str-plank', workSec: 35, restSec: 20 },
+      { exerciseSlug: 'str-dead-bug', workSec: 40, restSec: 20 },
+      { exerciseSlug: 'str-side-plank', workSec: 40, restSec: 20 },
+      { exerciseSlug: 'str-bird-dog', workSec: 40, restSec: 20 },
+      { exerciseSlug: 'str-superman', workSec: 30, restSec: 25 },
+    ],
+    circuitRounds: 3,
+    location: 'anywhere',
+    equipment: [],
+  },
+
   /* ------------------------------------------------- warm-ups and cool-downs */
 
   /*
@@ -631,6 +767,7 @@ export function isConditioning(drill: Drill): boolean {
   return (
     drill.circuit !== null ||
     drill.category === 'conditioning' ||
+    drill.category === 'strength' ||
     drill.category === 'agility' ||
     drill.category === 'plyometric'
   )

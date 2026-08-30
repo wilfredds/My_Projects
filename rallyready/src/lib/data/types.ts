@@ -17,6 +17,7 @@ export type DrillCategory =
   | 'net'
   | 'rear-court'
   | 'conditioning'
+  | 'strength'
   | 'agility'
   | 'plyometric'
   | 'warmup'

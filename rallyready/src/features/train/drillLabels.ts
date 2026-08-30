@@ -5,6 +5,7 @@ export const CATEGORY_LABEL: Record<Drill['category'], string> = {
   net: 'Net',
   'rear-court': 'Rear court',
   conditioning: 'Conditioning',
+  strength: 'Strength',
   agility: 'Agility',
   plyometric: 'Plyometric',
   warmup: 'Warm-up',

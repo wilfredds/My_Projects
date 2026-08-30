@@ -66,6 +66,39 @@ export const marginFor = (racket: 'left' | 'right' | null) =>
 
 const rad = (deg: number) => (deg * Math.PI) / 180
 
+/**
+ * The joints that can hold weight.
+ *
+ * Grounding used to look only at feet and knees, which is right for every pose
+ * you do standing up and wrong for every pose you do on the floor: a push-up is
+ * held on the hands, a plank on the elbows, a glute bridge on the shoulders and
+ * heels. The head is excluded because nobody trains on their head.
+ */
+const SUPPORTS = [
+  'handL',
+  'handR',
+  'elbowL',
+  'elbowR',
+  'shoulderL',
+  'shoulderR',
+  'hipL',
+  'hipR',
+  'kneeL',
+  'kneeR',
+  'footL',
+  'footR',
+] as const
+
+/** Rotates a point about a pivot. Positive tips the figure forward, onto its front. */
+function rotate(point: Point, pivot: Point, deg: number): Point {
+  if (deg === 0) return point
+  const s = Math.sin(rad(deg))
+  const c = Math.cos(rad(deg))
+  const dx = point.x - pivot.x
+  const dy = point.y - pivot.y
+  return { x: pivot.x + dx * c - dy * s, y: pivot.y + dx * s + dy * c }
+}
+
 export interface Point {
   x: number
   y: number
@@ -151,15 +184,33 @@ export function build(pose: MobilityPose): Figure {
   }
 
   /*
+   * Tip the whole body over, for anything done on the floor.
+   *
+   * Applied after every joint, and about the hip, so limb angles stay relative
+   * to the torso: `armL: 90` is "arm out perpendicular to the body" whether the
+   * figure is standing with it raised in front or lying on it in a plank. Doing
+   * it the other way round — baking the rotation into each angle — would mean
+   * rewriting every number to change how far over the body leans.
+   */
+  const ground = pose.ground ?? 0
+  if (ground !== 0) {
+    const pivot = { ...figure.hip }
+    for (const key of Object.keys(figure) as (keyof Figure)[]) {
+      figure[key] = rotate(figure[key], pivot, ground)
+    }
+  }
+
+  /*
    * Stand the figure on the floor.
    *
    * A fixed hip height only works while both legs are straight. Kneel, lunge or
-   * squat and whichever part is lowest — a foot, or a knee in a half-kneel —
-   * has to be the thing that touches the ground, or the figure hovers. Dropping
-   * the whole skeleton by however far it misses fixes every pose at once, and
-   * makes `lift` mean "off the ground", which is what a hop actually is.
+   * squat and whichever part is lowest — a foot, a knee in a half-kneel, a hand
+   * in a push-up — has to be the thing that touches the ground, or the figure
+   * hovers. Dropping the whole skeleton by however far it misses fixes every
+   * pose at once, and makes `lift` mean "off the ground", which is what a hop
+   * actually is.
    */
-  const lowest = Math.max(figure.footL.y, figure.footR.y, figure.kneeL.y, figure.kneeR.y)
+  const lowest = Math.max(...SUPPORTS.map((key) => figure[key].y))
   const shift = GROUND - lift - lowest
   if (shift !== 0) {
     for (const point of Object.values(figure)) point.y += shift
@@ -184,6 +235,7 @@ export function blend(from: MobilityPose, to: MobilityPose, t: number): Mobility
     twist: lerp(from.twist ?? 0, to.twist ?? 0, t),
     lift: lerp(from.lift ?? 0, to.lift ?? 0, t),
     lean: lerp(from.lean ?? 0, to.lean ?? 0, t),
+    ground: lerp(from.ground ?? 0, to.ground ?? 0, t),
   }
 }
 
@@ -253,7 +305,22 @@ export const HIP_SPREAD = HIP_HALF * 2
 /** The lowest point of the figure, which should be the floor unless it hops. */
 export function lowestY(pose: MobilityPose): number {
   const figure = build(pose)
-  return Math.max(figure.footL.y, figure.footR.y, figure.kneeL.y, figure.kneeR.y)
+  return Math.max(...SUPPORTS.map((key) => figure[key].y))
+}
+
+/**
+ * How horizontal the figure ends up, 0 upright to 1 flat.
+ *
+ * Measured from the drawing rather than read back off the pose, because the
+ * question a floor exercise needs answered is "does this look like someone on
+ * the ground" — and a torso that stayed vertical while the legs rotated would
+ * pass a check on the input and fail a look at the output.
+ */
+export function flatness(pose: MobilityPose): number {
+  const figure = build(pose)
+  const rise = Math.abs(figure.neck.y - figure.hip.y)
+  const run = Math.abs(figure.neck.x - figure.hip.x)
+  return run / (run + rise || 1)
 }
 
 /** Horizontal extent of the drawing, racket included, for canvas sizing. */

@@ -19,7 +19,15 @@ import type { LibraryEntry } from './entries'
  */
 
 export type FocusId =
-  'fundamentals' | 'footwork' | 'agility' | 'stamina' | 'power' | 'net' | 'rear-court' | 'prepare'
+  | 'fundamentals'
+  | 'footwork'
+  | 'agility'
+  | 'stamina'
+  | 'strength'
+  | 'power'
+  | 'net'
+  | 'rear-court'
+  | 'prepare'
 
 export interface FocusArea {
   id: FocusId
@@ -66,6 +74,14 @@ export const FOCUS_AREAS: FocusArea[] = [
     goal: 'I want to last three games',
     blurb: 'Interval work on real rally rhythms, so the third game feels like the first.',
     categories: ['conditioning'],
+  },
+  {
+    id: 'strength',
+    title: 'Strength',
+    goal: 'I want a body that holds up',
+    blurb:
+      'Push-ups, planks, lunges and calf work. The half of a real session that happens off the court, and the reason the good players can still lunge in the third game.',
+    categories: ['strength'],
   },
   {
     id: 'power',
