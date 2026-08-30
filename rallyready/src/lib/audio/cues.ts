@@ -1,4 +1,5 @@
 import { CORNERS } from '@/lib/timer/corners'
+import { spokenCall, type StrokeId } from '@/lib/timer/strokes'
 import type { BlockPhase, TimelineEvent } from '@/lib/timer/types'
 
 import { vibrateComplete, vibrateCorner, vibrateCountdown } from './haptics'
@@ -76,15 +77,25 @@ function announceCorner(
   corner: keyof typeof CORNERS,
   zoneNumber: number,
   preferences: CuePreferences,
+  stroke?: StrokeId,
 ): void {
   const def = CORNERS[corner]
   if (preferences.toneEnabled) playCornerTone(def.row, def.side)
   if (preferences.vibrationEnabled) vibrateCorner(def.row)
-  if (preferences.voiceEnabled) {
-    speak(preferences.announceNumbers ? String(zoneNumber) : def.spoken, {
-      rate: preferences.voiceRate,
-    })
-  }
+  if (!preferences.voiceEnabled) return
+
+  /*
+   * Three things the voice can say, in order of specificity: the shot to play
+   * from a corner, the corner's number, or the corner itself. A stroke always
+   * wins — it is strictly more information, and it is the only one of the
+   * three that tells you what to do once you get there.
+   */
+  const text = stroke
+    ? spokenCall(def.spoken, stroke)
+    : preferences.announceNumbers
+      ? String(zoneNumber)
+      : def.spoken
+  speak(text, { rate: preferences.voiceRate })
 }
 
 export function playCue(event: TimelineEvent, context: CueContext): void {
@@ -92,6 +103,14 @@ export function playCue(event: TimelineEvent, context: CueContext): void {
 
   switch (event.kind) {
     case 'call':
+      announceCorner(event.corner, event.number, preferences, event.stroke)
+      return
+
+    /*
+     * A feint names no shot, and that is deliberate. The fake has to be
+     * indistinguishable from the real call until the real one arrives, and a
+     * feint that announced a stroke would give the game away every time.
+     */
     case 'feint':
       announceCorner(event.corner, event.number, preferences)
       return

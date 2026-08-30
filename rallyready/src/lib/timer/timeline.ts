@@ -1,6 +1,7 @@
-import { cornerNumber } from './corners'
+import { cornerNumber, CORNERS, type CornerId } from './corners'
 import { createRng } from './rng'
 import { createSequencer, normalizeSequencerConfig } from './sequencer'
+import { pickStroke, type StrokeId } from './strokes'
 import type { DrillBlock, DrillPlan, Timeline, TimelineEvent } from './types'
 
 /** Warm-up calls come at a gentler cadence than the working interval. */
@@ -214,6 +215,15 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
     rng,
   )
 
+  /*
+   * Stroke mode picks the shot here, at build time, from the same generator
+   * the corners came from. Doing it in the cue layer instead would make the
+   * shots un-replayable — a challenge would send the same corners and
+   * different shots, which is not the same session.
+   */
+  const strokeFor = (corner: CornerId): { stroke?: StrokeId } =>
+    plan.sequencer.announce === 'stroke' ? { stroke: pickStroke(CORNERS[corner].row, rng) } : {}
+
   const drafts = draftBlocks(plan)
   const blocks: DrillBlock[] = []
   let cursorMs = 0
@@ -283,6 +293,7 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
           number: cornerNumber(layout, plannedCall.corner),
           blockIndex: block.index,
           feintedFrom: plannedCall.feint,
+          ...strokeFor(plannedCall.corner),
         })
       } else {
         addSplitStep(slot - lead, callIndex)
@@ -293,6 +304,7 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
           corner: plannedCall.corner,
           number: cornerNumber(layout, plannedCall.corner),
           blockIndex: block.index,
+          ...strokeFor(plannedCall.corner),
         })
       }
       callIndex += 1

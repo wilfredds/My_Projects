@@ -50,6 +50,7 @@ const MODE_OPTIONS: { value: DrillMode; label: string; hint: string }[] = [
   { value: 'deception', label: 'Deception', hint: 'A fake, then the real corner' },
   { value: 'number', label: 'Number', hint: 'Zones called by number' },
   { value: 'weighted', label: 'Weighted', hint: 'Target a weak corner more often' },
+  { value: 'stroke', label: 'Strokes', hint: 'The corner and the shot to play there' },
 ]
 
 const LAYOUT_OPTIONS: { value: string; label: string; hint: string }[] = [

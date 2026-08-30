@@ -1,16 +1,17 @@
 import type { CornerId, CourtLayout } from './corners'
+import type { StrokeId } from './strokes'
 
 /** Which zone the caller picks next. */
 export type SelectionMode = 'sequential' | 'random' | 'weighted'
 
 /** How a call is spoken. */
-export type AnnounceStyle = 'position' | 'number'
+export type AnnounceStyle = 'position' | 'number' | 'stroke'
 
 /**
  * The five modes offered in the UI (§4 Phase 1). They are presented as one
  * choice but decompose into orthogonal knobs internally.
  */
-export type DrillMode = 'sequential' | 'random' | 'deception' | 'number' | 'weighted'
+export type DrillMode = 'sequential' | 'random' | 'deception' | 'number' | 'weighted' | 'stroke'
 
 export interface DeceptionConfig {
   enabled: boolean
@@ -69,6 +70,12 @@ export type TimelineEvent =
       blockIndex: number
       /** Present when this call was preceded by a feint. */
       feintedFrom?: CornerId
+      /**
+       * The shot to play from that corner, in stroke mode. Chosen when the
+       * timeline is built rather than when the cue fires, so a seed replays
+       * the same shots as well as the same corners.
+       */
+      stroke?: StrokeId
     }
   | { at: number; kind: 'countdown'; secondsLeft: number }
   | { at: number; kind: 'complete' }

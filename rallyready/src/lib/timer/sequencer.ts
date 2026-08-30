@@ -102,6 +102,8 @@ export function applyMode(config: SequencerConfig, mode: DrillMode): SequencerCo
       return { ...base, selection: 'random', announce: 'number' }
     case 'weighted':
       return { ...base, selection: 'weighted', announce: 'position' }
+    case 'stroke':
+      return { ...base, selection: 'random', announce: 'stroke' }
     case 'deception':
       return {
         ...base,
@@ -117,5 +119,6 @@ export function modeFromConfig(config: SequencerConfig): DrillMode {
   if (config.deception.enabled) return 'deception'
   if (config.selection === 'sequential') return 'sequential'
   if (config.selection === 'weighted') return 'weighted'
+  if (config.announce === 'stroke') return 'stroke'
   return config.announce === 'number' ? 'number' : 'random'
 }

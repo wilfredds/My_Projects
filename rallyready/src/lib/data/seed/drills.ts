@@ -467,6 +467,95 @@ export const SEED_DRILLS: Drill[] = [
     equipment: [],
   },
 
+  /* ------------------------------------------------------- stroke shadowing */
+
+  /*
+   * The shot, not just the corner.
+   *
+   * Every other drill here calls a place and you move to it. Watch a coach and
+   * half of what they shout is the shot — "rear left, smash" — because where
+   * you go and what you play from there are separate decisions, and the second
+   * one changes the whole movement. You scissor into a smash and you glide
+   * into a drop from the same corner.
+   *
+   * The interval is longer than a footwork drill's on purpose: a full shadow
+   * stroke, played properly, takes longer than a touch and a recovery.
+   */
+  {
+    id: 'stroke-shadow',
+    slug: 'stroke-shadow',
+    name: 'Stroke Shadow',
+    category: 'footwork',
+    style: 'shadow',
+    description:
+      'The app calls the corner and the shot. Move there, play the full shadow stroke, recover. The closest thing to a coach shouting at you that fits in a pocket.',
+    coachingCues: [
+      'Play the whole stroke — preparation, contact, follow-through — not a wave at the air.',
+      'The shot changes the footwork. A smash wants a scissor jump; a drop wants you balanced.',
+      'Recover to base between every one. Half the work of a stroke is what happens after it.',
+      'Say the shot back to yourself as you play it. It is how the name and the movement stick.',
+    ],
+    commonFaults: [
+      'Playing the same swing whatever shot was called.',
+      'Rushing the recovery to be ready for the next call — the call waits for you.',
+      'Dropping the non-racket arm, which is what balances the whole shot.',
+    ],
+    defaultWorkSec: 45,
+    defaultRestSec: 30,
+    defaultRounds: 5,
+    corners: 6,
+    videoUrl: null,
+    isPublic: true,
+    createdBy: null,
+    defaultIntervalMs: 2000,
+    defaultCallMode: 'stroke',
+    enabledCorners: null,
+    defaultWarmupSec: 60,
+    defaultCooldownSec: 90,
+    level: 'intermediate',
+    circuit: null,
+    circuitRounds: 1,
+    location: 'anywhere',
+    equipment: [],
+  },
+  {
+    id: 'stroke-rear-court',
+    slug: 'stroke-rear-court',
+    name: 'Overhead Repertoire',
+    category: 'rear-court',
+    style: 'shadow',
+    description:
+      'Rear court only, and only the three overheads — clear, drop, smash. The same preparation for all three is what makes them deceptive.',
+    coachingCues: [
+      'Identical preparation every time. If the opponent can read the shot from your setup, none of the three work.',
+      'Get behind the shuttle. Everything else is downstream of that.',
+      'Scissor the feet on every one, even the drop.',
+      'Recover forwards, not sideways — the reply is usually short.',
+    ],
+    commonFaults: [
+      'A visibly gentler wind-up for the drop, which announces it.',
+      'Reaching backwards instead of moving the feet back.',
+      'Landing flat-footed and staying there.',
+    ],
+    defaultWorkSec: 40,
+    defaultRestSec: 40,
+    defaultRounds: 4,
+    corners: 4,
+    videoUrl: null,
+    isPublic: true,
+    createdBy: null,
+    defaultIntervalMs: 2200,
+    defaultCallMode: 'stroke',
+    enabledCorners: ['rear-left', 'rear-right'],
+    defaultWarmupSec: 60,
+    defaultCooldownSec: 90,
+    level: 'advanced',
+    circuit: null,
+    circuitRounds: 1,
+    location: 'anywhere',
+    equipment: [],
+  },
+
   /* --------------------------------------------------------- strength work */
 
   /*

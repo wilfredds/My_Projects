@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { cornerIdsForLayout } from './corners'
+import { cornerIdsForLayout, CORNERS } from './corners'
+import { strokesForRow } from './strokes'
 import { blockIndexAt, buildTimeline, sanitizePlan, WARMUP_INTERVAL_FACTOR } from './timeline'
 import type { DrillPlan, SequencerConfig, TimelineEvent } from './types'
 
@@ -506,5 +507,70 @@ describe('blockIndexAt', () => {
   it('clamps past the end to the final block', () => {
     const timeline = buildTimeline(plan())
     expect(blockIndexAt(timeline, timeline.totalMs + 60_000)).toBe(timeline.blocks.length - 1)
+  })
+})
+
+describe('stroke mode', () => {
+  const strokePlan = (overrides: Partial<DrillPlan> = {}) =>
+    plan({ sequencer: sequencer({ announce: 'stroke', selection: 'random' }), ...overrides })
+
+  it('attaches a stroke to every call', () => {
+    const { events } = buildTimeline(strokePlan())
+    const calls = kinds(events, 'call')
+    expect(calls.length).toBeGreaterThan(4)
+    for (const call of calls) {
+      if (call.kind !== 'call') continue
+      expect(call.stroke, `call at ${call.at}`).toBeDefined()
+    }
+  })
+
+  it('attaches nothing in any other mode', () => {
+    // A stray stroke would make the voice say "net left, drop" during a
+    // plain footwork drill.
+    for (const announce of ['position', 'number'] as const) {
+      const { events } = buildTimeline(plan({ sequencer: sequencer({ announce }) }))
+      for (const call of kinds(events, 'call')) {
+        if (call.kind !== 'call') continue
+        expect(call.stroke, announce).toBeUndefined()
+      }
+    }
+  })
+
+  it('only ever asks for a shot playable from the corner it called', () => {
+    const { events } = buildTimeline(
+      strokePlan({
+        sequencer: sequencer({ announce: 'stroke', layout: 8, enabled: cornerIdsForLayout(8) }),
+      }),
+    )
+    for (const call of kinds(events, 'call')) {
+      if (call.kind !== 'call' || !call.stroke) continue
+      const row = CORNERS[call.corner].row
+      expect(strokesForRow(row), `${call.corner}`).toContain(call.stroke)
+    }
+  })
+
+  it('replays the identical shots for the same seed', () => {
+    const shots = () =>
+      kinds(buildTimeline(strokePlan({ seed: 4242 })).events, 'call').map((call) =>
+        call.kind === 'call' ? `${call.corner}:${call.stroke}` : '',
+      )
+    expect(shots()).toEqual(shots())
+    expect(shots().length).toBeGreaterThan(4)
+  })
+
+  it('leaves feints silent about the shot', () => {
+    // A fake that named a stroke would give itself away every time.
+    const { events } = buildTimeline(
+      strokePlan({
+        sequencer: sequencer({
+          announce: 'stroke',
+          selection: 'random',
+          deception: { enabled: true, probability: 1, gapMs: 400 },
+        }),
+      }),
+    )
+    const feints = kinds(events, 'feint')
+    expect(feints.length).toBeGreaterThan(0)
+    for (const feint of feints) expect('stroke' in feint).toBe(false)
   })
 })
