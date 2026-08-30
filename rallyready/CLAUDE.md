@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **518 tests across 32 files, all passing** — if you
+individually. Baseline is **521 tests across 32 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -87,7 +87,11 @@ see fewer, something is being skipped.
   after the tip, not as a shoulder width — a body-space offset rotates with the
   figure and floats one foot off the floor. Render a contact sheet and look at
   a new pose before shipping it — every figure defect in this app has been
-  found that way, never by reading.
+  found that way, never by reading. The box a sequence is drawn in comes from
+  `figureBox`, cropped to what the poses and the blends between them actually
+  use, so a figure on the floor is not drawn at a third of the size of one
+  standing up; the pose label scales down with the crop so every caption in the
+  app renders at the same size.
 - **A premium block is weeks, not a flag.** `lib/premium/commitment` records
   what was bought and derives delivery from sessions that were actually logged.
   Any week inside a block that the entitlement did not cover is `uncovered` and

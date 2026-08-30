@@ -22,7 +22,7 @@ the way.
 | **10 — Off-court training, strokes, integrity** | ✅ **Done — ready for review** |
 
 All ten phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 518 unit tests passing, production build clean.
+errors/warnings, 521 unit tests passing, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -83,6 +83,15 @@ applied after the body is tipped over: as a shoulder width it rotated with
 everything else, so a figure on its back stood one foot on the floor and held
 the other four pixels above it.
 
+Drawing the floor exercises exposed a second thing: every figure was drawn in a
+canvas sized for somebody standing up, so a push-up occupied the bottom third
+of its card and the rest was white. The box is now cropped to what the sequence
+actually uses — including the blends, because a limb swinging from one side to
+the other passes through straight up, higher than either end of the movement.
+The pose label shrinks by the same factor, so cropping the drawing does not
+also blow the caption up. An overhead clear turned out to have been swinging
+its racket a couple of units past the top of the fixed canvas all along.
+
 What a side view still cannot show is a rotation about the axis you are looking
 down, which is the seated twist. Its two frames draw the projection of that
 rotation instead — hands travelling from in front of the chest to beside the
@@ -132,7 +141,7 @@ Still no payment provider, and the page still says so above the prices.
 
 ### Verified
 
-- `npm run verify`: 518 tests across 32 files.
+- `npm run verify`: 521 tests across 32 files.
 - 90 route/viewport/theme combinations, including the new screens: no console
   errors, no page errors, nothing scrolls sideways.
 - A stroke drill run end to end with speech stubbed: twelve calls, every one

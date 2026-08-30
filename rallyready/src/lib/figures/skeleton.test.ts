@@ -15,9 +15,13 @@ import {
   GROUND,
   HEAD_Y,
   HIP_SPREAD,
+  HEAD_LONG,
+  HEAD_R,
   MIN_TRAVEL,
   PROFILE_HALF,
+  VIEW_H,
   VIEW_W,
+  figureBox,
 } from './skeleton'
 
 /**
@@ -25,6 +29,8 @@ import {
  * at it. These are the same checks, expressed as arithmetic so they run against
  * all fifty-odd poses instead of the three someone remembers to open.
  */
+
+type Racket = 'left' | 'right' | null
 
 /** Every mobility pose in the app, whatever it is attached to. */
 function allPoses(): { where: string; pose: MobilityPose; racket: 'left' | 'right' | null }[] {
@@ -110,6 +116,76 @@ describe('the sign convention', () => {
       if (!pose) continue // the pose was renamed; the coverage test below still guards the rest
       expect(footSpread(pose), `${slug} / ${label}`).toBeGreaterThan(HIP_SPREAD)
     }
+  })
+})
+
+describe('the box a sequence is drawn in', () => {
+  /** Every pose sequence the app renders, as the component receives it. */
+  function allSequences(): { where: string; poses: MobilityPose[]; racket: Racket }[] {
+    const out: { where: string; poses: MobilityPose[]; racket: Racket }[] = []
+    for (const exercise of EXERCISES) {
+      if (exercise.mobility?.length) {
+        out.push({ where: exercise.slug, poses: exercise.mobility, racket: null })
+      }
+    }
+    for (const topic of TECHNIQUE_TOPICS) {
+      const diagram = topic.diagram
+      if (!diagram || diagram.kind === 'grip') continue
+      out.push({
+        where: topic.slug,
+        poses: diagram.poses,
+        racket: diagram.kind === 'swing' ? diagram.racket : null,
+      })
+    }
+    return out
+  }
+
+  it('contains every frame and every blend between them', () => {
+    // The reason the blends are checked and not just the keyframes: an arm
+    // swinging from one side to the other passes through straight up, which is
+    // higher than either end of the movement it was cropped to.
+    for (const { where, poses, racket } of allSequences()) {
+      const box = figureBox(poses, racket)
+      for (let i = 0; i < poses.length; i += 1) {
+        for (const t of [0, 0.2, 0.4, 0.6, 0.8]) {
+          const pose = t === 0 ? poses[i]! : blend(poses[i]!, poses[(i + 1) % poses.length]!, t)
+          const figure = build(pose)
+          expect(figure.head.y - HEAD_R, `${where} head at t=${t}`).toBeGreaterThanOrEqual(box.top)
+          for (const [joint, point] of Object.entries(figure)) {
+            expect(point.y, `${where} ${joint} at t=${t}`).toBeGreaterThanOrEqual(box.top)
+          }
+          if (racket) {
+            const { head } = racketHead(figure, racket)
+            expect(head.y - HEAD_LONG, `${where} racket at t=${t}`).toBeGreaterThanOrEqual(box.top)
+          }
+        }
+      }
+    }
+  })
+
+  it('keeps the floor and the label in shot', () => {
+    // Only the top edge moves. The floor line and the pose label are part of
+    // the drawing and both sit at the bottom of the canvas.
+    for (const { where, poses, racket } of allSequences()) {
+      const box = figureBox(poses, racket)
+      expect(box.top + box.height, `${where}`).toBe(VIEW_H)
+      expect(box.viewBox, `${where}`).toBe(
+        `${-marginFor(racket)} ${box.top} ${VIEW_W + marginFor(racket) * 2} ${box.height}`,
+      )
+      // The label sits in the strip below the floor, whatever the crop.
+      expect(box.labelY - box.labelSize, `${where}`).toBeGreaterThan(GROUND)
+      expect(box.labelY, `${where}`).toBeLessThanOrEqual(VIEW_H)
+    }
+  })
+
+  it('crops a figure on the floor much harder than one standing up', () => {
+    // The whole point: a push-up used to be drawn in the bottom third of a
+    // canvas sized for somebody standing, at a third of the size.
+    const pushUp = figureBox(findExercise('str-push-up')?.mobility ?? [], null)
+    const march = figureBox(findExercise('mob-march')?.mobility ?? [], null)
+    expect(pushUp.top).toBeGreaterThan(march.top + 20)
+    // ...and its caption comes down to match, so both cards read the same.
+    expect(pushUp.labelSize).toBeLessThan(march.labelSize)
   })
 })
 

@@ -307,6 +307,84 @@ export function racketHead(
   }
 }
 
+/**
+ * The box a whole sequence needs, so a floor exercise is not drawn small.
+ *
+ * Every figure used to be drawn in the full 100×148 canvas, which is the right
+ * size for somebody standing up and three times too tall for somebody lying on
+ * the floor: a push-up occupied the bottom third of its card and the rest was
+ * white. Cropping to what the sequence actually uses lets the SVG scale the
+ * drawing up to fill the space it was given.
+ *
+ * Cropped once for the whole sequence rather than per frame, because a box that
+ * followed each pose would zoom in and out as the figure moved. The blends
+ * between keyframes are sampled too: a limb swinging from one side to the other
+ * passes through straight up, which is higher than either end of the movement.
+ *
+ * Only the top edge moves. The floor and the pose label sit at the bottom and
+ * are part of the drawing, and the sides are already close to the figure.
+ */
+export const FIGURE_PAD = 6
+/** Pose label type, in the uncropped canvas, and its baseline above the floor. */
+export const LABEL_SIZE = 8.5
+export const LABEL_BASELINE = 4
+
+export interface FigureBox {
+  viewBox: string
+  top: number
+  height: number
+  labelSize: number
+  labelY: number
+}
+
+export function figureBox(poses: MobilityPose[], racket: 'left' | 'right' | null): FigureBox {
+  const margin = marginFor(racket)
+  let highest = GROUND
+
+  const consider = (pose: MobilityPose) => {
+    const figure = build(pose)
+    for (const point of Object.values(figure)) highest = Math.min(highest, point.y)
+    highest = Math.min(highest, figure.head.y - HEAD_R)
+    if (racket) highest = Math.min(highest, racketHead(figure, racket).head.y - HEAD_LONG)
+  }
+
+  for (let i = 0; i < poses.length; i += 1) {
+    const current = poses[i]
+    if (!current) continue
+    consider(current)
+    const next = poses[(i + 1) % poses.length]
+    if (!next || poses.length < 2) continue
+    for (const t of [0.25, 0.5, 0.75]) consider(blend(current, next, t))
+  }
+
+  // Not clamped to the top of the nominal canvas: an overhead clear swings its
+  // racket a couple of units past it at the peak of the blend, and did so
+  // silently for as long as the box was a fixed 148 tall.
+  const top = Math.min(highest - FIGURE_PAD, VIEW_H - 1)
+  const height = VIEW_H - top
+
+  /*
+   * The label is a caption, and a caption wants to be the same size on every
+   * card. Cropping scales up everything in the box, type included, so the type
+   * has to come down by the same factor to stay put.
+   *
+   * Floored at 0.6 because past that point the crop stops making the drawing
+   * bigger — a short wide box is scaled to fit the card's *width* instead —
+   * and a label that kept shrinking would end up smaller than the one on the
+   * card beside it. At the floor, in the card these are drawn in, every label
+   * lands within a few tenths of a pixel of every other.
+   */
+  const labelScale = Math.min(1, Math.max(0.6, height / VIEW_H))
+
+  return {
+    viewBox: `${-margin} ${top} ${VIEW_W + margin * 2} ${height}`,
+    top,
+    height,
+    labelSize: LABEL_SIZE * labelScale,
+    labelY: VIEW_H - LABEL_BASELINE * labelScale,
+  }
+}
+
 /** An arrow only where something actually moved — below that it is a smudge. */
 export const MIN_TRAVEL = 9
 

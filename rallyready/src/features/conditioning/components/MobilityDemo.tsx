@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import type { MobilityPose } from '@/lib/data/seed/exercises'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
@@ -9,11 +9,11 @@ import {
   movingPart,
   racketHead,
   travel,
+  figureBox,
   GROUND,
   HEAD_LONG,
   HEAD_R,
   HEAD_SHORT,
-  VIEW_H,
   VIEW_W,
   type Point,
 } from '@/lib/figures/skeleton'
@@ -99,6 +99,9 @@ export function MobilityDemo({
     ? travel(racketHead(fromFigure, racket).head, racketHead(toFigure, racket).head)
     : movingPart(fromFigure, toFigure)
 
+  // Memoised because it builds every keyframe and a few blends, and this
+  // component re-renders on every animation frame.
+  const box = useMemo(() => figureBox(poses, racket), [poses, racket])
   const margin = marginFor(racket)
 
   const bone = (a: Point, b: Point, key: string, faded = false) => (
@@ -116,11 +119,11 @@ export function MobilityDemo({
 
   return (
     <svg
-      // A racket adds roughly a forearm's reach to the figure's silhouette, and
-      // a follow-through swings it well past where a bare hand ever goes. The
-      // box grows sideways rather than the figure shrinking, so a swing and a
-      // warm-up movement are drawn at the same scale.
-      viewBox={`${-margin} 0 ${VIEW_W + margin * 2} ${VIEW_H}`}
+      // Cropped to what this sequence actually uses, top edge only. A racket
+      // adds roughly a forearm's reach sideways and a follow-through swings it
+      // well past where a bare hand ever goes, so the box grows outwards for a
+      // swing rather than the figure shrinking inside it.
+      viewBox={box.viewBox}
       className={cn('h-full w-full', className)}
       role="img"
       aria-label={`Movement demonstration: ${current.label}`}
@@ -193,12 +196,15 @@ export function MobilityDemo({
       <circle cx={figure.head.x} cy={figure.head.y} r={HEAD_R} className="fill-foreground" />
 
       {/* Keep pose labels to about 22 characters: at this size anything longer
-          runs off the canvas, and an SVG has no way to wrap it. */}
+          runs off the canvas, and an SVG has no way to wrap it. The size comes
+          from the box rather than a class so that cropping the drawing does not
+          also blow the caption up. */}
       <text
         x="50"
-        y={VIEW_H - 4}
+        y={box.labelY}
+        fontSize={box.labelSize}
         textAnchor="middle"
-        className="fill-muted-foreground text-[8.5px] font-semibold tracking-wide"
+        className="fill-muted-foreground font-semibold tracking-wide"
       >
         {shown.label.toUpperCase()}
       </text>
