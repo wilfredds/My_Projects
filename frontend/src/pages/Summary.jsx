@@ -52,10 +52,21 @@ export default function Summary() {
     if (!cardRef.current) return;
     setDownloading(true);
     try {
+      // Pre-fetch Google Fonts CSS ourselves so html-to-image can embed the
+      // brand fonts without hitting cross-origin cssRules SecurityErrors.
+      let fontEmbedCSS = "";
+      try {
+        const fontUrl =
+          "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700;800&display=swap";
+        fontEmbedCSS = await fetch(fontUrl).then((r) => r.text());
+      } catch {
+        /* fall back to system fonts if fonts can't be fetched */
+      }
       const dataUrl = await toPng(cardRef.current, {
         pixelRatio: 2,
         cacheBust: true,
         backgroundColor: "#ffffff",
+        ...(fontEmbedCSS ? { fontEmbedCSS } : { skipFonts: true }),
       });
       const link = document.createElement("a");
       const slug = (session.venue || "courtsplit").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
