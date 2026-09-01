@@ -1,0 +1,167 @@
+{
+  "app_name": "CourtSplit",
+  "app_tagline": "Badminton Session Cost Splitter & Payment Tracker",
+  "app_type": "hybrid_fullstack",
+  "archetype": "THE PERFORMANCE PRO x SPORT COURT HIGH VISIBILITY",
+  "theme_strategy": {
+    "default_mode": "light",
+    "gym_optimized": true,
+    "high_contrast_mode": "Gym-Bright Light Theme with crisp Obsidian text and Optic Volt / Emerald Court accents for maximum readability under harsh overhead hall lights.",
+    "dark_mode_support": "Toggleable Night Mode (Obsidian background with Electric Emerald and Optic Yellow highlights)."
+  },
+  "typography": {
+    "headings": {
+      "font_family": "Outfit, system-ui, sans-serif",
+      "font_weights": {
+        "h1": "font-black tracking-tight text-3xl sm:text-4xl lg:text-5xl",
+        "h2": "font-bold tracking-tight text-xl sm:text-2xl lg:text-3xl",
+        "h3": "font-semibold text-lg sm:text-xl",
+        "h4": "font-semibold text-base"
+      },
+      "style_notes": "Never use Inter for headings. Use Outfit or Barlow Condensed for athletic energy."
+    },
+    "body": {
+      "font_family": "Plus Jakarta Sans, system-ui, sans-serif",
+      "class": "text-base font-normal leading-relaxed text-slate-800 dark:text-slate-100"
+    },
+    "numbers_currency": {
+      "font_family": "JetBrains Mono, monospace",
+      "class": "font-mono font-bold tracking-tight tabular-nums",
+      "usage": "All money amounts, ₱ totals, per-player court + shuttle breakdowns, shuttle counts."
+    }
+  },
+  "colors": {
+    "primary": {
+      "default": "#0F172A",
+      "court_green": "#059669",
+      "emerald_accent": "#10B981",
+      "shuttle_yellow": "#84CC16",
+      "court_blue": "#0284C7"
+    },
+    "status": {
+      "paid": {
+        "bg": "#DCFCE7",
+        "border": "#86EFAC",
+        "text": "#15803D",
+        "badge": "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300"
+      },
+      "unpaid": {
+        "bg": "#FEF2F2",
+        "border": "#FECACA",
+        "text": "#B91C1C",
+        "badge": "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300"
+      }
+    },
+    "gradients": {
+      "summary_card_header": "bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600",
+      "shuttle_badge": "bg-gradient-to-r from-lime-500 to-emerald-500",
+      "court_strip": "bg-gradient-to-b from-emerald-500/10 to-transparent"
+    },
+    "neutrals": {
+      "bg_light": "#F8FAFC",
+      "card_light": "#FFFFFF",
+      "border_light": "#E2E8F0",
+      "text_dark": "#0F172A",
+      "text_muted": "#64748B"
+    }
+  },
+  "visual_enhancers": {
+    "court_lines_pattern": "Subtle 1px court marking SVG vector grid background on key cards.",
+    "shuttlecock_iconography": "Badminton racquet & shuttlecock SVG accents on header and shareable card.",
+    "ticket_tear_effect": "Scalloped or dashed bottom border on the public share summary card to feel like a court pass/receipt.",
+    "screenshot_ready_card": "Max width 480px centered mobile phone view wrapper with drop shadow, border, rounded-2xl, and high contrast typography for crisp phone screenshots."
+  },
+  "component_structure": {
+    "screens": [
+      {
+        "name": "Home / Past Sessions",
+        "route": "/",
+        "description": "Displays past badminton sessions card list, total collected summary metric, quick filter (All, Unsettled, Settled), and 'New Session' prominent FAB/button."
+      },
+      {
+        "name": "New / Edit Session",
+        "route": "/sessions/new, /sessions/:id/edit",
+        "description": "Form with venue, date, court fee, shuttle count, price per shuttle, currency picker (default PHP ₱), and dynamic player list with quick add tags. Live sticky footer calculating instant share per player."
+      },
+      {
+        "name": "Session Detail",
+        "route": "/sessions/:id",
+        "description": "Interactive roster list with toggle switches or tap cards to mark Paid/Unpaid, progress bar for total collected vs outstanding, quick WhatsApp/SMS copy text generator, and 'Open Shareable Summary' CTA."
+      },
+      {
+        "name": "Shareable Public Summary",
+        "route": "/summary/:id",
+        "description": "The flagship polished screen. No login required. Pristine mobile card with breakdown of court fee portion + shuttle portion per player, total collected vs outstanding status, payment instructions box (GCash/Maya/Bank details), and 'Made with CourtSplit' branding badge."
+      }
+    ],
+    "key_widgets": [
+      "LivePerPlayerCalculatorBar",
+      "PaymentProgressGauge",
+      "PlayerBreakdownCard",
+      "ShareSummaryScreenshotWrapper",
+      "PaymentMethodDetailsCard",
+      "QuickCopySummaryButton",
+      "CurrencySelectorModal"
+    ]
+  },
+  "media_and_assets": {
+    "image_urls": [
+      {
+        "category": "hero_background",
+        "url": "https://images.unsplash.com/photo-1783266558435-5f937b97d5a3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwyfHxiYWRtaW50b24lMjBjb3VydCUyMGluZG9vciUyMG1hdGNoJTIwcGxheWVyJTIwc2h1dHRsZWNvY2t8ZW58MHx8fHwxNzg4MjY2NTcwfDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Badminton player smash on indoor blue court"
+      },
+      {
+        "category": "court_banner",
+        "url": "https://images.unsplash.com/photo-1783266582705-c6e8b7c02e1c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwxfHxiYWRtaW50b24lMjBjb3VydCUyMGluZG9vciUyMG1hdGNoJTIwcGxheWVyJTIwc2h1dHRsZWNvY2t8ZW58MHx8fHwxNzg4MjY2NTcwfDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Indoor badminton double match on court"
+      }
+    ]
+  },
+  "data_testid_strategy": {
+    "rules": "All interactive buttons, input fields, toggles, financial totals, and share cards MUST have a kebab-case data-testid.",
+    "required_test_ids": [
+      "app-header",
+      "nav-home-link",
+      "nav-new-session-button",
+      "new-session-form",
+      "input-session-venue",
+      "input-session-date",
+      "input-court-fee",
+      "input-shuttle-count",
+      "input-shuttle-price",
+      "select-currency",
+      "input-player-name",
+      "add-player-button",
+      "submit-session-button",
+      "session-card-:id",
+      "live-total-court-cost",
+      "live-total-shuttle-cost",
+      "live-total-session-cost",
+      "live-per-player-share",
+      "player-row-:id",
+      "toggle-paid-status-:id",
+      "badge-paid-status-:id",
+      "summary-collected-amount",
+      "summary-outstanding-amount",
+      "shareable-summary-card",
+      "btn-copy-summary-text",
+      "btn-share-summary-link",
+      "made-with-courtsplit-footer"
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Build the web application using standard React, Tailwind CSS, and Shadcn UI components.",
+    "Ensure default currency is set to PHP (₱) across all calculations and displays.",
+    "Ensure live calculation formula strictly follows: totalShuttleCost = numberOfShuttles * pricePerShuttle; totalCost = totalCourtFee + totalShuttleCost; perPlayerShare = totalCost / numberOfPlayers; courtPortion = totalCourtFee / numberOfPlayers; shuttlePortion = totalShuttleCost / numberOfPlayers.",
+    "Prioritize the Shareable Summary screen styling: Make it look like a high-end digital receipt/pass with court accent lines, crystal clear text, individual breakdown of court vs shuttle fees, and GCash/Maya payment notes.",
+    "Ensure touch targets are at least 44px with large high-contrast buttons for fast one-handed mobile operation inside a brightly lit badminton hall.",
+    "Include quick copy feature to format the roster into plain text ready to paste directly into group chats (Messenger/Viber/WhatsApp)."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Never use generic centered layouts or unstyled default tables. Wrap content in clean cards with explicit padding p-4 md:p-6.",
+    "Ensure all monetary amounts use tabular numbers (font-mono) so numbers align neatly when stacked.",
+    "Use sonner for notifications when status changes or text is copied.",
+    "Always add data-testid attributes to all form controls, list items, total badges, and interactive buttons."
+  ]
+}
