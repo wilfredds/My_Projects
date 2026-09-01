@@ -37,6 +37,7 @@ export default function SessionForm() {
   const [numShuttles, setNumShuttles] = useState("");
   const [pricePerShuttle, setPricePerShuttle] = useState("");
   const [paymentNote, setPaymentNote] = useState("");
+  const [notes, setNotes] = useState("");
   const [qrPath, setQrPath] = useState("");
   const [uploadingQr, setUploadingQr] = useState(false);
   const [players, setPlayers] = useState([]);
@@ -53,6 +54,7 @@ export default function SessionForm() {
         setNumShuttles(String(s.num_shuttles ?? ""));
         setPricePerShuttle(String(s.price_per_shuttle ?? ""));
         setPaymentNote(s.payment_note || "");
+        setNotes(s.notes || "");
         setQrPath(s.payment_qr_path || "");
         setPlayers(s.players || []);
       }).catch(() => toast.error("Could not load session"));
@@ -63,6 +65,7 @@ export default function SessionForm() {
       setNumShuttles(String(clone.num_shuttles ?? ""));
       setPricePerShuttle(String(clone.price_per_shuttle ?? ""));
       setPaymentNote(clone.payment_note || "");
+      setNotes(clone.notes || "");
       setQrPath(clone.payment_qr_path || "");
       setPlayers((clone.players || []).map((p) => ({ name: p.name, paid: false })));
       toast.success("Copied from previous session — set the date and save");
@@ -115,6 +118,7 @@ export default function SessionForm() {
       price_per_shuttle: Number(pricePerShuttle) || 0,
       payment_note: paymentNote.trim(),
       payment_qr_path: qrPath,
+      notes: notes.trim(),
       players: players.map((p) => ({ id: p.id, name: p.name, paid: p.paid })),
     };
     try {
@@ -221,6 +225,9 @@ export default function SessionForm() {
           </div>
 
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+            <Field label="Note (optional)" hint="A short note shown on the shareable summary — e.g. Next week same time">
+              <Input data-testid="input-notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Next week same time 🏸" className="rounded-xl h-11" maxLength={140} />
+            </Field>
             <Field label="Payment note (optional)" hint="Shown on the shareable page — e.g. GCash / Maya / bank details">
               <Textarea data-testid="input-payment-note" value={paymentNote} onChange={(e) => setPaymentNote(e.target.value)} placeholder="GCash: 0917 123 4567 (Juan D.)" className="rounded-xl min-h-[72px]" />
             </Field>

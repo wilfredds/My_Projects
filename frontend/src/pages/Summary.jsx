@@ -1,20 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { toPng } from "html-to-image";
+import { toPng, toBlob } from "html-to-image";
 import { getSession, fileUrl } from "@/lib/api";
 import { computeTotals } from "@/lib/calc";
 import { formatMoney } from "@/lib/currencies";
 import { ShuttleIcon } from "@/components/Brand";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, CheckCircle2, Clock, Wallet, Download } from "lucide-react";
+import { Copy, CheckCircle2, Clock, Wallet, Download, Share2, MessageCircle } from "lucide-react";
 
 export default function Summary() {
   const { id } = useParams();
   const [session, setSession] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const cardRef = useRef(null);
 
   useEffect(() => {
@@ -48,29 +49,37 @@ export default function Summary() {
     toast.success("Link copied");
   };
 
+  // Pre-fetch Google Fonts CSS so html-to-image embeds brand fonts without
+  // hitting cross-origin cssRules SecurityErrors.
+  const imageOptions = async () => {
+    let fontEmbedCSS = "";
+    try {
+      const fontUrl =
+        "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700;800&display=swap";
+      fontEmbedCSS = await fetch(fontUrl).then((r) => r.text());
+    } catch {
+      /* fall back to system fonts */
+    }
+    return {
+      pixelRatio: 2,
+      cacheBust: true,
+      backgroundColor: "#ffffff",
+      ...(fontEmbedCSS ? { fontEmbedCSS } : { skipFonts: true }),
+    };
+  };
+
+  const fileName = () => {
+    const slug = (session.venue || "courtsplit").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+    return `courtsplit-${slug}-${session.date}.png`;
+  };
+
   const downloadImage = async () => {
     if (!cardRef.current) return;
     setDownloading(true);
     try {
-      // Pre-fetch Google Fonts CSS ourselves so html-to-image can embed the
-      // brand fonts without hitting cross-origin cssRules SecurityErrors.
-      let fontEmbedCSS = "";
-      try {
-        const fontUrl =
-          "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700;800&display=swap";
-        fontEmbedCSS = await fetch(fontUrl).then((r) => r.text());
-      } catch {
-        /* fall back to system fonts if fonts can't be fetched */
-      }
-      const dataUrl = await toPng(cardRef.current, {
-        pixelRatio: 2,
-        cacheBust: true,
-        backgroundColor: "#ffffff",
-        ...(fontEmbedCSS ? { fontEmbedCSS } : { skipFonts: true }),
-      });
+      const dataUrl = await toPng(cardRef.current, await imageOptions());
       const link = document.createElement("a");
-      const slug = (session.venue || "courtsplit").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
-      link.download = `courtsplit-${slug}-${session.date}.png`;
+      link.download = fileName();
       link.href = dataUrl;
       link.click();
       toast.success("Image saved — share it in your group chat");
@@ -78,6 +87,34 @@ export default function Summary() {
       toast.error("Could not create image");
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const shareImage = async () => {
+    if (!cardRef.current) return;
+    setSharing(true);
+    try {
+      const blob = await toBlob(cardRef.current, await imageOptions());
+      if (!blob) throw new Error("no blob");
+      const file = new File([blob], fileName(), { type: "image/png" });
+      const shareText = `${session.venue} (${session.date}) — each player pays ${formatMoney(t.perPlayerShare, cur)}.`;
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "CourtSplit", text: shareText });
+      } else {
+        // Desktop / unsupported: download the image instead
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = fileName();
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+        toast.info("Sharing isn't supported here — image downloaded instead");
+      }
+    } catch (e) {
+      if (e && e.name === "AbortError") { /* user cancelled */ }
+      else toast.error("Could not share image");
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -187,6 +224,16 @@ export default function Summary() {
             </div>
           )}
 
+          {/* Session note */}
+          {session.notes && (
+            <div className="px-6 pt-4">
+              <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-4 flex gap-2.5" data-testid="summary-note">
+                <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <p className="text-slate-700 text-sm whitespace-pre-wrap">{session.notes}</p>
+              </div>
+            </div>
+          )}
+
           {/* Footer with tear */}
           <div className="mt-6">
             <div className="h-4 bg-white ticket-tear" />
@@ -197,16 +244,27 @@ export default function Summary() {
         </div>
 
         <Button
-          onClick={downloadImage}
-          disabled={downloading}
+          onClick={shareImage}
+          disabled={sharing || downloading}
           className="w-full mt-4 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-bold gap-2"
-          data-testid="download-image-button"
+          data-testid="share-image-button"
         >
-          <Download className="w-5 h-5" /> {downloading ? "Preparing image..." : "Save as image"}
+          <Share2 className="w-5 h-5" /> {sharing ? "Preparing..." : "Share to chat"}
         </Button>
-        <Button onClick={copyLink} variant="outline" className="w-full mt-3 h-11 rounded-xl bg-white font-semibold gap-2" data-testid="copy-share-link-button">
-          <Copy className="w-4 h-4" /> Copy this link
-        </Button>
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          <Button
+            onClick={downloadImage}
+            disabled={downloading}
+            variant="outline"
+            className="h-11 rounded-xl bg-white font-semibold gap-2"
+            data-testid="download-image-button"
+          >
+            <Download className="w-4 h-4" /> {downloading ? "..." : "Save image"}
+          </Button>
+          <Button onClick={copyLink} variant="outline" className="h-11 rounded-xl bg-white font-semibold gap-2" data-testid="copy-share-link-button">
+            <Copy className="w-4 h-4" /> Copy link
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -93,6 +93,7 @@ class SessionBase(BaseModel):
     currency: str = "PHP"
     payment_note: str = ""
     payment_qr_path: str = ""
+    notes: str = ""
 
 
 class SessionCreate(SessionBase):

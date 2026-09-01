@@ -197,3 +197,41 @@ def test_upload_qr_rejects_non_image(s):
 def test_files_unknown_404(s):
     r = s.get(f"{BASE_URL}/api/files/courtsplit/qr/does-not-exist.png")
     assert r.status_code == 404
+
+
+# --- Notes round-trip (new feature) ---
+def test_notes_roundtrip(s):
+    payload = {
+        "venue": "TEST_Notes Venue",
+        "date": "2026-02-01",
+        "court_fee": 400,
+        "num_shuttles": 2,
+        "price_per_shuttle": 100,
+        "currency": "PHP",
+        "notes": "Next week same time",
+        "players": [{"name": "TEST_X"}, {"name": "TEST_Y"}],
+    }
+    r = s.post(f"{API}/sessions", json=payload)
+    assert r.status_code == 200, r.text
+    sid = r.json()["id"]
+    assert r.json()["notes"] == "Next week same time"
+
+    # GET verifies persistence
+    g = s.get(f"{API}/sessions/{sid}").json()
+    assert g["notes"] == "Next week same time"
+
+    # Update notes
+    payload["notes"] = "Updated note text"
+    u = s.put(f"{API}/sessions/{sid}", json=payload)
+    assert u.status_code == 200
+    assert u.json()["notes"] == "Updated note text"
+
+    # Confirm empty notes default
+    p2 = dict(payload); p2["venue"] = "TEST_NoNote"; del p2["notes"]
+    r2 = s.post(f"{API}/sessions", json=p2)
+    assert r2.status_code == 200
+    assert r2.json()["notes"] == ""
+
+    # Cleanup
+    s.delete(f"{API}/sessions/{sid}")
+    s.delete(f"{API}/sessions/{r2.json()['id']}")
