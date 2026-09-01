@@ -1,0 +1,25 @@
+{
+  "summary": "Tested the new 'Save as image' button on the public /summary/:id page. Button is visible with correct data-testid, clicking triggers a valid PNG download with correct filename pattern (courtsplit-<venue-slug>-<date>.png, 161KB), success toast appears, copy-link button still works, and the summary card regression (players, court+shuttle breakdown, collected/outstanding, footer) all render correctly on direct navigation.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/summary/:id (Save as image)", "issues": ["html-to-image logs non-fatal SecurityError console warnings when trying to inline the Google Fonts stylesheet (fonts.googleapis.com cssRules blocked by CORS). PNG still generates successfully but web fonts (Outfit / Plus Jakarta Sans / JetBrains Mono) may not be embedded and could fall back to system fonts in the exported image. Consider passing fontEmbedCSS option or self-hosting fonts / using skipFonts:true to silence noise."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_2.json"],
+  "action_items": [
+    "Optional: silence html-to-image font-inline warnings on Summary page by passing skipFonts:true or providing a pre-fetched fontEmbedCSS to toPng() to ensure exported PNG uses the app's brand fonts consistently."
+  ],
+  "critical_code_review_comments": [
+    "Summary.jsx downloadImage() handles error path with toast.error and re-enables the button in finally — good.",
+    "Filename slug logic replaces non-alphanum with dashes and lowercases — safe for filesystems."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "seed_data_creation": "Used existing session 0f78b8aa-f2cf-4e02-8d44-251e5e894b04 (Smash Arena, 2026-06-01).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Summary Save-as-image feature verified working E2E via Playwright expect_download. Downloaded file: courtsplit-smash-arena-2026-06-01.png (161KB). Only observation is non-fatal html-to-image CORS warnings for Google Fonts stylesheet — cosmetic/console noise, not a functional bug."
+}

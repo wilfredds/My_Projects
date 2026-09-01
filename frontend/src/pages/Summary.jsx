@@ -1,18 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { toPng } from "html-to-image";
 import { getSession } from "@/lib/api";
 import { computeTotals } from "@/lib/calc";
 import { formatMoney } from "@/lib/currencies";
 import { ShuttleIcon } from "@/components/Brand";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, CheckCircle2, Clock, Wallet } from "lucide-react";
+import { Copy, CheckCircle2, Clock, Wallet, Download } from "lucide-react";
 
 export default function Summary() {
   const { id } = useParams();
   const [session, setSession] = useState(null);
   const [notFound, setNotFound] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const cardRef = useRef(null);
 
   useEffect(() => {
     getSession(id).then(setSession).catch(() => setNotFound(true));
@@ -45,10 +48,32 @@ export default function Summary() {
     toast.success("Link copied");
   };
 
+  const downloadImage = async () => {
+    if (!cardRef.current) return;
+    setDownloading(true);
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: "#ffffff",
+      });
+      const link = document.createElement("a");
+      const slug = (session.venue || "courtsplit").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+      link.download = `courtsplit-${slug}-${session.date}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success("Image saved — share it in your group chat");
+    } catch (e) {
+      toast.error("Could not create image");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-slate-200 py-6 px-4 flex flex-col items-center">
       <div className="w-full max-w-[440px]">
-        <div data-testid="shareable-summary-card" className="bg-white rounded-3xl shadow-2xl overflow-hidden animate-rise">
+        <div ref={cardRef} data-testid="shareable-summary-card" className="bg-white rounded-3xl shadow-2xl overflow-hidden animate-rise">
           {/* Header */}
           <div className="relative bg-gradient-to-br from-emerald-600 via-teal-600 to-sky-600 text-white px-6 pt-7 pb-8 court-lines">
             <div className="relative flex items-center gap-2">
@@ -144,7 +169,15 @@ export default function Summary() {
           </div>
         </div>
 
-        <Button onClick={copyLink} variant="outline" className="w-full mt-4 h-11 rounded-xl bg-white font-semibold gap-2" data-testid="copy-share-link-button">
+        <Button
+          onClick={downloadImage}
+          disabled={downloading}
+          className="w-full mt-4 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-bold gap-2"
+          data-testid="download-image-button"
+        >
+          <Download className="w-5 h-5" /> {downloading ? "Preparing image..." : "Save as image"}
+        </Button>
+        <Button onClick={copyLink} variant="outline" className="w-full mt-3 h-11 rounded-xl bg-white font-semibold gap-2" data-testid="copy-share-link-button">
           <Copy className="w-4 h-4" /> Copy this link
         </Button>
       </div>
