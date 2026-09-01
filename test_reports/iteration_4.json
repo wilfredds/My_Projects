@@ -1,0 +1,19 @@
+{
+  "summary": "Targeted re-test of CourtSplit Summary 'Save as image' export fix. Loaded /summary/0f78b8aa-f2cf-4e02-8d44-251e5e894b04, verified on-screen card rendering (gradient header, roster, collected/outstanding, breakdown, footer), clicked download-image-button, captured the downloaded PNG via Playwright, and inspected pixels with PIL. Exported PNG (880x2284) TOP region is the emerald->teal->blue gradient header as intended — NOT blank white. Bug is FIXED.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "seed_data_creation": "Reused existing session 0f78b8aa-f2cf-4e02-8d44-251e5e894b04 (venue Smash Arena, court 600, 3 shuttles @120, 6 players A-F).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Export bug fix confirmed via PIL pixel inspection. PNG top-15% sampled 1428 pixels: 96.3% colored gradient, only 3.7% near-white (from rounded card corners). Row samples: y=40 at x=100 -> RGB(6,149,110) emerald; x=400 -> RGB(9,148,122) teal; x=800 -> RGB(12,147,139) teal-blue. Aspect ratio h/w=2.60 (no excessive blank band). File saved /tmp/summary_export.png (837KB).",
+  "rca of the issue": "Original bug: header div combined a Tailwind gradient class with .court-lines background-image class on the SAME element; when html-to-image inlined computed styles, background-image (court-lines pattern) overrode the gradient, rendering the header white with invisible white text — producing a huge blank top band. Fix (verified): gradient moved to inline style backgroundImage linear-gradient(135deg,#059669,#0d9488,#0284c7) and court-lines pattern moved to an absolutely-positioned child overlay; backdrop-blur removed (not exportable by html-to-image). PIL verification shows top 15% now displays the intended emerald/teal/blue gradient."
+}

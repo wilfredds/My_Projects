@@ -86,7 +86,11 @@ export default function Summary() {
       <div className="w-full max-w-[440px]">
         <div ref={cardRef} data-testid="shareable-summary-card" className="bg-white rounded-3xl shadow-2xl overflow-hidden animate-rise">
           {/* Header */}
-          <div className="relative bg-gradient-to-br from-emerald-600 via-teal-600 to-sky-600 text-white px-6 pt-7 pb-8 court-lines">
+          <div
+            className="relative overflow-hidden text-white px-6 pt-7 pb-8"
+            style={{ backgroundImage: "linear-gradient(135deg, #059669 0%, #0d9488 50%, #0284c7 100%)" }}
+          >
+            <div className="absolute inset-0 court-lines pointer-events-none" aria-hidden="true" />
             <div className="relative flex items-center gap-2">
               <span className="grid place-items-center w-9 h-9 rounded-xl bg-white/20"><ShuttleIcon className="w-5 h-5" /></span>
               <span className="font-heading font-extrabold text-lg tracking-tight">CourtSplit</span>
@@ -94,7 +98,7 @@ export default function Summary() {
             <h1 className="relative font-heading font-black text-3xl leading-tight mt-4">{session.venue}</h1>
             <p className="relative text-white/80 font-medium mt-1">{session.date}</p>
 
-            <div className="relative mt-5 bg-white/15 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+            <div className="relative mt-5 bg-white/15 rounded-2xl p-4 border border-white/20">
               <div className="text-[11px] uppercase tracking-wider text-white/80 font-bold">Each player pays</div>
               <div className="font-mono-num font-black text-4xl mt-1">{formatMoney(t.perPlayerShare, cur)}</div>
               <div className="flex gap-2 mt-3">
