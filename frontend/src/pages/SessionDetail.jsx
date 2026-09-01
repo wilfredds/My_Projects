@@ -5,6 +5,7 @@ import { getSession, setPlayerPaid, deleteSession } from "@/lib/api";
 import { computeTotals } from "@/lib/calc";
 import { formatMoney } from "@/lib/currencies";
 import { Brand } from "@/components/Brand";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,7 +13,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Pencil, Trash2, Copy, Share2, MapPin, Calendar, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Copy, Share2, MapPin, Calendar, CheckCircle2, CopyPlus } from "lucide-react";
 
 export default function SessionDetail() {
   const { id } = useParams();
@@ -80,28 +81,34 @@ export default function SessionDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20">
         <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="inline-flex items-center gap-1 text-slate-600 hover:text-slate-900 font-medium" data-testid="back-button">
+          <Link to="/" className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium" data-testid="back-button">
             <ArrowLeft className="w-5 h-5" /> Back
           </Link>
-          <Brand />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Brand />
+          </div>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 pb-28 pt-6 space-y-5">
         {/* Header card */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 animate-rise">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 animate-rise">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="font-heading font-black text-2xl text-slate-900 truncate">{session.venue}</h1>
-              <div className="flex items-center gap-3 text-sm text-slate-500 mt-1">
+              <h1 className="font-heading font-black text-2xl text-slate-900 dark:text-white truncate">{session.venue}</h1>
+              <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mt-1">
                 <span className="inline-flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{session.date}</span>
                 <span className="inline-flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{t.numPlayers} players</span>
               </div>
             </div>
             <div className="flex gap-1.5 shrink-0">
+              <Button variant="outline" size="icon" className="rounded-xl" data-testid="clone-session-button" title="Repeat session" onClick={() => navigate("/sessions/new", { state: { clone: session } })}>
+                <CopyPlus className="w-4 h-4" />
+              </Button>
               <Button variant="outline" size="icon" className="rounded-xl" data-testid="edit-session-button" onClick={() => navigate(`/sessions/${id}/edit`)}>
                 <Pencil className="w-4 h-4" />
               </Button>
@@ -126,7 +133,7 @@ export default function SessionDetail() {
           </div>
 
           {/* Per player */}
-          <div className="mt-4 rounded-xl bg-slate-900 text-white p-4 court-lines overflow-hidden">
+          <div className="mt-4 rounded-xl bg-slate-900 dark:bg-slate-950 dark:border dark:border-slate-800 text-white p-4 court-lines overflow-hidden">
             <div className="text-[11px] uppercase tracking-wider text-emerald-300 font-semibold">Each player pays</div>
             <div className="font-mono-num font-black text-3xl mt-1">{formatMoney(t.perPlayerShare, session.currency)}</div>
             <div className="text-xs text-white/60 mt-1">
@@ -137,33 +144,33 @@ export default function SessionDetail() {
           {/* Progress */}
           <div className="mt-4">
             <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-emerald-700 font-semibold">Collected <span data-testid="summary-collected-amount" className="font-mono-num">{formatMoney(t.collected, session.currency)}</span></span>
-              <span className="text-amber-700 font-semibold">Outstanding <span data-testid="summary-outstanding-amount" className="font-mono-num">{formatMoney(t.outstanding, session.currency)}</span></span>
+              <span className="text-emerald-700 dark:text-emerald-400 font-semibold">Collected <span data-testid="summary-collected-amount" className="font-mono-num">{formatMoney(t.collected, session.currency)}</span></span>
+              <span className="text-amber-700 dark:text-amber-400 font-semibold">Outstanding <span data-testid="summary-outstanding-amount" className="font-mono-num">{formatMoney(t.outstanding, session.currency)}</span></span>
             </div>
-            <div className="h-3 rounded-full bg-slate-100 overflow-hidden">
+            <div className="h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
               <div className="h-full bg-emerald-500 transition-all duration-500" style={{ width: `${pct}%` }} data-testid="payment-progress-bar" />
             </div>
-            <div className="text-xs text-slate-400 mt-1.5">{t.paidCount} of {t.numPlayers} paid · {pct}%</div>
+            <div className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">{t.paidCount} of {t.numPlayers} paid · {pct}%</div>
           </div>
         </div>
 
         {/* Roster */}
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden animate-rise">
-          <div className="px-5 py-3 border-b border-slate-100 font-heading font-bold text-slate-900">Roster</div>
-          <div className="divide-y divide-slate-100">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-rise">
+          <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 font-heading font-bold text-slate-900 dark:text-white">Roster</div>
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {session.players.map((p) => (
-              <div key={p.id} data-testid={`player-row-${p.id}`} className={`flex items-center justify-between px-5 py-4 transition-colors ${p.paid ? "bg-emerald-50/40" : ""}`}>
+              <div key={p.id} data-testid={`player-row-${p.id}`} className={`flex items-center justify-between px-5 py-4 transition-colors ${p.paid ? "bg-emerald-50/40 dark:bg-emerald-950/20" : ""}`}>
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-9 h-9 rounded-full grid place-items-center font-heading font-bold text-sm shrink-0 ${p.paid ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+                  <div className={`w-9 h-9 rounded-full grid place-items-center font-heading font-bold text-sm shrink-0 ${p.paid ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300" : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"}`}>
                     {p.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <div className="font-semibold text-slate-900 truncate">{p.name}</div>
-                    <div className="font-mono-num text-sm text-slate-500">{formatMoney(t.perPlayerShare, session.currency)}</div>
+                    <div className="font-semibold text-slate-900 dark:text-white truncate">{p.name}</div>
+                    <div className="font-mono-num text-sm text-slate-500 dark:text-slate-400">{formatMoney(t.perPlayerShare, session.currency)}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2.5 shrink-0">
-                  <span data-testid={`badge-paid-status-${p.id}`} className={`text-xs font-bold uppercase tracking-wide ${p.paid ? "text-emerald-600" : "text-slate-400"}`}>
+                  <span data-testid={`badge-paid-status-${p.id}`} className={`text-xs font-bold uppercase tracking-wide ${p.paid ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500"}`}>
                     {p.paid ? "Paid" : "Unpaid"}
                   </span>
                   <Switch

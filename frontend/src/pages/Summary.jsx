@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
-import { getSession } from "@/lib/api";
+import { getSession, fileUrl } from "@/lib/api";
 import { computeTotals } from "@/lib/calc";
 import { formatMoney } from "@/lib/currencies";
 import { ShuttleIcon } from "@/components/Brand";
@@ -161,12 +161,24 @@ export default function Summary() {
             </div>
           </div>
 
-          {/* Payment note */}
-          {session.payment_note && (
+          {/* Payment note + QR */}
+          {(session.payment_note || session.payment_qr_path) && (
             <div className="px-6 pt-4">
               <div className="rounded-2xl bg-sky-50 border border-sky-200 p-4">
                 <div className="flex items-center gap-1.5 text-sky-700 font-bold text-xs uppercase tracking-wide"><Wallet className="w-3.5 h-3.5" /> How to pay</div>
-                <p className="text-slate-700 text-sm mt-1.5 whitespace-pre-wrap">{session.payment_note}</p>
+                {session.payment_note && (
+                  <p className="text-slate-700 text-sm mt-1.5 whitespace-pre-wrap">{session.payment_note}</p>
+                )}
+                {session.payment_qr_path && (
+                  <div className="mt-3 flex justify-center">
+                    <img
+                      src={fileUrl(session.payment_qr_path)}
+                      alt="Payment QR code"
+                      data-testid="summary-qr-image"
+                      className="w-44 h-44 rounded-xl object-contain bg-white border border-sky-200 p-2"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}

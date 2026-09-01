@@ -140,3 +140,60 @@ def test_delete_session(s):
 def test_delete_unknown_404(s):
     r = s.delete(f"{API}/sessions/nope-nope")
     assert r.status_code == 404
+
+
+# --- QR upload / file serve ---
+# 1x1 PNG
+_PNG = (
+    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
+    b"\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\xcf\xc0"
+    b"\x00\x00\x00\x03\x00\x01\x5b\x8d\x0b\x9b\x00\x00\x00\x00IEND\xaeB`\x82"
+)
+
+
+def test_upload_qr_and_serve(s):
+    files = {"file": ("qr.png", _PNG, "image/png")}
+    r = s.post(f"{API}/upload-qr", files=files)
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert "path" in data and data["path"].startswith("courtsplit/qr/")
+
+    # Serve it back
+    r2 = s.get(f"{BASE_URL}/api/files/{data['path']}")
+    assert r2.status_code == 200
+    assert r2.headers.get("Content-Type", "").startswith("image/")
+    assert len(r2.content) == len(_PNG)
+
+    # Attach to a new session
+    payload = {
+        "venue": "TEST_QR",
+        "date": "2026-01-20",
+        "court_fee": 600,
+        "num_shuttles": 3,
+        "price_per_shuttle": 120,
+        "currency": "PHP",
+        "payment_qr_path": data["path"],
+        "players": [{"name": f"TEST_QP{i}"} for i in range(6)],
+    }
+    r3 = s.post(f"{API}/sessions", json=payload)
+    assert r3.status_code == 200
+    sid = r3.json()["id"]
+    assert r3.json()["payment_qr_path"] == data["path"]
+
+    # Persisted via GET
+    got = s.get(f"{API}/sessions/{sid}").json()
+    assert got["payment_qr_path"] == data["path"]
+
+    # cleanup
+    s.delete(f"{API}/sessions/{sid}")
+
+
+def test_upload_qr_rejects_non_image(s):
+    files = {"file": ("notes.txt", b"hello world", "text/plain")}
+    r = s.post(f"{API}/upload-qr", files=files)
+    assert r.status_code == 400
+
+
+def test_files_unknown_404(s):
+    r = s.get(f"{BASE_URL}/api/files/courtsplit/qr/does-not-exist.png")
+    assert r.status_code == 404
