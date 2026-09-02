@@ -5,6 +5,7 @@ import { useReducedMotion } from '@/hooks/useReducedMotion'
 import {
   blend,
   build,
+  limbPath,
   marginFor,
   movingPart,
   racketHead,
@@ -14,6 +15,7 @@ import {
   HEAD_LONG,
   HEAD_R,
   HEAD_SHORT,
+  LIMB_WIDTH,
   VIEW_W,
   type Point,
 } from '@/lib/figures/skeleton'
@@ -104,16 +106,25 @@ export function MobilityDemo({
   const box = useMemo(() => figureBox(poses, racket), [poses, racket])
   const margin = marginFor(racket)
 
-  const bone = (a: Point, b: Point, key: string, faded = false) => (
-    <line
+  /**
+   * One bone, filled rather than stroked, tapering from one joint to the next.
+   *
+   * A constant-weight line is a stick man: a thigh and a wrist come out the
+   * same width and there is no chest at all, so the eye has to decode it rather
+   * than recognise it. Same joints, same maths — the only difference is that
+   * each end carries a width.
+   */
+  const bone = (
+    a: Point,
+    b: Point,
+    key: string,
+    width: readonly [number, number],
+    faded = false,
+  ) => (
+    <path
       key={key}
-      x1={a.x}
-      y1={a.y}
-      x2={b.x}
-      y2={b.y}
-      className={faded ? 'stroke-foreground/45' : 'stroke-foreground'}
-      strokeWidth="4.2"
-      strokeLinecap="round"
+      d={limbPath(a, b, width[0], width[1])}
+      className={faded ? 'fill-foreground/40' : 'fill-foreground'}
     />
   )
 
@@ -155,20 +166,22 @@ export function MobilityDemo({
         </g>
       )}
 
-      {/* Far-side limbs faded, so left and right read apart. */}
-      {bone(figure.shoulderL, figure.elbowL, 'ul-l', true)}
-      {bone(figure.elbowL, figure.handL, 'fa-l', true)}
-      {bone(figure.hipL, figure.kneeL, 'th-l', true)}
-      {bone(figure.kneeL, figure.footL, 'sh-l', true)}
+      {/* Far-side limbs first and faded, so left and right read apart and the
+          near side sits over the torso rather than under it. */}
+      {bone(figure.shoulderL, figure.elbowL, 'ul-l', LIMB_WIDTH.upperArm, true)}
+      {bone(figure.elbowL, figure.handL, 'fa-l', LIMB_WIDTH.forearm, true)}
+      {bone(figure.hipL, figure.kneeL, 'th-l', LIMB_WIDTH.thigh, true)}
+      {bone(figure.kneeL, figure.footL, 'sh-l', LIMB_WIDTH.shin, true)}
 
-      {bone(figure.hip, figure.neck, 'spine')}
-      {bone(figure.shoulderL, figure.shoulderR, 'shoulders')}
-      {bone(figure.hipL, figure.hipR, 'hips')}
+      {/* Hips to neck, widening into a chest. */}
+      {bone(figure.hip, figure.neck, 'spine', LIMB_WIDTH.torso)}
+      {bone(figure.shoulderL, figure.shoulderR, 'shoulders', LIMB_WIDTH.shoulders)}
+      {bone(figure.hipL, figure.hipR, 'hips', LIMB_WIDTH.hips)}
 
-      {bone(figure.shoulderR, figure.elbowR, 'ul-r')}
-      {bone(figure.elbowR, figure.handR, 'fa-r')}
-      {bone(figure.hipR, figure.kneeR, 'th-r')}
-      {bone(figure.kneeR, figure.footR, 'sh-r')}
+      {bone(figure.shoulderR, figure.elbowR, 'ul-r', LIMB_WIDTH.upperArm)}
+      {bone(figure.elbowR, figure.handR, 'fa-r', LIMB_WIDTH.forearm)}
+      {bone(figure.hipR, figure.kneeR, 'th-r', LIMB_WIDTH.thigh)}
+      {bone(figure.kneeR, figure.footR, 'sh-r', LIMB_WIDTH.shin)}
 
       {/* Racket last, over the arm holding it. */}
       {held && racket && (
@@ -178,7 +191,7 @@ export function MobilityDemo({
             y1={racket === 'right' ? figure.handR.y : figure.handL.y}
             x2={held.head.x}
             y2={held.head.y}
-            strokeWidth="2.6"
+            strokeWidth="3.2"
             strokeLinecap="round"
           />
           <ellipse

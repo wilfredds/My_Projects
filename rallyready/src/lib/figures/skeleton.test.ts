@@ -15,8 +15,10 @@ import {
   GROUND,
   HEAD_Y,
   HIP_SPREAD,
+  FIGURE_PAD,
   HEAD_LONG,
   HEAD_R,
+  LIMB_WIDTH,
   MIN_TRAVEL,
   PROFILE_HALF,
   VIEW_H,
@@ -176,6 +178,13 @@ describe('the box a sequence is drawn in', () => {
       expect(box.labelY - box.labelSize, `${where}`).toBeGreaterThan(GROUND)
       expect(box.labelY, `${where}`).toBeLessThanOrEqual(VIEW_H)
     }
+  })
+
+  it('leaves room for the width of a limb, not just the position of a joint', () => {
+    // A bone is drawn around its joints, so cropping to the joints alone
+    // slices the topmost limb down its length.
+    const widest = Math.max(...Object.values(LIMB_WIDTH).flat())
+    expect(FIGURE_PAD).toBeGreaterThanOrEqual(widest)
   })
 
   it('crops a figure on the floor much harder than one standing up', () => {

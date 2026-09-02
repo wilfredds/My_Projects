@@ -324,7 +324,15 @@ export function racketHead(
  * Only the top edge moves. The floor and the pose label sit at the bottom and
  * are part of the drawing, and the sides are already close to the figure.
  */
-export const FIGURE_PAD = 6
+/**
+ * Breathing room above the topmost joint.
+ *
+ * At least the widest half-width in `LIMB_WIDTH`, because a bone is drawn
+ * *around* its joints: a horizontal shoulder at the top of a lying figure
+ * reaches a chest's half-width above the point the crop was measured from, and
+ * would be sliced along its length.
+ */
+export const FIGURE_PAD = 8
 /** Pose label type, in the uncropped canvas, and its baseline above the floor. */
 export const LABEL_SIZE = 8.5
 export const LABEL_BASELINE = 4
@@ -455,4 +463,64 @@ export function widestX(pose: MobilityPose, racket: 'left' | 'right' | null): [n
     xs.push(head.x - HEAD_LONG, head.x + HEAD_LONG)
   }
   return [Math.min(...xs), Math.max(...xs)]
+}
+
+/* ------------------------------------------------------------ body volume */
+
+/**
+ * Limb thicknesses, as half-widths in canvas units.
+ *
+ * The figure was drawn for a long time as lines of one constant weight, which
+ * is a *stick* man rather than a person: a thigh and a wrist are the same
+ * width, there is no chest, and at a glance it reads as a diagram of a diagram.
+ * Giving each bone a start and end width costs nothing at runtime — the same
+ * joint positions, filled instead of stroked — and is the difference between
+ * something you recognise as a body and something you have to decode.
+ *
+ * Proportioned from the skeleton it is drawn on rather than picked by eye: the
+ * torso is 34 long and the thigh 21, so a 7-unit chest half-width is about a
+ * fifth of the torso's length, which is roughly a person.
+ */
+export const LIMB_WIDTH = {
+  /** Hip end, chest end. */
+  torso: [5.6, 7.2],
+  shoulders: [3.1, 3.1],
+  hips: [3.6, 3.6],
+  upperArm: [3.4, 2.7],
+  forearm: [2.6, 2.2],
+  thigh: [4.9, 3.5],
+  shin: [3.4, 2.7],
+} as const
+
+/**
+ * A tapered limb as a fillable path: two straight sides and a rounded cap at
+ * each end, so joints meet without a seam and nothing needs a stroke.
+ *
+ * Both caps sweep the same way, and it is sweep-flag 0. Take a bone running
+ * left to right and the normal pointing down the screen: the far cap has to go
+ * from below the joint, round past its outside edge, to above it — six o'clock
+ * to three to twelve — which is counter-clockwise on screen, and SVG's positive
+ * sweep direction is clockwise. Get this backwards and each cap curls back
+ * inside the limb, the path self-intersects, and the non-zero fill rule punches
+ * a white hole at every joint. Which is exactly what it did.
+ */
+export function limbPath(a: Point, b: Point, halfA: number, halfB: number): string {
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const length = Math.hypot(dx, dy)
+  // A zero-length bone still has to draw something, or a joint vanishes.
+  if (length < 0.001) {
+    const r = Math.max(halfA, halfB)
+    return `M ${a.x - r} ${a.y} A ${r} ${r} 0 1 0 ${a.x + r} ${a.y} A ${r} ${r} 0 1 0 ${a.x - r} ${a.y} Z`
+  }
+  const nx = -dy / length
+  const ny = dx / length
+  return [
+    `M ${a.x + nx * halfA} ${a.y + ny * halfA}`,
+    `L ${b.x + nx * halfB} ${b.y + ny * halfB}`,
+    `A ${halfB} ${halfB} 0 0 0 ${b.x - nx * halfB} ${b.y - ny * halfB}`,
+    `L ${a.x - nx * halfA} ${a.y - ny * halfA}`,
+    `A ${halfA} ${halfA} 0 0 0 ${a.x + nx * halfA} ${a.y + ny * halfA}`,
+    'Z',
+  ].join(' ')
 }

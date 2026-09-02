@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **547 tests across 34 files, all passing** — if you
+individually. Baseline is **548 tests across 34 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -104,7 +104,10 @@ see fewer, something is being skipped.
   `figureBox`, cropped to what the poses and the blends between them actually
   use, so a figure on the floor is not drawn at a third of the size of one
   standing up; the pose label scales down with the crop so every caption in the
-  app renders at the same size.
+  app renders at the same size. Bones are filled tapered paths from `limbPath`,
+  not strokes — a thigh and a wrist are different widths, which is what makes it
+  a body rather than a stick man. Both end caps sweep 0; sweep 1 curls them back
+  inside the limb and the non-zero fill rule punches a hole at every joint.
 - **A premium block is weeks, not a flag.** `lib/premium/commitment` records
   what was bought and derives delivery from sessions that were actually logged.
   Any week inside a block that the entitlement did not cover is `uncovered` and
