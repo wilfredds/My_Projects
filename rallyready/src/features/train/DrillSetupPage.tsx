@@ -36,12 +36,14 @@ import {
 } from '@/lib/timer/plan'
 import type { DrillMode } from '@/lib/timer/types'
 import { formatCompactDuration } from '@/lib/utils'
+import { useTrainingProfile } from '@/hooks/useTrainingProfile'
 import { useDrillConfigStore } from '@/store/drillConfigStore'
 
 import { CircuitEditor } from '@/features/conditioning/components/CircuitEditor'
 
 import { CornerPicker } from './components/CornerPicker'
 import { CueSettingsDialog } from './components/CueSettingsDialog'
+import { RallyPatternList } from './components/RallyPatternList'
 import { SessionShape } from './components/SessionShape'
 
 const MODE_OPTIONS: { value: DrillMode; label: string; hint: string }[] = [
@@ -51,6 +53,7 @@ const MODE_OPTIONS: { value: DrillMode; label: string; hint: string }[] = [
   { value: 'number', label: 'Number', hint: 'Zones called by number' },
   { value: 'weighted', label: 'Weighted', hint: 'Target a weak corner more often' },
   { value: 'stroke', label: 'Strokes', hint: 'The corner and the shot to play there' },
+  { value: 'pattern', label: 'Rallies', hint: 'A whole point, shot by shot' },
 ]
 
 const LAYOUT_OPTIONS: { value: string; label: string; hint: string }[] = [
@@ -68,6 +71,7 @@ export function DrillSetupPage() {
   const save = useDrillConfigStore((state) => state.save)
   const clear = useDrillConfigStore((state) => state.clear)
   const stored = useDrillConfigStore((state) => state.overrides[slug])
+  const training = useTrainingProfile()
 
   const { data: drill, isLoading } = useQuery({
     queryKey: ['drill', slug],
@@ -79,7 +83,11 @@ export function DrillSetupPage() {
   // the previous drill's settings.
   const [draft, setDraft] = useState<{ slug: string; config: DrillConfig } | null>(null)
   const config: DrillConfig | null =
-    draft?.slug === slug ? draft.config : drill ? (stored ?? configFromDrill(drill)) : null
+    draft?.slug === slug
+      ? draft.config
+      : drill
+        ? (stored ?? configFromDrill(drill, training))
+        : null
 
   // Persist as the user edits: leaving the screen must not lose the setup.
   useEffect(() => {
@@ -187,6 +195,20 @@ export function DrillSetupPage() {
                     onCheckedChange={(value) => update({ avoidImmediateRepeat: value })}
                   />
                 </div>
+
+                {config.mode === 'pattern' && (
+                  <div>
+                    <p className="mb-3 text-sm font-medium">
+                      {config.patterns.length} {config.patterns.length === 1 ? 'rally' : 'rallies'}{' '}
+                      in this session
+                    </p>
+                    <RallyPatternList ids={config.patterns} />
+                    <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+                      Rallies are picked at random and played through in order. The zones are set by
+                      the pattern, so the court below is only a reference here.
+                    </p>
+                  </div>
+                )}
 
                 {config.mode === 'deception' && (
                   <div>
@@ -515,7 +537,7 @@ export function DrillSetupPage() {
             size="sm"
             onClick={() => {
               clear(drill.slug)
-              setDraft({ slug, config: configFromDrill(drill) })
+              setDraft({ slug, config: configFromDrill(drill, training) })
             }}
           >
             <RotateCcw />

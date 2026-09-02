@@ -23,6 +23,8 @@ const base: DrillConfig = {
   deceptionGapMs: 600,
   circuit: null,
   circuitRounds: 1,
+  patterns: [],
+  strokes: null,
 }
 
 const circuit: DrillConfig = {

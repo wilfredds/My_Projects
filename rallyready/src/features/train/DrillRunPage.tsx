@@ -35,6 +35,8 @@ import type { Drill } from '@/lib/data/types'
 import { cornerIdsForLayout } from '@/lib/timer/corners'
 import { estimateDurationSec, isCircuit, planFromConfig, scaleConfig } from '@/lib/timer/plan'
 import { CircuitBoard } from '@/features/conditioning/components/CircuitBoard'
+import { patternById } from '@/lib/timer/patterns'
+import { STROKES } from '@/lib/timer/strokes'
 import { randomSeed } from '@/lib/timer/rng'
 import type { BlockPhase } from '@/lib/timer/types'
 import { formatCompactDuration, formatDuration, pluralize } from '@/lib/utils'
@@ -269,6 +271,21 @@ function Runner({ drill }: { drill: Drill }) {
   const totalSec = Math.round(timeline.totalMs / 1000)
 
   /** The line under the digits: what is coming, or how the round is going. */
+  /** "Attack rotation · 2 of 3 · smash", or just the shot outside pattern mode. */
+  const rally = state.activePattern ? patternById(state.activePattern.id) : undefined
+  const shotLine =
+    isIdle || isResting
+      ? null
+      : [
+          rally?.name,
+          state.activePattern
+            ? `${state.activePattern.shotIndex} of ${state.activePattern.shots}`
+            : null,
+          state.activeStroke ? STROKES[state.activeStroke].label : null,
+        ]
+          .filter(Boolean)
+          .join(' · ') || null
+
   function runnerDetail(): string {
     if (phase === 'warmup') return `Easy movement · ${pluralize(state.callsAnswered, 'call')}`
     if (circuit) {
@@ -341,15 +358,36 @@ function Runner({ drill }: { drill: Drill }) {
           {circuit ? (
             <CircuitBoard exerciseSlug={shownExercise} resting={isResting} />
           ) : (
-            <CourtBoard
-              layout={config.layout}
-              enabled={enabledCorners}
-              activeCorner={state.activeCorner}
-              callProgress={state.callProgress}
-              showNumbers={config.mode === 'number'}
-              resting={isResting}
-              reducedMotion={reducedMotion}
-            />
+            <div className="flex h-full min-h-0 flex-col">
+              <div className="min-h-0 flex-1">
+                <CourtBoard
+                  layout={config.layout}
+                  enabled={enabledCorners}
+                  activeCorner={state.activeCorner}
+                  callProgress={state.callProgress}
+                  showNumbers={config.mode === 'number'}
+                  resting={isResting}
+                  reducedMotion={reducedMotion}
+                />
+              </div>
+
+              {/*
+               * The shot, echoing what was just spoken.
+               *
+               * Never the only place it appears — you cannot watch a screen and
+               * move to a corner at the same time, which is the whole premise
+               * of the app. This is for the glance between rallies, and for
+               * anyone training with the sound off.
+               */}
+              {shotLine && (
+                <p
+                  className="text-muted-foreground mt-1 min-h-[1.25rem] text-center text-xs"
+                  aria-live="off"
+                >
+                  {shotLine}
+                </p>
+              )}
+            </div>
           )}
         </div>
       </main>
@@ -518,6 +556,8 @@ const FALLBACK_PLAN = planFromConfig(
     deceptionGapMs: 600,
     circuit: null,
     circuitRounds: 1,
+    patterns: [],
+    strokes: null,
   },
   { splitStepLeadMs: 0, seed: 1 },
 )

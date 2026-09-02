@@ -1,6 +1,6 @@
-import { cornerNumber, CORNERS, type CornerId } from './corners'
+import { cornerNumber, CORNERS } from './corners'
 import { createRng } from './rng'
-import { createSequencer, normalizeSequencerConfig } from './sequencer'
+import { createSequencer, normalizeSequencerConfig, type CallPlan } from './sequencer'
 import { pickStroke, type StrokeId } from './strokes'
 import type { DrillBlock, DrillPlan, Timeline, TimelineEvent } from './types'
 
@@ -220,9 +220,34 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
    * the corners came from. Doing it in the cue layer instead would make the
    * shots un-replayable — a challenge would send the same corners and
    * different shots, which is not the same session.
+   *
+   * A pattern call arrives with its shot already decided, because in a rally
+   * the shot is the reason for the corner rather than a decoration on it.
    */
-  const strokeFor = (corner: CornerId): { stroke?: StrokeId } =>
-    plan.sequencer.announce === 'stroke' ? { stroke: pickStroke(CORNERS[corner].row, rng) } : {}
+  const strokeFor = (
+    call: CallPlan,
+  ): {
+    stroke?: StrokeId
+    patternId?: string
+    shotIndex?: number
+    shotsInPattern?: number
+  } => {
+    if (call.stroke !== undefined) {
+      return {
+        stroke: call.stroke,
+        ...(call.pattern
+          ? {
+              patternId: call.pattern.id,
+              shotIndex: call.pattern.shotIndex,
+              shotsInPattern: call.pattern.shots,
+            }
+          : {}),
+      }
+    }
+    return plan.sequencer.announce === 'stroke'
+      ? { stroke: pickStroke(CORNERS[call.corner].row, rng, plan.sequencer.strokes) }
+      : {}
+  }
 
   const drafts = draftBlocks(plan)
   const blocks: DrillBlock[] = []
@@ -293,7 +318,7 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
           number: cornerNumber(layout, plannedCall.corner),
           blockIndex: block.index,
           feintedFrom: plannedCall.feint,
-          ...strokeFor(plannedCall.corner),
+          ...strokeFor(plannedCall),
         })
       } else {
         addSplitStep(slot - lead, callIndex)
@@ -304,7 +329,7 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
           corner: plannedCall.corner,
           number: cornerNumber(layout, plannedCall.corner),
           blockIndex: block.index,
-          ...strokeFor(plannedCall.corner),
+          ...strokeFor(plannedCall),
         })
       }
       callIndex += 1

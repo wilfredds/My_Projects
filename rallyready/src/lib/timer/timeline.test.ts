@@ -14,6 +14,8 @@ function sequencer(overrides: Partial<SequencerConfig> = {}): SequencerConfig {
     avoidImmediateRepeat: true,
     deception: { enabled: false, probability: 0.35, gapMs: 600 },
     announce: 'position',
+    strokes: null,
+    patterns: [],
     ...overrides,
   }
 }

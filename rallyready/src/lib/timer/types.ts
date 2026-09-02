@@ -2,16 +2,23 @@ import type { CornerId, CourtLayout } from './corners'
 import type { StrokeId } from './strokes'
 
 /** Which zone the caller picks next. */
-export type SelectionMode = 'sequential' | 'random' | 'weighted'
+export type SelectionMode = 'sequential' | 'random' | 'weighted' | 'pattern'
 
 /** How a call is spoken. */
 export type AnnounceStyle = 'position' | 'number' | 'stroke'
 
 /**
- * The five modes offered in the UI (§4 Phase 1). They are presented as one
- * choice but decompose into orthogonal knobs internally.
+ * The modes offered in the UI (§4 Phase 1). They are presented as one choice
+ * but decompose into orthogonal knobs internally.
  */
-export type DrillMode = 'sequential' | 'random' | 'deception' | 'number' | 'weighted' | 'stroke'
+export type DrillMode =
+  | 'sequential'
+  | 'random'
+  | 'deception'
+  | 'number'
+  | 'weighted'
+  | 'stroke'
+  | 'pattern'
 
 export interface DeceptionConfig {
   enabled: boolean
@@ -32,6 +39,18 @@ export interface SequencerConfig {
   avoidImmediateRepeat: boolean
   deception: DeceptionConfig
   announce: AnnounceStyle
+  /**
+   * The session's shot vocabulary. `null` leaves every stroke the court allows
+   * available; a list narrows it, which is how a beginner's session calls
+   * "drop" where an advanced one calls "hold, drop".
+   */
+  strokes: StrokeId[] | null
+  /**
+   * Rally patterns to run, by id, used only by `pattern` selection. Ids rather
+   * than the patterns themselves so a saved config stays small and a pattern
+   * can be corrected without rewriting everyone's stored settings.
+   */
+  patterns: string[]
 }
 
 export type BlockPhase = 'prepare' | 'warmup' | 'work' | 'rest' | 'sprint' | 'cooldown'
@@ -76,6 +95,10 @@ export type TimelineEvent =
        * the same shots as well as the same corners.
        */
       stroke?: StrokeId
+      /** The rally pattern this call belongs to, and how far through it is. */
+      patternId?: string
+      shotIndex?: number
+      shotsInPattern?: number
     }
   | { at: number; kind: 'countdown'; secondsLeft: number }
   | { at: number; kind: 'complete' }

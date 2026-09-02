@@ -46,6 +46,8 @@ const COLUMNS = [
   'default_warmup_sec',
   'default_cooldown_sec',
   'level',
+  'discipline',
+  'pattern_ids',
   'is_public',
   'circuit',
   'circuit_rounds',
@@ -62,7 +64,8 @@ function row(drill) {
   ${drill.defaultWorkSec}, ${drill.defaultRestSec}, ${drill.defaultRounds}, ${drill.corners},
   ${drill.defaultIntervalMs}, ${quote(drill.defaultCallMode)},
   ${drill.enabledCorners === null ? 'null' : textArray(drill.enabledCorners)},
-  ${drill.defaultWarmupSec}, ${drill.defaultCooldownSec}, ${quote(drill.level)}, ${drill.isPublic},
+  ${drill.defaultWarmupSec}, ${drill.defaultCooldownSec}, ${quote(drill.level)},
+  ${quote(drill.discipline)}, ${textArray(drill.patternIds)}, ${drill.isPublic},
   ${jsonOrNull(drill.circuit)}, ${drill.circuitRounds}, ${quote(drill.location)},
   ${textArray(drill.equipment)}
 )`

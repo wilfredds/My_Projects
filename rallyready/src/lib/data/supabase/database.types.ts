@@ -50,6 +50,8 @@ export interface DrillRow {
   created_by: string | null
   default_interval_ms: number
   default_call_mode: DrillMode
+  discipline: Discipline | null
+  pattern_ids: string[] | null
   enabled_corners: CornerId[] | null
   default_warmup_sec: number
   default_cooldown_sec: number

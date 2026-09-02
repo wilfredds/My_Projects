@@ -82,6 +82,18 @@ export interface Drill {
   defaultWarmupSec: number
   defaultCooldownSec: number
   level: SkillLevel
+  /**
+   * Which game the drill is for. `both` means it suits either — most footwork
+   * and conditioning work does. Singles and doubles are different sports played
+   * on the same court, and a drill that pretends otherwise trains neither.
+   */
+  discipline: Discipline
+  /**
+   * Rally patterns this drill runs, by id, for `pattern` call mode. Empty means
+   * "whatever suits the player", which is resolved from the drill's discipline
+   * and the player's level when the session is set up.
+   */
+  patternIds: string[]
 
   /* Conditioning (Phase 3) */
   /** Non-null makes this a circuit workout rather than a corner-call drill. */

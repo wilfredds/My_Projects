@@ -1,7 +1,15 @@
 import type { CircuitStep, Drill } from '@/lib/data/types'
+import {
+  patternsForProfile,
+  scaleVolume,
+  vocabularyFor,
+  weightsFor,
+  type TrainingProfile,
+} from '@/lib/training/profile'
 
 import { cornerIdsForLayout, type CornerId, type CourtLayout } from './corners'
 import { applyMode } from './sequencer'
+import type { StrokeId } from './strokes'
 import type { DrillMode, DrillPlan, LadderStep, SprintSet } from './types'
 
 /**
@@ -28,6 +36,10 @@ export interface DrillConfig {
   /** Non-null runs this as a conditioning circuit instead of a call drill. */
   circuit: CircuitStep[] | null
   circuitRounds: number
+  /** Rally patterns to run, by id. Only used by `pattern` mode. */
+  patterns: string[]
+  /** The shots the caller may ask for. `null` leaves the whole vocabulary. */
+  strokes: StrokeId[] | null
 }
 
 export function isCircuit(config: DrillConfig): boolean {
@@ -67,16 +79,51 @@ export const MAX_SPLIT_STEP_LEAD_MS = 700
 
 export const DEFAULT_PREPARE_SEC = 5
 
-export function configFromDrill(drill: Drill): DrillConfig {
+/**
+ * The drill as written, then fitted to the player.
+ *
+ * Without a profile this is exactly the drill's own defaults, which is what the
+ * library listings and the challenge screen want — a challenge has to be the
+ * same session for both people, so it must not quietly rescale itself to
+ * whoever opened it.
+ *
+ * With one, three things move: the volume (rounds, work, rest and how fast the
+ * calls come), the shot vocabulary, and which zones come up most. The interval
+ * moves here where auto-regulation leaves it alone, because level is not a
+ * dial on effort — a beginner needs longer to arrive, and arriving properly is
+ * the thing being trained.
+ */
+export function configFromDrill(drill: Drill, profile?: TrainingProfile): DrillConfig {
+  const volume = profile
+    ? scaleVolume(
+        {
+          rounds: drill.defaultRounds,
+          workSec: drill.defaultWorkSec,
+          restSec: drill.defaultRestSec,
+          intervalMs: drill.defaultIntervalMs,
+        },
+        profile.level,
+      )
+    : {
+        rounds: drill.defaultRounds,
+        workSec: drill.defaultWorkSec,
+        restSec: drill.defaultRestSec,
+        intervalMs: drill.defaultIntervalMs,
+      }
+
   return {
     layout: drill.corners,
     enabledCorners: drill.enabledCorners ?? cornerIdsForLayout(drill.corners),
     mode: drill.defaultCallMode,
-    weights: {},
-    intervalMs: drill.defaultIntervalMs,
-    workSec: drill.defaultWorkSec,
-    restSec: drill.defaultRestSec,
-    rounds: drill.defaultRounds,
+    // A drill that is for one game keeps its own shape whoever runs it; one
+    // that suits either takes the shape of the game the player actually plays.
+    weights: profile
+      ? weightsFor(drill.discipline === 'both' ? profile.discipline : drill.discipline)
+      : {},
+    intervalMs: volume.intervalMs,
+    workSec: volume.workSec,
+    restSec: volume.restSec,
+    rounds: volume.rounds,
     warmupSec: drill.defaultWarmupSec,
     cooldownSec: drill.defaultCooldownSec,
     prepareSec: DEFAULT_PREPARE_SEC,
@@ -86,7 +133,25 @@ export function configFromDrill(drill: Drill): DrillConfig {
     deceptionGapMs: 600,
     circuit: drill.circuit,
     circuitRounds: drill.circuitRounds,
+    patterns: patternsForDrill(drill, profile),
+    strokes: profile ? vocabularyFor(profile.level) : null,
   }
+}
+
+/**
+ * Which rallies a drill runs.
+ *
+ * A drill naming its own patterns runs those and only those — "Hold and
+ * Deceive" is that pair of rallies, not a level-appropriate selection. A drill
+ * naming none is asking for whatever suits the player, which is how the same
+ * pattern drill grows with them instead of needing a beginner and an advanced
+ * copy of itself.
+ */
+export function patternsForDrill(drill: Drill, profile?: TrainingProfile): string[] {
+  if (drill.patternIds.length > 0) return [...drill.patternIds]
+  if (!profile) return []
+  const discipline = drill.discipline === 'both' ? profile.discipline : drill.discipline
+  return patternsForProfile({ discipline, level: profile.level }).map((pattern) => pattern.id)
 }
 
 /** Never trim a work block below something worth starting the timer for. */
@@ -145,6 +210,8 @@ export function planFromConfig(
         gapMs: config.deceptionGapMs,
       },
       announce: 'position',
+      strokes: config.strokes,
+      patterns: config.patterns,
     },
     config.mode,
   )

@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **521 tests across 32 files, all passing** — if you
+individually. Baseline is **547 tests across 34 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -63,6 +63,19 @@ see fewer, something is being skipped.
   `lib/audio`) is latency-sensitive; changes there need tests.
 - **The app is the random caller.** No partner, no feeder, no court. Features
   that assume a second person are out of scope.
+- **Level and game are settings, not decoration.** `lib/training/profile`
+  turns them into the three things that actually change a session: the volume
+  (rounds, work, rest and call interval, scaled from the drill's own
+  intermediate defaults), the shot vocabulary, and the zone weights. Singles is
+  corner-to-corner, doubles is flat and front-heavy; a drill declares which game
+  it is for and `both` takes the player's. Pass the profile into
+  `configFromDrill` — without it you get the drill as written, which is what a
+  challenge needs and what a listing should show.
+- **A rally pattern calls a point, not a corner.** `lib/timer/patterns` holds
+  named sequences of corner-plus-shot taken from how rallies are constructed;
+  `pattern` selection walks one, then picks another. Every shot must be legal
+  for its row and inside its own level, and a test asserts both. A pattern that
+  asked for a smash from the net would discredit every call after it.
 - **Curated third-party video is deliberately absent.** See the README's
   library section and `PROGRESS.md` for the reasoning before adding it.
 - **Safety features are never paywalled.** The warm-up, the daily readiness

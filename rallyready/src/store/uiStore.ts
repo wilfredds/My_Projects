@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import type { Adjustment } from '@/lib/data/readiness'
-import type { SkillLevel } from '@/lib/data/types'
+import type { Discipline, SkillLevel } from '@/lib/data/types'
 
 /**
  * A warm-up is good for about this long. Past it you have cooled down and the
@@ -34,6 +34,14 @@ interface UiStore {
    */
   browseLevel: SkillLevel | null
   setBrowseLevel(level: SkillLevel | null): void
+  /**
+   * The game the training is shaped around. Null follows the profile, for the
+   * same reason as the level above: somebody who put "doubles" in onboarding
+   * and has a singles tournament next month should be able to say so here
+   * without editing their profile.
+   */
+  browseDiscipline: Discipline | null
+  setBrowseDiscipline(discipline: Discipline | null): void
   /**
    * When the first-run welcome was completed or skipped. A first-run screen
    * that reappears is worse than none at all.
@@ -76,6 +84,8 @@ export const useUiStore = create<UiStore>()(
         set({ adjustment, adjustmentDate: adjustment === null ? null : date }),
       browseLevel: null,
       setBrowseLevel: (browseLevel) => set({ browseLevel }),
+      browseDiscipline: null,
+      setBrowseDiscipline: (browseDiscipline) => set({ browseDiscipline }),
       welcomeSeenAt: null,
       markWelcomeSeen: () => set({ welcomeSeenAt: Date.now() }),
       installPromptDismissed: false,
@@ -85,7 +95,7 @@ export const useUiStore = create<UiStore>()(
       celebratedStreak: null,
       recordCelebratedStreak: (celebratedStreak) => set({ celebratedStreak }),
     }),
-    { name: 'rallyready.ui', version: 6 },
+    { name: 'rallyready.ui', version: 7 },
   ),
 )
 

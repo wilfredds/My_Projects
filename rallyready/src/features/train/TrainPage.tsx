@@ -31,6 +31,7 @@ import { configFromDrill, estimateDurationSec } from '@/lib/timer/plan'
 import { formatCompactDuration, pluralize } from '@/lib/utils'
 import { useDrillConfigStore } from '@/store/drillConfigStore'
 import { usePremium } from '@/store/premiumStore'
+import { useTrainingProfile } from '@/hooks/useTrainingProfile'
 import { useUiStore } from '@/store/uiStore'
 
 import { TodayCard } from '../programs/components/TodayCard'
@@ -38,6 +39,7 @@ import { CueSettingsDialog } from './components/CueSettingsDialog'
 import { DrillCard } from './components/DrillCard'
 import { CoachCard } from './components/CoachCard'
 import { FocusGrid } from './components/FocusGrid'
+import { TrainingProfileBar } from './components/TrainingProfileBar'
 import { ReadinessCard } from './components/ReadinessCard'
 import { WarmUpBar } from './components/WarmUpBar'
 import { CATEGORY_LABEL, LEVEL_LABEL } from './drillLabels'
@@ -50,9 +52,9 @@ export function TrainPage() {
   const overrides = useDrillConfigStore((state) => state.overrides)
   const setupDismissed = useUiStore((state) => state.setupPromptDismissed)
   const dismissSetup = useUiStore((state) => state.dismissSetupPrompt)
-  const storedLevel = useUiStore((state) => state.browseLevel)
   const welcomeSeenAt = useUiStore((state) => state.welcomeSeenAt)
   const premium = usePremium()
+  const training = useTrainingProfile()
   const [tab, setTab] = useState<Tab>('drills')
   const [homeOnly, setHomeOnly] = useState(false)
 
@@ -90,11 +92,17 @@ export function TrainPage() {
   const visible = inTab
     .filter((drill) => !homeOnly || drill.location === 'anywhere')
     .filter((drill) => drill.slug !== featured?.slug)
+    // A doubles player is not shown the singles-only work and vice versa.
+    // Drills for either game stay in both lists, which is most of the
+    // catalogue — footwork and conditioning do not care which you play.
+    .filter((drill) => drill.discipline === 'both' || drill.discipline === training.discipline)
 
-  const configFor = (drill: Drill) => overrides[drill.slug] ?? configFromDrill(drill)
+  // Every duration on this page is the one this player will actually run, not
+  // the one the drill was written at.
+  const configFor = (drill: Drill) => overrides[drill.slug] ?? configFromDrill(drill, training)
 
   const library = buildLibrary(drills)
-  const browseLevel: SkillLevel = storedLevel ?? profile?.skillLevel ?? 'beginner'
+  const browseLevel: SkillLevel = training.level
   // Nothing set up and nothing trained: a real first visit, not a returning
   // player who skipped the questionnaire.
   const isNewHere = !profileLoading && !profile && !historyLoading && recent.length === 0
@@ -143,6 +151,8 @@ export function TrainPage() {
           </span>
         </div>
       )}
+
+      {!isNewHere && <TrainingProfileBar />}
 
       {/*
        * A genuine first visit gets an introduction rather than a catalogue.

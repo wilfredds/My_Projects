@@ -1,11 +1,17 @@
 import { cornerIdsForLayout, isCornerInLayout, type CornerId } from './corners'
+import { patternById, type RallyPattern } from './patterns'
 import type { Rng } from './rng'
+import type { StrokeId } from './strokes'
 import type { DrillMode, SequencerConfig } from './types'
 
 export interface CallPlan {
   corner: CornerId
   /** Set when this slot is a deception: the fake called before the real one. */
   feint?: CornerId
+  /** Set in pattern mode: the shot this point calls for from that corner. */
+  stroke?: StrokeId
+  /** Which rally this call belongs to, and how far into it we are. */
+  pattern?: { id: string; shotIndex: number; shots: number }
 }
 
 export interface Sequencer {
@@ -25,8 +31,14 @@ export function normalizeSequencerConfig(config: SequencerConfig): SequencerConf
   const enabled = order.filter(
     (id) => config.enabled.includes(id) && isCornerInLayout(config.layout, id),
   )
+  const resolvable =
+    config.selection !== 'pattern' || config.patterns.some((id) => patternById(id) !== undefined)
+
   return {
     ...config,
+    // A pattern config whose ids no longer resolve is still a runnable drill;
+    // it just becomes a random one.
+    selection: resolvable ? config.selection : 'random',
     enabled: enabled.length > 0 ? enabled : order,
   }
 }
@@ -53,6 +65,43 @@ export function createSequencer(rawConfig: SequencerConfig, rng: Rng): Sequencer
   let cursor = 0
   let previous: CornerId | null = null
 
+  /*
+   * Pattern mode walks whole rallies instead of picking zones.
+   *
+   * Unresolvable ids are dropped rather than throwing: a stored config naming
+   * a pattern that has since been renamed should quietly fall back to calling
+   * corners, not refuse to start the session you are standing on court for.
+   */
+  const patterns: RallyPattern[] =
+    config.selection === 'pattern'
+      ? config.patterns.map(patternById).filter((p): p is RallyPattern => p !== undefined)
+      : []
+  let rally: RallyPattern | null = null
+  let shotCursor = 0
+
+  const nextRally = (): RallyPattern => {
+    // Back-to-back repeats of the same rally turn a pattern drill into a
+    // memory test, which is the opposite of what it is for.
+    const choices =
+      patterns.length > 1 && rally ? patterns.filter((p) => p.id !== rally?.id) : patterns
+    return rng.pick(choices)
+  }
+
+  const nextPatternCall = (): CallPlan => {
+    if (!rally || shotCursor >= rally.shots.length) {
+      rally = nextRally()
+      shotCursor = 0
+    }
+    const shot = rally.shots[shotCursor]
+    shotCursor += 1
+    if (!shot) return { corner: enabled[0] as CornerId }
+    return {
+      corner: shot.corner,
+      stroke: shot.stroke,
+      pattern: { id: rally.id, shotIndex: shotCursor, shots: rally.shots.length },
+    }
+  }
+
   const pickCorner = (): CornerId => {
     if (config.selection === 'sequential') {
       const corner = enabled[cursor % enabled.length] as CornerId
@@ -71,6 +120,8 @@ export function createSequencer(rawConfig: SequencerConfig, rng: Rng): Sequencer
 
   return {
     next(): CallPlan {
+      if (patterns.length > 0) return nextPatternCall()
+
       const corner = pickCorner()
       previous = corner
 
@@ -104,6 +155,11 @@ export function applyMode(config: SequencerConfig, mode: DrillMode): SequencerCo
       return { ...base, selection: 'weighted', announce: 'position' }
     case 'stroke':
       return { ...base, selection: 'random', announce: 'stroke' }
+    case 'pattern':
+      // Announced as strokes because a pattern call is a shot: "rear left,
+      // hold, drop". A feint inside a scripted rally would be a lie about
+      // what comes next, so deception stays off.
+      return { ...base, selection: 'pattern', announce: 'stroke' }
     case 'deception':
       return {
         ...base,
@@ -116,6 +172,7 @@ export function applyMode(config: SequencerConfig, mode: DrillMode): SequencerCo
 
 /** Recovers the UI mode from a config, for round-tripping saved settings. */
 export function modeFromConfig(config: SequencerConfig): DrillMode {
+  if (config.selection === 'pattern') return 'pattern'
   if (config.deception.enabled) return 'deception'
   if (config.selection === 'sequential') return 'sequential'
   if (config.selection === 'weighted') return 'weighted'

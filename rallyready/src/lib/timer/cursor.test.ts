@@ -23,6 +23,8 @@ const plan: DrillPlan = {
     avoidImmediateRepeat: true,
     deception: { enabled: false, probability: 0, gapMs: 600 },
     announce: 'position',
+    strokes: null,
+    patterns: [],
   },
 }
 

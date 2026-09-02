@@ -8,6 +8,7 @@ import { WakeLockManager } from '@/lib/audio/wakeLock'
 import { findExercise } from '@/lib/data/seed/exercises'
 import { DrillClock } from '@/lib/timer/clock'
 import type { CornerId } from '@/lib/timer/corners'
+import type { StrokeId } from '@/lib/timer/strokes'
 import { createCursor } from '@/lib/timer/cursor'
 import { buildTimeline } from '@/lib/timer/timeline'
 import type { DrillBlock, DrillPlan, Timeline } from '@/lib/timer/types'
@@ -33,6 +34,10 @@ interface RunnerMetrics {
   overallProgress: number
   activeCorner: CornerId | null
   activeNumber: number
+  /** The shot called with the corner, in Strokes and Rallies modes. */
+  activeStroke: StrokeId | null
+  /** The rally being played and how far into it, in Rallies mode. */
+  activePattern: { id: string; shotIndex: number; shots: number } | null
   callProgress: number
   callsAnswered: number
   roundsCompleted: number
@@ -62,6 +67,8 @@ const IDLE_METRICS: RunnerMetrics = {
   overallProgress: 0,
   activeCorner: null,
   activeNumber: 0,
+  activeStroke: null,
+  activePattern: null,
   callProgress: 1,
   callsAnswered: 0,
   roundsCompleted: 0,
@@ -85,7 +92,14 @@ export function useDrillRunner({ plan, preferences, onComplete }: UseDrillRunner
   const finishedRef = useRef(false)
 
   // Live call state, tracked outside React so the frame loop allocates nothing.
-  const activeRef = useRef<{ corner: CornerId | null; number: number; at: number; span: number }>({
+  const activeRef = useRef<{
+    corner: CornerId | null
+    number: number
+    at: number
+    span: number
+    stroke?: StrokeId
+    pattern?: { id: string; shotIndex: number; shots: number }
+  }>({
     corner: null,
     number: 0,
     at: 0,
@@ -188,6 +202,20 @@ export function useDrillRunner({ plan, preferences, onComplete }: UseDrillRunner
             span:
               (event.kind === 'call' ? timeline.blocks[event.blockIndex]?.intervalMs : undefined) ??
               plan.intervalMs,
+            // A feint names no shot, so the screen shows the corner alone —
+            // exactly what the voice said.
+            ...(event.kind === 'call' && event.stroke !== undefined
+              ? { stroke: event.stroke }
+              : {}),
+            ...(event.kind === 'call' && event.patternId !== undefined
+              ? {
+                  pattern: {
+                    id: event.patternId,
+                    shotIndex: event.shotIndex ?? 1,
+                    shots: event.shotsInPattern ?? 1,
+                  },
+                }
+              : {}),
           }
           if (event.kind === 'call') {
             answeredRef.current.push({ at: event.at, blockIndex: event.blockIndex })
@@ -244,6 +272,8 @@ export function useDrillRunner({ plan, preferences, onComplete }: UseDrillRunner
         overallProgress: timeline.totalMs > 0 ? Math.min(1, elapsed / timeline.totalMs) : 0,
         activeCorner: active.corner,
         activeNumber: active.number,
+        activeStroke: active.stroke ?? null,
+        activePattern: active.pattern ?? null,
         callProgress: active.span > 0 ? Math.min(1, Math.max(0, callAge / active.span)) : 1,
         callsAnswered: answeredRef.current.length,
         roundsCompleted: Math.max(

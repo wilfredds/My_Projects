@@ -43,6 +43,15 @@ begin
   if not exists (select 1 from pg_type where typname = 'call_mode') then
     create type call_mode as enum ('sequential', 'random', 'deception', 'number', 'weighted');
   end if;
+end $$;
+
+-- Added later: Strokes mode names the shot as well as the corner, and Pattern
+-- mode calls a whole rally. Enum values can only be appended, never inserted.
+do $$
+begin
+  alter type call_mode add value if not exists 'stroke';
+  alter type call_mode add value if not exists 'pattern';
+  end if;
   if not exists (select 1 from pg_type where typname = 'session_source') then
     create type session_source as enum ('timer', 'conditioning', 'benchmark');
   end if;
@@ -167,6 +176,12 @@ create table if not exists public.drills (
   default_warmup_sec   integer        not null default 60 check (default_warmup_sec >= 0),
   default_cooldown_sec integer        not null default 60 check (default_cooldown_sec >= 0),
   level                skill_level    not null default 'intermediate',
+  -- Phase 11. Singles and doubles are different sports on the same court, so a
+  -- drill says which it is for; `pattern_ids` names the rallies a pattern-mode
+  -- drill runs, and empty means "whatever suits the player", resolved client-side
+  -- from the drill's discipline and the player's level.
+  discipline           discipline     not null default 'both',
+  pattern_ids          text[]         not null default '{}',
   -- Phase 3. A non-null `circuit` makes this a conditioning circuit rather than
   -- a corner-calling drill: an ordered list of
   -- {exerciseSlug, workSec, restSec}, repeated `circuit_rounds` times. Kept as
@@ -185,6 +200,11 @@ alter table public.drills
   add column if not exists circuit_rounds integer not null default 1,
   add column if not exists location       drill_location not null default 'court',
   add column if not exists equipment      text[] not null default '{}';
+
+-- Added in Phase 11.
+alter table public.drills
+  add column if not exists discipline  discipline not null default 'both',
+  add column if not exists pattern_ids text[]     not null default '{}';
 
 create index if not exists drills_public_idx on public.drills (is_public) where is_public;
 create index if not exists drills_created_by_idx on public.drills (created_by);
@@ -574,7 +594,7 @@ create policy "users record their own unlocks"
 
 -- >>> generated from src/lib/data/seed/drills.ts — do not edit by hand
 insert into public.drills (
-  slug, name, category, mode, description, coaching_cues, common_faults, default_work_sec, default_rest_sec, default_rounds, corners, default_interval_ms, default_call_mode, enabled_corners, default_warmup_sec, default_cooldown_sec, level, is_public, circuit, circuit_rounds, location, equipment
+  slug, name, category, mode, description, coaching_cues, common_faults, default_work_sec, default_rest_sec, default_rounds, corners, default_interval_ms, default_call_mode, enabled_corners, default_warmup_sec, default_cooldown_sec, level, discipline, pattern_ids, is_public, circuit, circuit_rounds, location, equipment
 ) values
 (
   'six-corner-shadow', 'Six-Corner Shadow', 'footwork', 'shadow',
@@ -595,7 +615,8 @@ insert into public.drills (
   30, 30, 6, 6,
   1350, 'random',
   null,
-  60, 60, 'intermediate', true,
+  60, 60, 'intermediate',
+  'both', '{}', true,
   null, 1, 'court',
   '{}'
 ),
@@ -616,7 +637,8 @@ insert into public.drills (
   30, 30, 6, 4,
   1650, 'random',
   null,
-  60, 60, 'beginner', true,
+  60, 60, 'beginner',
+  'both', '{}', true,
   null, 1, 'court',
   '{}'
 ),
@@ -640,7 +662,8 @@ insert into public.drills (
       'net-left',
       'net-right'
     ],
-  60, 60, 'beginner', true,
+  60, 60, 'beginner',
+  'doubles', '{}', true,
   null, 1, 'court',
   '{}'
 ),
@@ -664,7 +687,8 @@ insert into public.drills (
       'rear-left',
       'rear-right'
     ],
-  90, 60, 'intermediate', true,
+  90, 60, 'intermediate',
+  'singles', '{}', true,
   null, 1, 'court',
   '{}'
 ),
@@ -685,7 +709,8 @@ insert into public.drills (
   25, 35, 5, 6,
   1800, 'deception',
   null,
-  90, 60, 'advanced', true,
+  90, 60, 'advanced',
+  'singles', '{}', true,
   null, 1, 'court',
   '{}'
 ),
@@ -704,7 +729,8 @@ insert into public.drills (
   6, 12, 12, 6,
   1100, 'random',
   null,
-  90, 90, 'intermediate', true,
+  90, 90, 'intermediate',
+  'singles', '{}', true,
   null, 1, 'anywhere',
   '{}'
 ),
@@ -723,7 +749,8 @@ insert into public.drills (
   20, 10, 8, 6,
   1000, 'random',
   null,
-  120, 120, 'advanced', true,
+  120, 120, 'advanced',
+  'singles', '{}', true,
   null, 1, 'anywhere',
   '{}'
 ),
@@ -743,7 +770,8 @@ insert into public.drills (
   10, 30, 10, 6,
   880, 'random',
   null,
-  120, 120, 'advanced', true,
+  120, 120, 'advanced',
+  'doubles', '{}', true,
   null, 1, 'anywhere',
   '{}'
 ),
@@ -762,7 +790,8 @@ insert into public.drills (
   15, 15, 10, 6,
   1100, 'random',
   null,
-  120, 120, 'intermediate', true,
+  120, 120, 'intermediate',
+  'both', '{}', true,
   null, 1, 'anywhere',
   '{}'
 ),
@@ -782,7 +811,8 @@ insert into public.drills (
   30, 25, 3, 4,
   1000, 'random',
   null,
-  0, 120, 'intermediate', true,
+  0, 120, 'intermediate',
+  'both', '{}', true,
   '[{"exerciseSlug":"ladder-in-out","workSec":30,"restSec":25},{"exerciseSlug":"ladder-lateral-shuffle","workSec":30,"restSec":25},{"exerciseSlug":"ladder-crossover","workSec":30,"restSec":25},{"exerciseSlug":"ladder-high-knees","workSec":25,"restSec":40}]'::jsonb, 3, 'anywhere',
   array[
       'agility ladder (or tape)'
@@ -805,7 +835,8 @@ insert into public.drills (
   25, 35, 3, 4,
   1000, 'random',
   null,
-  0, 180, 'advanced', true,
+  0, 180, 'advanced',
+  'both', '{}', true,
   '[{"exerciseSlug":"plyo-jump-squat","workSec":25,"restSec":35},{"exerciseSlug":"plyo-split-jump","workSec":25,"restSec":35},{"exerciseSlug":"plyo-lateral-bound","workSec":25,"restSec":35},{"exerciseSlug":"plyo-tuck-jump","workSec":20,"restSec":40},{"exerciseSlug":"plyo-step-jump","workSec":25,"restSec":45}]'::jsonb, 3, 'anywhere',
   array[
       'a low step or box (optional)'
@@ -826,8 +857,116 @@ insert into public.drills (
   30, 30, 3, 4,
   1000, 'random',
   null,
-  0, 120, 'beginner', true,
+  0, 120, 'beginner',
+  'both', '{}', true,
   '[{"exerciseSlug":"shadow-lunge","workSec":40,"restSec":25},{"exerciseSlug":"plyo-jump-squat","workSec":25,"restSec":35},{"exerciseSlug":"plyo-lateral-bound","workSec":30,"restSec":30},{"exerciseSlug":"core-plank-reach","workSec":40,"restSec":40}]'::jsonb, 3, 'anywhere',
+  '{}'
+),
+(
+  'stroke-shadow', 'Stroke Shadow', 'footwork', 'shadow',
+  'The app calls the corner and the shot. Move there, play the full shadow stroke, recover. The closest thing to a coach shouting at you that fits in a pocket.',
+  array[
+      'Play the whole stroke — preparation, contact, follow-through — not a wave at the air.',
+      'The shot changes the footwork. A smash wants a scissor jump; a drop wants you balanced.',
+      'Recover to base between every one. Half the work of a stroke is what happens after it.',
+      'Say the shot back to yourself as you play it. It is how the name and the movement stick.'
+    ],
+  array[
+      'Playing the same swing whatever shot was called.',
+      'Rushing the recovery to be ready for the next call — the call waits for you.',
+      'Dropping the non-racket arm, which is what balances the whole shot.'
+    ],
+  45, 30, 5, 6,
+  2000, 'stroke',
+  null,
+  60, 90, 'intermediate',
+  'both', '{}', true,
+  null, 1, 'anywhere',
+  '{}'
+),
+(
+  'stroke-rear-court', 'Overhead Repertoire', 'rear-court', 'shadow',
+  'Rear court only, and only the three overheads — clear, drop, smash. The same preparation for all three is what makes them deceptive.',
+  array[
+      'Identical preparation every time. If the opponent can read the shot from your setup, none of the three work.',
+      'Get behind the shuttle. Everything else is downstream of that.',
+      'Scissor the feet on every one, even the drop.',
+      'Recover forwards, not sideways — the reply is usually short.'
+    ],
+  array[
+      'A visibly gentler wind-up for the drop, which announces it.',
+      'Reaching backwards instead of moving the feet back.',
+      'Landing flat-footed and staying there.'
+    ],
+  40, 40, 4, 4,
+  2200, 'stroke',
+  array[
+      'rear-left',
+      'rear-right'
+    ],
+  60, 90, 'advanced',
+  'both', '{}', true,
+  null, 1, 'anywhere',
+  '{}'
+),
+(
+  'strength-foundation', 'Foundation Strength', 'strength', 'custom',
+  'Push, squat, hinge and brace — the four things a body does, in the versions a badminton player needs. No equipment, twelve minutes, anywhere.',
+  array[
+      'Quality over count. When the form goes, the set is over, whatever the clock says.',
+      'Every exercise has an easier version in its own notes. Using it is not a step down.',
+      'Breathe out on the effort. Holding your breath makes everything feel twice as hard.'
+    ],
+  array[
+      'Racing the clock and losing the position — the position is the exercise.',
+      'Skipping the easier version and doing five bad repetitions instead of twelve good ones.'
+    ],
+  40, 25, 3, 4,
+  1000, 'random',
+  null,
+  0, 90, 'beginner',
+  'both', '{}', true,
+  '[{"exerciseSlug":"str-squat","workSec":45,"restSec":20},{"exerciseSlug":"str-push-up","workSec":40,"restSec":25},{"exerciseSlug":"str-glute-bridge","workSec":40,"restSec":20},{"exerciseSlug":"str-plank","workSec":35,"restSec":25}]'::jsonb, 3, 'anywhere',
+  '{}'
+),
+(
+  'strength-legs', 'Lunge Legs', 'strength', 'custom',
+  'Single-leg strength and the ankles that survive landing. The lunge is the sport, and this is where the lunge gets paid for.',
+  array[
+      'Both legs get equal work, even though one of them will be noticeably better at this.',
+      'Front shin vertical on every lunge. A short stride grinds the knee and trains nothing.',
+      'Lower slowly on the calf raises — the lowering is what builds the tendon.'
+    ],
+  array[
+      'Far more repetitions on the racket-side leg, which is how the imbalance got there.',
+      'Bouncing out of the bottom instead of driving out of it.'
+    ],
+  40, 25, 3, 4,
+  1000, 'random',
+  null,
+  0, 120, 'intermediate',
+  'both', '{}', true,
+  '[{"exerciseSlug":"str-split-squat","workSec":40,"restSec":20},{"exerciseSlug":"str-reverse-lunge","workSec":40,"restSec":20},{"exerciseSlug":"str-wall-sit","workSec":45,"restSec":25},{"exerciseSlug":"str-calf-raise","workSec":40,"restSec":25}]'::jsonb, 3, 'anywhere',
+  '{}'
+),
+(
+  'strength-core', 'Smash Core', 'strength', 'custom',
+  'The core work a smash actually needs: resisting rotation and extension, not sit-ups. Ten minutes on the floor.',
+  array[
+      'Slow is the whole method here. Every one of these is easy done fast and useless done fast.',
+      'Lower back stays where you put it. When it lifts, you have found the edge of your range.',
+      'Both sides get the same time, including the side you will want to skip.'
+    ],
+  array[
+      'Rushing the dead bugs so the back arches unnoticed.',
+      'Holding a plank past the point where the hips have already sagged.'
+    ],
+  35, 25, 3, 4,
+  1000, 'random',
+  null,
+  0, 90, 'beginner',
+  'both', '{}', true,
+  '[{"exerciseSlug":"str-plank","workSec":35,"restSec":20},{"exerciseSlug":"str-dead-bug","workSec":40,"restSec":20},{"exerciseSlug":"str-side-plank","workSec":40,"restSec":20},{"exerciseSlug":"str-bird-dog","workSec":40,"restSec":20},{"exerciseSlug":"str-superman","workSec":30,"restSec":25}]'::jsonb, 3, 'anywhere',
   '{}'
 ),
 (
@@ -847,7 +986,8 @@ insert into public.drills (
   30, 0, 1, 4,
   1000, 'sequential',
   null,
-  0, 0, 'beginner', true,
+  0, 0, 'beginner',
+  'both', '{}', true,
   '[{"exerciseSlug":"mob-march","workSec":50,"restSec":0},{"exerciseSlug":"mob-side-shuffle","workSec":40,"restSec":0},{"exerciseSlug":"mob-ankle-rolls","workSec":30,"restSec":0},{"exerciseSlug":"mob-leg-swings-front","workSec":30,"restSec":0},{"exerciseSlug":"mob-leg-swings-side","workSec":30,"restSec":0},{"exerciseSlug":"mob-hip-openers","workSec":30,"restSec":0},{"exerciseSlug":"mob-arm-circles","workSec":30,"restSec":0},{"exerciseSlug":"mob-torso-twists","workSec":30,"restSec":0},{"exerciseSlug":"mob-split-steps","workSec":30,"restSec":0},{"exerciseSlug":"mob-corner-walk","workSec":45,"restSec":0},{"exerciseSlug":"mob-shadow-swings","workSec":35,"restSec":0}]'::jsonb, 1, 'anywhere',
   '{}'
 ),
@@ -866,7 +1006,8 @@ insert into public.drills (
   30, 0, 1, 4,
   1000, 'sequential',
   null,
-  0, 0, 'beginner', true,
+  0, 0, 'beginner',
+  'both', '{}', true,
   '[{"exerciseSlug":"mob-march","workSec":45,"restSec":0},{"exerciseSlug":"mob-side-shuffle","workSec":30,"restSec":0},{"exerciseSlug":"mob-leg-swings-side","workSec":30,"restSec":0},{"exerciseSlug":"mob-arm-circles","workSec":25,"restSec":0},{"exerciseSlug":"mob-split-steps","workSec":30,"restSec":0},{"exerciseSlug":"mob-corner-walk","workSec":40,"restSec":0}]'::jsonb, 1, 'anywhere',
   '{}'
 ),
@@ -887,8 +1028,129 @@ insert into public.drills (
   45, 0, 1, 4,
   1000, 'sequential',
   null,
-  0, 0, 'beginner', true,
+  0, 0, 'beginner',
+  'both', '{}', true,
   '[{"exerciseSlug":"cool-walk","workSec":60,"restSec":0},{"exerciseSlug":"cool-calf-stretch","workSec":45,"restSec":0},{"exerciseSlug":"cool-quad-stretch","workSec":45,"restSec":0},{"exerciseSlug":"cool-hamstring-stretch","workSec":45,"restSec":0},{"exerciseSlug":"cool-hip-flexor-stretch","workSec":45,"restSec":0},{"exerciseSlug":"cool-shoulder-stretch","workSec":45,"restSec":0}]'::jsonb, 1, 'anywhere',
+  '{}'
+),
+(
+  'singles-rally-patterns', 'Singles Rally Patterns', 'footwork', 'shadow',
+  'The caller says a point, not a corner. Singles sequences taken from how rallies are actually built — move them to the corners, take the reply early, finish at the net. The patterns you get open up as your level does.',
+  array[
+      'Play the shot you were told, not the shot the corner suggests. A drop and a clear from the same corner are different movements.',
+      'Recover to the base the next shot needs, not to the middle by reflex.',
+      'The rally is the unit. Finish the sequence before you start thinking about the next one.',
+      'Shadow the full swing every time — this is a rally, not a running drill.'
+    ],
+  array[
+      'Drifting into a rhythm and stopping listening once you recognise a pattern.',
+      'Playing every shot at the same speed. A hold and a punch clear are not the same tempo.',
+      'Recovering to the middle out of habit after a straight drop, which is exactly what gets you beaten cross-court.'
+    ],
+  45, 35, 6, 6,
+  1600, 'pattern',
+  null,
+  90, 90, 'intermediate',
+  'singles', '{}', true,
+  null, 1, 'court',
+  '{}'
+),
+(
+  'doubles-rally-patterns', 'Doubles Patterns', 'footwork', 'shadow',
+  'Doubles is a different sport on the same court: flat, fast, and decided in the front two thirds. These sequences drill the two shapes it is played in — front-and-back when you attack, level when you defend — and the rotation between them.',
+  array[
+      'Attacking is front-and-back. Smash and then get in behind it; the pair that rotates faster keeps the attack.',
+      'The moment you lift, you are defending. Get level with your partner before the smash arrives, not after.',
+      'Racket up and in front for every defensive shot. There is no time to lift it once the smash is on its way.',
+      'Take the flat exchange earlier and higher than feels comfortable. Short backswing, no wind-up.'
+    ],
+  array[
+      'Standing side-by-side while attacking, which hands the net straight back.',
+      'Watching your own smash instead of following it in.',
+      'Defending from too deep — the smash beats you before you have moved.'
+    ],
+  40, 30, 6, 6,
+  1300, 'pattern',
+  null,
+  90, 90, 'intermediate',
+  'doubles', '{}', true,
+  null, 1, 'court',
+  '{}'
+),
+(
+  'defence-into-attack', 'Defence Into Attack', 'footwork', 'shadow',
+  'The half of the game nobody trains alone. Survive the smash, then turn the rally around: block, follow it in, take the lift in the air. Champions are not the players who defend well, they are the players who stop defending soonest.',
+  array[
+      'Low base, wide feet, racket in front. Defence is a position before it is a shot.',
+      'Block with the hand, not the arm. A swing at a smash goes out the back.',
+      'The block is only half the shot — follow it forward, because the reply is coming short.',
+      'If the lift comes, take it early and above the tape. Letting it drop is giving the rally back.'
+    ],
+  array[
+      'Blocking and then standing still to admire it.',
+      'Defending with the racket beside the hip, which is a foot too far to travel.',
+      'Lifting every time under pressure instead of blocking short and stealing the net.'
+    ],
+  40, 40, 5, 6,
+  1250, 'pattern',
+  null,
+  90, 60, 'intermediate',
+  'both', array[
+      's-defend-and-counter',
+      'd-side-by-side',
+      'd-defence-to-attack'
+    ], true,
+  null, 1, 'court',
+  '{}'
+),
+(
+  'hold-and-deceive', 'Hold and Deceive', 'rear-court', 'shadow',
+  'Every shot from the same preparation. Get to the shuttle early enough to wait, show one thing and play another — the hold, the slice, the tumble, the flick. This is the layer above hitting it cleanly, and it is why a good smash gets blocked and a held drop does not.',
+  array[
+      'Arrive early. You cannot hold a shot you only just reached — the pause is bought with your feet.',
+      'Same swing to the same point every time. The disguise is everything before contact, not after.',
+      'Slice across the shuttle rather than through it: full arm speed, half the pace.',
+      'On the flick, wrist and fingers only. A backswing announces it before the shuttle moves.'
+    ],
+  array[
+      'Slowing the whole swing down instead of holding and then accelerating.',
+      'Telegraphing with the body — the shoulders turn before the racket does.',
+      'Using deception when you are late, which is the one moment it cannot work.'
+    ],
+  40, 45, 5, 6,
+  1900, 'pattern',
+  null,
+  120, 90, 'advanced',
+  'singles', array[
+      's-hold-and-slice',
+      's-six-corner-press'
+    ], true,
+  null, 1, 'court',
+  '{}'
+),
+(
+  'front-court-speed', 'Front Court Speed', 'net', 'ghosting',
+  'Net corners only, called fast, with the shot named. Kills, tumbles, cross nets and flicks from a low, loaded base. In doubles the front player decides the rally, and the front player is whoever got there first.',
+  array[
+      'Racket head above the net tape before you arrive, not after.',
+      'A kill is a punch from the forearm. A backswing at the net is a lost point.',
+      'Lunge and push straight back out of it — never step through and turn around.',
+      'Tumble and cross net are played with the fingers. Same arrival, different hand.'
+    ],
+  array[
+      'Reaching with the racket instead of arriving with the feet.',
+      'Standing up between reps and losing the loaded base.',
+      'Killing everything, including the ones that were below the tape.'
+    ],
+  30, 40, 6, 6,
+  1100, 'stroke',
+  array[
+      'net-left',
+      'net-right'
+    ],
+  90, 60, 'intermediate',
+  'doubles', '{}', true,
+  null, 1, 'court',
   '{}'
 )
 on conflict (slug) do update set
@@ -908,6 +1170,8 @@ on conflict (slug) do update set
   default_warmup_sec   = excluded.default_warmup_sec,
   default_cooldown_sec = excluded.default_cooldown_sec,
   level                = excluded.level,
+  discipline           = excluded.discipline,
+  pattern_ids          = excluded.pattern_ids,
   is_public            = excluded.is_public,
   circuit              = excluded.circuit,
   circuit_rounds       = excluded.circuit_rounds,

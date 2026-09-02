@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { cornerIdsForLayout, type CornerId } from './corners'
+import { patternById } from './patterns'
 import { createRng } from './rng'
 import { applyMode, createSequencer, modeFromConfig, normalizeSequencerConfig } from './sequencer'
 import type { DrillMode, SequencerConfig } from './types'
@@ -14,6 +15,8 @@ function config(overrides: Partial<SequencerConfig> = {}): SequencerConfig {
     avoidImmediateRepeat: true,
     deception: { enabled: false, probability: 0.35, gapMs: 600 },
     announce: 'position',
+    strokes: null,
+    patterns: [],
     ...overrides,
   }
 }
@@ -218,5 +221,65 @@ describe('mode mapping', () => {
   it('announces numbers only in number mode', () => {
     expect(applyMode(config(), 'number').announce).toBe('number')
     expect(applyMode(config({ announce: 'number' }), 'random').announce).toBe('position')
+  })
+})
+
+describe('pattern mode', () => {
+  const ids = ['s-four-corners', 's-straight-game']
+
+  it('plays a rally in the order it was written', () => {
+    const pattern = patternById('s-four-corners')!
+    const sequencer = createSequencer(
+      config({ selection: 'pattern', patterns: [pattern.id] }),
+      createRng(1),
+    )
+    for (const shot of pattern.shots) {
+      const call = sequencer.next()
+      expect(call.corner).toBe(shot.corner)
+      expect(call.stroke).toBe(shot.stroke)
+    }
+  })
+
+  it('says where it is in the rally, so the board can show it', () => {
+    const sequencer = createSequencer(config({ selection: 'pattern', patterns: ids }), createRng(4))
+    const first = sequencer.next()
+    expect(first.pattern?.shotIndex).toBe(1)
+    expect(first.pattern?.shots).toBeGreaterThan(2)
+    expect(ids).toContain(first.pattern?.id)
+  })
+
+  it('starts a new rally when the last one runs out, and not the same one twice', () => {
+    const sequencer = createSequencer(config({ selection: 'pattern', patterns: ids }), createRng(9))
+    const seen: string[] = []
+    for (let i = 0; i < 40; i += 1) {
+      const call = sequencer.next()
+      if (call.pattern?.shotIndex === 1) seen.push(call.pattern.id)
+    }
+    expect(seen.length).toBeGreaterThan(3)
+    // Back-to-back repeats turn a pattern drill into a memory test.
+    for (let i = 1; i < seen.length; i += 1) expect(seen[i]).not.toBe(seen[i - 1])
+  })
+
+  it('replays the same rallies for the same seed', () => {
+    const run = () => {
+      const sequencer = createSequencer(
+        config({ selection: 'pattern', patterns: ids }),
+        createRng(77),
+      )
+      return Array.from({ length: 20 }, () => sequencer.next().corner)
+    }
+    expect(run()).toEqual(run())
+  })
+
+  it('falls back to calling corners when the stored ids no longer exist', () => {
+    // A renamed pattern must not stop a session somebody is standing on court
+    // waiting to start.
+    const sequencer = createSequencer(
+      config({ selection: 'pattern', patterns: ['no-such-pattern'] }),
+      createRng(3),
+    )
+    const call = sequencer.next()
+    expect(call.pattern).toBeUndefined()
+    expect(cornerIdsForLayout(6)).toContain(call.corner)
   })
 })

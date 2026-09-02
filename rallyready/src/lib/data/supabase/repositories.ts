@@ -62,6 +62,8 @@ function toDrill(row: DrillRow): Drill {
     defaultWarmupSec: row.default_warmup_sec,
     defaultCooldownSec: row.default_cooldown_sec,
     level: row.level,
+    discipline: row.discipline ?? 'both',
+    patternIds: row.pattern_ids ?? [],
     circuit: row.circuit?.length ? row.circuit : null,
     circuitRounds: row.circuit_rounds,
     location: row.location,

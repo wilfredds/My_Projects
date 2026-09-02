@@ -30,6 +30,8 @@ function circuitDrill(overrides: Partial<Drill> = {}): Drill {
     description: '',
     coachingCues: [],
     commonFaults: [],
+    discipline: 'both',
+    patternIds: [],
     defaultWorkSec: 30,
     defaultRestSec: 20,
     defaultRounds: 3,

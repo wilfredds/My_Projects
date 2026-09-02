@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import type { Drill } from '@/lib/data/types'
+import { useTrainingProfile } from '@/hooks/useTrainingProfile'
 import { configFromDrill, type DrillConfig } from '@/lib/timer/plan'
 
 interface DrillConfigStore {
@@ -34,9 +35,13 @@ export const useDrillConfigStore = create<DrillConfigStore>()(
   ),
 )
 
-/** A drill's saved setup, or its shipped defaults if it has never been touched. */
+/**
+ * A drill's saved setup, or its shipped defaults fitted to this player if it
+ * has never been touched.
+ */
 export function useDrillConfig(drill: Drill | null | undefined): DrillConfig | null {
   const override = useDrillConfigStore((state) => (drill ? state.overrides[drill.slug] : undefined))
+  const training = useTrainingProfile()
   if (!drill) return null
-  return override ?? configFromDrill(drill)
+  return override ?? configFromDrill(drill, training)
 }
