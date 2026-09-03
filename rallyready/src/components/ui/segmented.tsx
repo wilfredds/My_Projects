@@ -67,7 +67,11 @@ export function Segmented<T extends string>({
               'focus-visible:ring-ring rounded-lg font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none',
               stacked
                 ? 'flex min-h-[4.25rem] flex-col justify-center gap-0.5 border px-3 py-2.5 text-left text-sm'
-                : 'h-11 flex-1 px-3 text-sm',
+                : // `min-w-0` matters: a flex item defaults to `min-width: auto`,
+                  // which refuses to shrink below its own text. Three options
+                  // with a word like "Intermediate" then push the control wider
+                  // than the phone and the whole page scrolls sideways.
+                  'h-11 min-w-0 flex-1 px-2 text-sm sm:px-3',
               selected
                 ? stacked
                   ? 'border-primary bg-accent text-accent-foreground'
@@ -77,7 +81,7 @@ export function Segmented<T extends string>({
                   : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            <span>{option.label}</span>
+            <span className={stacked ? undefined : 'block truncate'}>{option.label}</span>
             {option.hint && (
               <span
                 className={cn(

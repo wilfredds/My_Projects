@@ -28,6 +28,13 @@ interface CornerPickerProps {
   showWeights: boolean
   onToggle: (corner: CornerId) => void
   onCycleWeight: (corner: CornerId) => void
+  /**
+   * Show the court without offering to change it. Rally patterns decide their
+   * own zones, so a tappable board there is a control that does nothing —
+   * worse than no control, because you spend the session wondering why the
+   * corner you switched off keeps coming up.
+   */
+  readOnly?: boolean
 }
 
 export function CornerPicker({
@@ -35,6 +42,7 @@ export function CornerPicker({
   enabled,
   weights,
   showWeights,
+  readOnly = false,
   onToggle,
   onCycleWeight,
 }: CornerPickerProps) {
@@ -84,26 +92,37 @@ export function CornerPicker({
               cy={cy}
               r="11"
               className={cn(
-                'cursor-pointer transition-colors',
+                'transition-colors',
+                readOnly ? 'cursor-default' : 'cursor-pointer',
                 on ? 'fill-primary/85 stroke-primary' : 'fill-transparent stroke-foreground/25',
               )}
               strokeWidth="0.9"
               strokeDasharray={on ? undefined : '1.6 1.4'}
-              onClick={() => (showWeights && on ? onCycleWeight(zone.id) : onToggle(zone.id))}
-              role="button"
-              tabIndex={0}
-              aria-pressed={on}
-              aria-label={
-                showWeights && on
-                  ? `${zone.description}. Weight ${weight}. Tap to change how often it is called.`
-                  : `${zone.description}. ${on ? 'Enabled' : 'Disabled'}. Tap to toggle.`
+              onClick={
+                readOnly
+                  ? undefined
+                  : () => (showWeights && on ? onCycleWeight(zone.id) : onToggle(zone.id))
               }
-              onKeyDown={(event) => {
-                if (event.key !== 'Enter' && event.key !== ' ') return
-                event.preventDefault()
-                if (showWeights && on) onCycleWeight(zone.id)
-                else onToggle(zone.id)
-              }}
+              role={readOnly ? 'img' : 'button'}
+              tabIndex={readOnly ? undefined : 0}
+              aria-pressed={readOnly ? undefined : on}
+              aria-label={
+                readOnly
+                  ? `${zone.description}. ${on ? 'Used by these rallies' : 'Not used'}.`
+                  : showWeights && on
+                    ? `${zone.description}. Weight ${weight}. Tap to change how often it is called.`
+                    : `${zone.description}. ${on ? 'Enabled' : 'Disabled'}. Tap to toggle.`
+              }
+              onKeyDown={
+                readOnly
+                  ? undefined
+                  : (event) => {
+                      if (event.key !== 'Enter' && event.key !== ' ') return
+                      event.preventDefault()
+                      if (showWeights && on) onCycleWeight(zone.id)
+                      else onToggle(zone.id)
+                    }
+              }
             />
             <text
               x={cx}

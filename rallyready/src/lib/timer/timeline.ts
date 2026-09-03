@@ -209,9 +209,24 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
   const plan = sanitizePlan(rawPlan)
   const rng = createRng(plan.seed)
   const sequencer = createSequencer(plan.sequencer, rng)
-  // Deception during the warm-up would defeat the point of warming up.
+  /*
+   * The warm-up calls corners, and only corners.
+   *
+   * Deception during a warm-up defeats the point of warming up, and so does
+   * everything else the caller can do: a rally pattern is a full-intensity
+   * sequence, and naming the shot in Strokes mode has you playing hold-drops
+   * and jump smashes before your shoulder is warm. The first ninety seconds of
+   * a session are for the movement. It ran rallies here until somebody watched
+   * the screen say "hold, drop" over the word WARM-UP.
+   */
   const warmupSequencer = createSequencer(
-    { ...plan.sequencer, deception: { ...plan.sequencer.deception, enabled: false } },
+    {
+      ...plan.sequencer,
+      selection: plan.sequencer.selection === 'pattern' ? 'random' : plan.sequencer.selection,
+      announce: plan.sequencer.announce === 'stroke' ? 'position' : plan.sequencer.announce,
+      patterns: [],
+      deception: { ...plan.sequencer.deception, enabled: false },
+    },
     rng,
   )
 
@@ -226,6 +241,7 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
    */
   const strokeFor = (
     call: CallPlan,
+    namesShots: boolean,
   ): {
     stroke?: StrokeId
     patternId?: string
@@ -244,7 +260,7 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
           : {}),
       }
     }
-    return plan.sequencer.announce === 'stroke'
+    return namesShots
       ? { stroke: pickStroke(CORNERS[call.corner].row, rng, plan.sequencer.strokes) }
       : {}
   }
@@ -285,7 +301,10 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
 
     if (!block.emitsCalls || block.intervalMs === undefined) continue
     const interval = block.intervalMs
-    const source = block.phase === 'warmup' ? warmupSequencer : sequencer
+    const warmingUp = block.phase === 'warmup'
+    const source = warmingUp ? warmupSequencer : sequencer
+    // The warm-up is corners only, so it never names a shot either.
+    const namesShots = !warmingUp && plan.sequencer.announce === 'stroke'
 
     for (let slot = block.startMs; slot < block.endMs; slot += interval) {
       const plannedCall = source.next()
@@ -318,7 +337,7 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
           number: cornerNumber(layout, plannedCall.corner),
           blockIndex: block.index,
           feintedFrom: plannedCall.feint,
-          ...strokeFor(plannedCall),
+          ...strokeFor(plannedCall, namesShots),
         })
       } else {
         addSplitStep(slot - lead, callIndex)
@@ -329,7 +348,7 @@ export function buildTimeline(rawPlan: DrillPlan): Timeline {
           corner: plannedCall.corner,
           number: cornerNumber(layout, plannedCall.corner),
           blockIndex: block.index,
-          ...strokeFor(plannedCall),
+          ...strokeFor(plannedCall, namesShots),
         })
       }
       callIndex += 1

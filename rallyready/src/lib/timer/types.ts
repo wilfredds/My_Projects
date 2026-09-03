@@ -12,13 +12,7 @@ export type AnnounceStyle = 'position' | 'number' | 'stroke'
  * but decompose into orthogonal knobs internally.
  */
 export type DrillMode =
-  | 'sequential'
-  | 'random'
-  | 'deception'
-  | 'number'
-  | 'weighted'
-  | 'stroke'
-  | 'pattern'
+  'sequential' | 'random' | 'deception' | 'number' | 'weighted' | 'stroke' | 'pattern'
 
 export interface DeceptionConfig {
   enabled: boolean

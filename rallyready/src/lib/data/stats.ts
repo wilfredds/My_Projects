@@ -1,6 +1,6 @@
 import { rpeBySession, sessionLoad } from './load'
 import { localDateKey, weekIndex, weekIndexFromKey, weekLabel, weekStartKey } from './streaks'
-import type { Session, SessionMetric } from './types'
+import type { Session, SessionMetric, SkillLevel } from './types'
 
 /**
  * Every derived number the Progress dashboard and the badge engine need,
@@ -18,14 +18,35 @@ export const METRIC_BENCHMARK_LEVEL = 'benchmark_level'
 
 /**
  * Enough to replay a session exactly, for challenges. The engine is
- * seed-deterministic, so these five numbers reproduce the identical corner
- * order on somebody else's phone.
+ * seed-deterministic, so these numbers reproduce the identical corner order on
+ * somebody else's phone.
+ *
+ * The level is here because it is not a preference, it is part of the session:
+ * it decides which shots the caller may ask for and which rally patterns run,
+ * so the same seed at a different level is a different drill. Recorded rather
+ * than read back from the profile, because the profile can change between
+ * finishing a session and sharing it.
  */
 export const METRIC_SEED = 'seed'
 export const METRIC_ROUNDS = 'cfg_rounds'
 export const METRIC_WORK_SEC = 'cfg_work'
 export const METRIC_REST_SEC = 'cfg_rest'
 export const METRIC_INTERVAL_MS = 'cfg_interval'
+/** Stored as an index into `LEVEL_ORDER`, because a metric is a number. */
+export const METRIC_LEVEL = 'cfg_level'
+
+/** The one place the level-to-number mapping lives; a challenge code uses it too. */
+export const LEVEL_ORDER: SkillLevel[] = ['beginner', 'intermediate', 'advanced']
+
+export function levelIndex(level: SkillLevel): number {
+  return Math.max(0, LEVEL_ORDER.indexOf(level))
+}
+
+export function levelFromIndex(index: number | null | undefined): SkillLevel {
+  // Intermediate is the level every drill's defaults are written at, so it is
+  // what an unknown or missing index means rather than a failure.
+  return (index === null || index === undefined ? undefined : LEVEL_ORDER[index]) ?? 'intermediate'
+}
 
 export interface WeeklyBucket {
   weekIndex: number

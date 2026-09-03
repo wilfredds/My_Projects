@@ -1,3 +1,6 @@
+import { levelFromIndex, levelIndex } from '@/lib/data/stats'
+import type { SkillLevel } from '@/lib/data/types'
+
 /**
  * Challenge codes — sending another player the *exact* session you just did.
  *
@@ -12,7 +15,16 @@
  * Messenger, which mangles long links and helpfully strips parameters.
  */
 
-export const CHALLENGE_VERSION = 1
+/**
+ * Version 2 appends the sender's level.
+ *
+ * Not a cosmetic detail: level decides the shot vocabulary and which rally
+ * patterns a drill runs, so without it the receiver of a Strokes or Rallies
+ * challenge gets a different stream of calls from the same seed — a different
+ * session wearing the same name, which is the one thing this feature promises
+ * not to do. It rides at the end so the fields before it keep their positions.
+ */
+export const CHALLENGE_VERSION = 2
 
 export interface Challenge {
   /** Drill slug — the code is worthless if both sides do different drills. */
@@ -26,6 +38,12 @@ export interface Challenge {
   target: number | null
   /** Who sent it, trimmed. Free text, never trusted for anything. */
   from: string | null
+  /**
+   * The level the sender ran it at, which sets the shots and the rallies.
+   * Codes from before version 2 do not carry one and are read as intermediate,
+   * the level every drill's defaults are written at.
+   */
+  level: SkillLevel
 }
 
 /** Fields, in the order they are packed. Order is part of the wire format. */
@@ -79,6 +97,7 @@ export function encodeChallenge(challenge: Challenge): string {
     challenge.target === null ? '' : encodeInt(challenge.target),
     encodeURIComponent(challenge.drill),
     challenge.from === null ? '' : encodeURIComponent(challenge.from.slice(0, 24)),
+    encodeInt(levelIndex(challenge.level)),
   ]
   return parts.join(SEPARATOR)
 }
@@ -121,6 +140,12 @@ export function decodeChallenge(code: string): DecodeResult {
 
   const fromRaw = parts[FIELDS.length + 3] ?? ''
 
+  // Absent on version 1 codes, which is not damage — it is an older sender.
+  const levelRaw = parts[FIELDS.length + 4]
+  const level = levelFromIndex(
+    levelRaw === undefined || levelRaw === '' ? null : decodeInt(levelRaw),
+  )
+
   // Settings are clamped, not trusted. A code is a string from the internet,
   // and a hand-edited one must not be able to start a nine-hour drill.
   return {
@@ -134,6 +159,7 @@ export function decodeChallenge(code: string): DecodeResult {
       intervalMs: clamp(values.intervalMs ?? 1400, 500, 5000),
       target: target === null ? null : clamp(target, 0, 100_000),
       from: fromRaw === '' ? null : decodeURIComponent(fromRaw).slice(0, 24),
+      level,
     },
   }
 }

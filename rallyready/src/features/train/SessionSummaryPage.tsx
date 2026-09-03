@@ -17,6 +17,8 @@ import {
   METRIC_INTERVAL_MS,
   METRIC_REST_SEC,
   METRIC_ROUNDS,
+  levelFromIndex,
+  METRIC_LEVEL,
   METRIC_SEED,
   METRIC_WORK_SEC,
 } from '@/lib/data/stats'
@@ -113,6 +115,10 @@ export function SessionSummaryPage() {
           intervalMs: metric(METRIC_INTERVAL_MS) ?? 1400,
           target: calls,
           from: null,
+          // Read back from the session rather than from the profile: the level
+          // that shaped those calls is the one that has to travel with them,
+          // and it may not be the level you are on today.
+          level: levelFromIndex(metric(METRIC_LEVEL)),
         }
       : null
 

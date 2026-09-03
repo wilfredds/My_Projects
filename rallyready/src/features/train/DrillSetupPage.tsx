@@ -28,6 +28,7 @@ import {
   INTERVAL_STEP_MS,
   MAX_INTERVAL_MS,
   MIN_INTERVAL_MS,
+  minIntervalFor,
   STRUCTURE_PRESETS,
   isCircuit,
   matchDifficulty,
@@ -89,10 +90,20 @@ export function DrillSetupPage() {
         ? (stored ?? configFromDrill(drill, training))
         : null
 
-  // Persist as the user edits: leaving the screen must not lose the setup.
+  /*
+   * Persist edits, and *only* edits.
+   *
+   * This used to save `config` on every render, which meant merely opening
+   * this screen wrote an override — and an override wins over the drill's
+   * defaults for ever after, so the drill stopped following the level and the
+   * game. Change yourself from intermediate to advanced and every drill you
+   * had ever glanced at kept its old rounds, rest and pace, silently. Only a
+   * draft is a decision; `Reset to defaults` clears it and picks the current
+   * level up again.
+   */
   useEffect(() => {
-    if (config && drill) save(drill.slug, config)
-  }, [config, drill, save])
+    if (draft?.slug === slug && drill) save(drill.slug, draft.config)
+  }, [draft, slug, drill, save])
 
   if (isLoading || !config) {
     return <p className="text-muted-foreground text-sm">Loading…</p>
@@ -109,8 +120,13 @@ export function DrillSetupPage() {
     )
   }
 
-  const update = (patch: Partial<DrillConfig>) =>
-    setDraft({ slug, config: { ...config, ...patch } })
+  const update = (patch: Partial<DrillConfig>) => {
+    const merged = { ...config, ...patch }
+    // Switching to a mode that names the shot has to carry the interval up with
+    // it, or the slider sits below its own minimum and every call is clipped.
+    const floor = minIntervalFor(merged.mode)
+    setDraft({ slug, config: { ...merged, intervalMs: Math.max(merged.intervalMs, floor) } })
+  }
 
   const setLayout = (layout: CourtLayout) => {
     // Choosing "8 zones" should give you eight targets. Carrying the previous
@@ -204,8 +220,8 @@ export function DrillSetupPage() {
                     </p>
                     <RallyPatternList ids={config.patterns} />
                     <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
-                      Rallies are picked at random and played through in order. The zones are set by
-                      the pattern, so the court below is only a reference here.
+                      Rallies are picked at random and played through in order, never the same one
+                      twice running.
                     </p>
                   </div>
                 )}
@@ -236,32 +252,39 @@ export function DrillSetupPage() {
               <CardHeader>
                 <CardTitle>Court</CardTitle>
                 <CardDescription>
-                  {config.mode === 'weighted'
-                    ? 'Tap a zone to switch it off; tap an active zone to raise how often it is called.'
-                    : 'Tap a zone to switch it off.'}
+                  {config.mode === 'pattern'
+                    ? 'Set by the rallies, not by you — these are the zones they visit.'
+                    : config.mode === 'weighted'
+                      ? 'Tap a zone to switch it off; tap an active zone to raise how often it is called.'
+                      : 'Tap a zone to switch it off.'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-5">
-                <Segmented
-                  label="Number of zones"
-                  layout="stacked"
-                  columns={3}
-                  value={String(config.layout)}
-                  options={LAYOUT_OPTIONS}
-                  onChange={(value) => setLayout(Number(value) as CourtLayout)}
-                />
+                {config.mode !== 'pattern' && (
+                  <Segmented
+                    label="Number of zones"
+                    layout="stacked"
+                    columns={3}
+                    value={String(config.layout)}
+                    options={LAYOUT_OPTIONS}
+                    onChange={(value) => setLayout(Number(value) as CourtLayout)}
+                  />
+                )}
                 <div className="mx-auto h-64 w-full max-w-[15rem]">
                   <CornerPicker
                     layout={config.layout}
                     enabled={config.enabledCorners}
                     weights={config.weights}
                     showWeights={config.mode === 'weighted'}
+                    readOnly={config.mode === 'pattern'}
                     onToggle={toggleCorner}
                     onCycleWeight={cycleWeight}
                   />
                 </div>
                 <p className="text-muted-foreground text-center text-xs">
-                  {config.enabledCorners.length} of {config.layout} zones active
+                  {config.mode === 'pattern'
+                    ? `${config.enabledCorners.length} zones used by these rallies`
+                    : `${config.enabledCorners.length} of ${config.layout} zones active`}
                 </p>
               </CardContent>
             </Card>
@@ -284,7 +307,7 @@ export function DrillSetupPage() {
                   </div>
                   <Slider
                     id="interval"
-                    min={MIN_INTERVAL_MS}
+                    min={minIntervalFor(config.mode)}
                     max={MAX_INTERVAL_MS}
                     step={INTERVAL_STEP_MS}
                     value={[config.intervalMs]}
@@ -536,8 +559,12 @@ export function DrillSetupPage() {
             variant="ghost"
             size="sm"
             onClick={() => {
+              // Drop the draft as well as the override: leaving a draft behind
+              // would be re-saved by the effect above and the reset would undo
+              // itself. With both gone the screen falls back to the drill's
+              // defaults at the current level, which is what "defaults" means.
               clear(drill.slug)
-              setDraft({ slug, config: configFromDrill(drill, training) })
+              setDraft(null)
             }}
           >
             <RotateCcw />

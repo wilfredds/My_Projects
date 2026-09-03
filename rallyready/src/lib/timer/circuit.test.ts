@@ -4,12 +4,14 @@ import { SEED_DRILLS } from '@/lib/data/seed/drills'
 import { EXERCISES, findExercise } from '@/lib/data/seed/exercises'
 import type { CircuitStep, Drill } from '@/lib/data/types'
 
+import { cornerIdsForLayout } from './corners'
 import {
   circuitToLadder,
   configFromDrill,
   estimateDurationSec,
   isCircuit,
   planFromConfig,
+  MIN_STROKE_INTERVAL_MS,
   type DrillConfig,
 } from './plan'
 import { buildTimeline } from './timeline'
@@ -316,5 +318,57 @@ describe('the warm-up and cool-down routines', () => {
     // at the end, once everything is warm.
     expect(slugs.indexOf('mob-split-steps')).toBeGreaterThan(slugs.indexOf('mob-march'))
     expect(slugs.indexOf('mob-corner-walk')).toBeGreaterThan(slugs.indexOf('mob-ankle-rolls'))
+  })
+})
+
+describe('a drill fitted to a player', () => {
+  const patternDrill = SEED_DRILLS.find((drill) => drill.slug === 'singles-rally-patterns')!
+  const strokeDrill = SEED_DRILLS.find((drill) => drill.slug === 'front-court-speed')!
+
+  it('never calls faster than a two-part call can be said', () => {
+    // Speech cancels whatever is still speaking, so an interval shorter than
+    // the utterance chops "rear left, hold drop" in half. Levelling up gets
+    // more rounds and less rest instead.
+    for (const level of ['beginner', 'intermediate', 'advanced'] as const) {
+      for (const drill of [patternDrill, strokeDrill]) {
+        const config = configFromDrill(drill, { level, discipline: 'singles' })
+        expect(config.intervalMs, `${drill.slug} at ${level}`).toBeGreaterThanOrEqual(
+          MIN_STROKE_INTERVAL_MS,
+        )
+      }
+    }
+    // A plain corner call is two words and keeps the lower floor.
+    const plain = SEED_DRILLS.find((drill) => drill.slug === 'six-corner-shadow')!
+    expect(
+      configFromDrill(plain, { level: 'advanced', discipline: 'singles' }).intervalMs,
+    ).toBeLessThan(MIN_STROKE_INTERVAL_MS)
+  })
+
+  it('hands a rally drill the six-zone board its patterns were written for', () => {
+    // Patterns visit the mid-court, which does not exist on a four-zone board:
+    // those calls would come out as zone 0 and light nothing.
+    const config = configFromDrill(patternDrill, { level: 'advanced', discipline: 'singles' })
+    expect(config.layout).toBe(6)
+    expect(config.enabledCorners.length).toBeGreaterThan(2)
+    for (const corner of config.enabledCorners) {
+      expect(cornerIdsForLayout(6)).toContain(corner)
+    }
+  })
+
+  it('opens up more rallies as the player improves', () => {
+    const at = (level: 'beginner' | 'intermediate' | 'advanced') =>
+      configFromDrill(patternDrill, { level, discipline: 'singles' }).patterns.length
+    expect(at('beginner')).toBeGreaterThan(0)
+    expect(at('intermediate')).toBeGreaterThan(at('beginner'))
+    expect(at('advanced')).toBeGreaterThan(at('intermediate'))
+  })
+
+  it('gives the drill exactly as written when there is no player to fit it to', () => {
+    // What a challenge and a catalogue listing both need: the same numbers for
+    // everybody, not quietly rescaled to whoever is looking.
+    const asWritten = configFromDrill(patternDrill)
+    expect(asWritten.rounds).toBe(patternDrill.defaultRounds)
+    expect(asWritten.workSec).toBe(patternDrill.defaultWorkSec)
+    expect(asWritten.strokes).toBeNull()
   })
 })

@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
+import { useTrainingProfile } from '@/hooks/useTrainingProfile'
 import { swapVariants, useInitialSafe, useMotionSafe } from '@/lib/motion'
 import { useSessionGuard } from '@/hooks/useSessionGuard'
 import { useRepositories } from '@/lib/data/context'
@@ -27,6 +28,8 @@ import {
   METRIC_INTERVAL_MS,
   METRIC_REST_SEC,
   METRIC_ROUNDS,
+  levelIndex,
+  METRIC_LEVEL,
   METRIC_SEED,
   METRIC_WORK_SEC,
 } from '@/lib/data/stats'
@@ -97,6 +100,7 @@ function Runner({ drill }: { drill: Drill }) {
   const initial = useInitialSafe('hidden')
   // Still needed as a plain boolean: the board components take it as a prop.
   const reducedMotion = useReducedMotion()
+  const training = useTrainingProfile()
   const savedConfig = useDrillConfig(drill)
 
   /*
@@ -206,6 +210,7 @@ function Runner({ drill }: { drill: Drill }) {
             { metricKey: METRIC_WORK_SEC, metricValue: config?.workSec ?? 0 },
             { metricKey: METRIC_REST_SEC, metricValue: config?.restSec ?? 0 },
             { metricKey: METRIC_INTERVAL_MS, metricValue: config?.intervalMs ?? 0 },
+            { metricKey: METRIC_LEVEL, metricValue: levelIndex(training.level) },
           ],
         )
         navigate(`/session/${session.id}`, { replace: true })
@@ -215,7 +220,7 @@ function Runner({ drill }: { drill: Drill }) {
         navigate('/', { replace: true })
       }
     },
-    [config, drillMode, drill, markWarmedUp, navigate, repositories, seed],
+    [config, drillMode, drill, markWarmedUp, navigate, repositories, seed, training.level],
   )
 
   const runner = useDrillRunner({

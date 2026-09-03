@@ -1,13 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { cornerIdsForLayout, CORNERS } from './corners'
-import {
-  cornersInPatterns,
-  patternById,
-  patternIsLegal,
-  patternsFor,
-  PATTERNS,
-} from './patterns'
+import { cornersInPatterns, patternById, patternIsLegal, patternsFor, PATTERNS } from './patterns'
 import { strokesForRow, STROKES } from './strokes'
 
 describe('the rally patterns', () => {

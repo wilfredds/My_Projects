@@ -5,6 +5,7 @@ import { Pressable } from '@/components/motion/Pressable'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import type { Drill } from '@/lib/data/types'
+import { useTrainingProfile } from '@/hooks/useTrainingProfile'
 import { configFromDrill, estimateDurationSec } from '@/lib/timer/plan'
 import type { DrillConfig } from '@/lib/timer/plan'
 import { formatCompactDuration, pluralize } from '@/lib/utils'
@@ -27,7 +28,11 @@ interface DrillCardProps {
  * the rest of the catalogue.
  */
 export function DrillCard({ drill, config }: DrillCardProps) {
-  const resolved = config ?? configFromDrill(drill)
+  // Falls back to this player's own settings rather than the drill's raw
+  // defaults: a card that says 8 min next to a drill that will run for 13 is
+  // worse than no number at all.
+  const training = useTrainingProfile()
+  const resolved = config ?? configFromDrill(drill, training)
   const isCircuit = drill.circuit !== null && drill.circuit.length > 0
   const Where = drill.location === 'anywhere' ? Home : MapPin
 

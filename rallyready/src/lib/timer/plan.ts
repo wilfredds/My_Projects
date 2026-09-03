@@ -8,6 +8,7 @@ import {
 } from '@/lib/training/profile'
 
 import { cornerIdsForLayout, type CornerId, type CourtLayout } from './corners'
+import { cornersInPatterns, patternById, type RallyPattern } from './patterns'
 import { applyMode } from './sequencer'
 import type { StrokeId } from './strokes'
 import type { DrillMode, DrillPlan, LadderStep, SprintSet } from './types'
@@ -42,6 +43,9 @@ export interface DrillConfig {
   strokes: StrokeId[] | null
 }
 
+const isPattern = (pattern: RallyPattern | undefined): pattern is RallyPattern =>
+  pattern !== undefined
+
 export function isCircuit(config: DrillConfig): boolean {
   return config.circuit !== null && config.circuit.length > 0
 }
@@ -74,6 +78,25 @@ export const MIN_INTERVAL_MS = 800
 export const MAX_INTERVAL_MS = 3000
 export const INTERVAL_STEP_MS = 50
 
+/**
+ * The floor when the call names a shot as well as a corner.
+ *
+ * Speech cancels whatever is still speaking, because an utterance that outlasts
+ * its slot would otherwise queue and the voice would end up calling corners
+ * from ten seconds ago. The cost of that is a call cut off mid-word when the
+ * next one lands too soon — and "rear left, hold drop" is four words, which at
+ * the default rate is a shade over a second. Eight hundred milliseconds is fine
+ * for "rear left" and chops a two-part call in half.
+ *
+ * Not a limit on how hard the drill can be: rounds, work and rest all still
+ * move. It is a limit on saying something faster than it can be said.
+ */
+export const MIN_STROKE_INTERVAL_MS = 1200
+
+export function minIntervalFor(mode: DrillMode): number {
+  return mode === 'stroke' || mode === 'pattern' ? MIN_STROKE_INTERVAL_MS : MIN_INTERVAL_MS
+}
+
 export const MIN_SPLIT_STEP_LEAD_MS = 200
 export const MAX_SPLIT_STEP_LEAD_MS = 700
 
@@ -94,6 +117,15 @@ export const DEFAULT_PREPARE_SEC = 5
  * the thing being trained.
  */
 export function configFromDrill(drill: Drill, profile?: TrainingProfile): DrillConfig {
+  const patterns = patternsForDrill(drill, profile)
+  /*
+   * A rally decides its own zones, so in pattern mode the court is a readout
+   * rather than a setting — and it has to be a six-zone one. Every pattern is
+   * authored against the six-zone board; on a four-zone board the mid-court
+   * shots would be called with zone number 0 and light nothing at all.
+   */
+  const patterned = drill.defaultCallMode === 'pattern' && patterns.length > 0
+  const resolved = patterned ? cornersInPatterns(patterns.map(patternById).filter(isPattern)) : []
   const volume = profile
     ? scaleVolume(
         {
@@ -112,15 +144,18 @@ export function configFromDrill(drill: Drill, profile?: TrainingProfile): DrillC
       }
 
   return {
-    layout: drill.corners,
-    enabledCorners: drill.enabledCorners ?? cornerIdsForLayout(drill.corners),
+    layout: patterned ? 6 : drill.corners,
+    enabledCorners: patterned
+      ? resolved
+      : (drill.enabledCorners ?? cornerIdsForLayout(drill.corners)),
     mode: drill.defaultCallMode,
     // A drill that is for one game keeps its own shape whoever runs it; one
     // that suits either takes the shape of the game the player actually plays.
     weights: profile
       ? weightsFor(drill.discipline === 'both' ? profile.discipline : drill.discipline)
       : {},
-    intervalMs: volume.intervalMs,
+    // Levelling up speeds the calls, but never past what the voice can say.
+    intervalMs: Math.max(volume.intervalMs, minIntervalFor(drill.defaultCallMode)),
     workSec: volume.workSec,
     restSec: volume.restSec,
     rounds: volume.rounds,
@@ -133,7 +168,7 @@ export function configFromDrill(drill: Drill, profile?: TrainingProfile): DrillC
     deceptionGapMs: 600,
     circuit: drill.circuit,
     circuitRounds: drill.circuitRounds,
-    patterns: patternsForDrill(drill, profile),
+    patterns,
     strokes: profile ? vocabularyFor(profile.level) : null,
   }
 }

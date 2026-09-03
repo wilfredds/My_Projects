@@ -45,7 +45,11 @@ export function ChallengePage() {
     // through the URL because the runner reads its config from the store, and a
     // challenge you abandon and come back to should still be the same challenge.
     save(drill.slug, {
-      ...configFromDrill(drill),
+      // The sender's level, not yours: it decides the shot vocabulary and which
+      // rallies run, so taking a challenge at your own level would be a
+      // different session with the same seed — which is the one thing a
+      // challenge must never be.
+      ...configFromDrill(drill, { level: challenge.level, discipline: drill.discipline }),
       rounds: challenge.rounds,
       workSec: challenge.workSec,
       restSec: challenge.restSec,

@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **548 tests across 34 files, all passing** — if you
+individually. Baseline is **557 tests across 34 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -70,12 +70,20 @@ see fewer, something is being skipped.
   corner-to-corner, doubles is flat and front-heavy; a drill declares which game
   it is for and `both` takes the player's. Pass the profile into
   `configFromDrill` — without it you get the drill as written, which is what a
-  challenge needs and what a listing should show.
+  challenge code reconstructs from. Anywhere a number is shown *to* the player
+  it has to be the fitted one, or the card says 8 min and the drill runs 13.
+  Opening a setup screen must not write an override: an override wins over the
+  defaults for ever, so the drill silently stops following the level.
 - **A rally pattern calls a point, not a corner.** `lib/timer/patterns` holds
   named sequences of corner-plus-shot taken from how rallies are constructed;
   `pattern` selection walks one, then picks another. Every shot must be legal
   for its row and inside its own level, and a test asserts both. A pattern that
-  asked for a smash from the net would discredit every call after it.
+  asked for a smash from the net would discredit every call after it. The
+  warm-up never runs one, and never names a shot either — it calls corners, at
+  a gentler cadence, because a rally pattern is full-intensity work. When the
+  call names a shot the interval has a higher floor (`minIntervalFor`): speech
+  cancels the previous utterance, so a slot shorter than the phrase cuts
+  "rear left, hold drop" in half.
 - **Curated third-party video is deliberately absent.** See the README's
   library section and `PROGRESS.md` for the reasoning before adding it.
 - **Safety features are never paywalled.** The warm-up, the daily readiness

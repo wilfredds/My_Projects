@@ -576,3 +576,77 @@ describe('stroke mode', () => {
     for (const feint of feints) expect('stroke' in feint).toBe(false)
   })
 })
+
+describe('the warm-up', () => {
+  const patterned = plan({
+    warmupSec: 20,
+    rounds: 1,
+    workSec: 20,
+    restSec: 0,
+    intervalMs: 1400,
+    sequencer: sequencer({
+      selection: 'pattern',
+      announce: 'stroke',
+      patterns: ['s-four-corners', 's-hold-and-slice'],
+    }),
+  })
+
+  it('calls corners, never rallies', () => {
+    // A rally pattern is a full-intensity sequence. Running one over the word
+    // WARM-UP is doing the drill before you have warmed up for it.
+    const timeline = buildTimeline(patterned)
+    const warmupBlock = timeline.blocks.find((block) => block.phase === 'warmup')
+    expect(warmupBlock).toBeDefined()
+    const inWarmup = timeline.events.filter(
+      (event) =>
+        event.kind === 'call' &&
+        event.at >= (warmupBlock?.startMs ?? 0) &&
+        event.at < (warmupBlock?.endMs ?? 0),
+    )
+    expect(inWarmup.length).toBeGreaterThan(3)
+    for (const event of inWarmup) {
+      if (event.kind !== 'call') continue
+      expect(event.patternId).toBeUndefined()
+      expect(event.stroke).toBeUndefined()
+    }
+  })
+
+  it('still runs the rallies once the work starts', () => {
+    const timeline = buildTimeline(patterned)
+    const work = timeline.blocks.find((block) => block.phase === 'work')
+    const inWork = timeline.events.filter(
+      (event) =>
+        event.kind === 'call' && event.at >= (work?.startMs ?? 0) && event.at < (work?.endMs ?? 0),
+    )
+    expect(inWork.length).toBeGreaterThan(3)
+    for (const event of inWork) {
+      if (event.kind !== 'call') continue
+      expect(event.patternId).toBeDefined()
+      expect(event.stroke).toBeDefined()
+    }
+  })
+
+  it('names no shots in stroke mode either', () => {
+    const timeline = buildTimeline(
+      plan({
+        warmupSec: 20,
+        rounds: 1,
+        workSec: 20,
+        restSec: 0,
+        sequencer: sequencer({ selection: 'random', announce: 'stroke' }),
+      }),
+    )
+    const warmupBlock = timeline.blocks.find((block) => block.phase === 'warmup')
+    const inWarmup = timeline.events.filter(
+      (event) =>
+        event.kind === 'call' &&
+        event.at >= (warmupBlock?.startMs ?? 0) &&
+        event.at < (warmupBlock?.endMs ?? 0),
+    )
+    expect(inWarmup.length).toBeGreaterThan(0)
+    for (const event of inWarmup) {
+      if (event.kind !== 'call') continue
+      expect(event.stroke).toBeUndefined()
+    }
+  })
+})

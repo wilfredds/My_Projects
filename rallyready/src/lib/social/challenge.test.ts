@@ -11,6 +11,7 @@ import {
 const base: Challenge = {
   drill: 'six-corner-shadow',
   seed: 918_273,
+  level: 'intermediate' as const,
   rounds: 6,
   workSec: 45,
   restSec: 30,
@@ -141,5 +142,29 @@ describe('sharing', () => {
   it('does not invent a score for an open challenge', () => {
     const message = challengeMessage({ ...base, target: null }, 'Drill', 'https://x.test')
     expect(message).not.toMatch(/\d+ calls/)
+  })
+})
+
+describe('the level a challenge was set at', () => {
+  it('travels with the code, because it decides the shots', () => {
+    // Level chooses the shot vocabulary and the rally patterns, so the same
+    // seed at a different level is a different session under the same name.
+    for (const level of ['beginner', 'intermediate', 'advanced'] as const) {
+      const decoded = decodeChallenge(encodeChallenge({ ...base, level }))
+      expect(decoded.ok && decoded.challenge.level).toBe(level)
+    }
+  })
+
+  it('reads a code from before it existed as intermediate', () => {
+    // Version 1 codes have no level field. That is an older sender, not damage,
+    // and intermediate is what every drill's own defaults are written at.
+    const v2 = encodeChallenge({ ...base, level: 'advanced' })
+    const v1 = v2.split(',').slice(0, -1).join(',')
+    const decoded = decodeChallenge(v1)
+    expect(decoded.ok).toBe(true)
+    expect(decoded.ok && decoded.challenge.level).toBe('intermediate')
+    // Everything before the new field still lands where it did.
+    expect(decoded.ok && decoded.challenge.seed).toBe(base.seed)
+    expect(decoded.ok && decoded.challenge.drill).toBe(base.drill)
   })
 })
