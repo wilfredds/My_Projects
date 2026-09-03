@@ -95,7 +95,24 @@ export const useUiStore = create<UiStore>()(
       celebratedStreak: null,
       recordCelebratedStreak: (celebratedStreak) => set({ celebratedStreak }),
     }),
-    { name: 'rallyready.ui', version: 7 },
+    {
+      name: 'rallyready.ui',
+      version: 7,
+      /*
+       * Carry the old state forward on a version bump.
+       *
+       * Without a `migrate`, zustand throws the whole persisted blob away and
+       * logs an error, which means every version bump silently un-dismisses
+       * the setup prompt and the install offer, forgets the last warm-up, and
+       * makes an existing install look like a fresh one. Every field here has
+       * only ever been *added* to, so the old state is valid as-is; anything
+       * missing falls back to its initial value on merge.
+       *
+       * A future bump that changes the *meaning* of a field is the one that
+       * needs real work here rather than this passthrough.
+       */
+      migrate: (persisted) => persisted as Partial<UiStore>,
+    },
   ),
 )
 
