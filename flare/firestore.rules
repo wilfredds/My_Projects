@@ -1,0 +1,45 @@
+rules_version = '2';
+
+// Firestore security rules for FLARE.
+//
+// Auth model: Firebase Authentication (email/password for now; providers can
+// be added without changing these rules, since they gate on request.auth,
+// not on how the caller signed in). The server also mints an httpOnly
+// session cookie (see src/lib/auth/session.ts) for use inside Next.js
+// Server Components and Route Handlers, but the Firestore client SDK in the
+// browser talks to Firestore directly using the Firebase ID token — these
+// rules are what actually protect data, not the Next.js server.
+//
+// Default posture: closed. Every collection must be opened explicitly below;
+// nothing is readable or writable until a rule says so.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------- helpers
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ------------------------------------------------------------- users
+    //
+    // One document per account, keyed by Firebase Auth uid. A user may read
+    // and update their own profile; nobody may read another user's profile
+    // or create/delete profile documents directly — profile creation is
+    // expected to go through a server-side path (e.g. a Route Handler using
+    // firebase-admin) once the signup flow is designed, so it can also set
+    // fields the client should not be trusted to set itself (e.g. a role).
+
+    match /users/{userId} {
+      allow read, update: if isOwner(userId);
+      allow create, delete: if false;
+    }
+
+    // Everything else stays closed by default (no catch-all rule below).
+  }
+}
