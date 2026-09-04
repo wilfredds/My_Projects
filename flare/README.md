@@ -149,18 +149,18 @@ real project or a service account key. `src/lib/firebase/admin.ts` skips
 credentials entirely when the emulator host variables are set.
 
 ```bash
+cp .env.emulator.example .env.local   # once
+npm install
 npm run emulators                    # terminal 1 — auth, firestore, storage
 npm run seed                         # terminal 2 — BFP test accounts, 6 categories
-FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 \
-FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 \
-FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199 \
-FIREBASE_PROJECT_ID=flare-local \
-NEXT_PUBLIC_FIREBASE_USE_EMULATORS=true npm run dev
+npm run dev                          # terminal 3 — http://localhost:3000
 ```
 
-`NEXT_PUBLIC_FIREBASE_USE_EMULATORS` is what points the *browser* SDK at the
-emulators; the other variables only reach the server. Sign in as
-`admin@bfp.gov.ph` / `flare-emulator`.
+`.env.emulator.example` carries every variable this needs, including
+`NEXT_PUBLIC_FIREBASE_USE_EMULATORS`, which is what points the *browser* SDK
+at the emulators — the others only reach the server. Needs Node 22+ and a JDK,
+since the emulators are Java processes. Sign in as `admin@bfp.gov.ph` /
+`flare-emulator`.
 
 `npm run seed` also prints a session cookie, which is enough to read the admin
 screens — but uploading needs a real Firebase Auth session, so sign in through
