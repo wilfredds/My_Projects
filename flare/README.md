@@ -91,6 +91,21 @@ own HTTP endpoint that anyone can invoke. Every admin mutation goes through
 use the Admin SDK, which bypasses Firestore rules entirely, so there is no
 second line of defence behind that guard.
 
+**Content identifiers are permanent.** A category or lesson id is a foreign
+key: every learner's progress document keys its section states by those ids,
+and certificates are issued against them. Renaming one would not error — it
+would silently strand existing progress at a path nothing reads, and a
+compliance report would then show trained personnel as never having started.
+So ids are generated once from the title at creation (`slugify`) and a later
+title edit changes the title only. There is no hard delete for the same
+reason: unpublishing removes content from circulation while leaving the
+records that reference it intact.
+
+**Section content is Markdown, never HTML.** Authored text is rendered into
+every firefighter's browser, so storing HTML would let an authoring account
+inject script across the whole Bureau. Markdown keeps the stored value inert
+text, converted through a controlled renderer at display time.
+
 **An administrator cannot lock everyone out.** FLARE has no recovery path: if
 the last active administrator suspends or demotes themselves, nobody can
 approve an account or publish a lesson again without hand-editing Firestore in
@@ -179,7 +194,12 @@ firebase deploy --only firestore:rules --project <your-project-id>
    the language list (i18n is expensive to retrofit), the registration
    mechanism, and whether assessments are single- or multi-answer.
 3. Build the assessment grading path — it depends on question 1 above.
-4. Finish the admin surface. Accounts, announcements and the audit log are
-   built; lesson authoring (rich text, video, uploads) is the largest piece
-   still missing, and the assessment builder and certificates are blocked on
-   the client's answers.
+4. Finish the admin surface. Accounts, announcements, the audit log and
+   lesson authoring are built. Still missing: assessment question authoring
+   (blocked on single- vs multi-answer and the passing score), file and video
+   uploads (needs Firebase Storage and the hosting decision), and certificates
+   and compliance reports (blocked on the template and signatory).
+5. Render the stored Markdown on the learner side. It is intentionally not
+   previewed in the authoring UI yet: a preview built on a different renderer
+   than production is a preview that lies, so both should use one renderer,
+   written when the learner screen is.

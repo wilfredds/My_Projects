@@ -35,6 +35,9 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
             <Link href="/admin/users" className="text-muted hover:text-foreground">
               Accounts
             </Link>
+            <Link href="/admin/catalog" className="text-muted hover:text-foreground">
+              Content
+            </Link>
             <Link href="/admin/announcements" className="text-muted hover:text-foreground">
               Announcements
             </Link>

@@ -154,4 +154,7 @@ export type AuditAction =
   | "section_completed"
   | "assessment_submitted"
   | "certificate_issued"
-  | "profile_updated";
+  | "profile_updated"
+  | "announcement_published"
+  | "content_created"
+  | "content_updated";

@@ -70,12 +70,14 @@ export default async function AdminDashboardPage() {
       <Panel title="Not built yet">
         <ul className="px-4 py-3 text-sm text-muted">
           <li>
-            <strong className="text-foreground">Lesson authoring</strong> — needs rich text, video
-            and file uploads; the largest remaining piece.
+            <strong className="text-foreground">Assessment questions</strong> — blocked until the
+            client confirms whether questions are single- or multi-answer, and what score passes.
+            Lesson text can be written today; the questions themselves cannot.
           </li>
           <li className="mt-1.5">
-            <strong className="text-foreground">Assessment builder</strong> — blocked until the
-            client confirms whether questions are single- or multi-answer, and what score passes.
+            <strong className="text-foreground">File and video uploads</strong> — needs Firebase
+            Storage, and a decision on whether video is hosted or embedded. Links written into a
+            section work in the meantime.
           </li>
           <li className="mt-1.5">
             <strong className="text-foreground">Certificates and compliance reports</strong> —

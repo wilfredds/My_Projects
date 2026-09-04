@@ -10,6 +10,9 @@ const ACTION_LABELS: Record<string, string> = {
   assessment_submitted: "Submitted an assessment",
   certificate_issued: "Certificate issued",
   profile_updated: "Account changed",
+  announcement_published: "Announcement published",
+  content_created: "Content created",
+  content_updated: "Content edited",
 };
 
 export default async function AdminAuditPage() {

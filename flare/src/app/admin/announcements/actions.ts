@@ -20,9 +20,9 @@ export async function createAnnouncement(formData: FormData): Promise<ActionResu
 
     await recordAudit({
       uid: admin.uid,
-      action: "profile_updated",
+      action: "announcement_published",
       targetPath: `announcements/${id}`,
-      detail: { change: "announcement_published", type: validated.value.type },
+      detail: { type: validated.value.type },
     });
 
     revalidatePath("/admin/announcements");
