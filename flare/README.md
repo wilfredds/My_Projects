@@ -158,9 +158,26 @@ npm run dev                          # terminal 3 — http://localhost:3000
 
 `.env.emulator.example` carries every variable this needs, including
 `NEXT_PUBLIC_FIREBASE_USE_EMULATORS`, which is what points the *browser* SDK
-at the emulators — the others only reach the server. Needs Node 22+ and a JDK,
-since the emulators are Java processes. Sign in as `admin@bfp.gov.ph` /
-`flare-emulator`.
+at the emulators — the others only reach the server. Sign in as
+`admin@bfp.gov.ph` / `flare-emulator`.
+
+Needs **Node 22+** and a **JDK**: the Firebase emulators are Java programs, and
+`npm run emulators` fails with "Could not spawn `java -version`" without one.
+Check with `java -version`, and install one if it errors:
+
+```bash
+winget install EclipseAdoptium.Temurin.21.JDK   # Windows
+brew install --cask temurin                     # macOS
+sudo apt install default-jdk                    # Debian/Ubuntu
+```
+
+Open a new terminal afterwards so it picks up the changed PATH.
+
+**No JDK available?** Skip the emulators and use a real Firebase project:
+create one at console.firebase.google.com (the free Spark plan is enough),
+enable Authentication with Email/Password and Cloud Firestore, and fill in
+`.env.example` instead. No Java involved — but you then create the first
+administrator by hand in the Firebase console.
 
 `npm run seed` also prints a session cookie, which is enough to read the admin
 screens — but uploading needs a real Firebase Auth session, so sign in through
