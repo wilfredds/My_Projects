@@ -84,10 +84,45 @@ personnel, so accounts wait at `status: 'pending'` until an administrator
 activates them. Server paths use `requireActiveUser()` rather than treating a
 valid session as sufficient.
 
+**A Server Action is a public endpoint.** Being called only from a page that
+already checked `requireAdmin()` protects nothing — the action compiles to its
+own HTTP endpoint that anyone can invoke. Every admin mutation goes through
+`withAdmin()` in `src/lib/admin/guard.ts`, which re-verifies. Admin writes also
+use the Admin SDK, which bypasses Firestore rules entirely, so there is no
+second line of defence behind that guard.
+
+**An administrator cannot lock everyone out.** FLARE has no recovery path: if
+the last active administrator suspends or demotes themselves, nobody can
+approve an account or publish a lesson again without hand-editing Firestore in
+the Firebase console. `src/lib/users/transitions.ts` refuses self-suspension,
+self-demotion, and removing the last active administrator — and the count it
+checks is re-read from Firestore at the moment of the change, not taken from
+whatever the browser was showing.
+
+## Running locally without a Firebase project
+
+The Firebase emulators cover both Auth and Firestore, so nothing here needs a
+real project or a service account key. `src/lib/firebase/admin.ts` skips
+credentials entirely when the emulator host variables are set.
+
+```bash
+npm run emulators                    # terminal 1 — auth + firestore
+npm run seed                         # terminal 2 — BFP test accounts, 6 categories
+FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 \
+FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 \
+FIREBASE_PROJECT_ID=flare-local npm run dev
+```
+
+`npm run seed` prints a session cookie for the seeded administrator. Set it as
+`flare_session` in the browser to open `/admin` without a sign-in flow.
+
+Seeded accounts cover every state the admin surface handles: an active
+administrator, an active learner, a pending applicant and a suspended account.
+
 ## Testing
 
 ```bash
-npm test                              # rollup, request validation, theme
+npm test                              # rollup, validation, theme, admin guards
 cd ../firestore-tests && npm run test:flare   # 63 rules assertions
 ```
 
@@ -144,5 +179,7 @@ firebase deploy --only firestore:rules --project <your-project-id>
    the language list (i18n is expensive to retrofit), the registration
    mechanism, and whether assessments are single- or multi-answer.
 3. Build the assessment grading path — it depends on question 1 above.
-4. Design and price the admin surface. It is confirmed as needed and no
-   frames exist for it; see `docs/DATA-MODEL.md`.
+4. Finish the admin surface. Accounts, announcements and the audit log are
+   built; lesson authoring (rich text, video, uploads) is the largest piece
+   still missing, and the assessment builder and certificates are blocked on
+   the client's answers.

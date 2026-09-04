@@ -1,4 +1,5 @@
 import "server-only";
+import { headers } from "next/headers";
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminDb } from "@/lib/firebase/admin";
 import type { AuditAction } from "@/lib/types";
@@ -42,7 +43,7 @@ export async function recordAudit(entry: AuditEntry, request?: Request): Promise
         action: entry.action,
         targetPath: entry.targetPath ?? null,
         detail: entry.detail ?? null,
-        ...describeCaller(request),
+        ...(await describeCaller(request)),
         // Server timestamp rather than a value computed here: the database's
         // clock is the one an auditor can reason about.
         createdAt: FieldValue.serverTimestamp(),
@@ -52,13 +53,32 @@ export async function recordAudit(entry: AuditEntry, request?: Request): Promise
   }
 }
 
-function describeCaller(request?: Request) {
-  if (!request) return { ip: null, userAgent: null };
+/**
+ * Where the request came from.
+ *
+ * Route handlers hand us the Request directly. Server Actions do not get one
+ * — but they still run inside a request scope, so next/headers reaches the
+ * same headers. Without this fallback the admin actions, which are the most
+ * security-sensitive things FLARE does, would be the only entries recording
+ * no IP at all.
+ */
+async function describeCaller(request?: Request) {
+  const source = request?.headers ?? (await safeHeaders());
+  if (!source) return { ip: null, userAgent: null };
 
   return {
-    ip: clientIp(request),
-    userAgent: request.headers.get("user-agent"),
+    ip: clientIp(source),
+    userAgent: source.get("user-agent"),
   };
+}
+
+/** headers() throws outside a request scope — a background job, say. */
+async function safeHeaders(): Promise<Headers | null> {
+  try {
+    return await headers();
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -69,11 +89,11 @@ function describeCaller(request?: Request) {
  * be invented by the caller. Vercel's `x-real-ip` is set by the proxy itself
  * and is preferred where present.
  */
-function clientIp(request: Request): string | null {
-  const realIp = request.headers.get("x-real-ip");
+function clientIp(source: Headers): string | null {
+  const realIp = source.get("x-real-ip");
   if (realIp) return realIp;
 
-  const forwarded = request.headers.get("x-forwarded-for");
+  const forwarded = source.get("x-forwarded-for");
   if (!forwarded) return null;
 
   const hops = forwarded.split(",").map((hop) => hop.trim()).filter(Boolean);

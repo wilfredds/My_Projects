@@ -116,6 +116,38 @@ export type CategorySummary = {
   status: CategoryStatus;
 };
 
+/**
+ * The four kinds of item the design's Feed screen shows, taken from the
+ * labels in the frames themselves rather than invented.
+ */
+export const ANNOUNCEMENT_TYPES = [
+  "course_update",
+  "resource",
+  "system",
+  "assessment_reminder",
+] as const;
+export type AnnouncementType = (typeof ANNOUNCEMENT_TYPES)[number];
+
+export type Announcement = {
+  id: string;
+  type: AnnouncementType;
+  title: string;
+  body: string;
+  createdAt: string;
+  createdBy: string;
+};
+
+export type AuditEntryRecord = {
+  id: string;
+  uid: string;
+  action: AuditAction;
+  targetPath: string | null;
+  detail: Record<string, string | number | boolean | null> | null;
+  ip: string | null;
+  userAgent: string | null;
+  createdAt: string | null;
+};
+
 export type AuditAction =
   | "sign_in"
   | "sign_out"

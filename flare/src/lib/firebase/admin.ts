@@ -12,10 +12,28 @@ import { getFirebaseAdminConfig } from "./env";
 // read the first time a request actually needs it.
 let app: App | undefined;
 
+/**
+ * True when the Firebase emulators are configured.
+ *
+ * The Admin SDK talks to them without authenticating, so local development
+ * and the seed script need no service account key. A fake key is not a
+ * substitute: cert() parses the PEM before it ever looks at the emulator.
+ */
+function usingEmulators(): boolean {
+  return Boolean(process.env.FIRESTORE_EMULATOR_HOST || process.env.FIREBASE_AUTH_EMULATOR_HOST);
+}
+
 function getAdminApp(): App {
-  if (!app) {
-    app = getApps().length ? getApp() : initializeApp({ credential: cert(getFirebaseAdminConfig()) });
+  if (app) return app;
+  if (getApps().length) {
+    app = getApp();
+    return app;
   }
+
+  app = usingEmulators()
+    ? initializeApp({ projectId: process.env.FIREBASE_PROJECT_ID ?? "flare-local" })
+    : initializeApp({ credential: cert(getFirebaseAdminConfig()) });
+
   return app;
 }
 
