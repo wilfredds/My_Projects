@@ -34,6 +34,7 @@ yarn-error.log*
 # deliberately committed; every other .env* file holds real credentials.
 .env*
 !.env.example
+!.env.emulator.example
 
 # vercel
 .vercel
