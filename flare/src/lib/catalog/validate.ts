@@ -28,7 +28,7 @@ export function slugify(input: string): string {
     // Strip the combining marks NFKD just split off, so "Dasmariñas" becomes
     // "dasmarinas" rather than losing the character entirely. Written as an
     // escape range because the literal characters are invisible in source.
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036F]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")

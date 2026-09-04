@@ -69,17 +69,34 @@ export type Lesson = {
 };
 
 export type Attachment = {
+  /** Stable id, also the last path segment in Storage. */
+  id: string;
+  /** The name the author uploaded, shown to learners on the download link. */
   name: string;
   storagePath: string;
   sizeBytes: number;
   contentType: string;
+  uploadedAt: string;
 };
+
+/**
+ * A lesson's video, which may be hosted or embedded.
+ *
+ * Both are supported rather than one being chosen, because the choice is a
+ * cost and policy decision for the client — Firebase Storage egress is billed
+ * and BFP-wide video traffic is not trivial, while an embed hands viewing
+ * data to a third party. Supporting both means that decision can be made per
+ * video, and changed later, without a schema migration.
+ */
+export type LessonVideo =
+  | { kind: "upload"; storagePath: string; name: string; sizeBytes: number }
+  | { kind: "embed"; provider: "youtube" | "vimeo"; embedUrl: string; sourceUrl: string };
 
 export type LessonSectionContent = {
   id: LessonSection;
   body: string;
   attachments: Attachment[];
-  videoPath: string | null;
+  video: LessonVideo | null;
   updatedAt: string | null;
 };
 

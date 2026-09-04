@@ -79,11 +79,11 @@ Every project now has a workflow, each path-filtered to its own directory:
 | `autocare-ci.yml` | lint, typecheck, test, migrate, seed, DB tests, build |
 | `rallyready-ci.yml` | `npm run verify` — typecheck, lint, 515 tests, build |
 | `hiroshi-ci.yml` | lint, 132 tests, build, 43 RLS policy tests against a Postgres service |
-| `firestore-rules-ci.yml` | 123 rules assertions against the real Firestore emulator |
+| `firestore-rules-ci.yml` | 144 rules assertions against the real Firestore and Storage emulators |
 | `static-sites-ci.yml` | parses all JS in the three static sites |
 | `deploy-web.yml` | builds `cyclemind_ai` for web and publishes to Pages |
 | `deploy-bike-guide.yml` | publishes `bike-guide-app/` to Pages under `/bike-guide-app/` |
-| `flare-ci.yml` | lint, typecheck, 67 tests, build |
+| `flare-ci.yml` | lint, typecheck, 87 tests, build |
 
 Known coverage gaps, so nobody assumes more than is there:
 
@@ -93,9 +93,10 @@ Known coverage gaps, so nobody assumes more than is there:
   unit tests for them; `static-sites-ci.yml` catches typos, not logic. This
   covers `portfolio/` too.
 - **`flare` has no automated UI tests.** Its backend logic is covered — the
-  progress rollup, request validation, theme parsing and the administrator
-  lockout guards under `flare/tests/`, plus 63 rules assertions in
-  `firestore-tests/flare.test.mjs`. The admin screens were verified by hand
+  progress rollup, request validation, theme parsing, the administrator
+  lockout guards and the media/embed-URL validation under `flare/tests/`, plus
+  84 rules assertions across `firestore-tests/flare.test.mjs` and
+  `flare-storage.test.mjs`. The admin screens were verified by hand
   against the Firebase emulators (`cd flare && npm run emulators`, then
   `npm run seed`), but nothing asserts them in CI. The learner-facing screens
   are still placeholder markup pending Figma access.

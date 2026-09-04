@@ -1,0 +1,106 @@
+rules_version = '2';
+
+// Cloud Storage security rules for FLARE.
+//
+// Files are uploaded straight from the authoring browser to Storage rather
+// than through the Next.js server. That is a deliberate choice — a 500 MB
+// training video cannot pass through a serverless function, which on Vercel
+// caps request bodies at a few megabytes — but it moves the authorization
+// decision here. These rules are the whole of it: there is no server in the
+// upload path to check anything.
+//
+// So this file must independently enforce what the admin UI claims:
+//
+//   - only an administrator may write catalogue files
+//   - only activated personnel may read them
+//   - size and content type are capped here too, not merely in the browser
+//
+// The role check reads the user's Firestore document, so Storage and
+// Firestore agree on who an administrator is, and a demoted account loses
+// upload access immediately without anything being synchronised.
+//
+// Tested by ../firestore-tests/flare-storage.test.mjs against the real
+// Storage emulator.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ------------------------------------------------------------- helpers
+
+    function userDoc() {
+      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isActive() {
+      return request.auth != null && userDoc().status == 'active';
+    }
+
+    function isAdmin() {
+      return isActive() && userDoc().role == 'admin';
+    }
+
+    // Mirrors ALLOWED_CONTENT_TYPES in src/lib/media/attachments.ts. Kept as
+    // an allowlist: a training portal that serves any file type is a
+    // convenient way to distribute anything. SVG is absent on purpose — it
+    // can carry script, and it would be served from this project's own
+    // origin.
+    function isAllowedDocument() {
+      return request.resource.contentType in [
+        'application/pdf',
+        'image/png',
+        'image/jpeg',
+        'image/webp',
+        'text/plain',
+        'text/csv',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+      ];
+    }
+
+    function isAllowedVideo() {
+      return request.resource.contentType in ['video/mp4', 'video/webm'];
+    }
+
+    // 25 MB for documents, 500 MB for video — the same numbers the browser
+    // checks against, repeated here because the browser's check is a
+    // courtesy and this one is the limit.
+    function withinDocumentSize() {
+      return request.resource.size > 0 && request.resource.size <= 25 * 1024 * 1024;
+    }
+
+    function withinVideoSize() {
+      return request.resource.size > 0 && request.resource.size <= 500 * 1024 * 1024;
+    }
+
+    // ----------------------------------------------------- catalogue files
+    //
+    // catalog/{categoryId}/{lessonId}/{sectionId}/{fileId}
+    //
+    // The path is built server-side from ids already trusted plus a generated
+    // file id — no part of it comes from the uploaded filename, which is
+    // stored as a label on the Firestore document instead. That is what makes
+    // a prefix rule like this meaningful.
+
+    match /catalog/{categoryId}/{lessonId}/{sectionId}/{fileId} {
+      // Training material is for activated BFP personnel, not the public.
+      // A Storage download URL is unguessable but permanent, so leaving this
+      // open would mean one forwarded link is public forever.
+      allow read: if isActive();
+
+      allow create, update: if isAdmin()
+        && ((isAllowedDocument() && withinDocumentSize())
+            || (isAllowedVideo() && withinVideoSize()));
+
+      // Deleting a file whose Firestore record still points at it leaves a
+      // broken download for every learner, so removal goes through the admin
+      // action that clears both.
+      allow delete: if isAdmin();
+    }
+
+    // Anything outside catalog/ is denied: no catch-all rule follows.
+  }
+}

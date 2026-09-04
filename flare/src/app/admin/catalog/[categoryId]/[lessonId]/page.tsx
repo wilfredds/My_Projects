@@ -3,9 +3,15 @@ import { notFound } from "next/navigation";
 import { getCategory, listLessons } from "@/lib/catalog/queries";
 import { getSection } from "@/lib/catalog/authoring";
 import { EditLessonForm, SectionEditor } from "@/components/admin/catalog-forms";
+import { MediaManager } from "@/components/admin/media-manager";
 import { Badge, PageHeading, Panel } from "@/components/admin/ui";
 import { formatManilaDateTime } from "@/lib/format";
-import { LESSON_SECTIONS } from "@/lib/types";
+import { LESSON_SECTIONS, type LessonSectionContent } from "@/lib/types";
+
+function hasContent(section: LessonSectionContent | null): boolean {
+  if (!section) return false;
+  return Boolean(section.body?.trim()) || (section.attachments?.length ?? 0) > 0 || Boolean(section.video);
+}
 
 const SECTION_LABELS: Record<string, string> = {
   discussion: "Discussion",
@@ -59,10 +65,13 @@ export default async function AdminLessonPage({
         <Panel
           key={id}
           title={SECTION_LABELS[id] ?? id}
+          // "Empty" means nothing for a learner to open — text, a file or a
+          // video all count. Judging it on the body alone labelled a section
+          // holding a manual and a video as empty.
           action={
-            content?.updatedAt ? (
+            hasContent(content) ? (
               <span className="text-xs text-muted">
-                Edited {formatManilaDateTime(content.updatedAt)}
+                {content?.updatedAt ? `Edited ${formatManilaDateTime(content.updatedAt)}` : "Has media"}
               </span>
             ) : (
               <Badge tone="warning">Empty</Badge>
@@ -76,17 +85,18 @@ export default async function AdminLessonPage({
               written introduction in the meantime.
             </p>
           )}
-          {id === "resources" && (
-            <p className="border-b border-border px-4 py-2.5 text-xs text-muted">
-              File and video uploads are not built yet — they need Firebase Storage and a
-              decision on whether video is hosted or embedded. Links written here work today.
-            </p>
-          )}
           <SectionEditor
             categoryId={categoryId}
             lessonId={lessonId}
             sectionId={id}
             body={content?.body ?? ""}
+          />
+          <MediaManager
+            categoryId={categoryId}
+            lessonId={lessonId}
+            sectionId={id}
+            attachments={content?.attachments ?? []}
+            video={content?.video ?? null}
           />
         </Panel>
       ))}

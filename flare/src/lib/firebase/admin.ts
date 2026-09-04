@@ -2,7 +2,7 @@ import "server-only";
 import { getApps, initializeApp, cert, getApp, type App } from "firebase-admin/app";
 import { getAuth, type Auth } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
-import { getFirebaseAdminConfig } from "./env";
+import { getFirebaseAdminConfig, getStorageBucket } from "./env";
 
 // Lazy on purpose: Next.js evaluates a route/page module's top-level code
 // during `next build` (to collect page data), even for routes that render
@@ -30,9 +30,14 @@ function getAdminApp(): App {
     return app;
   }
 
+  const projectId = process.env.FIREBASE_PROJECT_ID ?? "flare-local";
+
   app = usingEmulators()
-    ? initializeApp({ projectId: process.env.FIREBASE_PROJECT_ID ?? "flare-local" })
-    : initializeApp({ credential: cert(getFirebaseAdminConfig()) });
+    ? initializeApp({ projectId, storageBucket: `${projectId}.appspot.com` })
+    : initializeApp({
+        credential: cert(getFirebaseAdminConfig()),
+        storageBucket: getStorageBucket(),
+      });
 
   return app;
 }

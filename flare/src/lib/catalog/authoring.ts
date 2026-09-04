@@ -129,7 +129,7 @@ export async function createLesson(args: {
     batch.set(ref.collection("sections").doc(section), {
       body: "",
       attachments: [],
-      videoPath: null,
+      video: null,
       updatedAt: null,
     });
   }

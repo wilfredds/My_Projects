@@ -1,0 +1,21 @@
+rules_version = '2';
+
+// Placeholder only — NOT the rules under test.
+//
+// The Storage emulator refuses to start without a rules file configured in
+// firebase.json, and the Firebase CLI will not load one from outside this
+// directory. The suites load the real rules themselves at runtime:
+// flare-storage.test.mjs reads ../flare/storage.rules and hands the contents
+// to initializeTestEnvironment, which replaces whatever the emulator booted
+// with. Editing this file changes nothing that is tested.
+//
+// Deny-all, so a suite that somehow failed to install its rules fails closed
+// rather than passing against an open bucket.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

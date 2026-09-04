@@ -101,6 +101,34 @@ title edit changes the title only. There is no hard delete for the same
 reason: unpublishing removes content from circulation while leaving the
 records that reference it intact.
 
+**Uploads go browser → Storage directly, so `storage.rules` is the whole
+authorization decision.** A 500 MB training video cannot pass through a
+serverless function (Vercel caps request bodies at a few megabytes), so no
+server sits in the upload path. `storage.rules` therefore re-enforces
+everything the browser checks — admin-only writes, an allowlist of content
+types, size caps — and reads the uploader's Firestore user document so
+Storage and Firestore agree on who an administrator is. 21 assertions cover
+it against the real Storage emulator.
+
+Two consequences worth knowing:
+
+- The storage path is built from ids the server already trusts plus a
+  generated file id. No part of it comes from the uploaded filename, which is
+  kept as a label on the Firestore document — that is what makes a prefix
+  rule meaningful and why `../../secret.pdf` is stored as an ordinary object.
+- The browser needs a live **Firebase Auth** session to upload, not just
+  FLARE's server session cookie. The two normally travel together, but if the
+  Firebase session is cleared while the server cookie is still valid, uploads
+  fail with 403 while the rest of the app keeps working.
+
+**A pasted video link is rebuilt, not sanitised.** The embed URL ends up as an
+`<iframe src>` inside a government training portal, so passing the author's
+string through would let anyone with an authoring account frame arbitrary
+content there. Only the provider and video id are extracted; the URL is
+rebuilt from scratch, through `youtube-nocookie.com` and Vimeo's `dnt=1` —
+FLARE's Privacy Notice enumerates what the platform collects and does not
+disclose third-party advertising cookies being set on BFP personnel.
+
 **Section content is Markdown, never HTML.** Authored text is rendered into
 every firefighter's browser, so storing HTML would let an authoring account
 inject script across the whole Bureau. Markdown keeps the stored value inert
@@ -121,15 +149,22 @@ real project or a service account key. `src/lib/firebase/admin.ts` skips
 credentials entirely when the emulator host variables are set.
 
 ```bash
-npm run emulators                    # terminal 1 — auth + firestore
+npm run emulators                    # terminal 1 — auth, firestore, storage
 npm run seed                         # terminal 2 — BFP test accounts, 6 categories
 FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 \
 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 \
-FIREBASE_PROJECT_ID=flare-local npm run dev
+FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199 \
+FIREBASE_PROJECT_ID=flare-local \
+NEXT_PUBLIC_FIREBASE_USE_EMULATORS=true npm run dev
 ```
 
-`npm run seed` prints a session cookie for the seeded administrator. Set it as
-`flare_session` in the browser to open `/admin` without a sign-in flow.
+`NEXT_PUBLIC_FIREBASE_USE_EMULATORS` is what points the *browser* SDK at the
+emulators; the other variables only reach the server. Sign in as
+`admin@bfp.gov.ph` / `flare-emulator`.
+
+`npm run seed` also prints a session cookie, which is enough to read the admin
+screens — but uploading needs a real Firebase Auth session, so sign in through
+the form for anything touching Storage.
 
 Seeded accounts cover every state the admin surface handles: an active
 administrator, an active learner, a pending applicant and a suspended account.
@@ -137,8 +172,9 @@ administrator, an active learner, a pending applicant and a suspended account.
 ## Testing
 
 ```bash
-npm test                              # rollup, validation, theme, admin guards
-cd ../firestore-tests && npm run test:flare   # 63 rules assertions
+npm test                                            # 87 unit tests
+cd ../firestore-tests && npm run test:flare         # 63 Firestore rules assertions
+cd ../firestore-tests && npm run test:flare-storage # 21 Storage rules assertions
 ```
 
 The rules suite runs against the real Firestore emulator (needs a JDK), so
@@ -194,8 +230,8 @@ firebase deploy --only firestore:rules --project <your-project-id>
    the language list (i18n is expensive to retrofit), the registration
    mechanism, and whether assessments are single- or multi-answer.
 3. Build the assessment grading path — it depends on question 1 above.
-4. Finish the admin surface. Accounts, announcements, the audit log and
-   lesson authoring are built. Still missing: assessment question authoring
+4. Finish the admin surface. Accounts, announcements, the audit log, lesson
+   authoring and file/video uploads are built. Still missing: assessment question authoring
    (blocked on single- vs multi-answer and the passing score), file and video
    uploads (needs Firebase Storage and the hosting decision), and certificates
    and compliance reports (blocked on the template and signatory).

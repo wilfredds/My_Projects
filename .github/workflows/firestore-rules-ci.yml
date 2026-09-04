@@ -20,6 +20,11 @@ name: Firestore Rules CI
 # unreachable from every client — admins included — because those are written
 # server-side by the Admin SDK.
 #
+# flare also has Cloud Storage rules, tested separately. Training files upload
+# straight from the authoring browser to Storage, because a 500 MB video cannot
+# pass through a serverless function — so no server sits in that path and those
+# rules are the entire authorization decision.
+#
 # Only runs when the rules or their tests change — the other projects in this
 # repository are unrelated and have their own workflow.
 
@@ -32,6 +37,7 @@ on:
       - "corruption-reporting-system-final/firestore.rules"
       - "bike-guide-app/firestore.rules"
       - "flare/firestore.rules"
+      - "flare/storage.rules"
       - ".github/workflows/firestore-rules-ci.yml"
   pull_request:
     paths:
@@ -39,6 +45,7 @@ on:
       - "corruption-reporting-system-final/firestore.rules"
       - "bike-guide-app/firestore.rules"
       - "flare/firestore.rules"
+      - "flare/storage.rules"
       - ".github/workflows/firestore-rules-ci.yml"
   workflow_dispatch:
 
@@ -85,5 +92,10 @@ jobs:
       - name: Test the Bike Guide rules
         run: npm run test:bikeguide
 
-      - name: Test the FLARE rules
+      - name: Test the FLARE Firestore rules
         run: npm run test:flare
+
+      # Storage needs the Firestore emulator too: storage.rules reads the
+      # uploader's user document to decide who is an administrator.
+      - name: Test the FLARE Storage rules
+        run: npm run test:flare-storage

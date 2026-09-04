@@ -75,11 +75,6 @@ export default async function AdminDashboardPage() {
             Lesson text can be written today; the questions themselves cannot.
           </li>
           <li className="mt-1.5">
-            <strong className="text-foreground">File and video uploads</strong> — needs Firebase
-            Storage, and a decision on whether video is hosted or embedded. Links written into a
-            section work in the meantime.
-          </li>
-          <li className="mt-1.5">
             <strong className="text-foreground">Certificates and compliance reports</strong> —
             blocked on the certificate template and signatory.
           </li>

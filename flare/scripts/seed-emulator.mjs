@@ -118,12 +118,24 @@ for (const category of CATEGORIES) {
   });
 
   for (const [index, title] of ["Overview", "Lesson 1", "Lesson 2"].entries()) {
-    await db
+    const lessonRef = db
       .collection("categories")
       .doc(category.id)
       .collection("lessons")
-      .doc(index === 0 ? "overview" : `lesson-${index}`)
-      .set({ title, order: index, heroImagePath: null, published: true });
+      .doc(index === 0 ? "overview" : `lesson-${index}`);
+
+    await lessonRef.set({ title, order: index, heroImagePath: null, published: true });
+
+    // The three sections, exactly as createLesson() writes them. Seeded data
+    // that skipped these looked like a real lesson but had nowhere to record
+    // an attachment, so the admin UI failed against it and not against
+    // anything an author had made.
+    for (const sectionId of ["discussion", "resources", "assessment"]) {
+      await lessonRef
+        .collection("sections")
+        .doc(sectionId)
+        .set({ body: "", attachments: [], video: null, updatedAt: null });
+    }
   }
 }
 
