@@ -4,3 +4,9 @@ node_modules/
 .vite/
 .DS_Store
 *.log
+
+# Python bytecode. CLAUDE.md documents running
+# .claude/skills/ui-ux-pro-max/scripts/search.py, and every run rewrites these
+# caches — so without this they show up as modified in unrelated diffs.
+__pycache__/
+*.py[cod]

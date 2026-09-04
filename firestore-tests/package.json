@@ -2,11 +2,13 @@
   "name": "firestore-rules-tests",
   "private": true,
   "type": "module",
-  "description": "Security-rules tests for corruption-reporting-system-final and bike-guide-app. Optional tooling — neither site depends on this to run.",
+  "description": "Security-rules tests for corruption-reporting-system-final, bike-guide-app and flare. Optional tooling — none of those projects depends on this to run.",
   "scripts": {
-    "test": "npm run test:corruption && npm run test:bikeguide",
+    "test": "npm run test:corruption && npm run test:bikeguide && npm run test:flare && npm run test:flare-storage",
     "test:corruption": "firebase emulators:exec --project corruption-rules-test --only firestore \"node corruption.test.mjs\"",
-    "test:bikeguide": "firebase emulators:exec --project bikeguide-rules-test --only firestore \"node bikeguide.test.mjs\""
+    "test:bikeguide": "firebase emulators:exec --project bikeguide-rules-test --only firestore \"node bikeguide.test.mjs\"",
+    "test:flare": "firebase emulators:exec --project flare-rules-test --only firestore \"node flare.test.mjs\"",
+    "test:flare-storage": "firebase emulators:exec --project flare-storage-test --only firestore,storage \"node flare-storage.test.mjs\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",

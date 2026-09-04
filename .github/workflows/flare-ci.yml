@@ -1,0 +1,86 @@
+name: Flare CI
+
+# Lints, typechecks, tests and builds FLARE.
+#
+# `npm test` covers the backend logic that has no UI to eyeball: the category
+# rollup that decides what a firefighter's training record claims, the
+# validation that stops a learner marking their own assessment complete, and
+# the theme preference parser. The security rules that back all of it are
+# tested separately, against the real Firestore emulator, by
+# firestore-rules-ci.yml.
+#
+# The build needs no Firebase secrets. src/lib/firebase/admin.ts initializes
+# lazily on first use rather than at module load, specifically so `next
+# build` (which evaluates every route module's top-level code while
+# collecting page data) never needs a real, PEM-parseable service account
+# key. Only the NEXT_PUBLIC_ values are set below, and those aren't secrets —
+# they identify the Firebase project, not grant access to it.
+#
+# Only runs when something under flare/ changes.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "flare/**"
+      - ".github/workflows/flare-ci.yml"
+  pull_request:
+    paths:
+      - "flare/**"
+      - ".github/workflows/flare-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: flare
+
+jobs:
+  verify:
+    name: Lint, typecheck and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: flare/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      # `next build` type-checks internally, but a standalone `tsc --noEmit`
+      # needs .next/types/ to already exist for the LayoutProps/PageProps
+      # helper types Next.js 16's typed routes generate — `next typegen`
+      # creates just that, without a full build.
+      - name: Generate route types
+        run: npx next typegen
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          # Placeholder values, not secrets — see the note above. Real
+          # deployments (e.g. Vercel) set the real project's values instead.
+          NEXT_PUBLIC_FIREBASE_API_KEY: ci-placeholder
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ci-placeholder
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ci-placeholder.appspot.com
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+          NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:0000000000000000000000"

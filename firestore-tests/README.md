@@ -1,12 +1,14 @@
 # Firestore rules tests
 
-Tests for the security rules of the two static Firebase projects:
+Tests for the security rules of the three Firebase projects:
 
 - `../corruption-reporting-system-final/firestore.rules`
 - `../bike-guide-app/firestore.rules`
+- `../flare/firestore.rules`
+- `../flare/storage.rules`
 
-Neither site needs this directory to run — it is optional tooling, kept out of
-those projects so they stay build-free.
+None of them needs this directory to run — it is optional tooling, kept out of
+those projects so the static ones stay build-free.
 
 ## Running
 
@@ -21,8 +23,13 @@ npm test
 `npm test` boots the emulator, loads each rules file, exercises it as an
 anonymous visitor, a signed-in non-admin and an admin, then shuts down.
 
-Run one suite at a time with `npm run test:corruption` or
-`npm run test:bikeguide`.
+Run one suite at a time with `npm run test:corruption`,
+`npm run test:bikeguide`, `npm run test:flare` or `npm run test:flare-storage`.
+
+`storage.rules` in this directory is a deny-all placeholder: the Storage
+emulator will not start without one and the Firebase CLI will not load a rules
+file from outside this directory, so the suite loads `../flare/storage.rules`
+itself at runtime. Editing the placeholder changes nothing that is tested.
 
 ## In CI
 
@@ -34,6 +41,16 @@ what Firebase will actually enforce.
 The workflow was verified to fail, not just to pass: temporarily loosening
 `users/{userId}/rides` to `allow read: if true` turned five denial assertions
 red and exited non-zero. A suite that cannot go red guards nothing.
+
+`flare-storage.test.mjs` was verified the same way: opening reads to
+`if true` and writes to any signed-in caller turned 12 denial assertions red.
+
+`flare.test.mjs` was verified the same way. Loosening the user-update rule to
+`allow update: if isAdmin() || isOwner(userId)` turned exactly the five
+privilege-escalation assertions red and nothing else — the escalation attempts
+run as their own throwaway accounts (`mallory-*`) precisely so a broken rule
+fails its own assertion instead of promoting the account every later assertion
+depends on, which would bury the real failure under a cascade.
 
 ## Why bother
 
@@ -49,6 +66,8 @@ Current coverage:
 |---|---|
 | `corruption.test.mjs` | 25 |
 | `bikeguide.test.mjs` | 35 |
+| `flare.test.mjs` | 63 |
+| `flare-storage.test.mjs` | 21 |
 
 ## Adding a rule
 
