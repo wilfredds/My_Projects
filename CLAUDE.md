@@ -20,10 +20,12 @@ codebase and work inside it.
 Each project has its own `CLAUDE.md` (or, for `portfolio/`, a `README.md`)
 with specifics. Read that one before working in it.
 
-`flare/` is mid-build: the front-end design lives in a client-owned Figma
-file that has not yet been shared with this environment's Figma account, so
-its UI is still placeholder markup. See `flare/README.md` for the exact file
-key, node ID, and what to do once access is granted.
+`flare/` is mid-build. Its backend layer is real — security rules, catalogue
+reads, server-written progress, audit logging and the theme system — but the
+front-end design lives in a client-owned Figma file not yet shared with this
+environment's Figma account, so its screens are still placeholder markup.
+`flare/docs/DATA-MODEL.md` is the schema source of truth; `flare/README.md`
+has the Figma file key and what to do once access is granted.
 
 ## Environment
 
@@ -76,11 +78,11 @@ Every project now has a workflow, each path-filtered to its own directory:
 | `autocare-ci.yml` | lint, typecheck, test, migrate, seed, DB tests, build |
 | `rallyready-ci.yml` | `npm run verify` — typecheck, lint, 515 tests, build |
 | `hiroshi-ci.yml` | lint, 132 tests, build, 43 RLS policy tests against a Postgres service |
-| `firestore-rules-ci.yml` | 60 rules assertions against the real Firestore emulator |
+| `firestore-rules-ci.yml` | 123 rules assertions against the real Firestore emulator |
 | `static-sites-ci.yml` | parses all JS in the three static sites |
 | `deploy-web.yml` | builds `cyclemind_ai` for web and publishes to Pages |
 | `deploy-bike-guide.yml` | publishes `bike-guide-app/` to Pages under `/bike-guide-app/` |
-| `flare-ci.yml` | lint, typecheck, build |
+| `flare-ci.yml` | lint, typecheck, 22 tests, build |
 
 Known coverage gaps, so nobody assumes more than is there:
 
@@ -89,8 +91,11 @@ Known coverage gaps, so nobody assumes more than is there:
 - **The static sites are syntax-checked, not behaviour-tested.** There are no
   unit tests for them; `static-sites-ci.yml` catches typos, not logic. This
   covers `portfolio/` too.
-- **`flare` has no test suite yet.** Its UI is placeholder markup pending
-  Figma design access, so `flare-ci.yml` only guards types and the build.
+- **`flare` has no UI tests.** Its backend logic is covered — the progress
+  rollup, the request validation and the theme parser under `flare/tests/`,
+  and 63 rules assertions in `firestore-tests/flare.test.mjs` — but its
+  screens are still placeholder markup pending Figma design access, so
+  nothing tests them.
 
 Note that `node --check` does **not** validate syntax: it exits 0 on a
 syntactically invalid file. `.github/scripts/check-static-js.mjs` uses

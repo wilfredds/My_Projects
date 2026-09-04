@@ -1,26 +1,96 @@
 @import "tailwindcss";
 
+/*
+ * FLARE colour tokens.
+ *
+ * PLACEHOLDER VALUES. These are read off the client's Figma screenshots by
+ * eye — the indigo-to-flame gradient and the vermilion CTA are unmistakable,
+ * but the exact values are not. Replace them with the real variables from the
+ * Figma file once it is shared (see docs/DATA-MODEL.md for the file key).
+ * Everything else styles through these tokens, so that swap is one edit here.
+ *
+ * Three theme states are handled, because Settings has an explicit Dark Mode
+ * toggle and a user who has never touched it should follow their device:
+ *
+ *   :root                                   the complete light palette
+ *   prefers-color-scheme + :not([light])    dark OS, no explicit choice
+ *   [data-theme="dark"] / ="light"          an explicit choice, either way
+ *
+ * Every token is declared in the bare :root block first. A colour whose only
+ * definition sits inside a media query or an attribute selector goes
+ * undefined for users in the third state, which renders one theme's text on
+ * the other theme's background.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --flare-flame: #e8471c;
+  --flare-ember: #f49a2a;
+  --flare-indigo: #3b2bb8;
+
+  --background: #f6f5fa;
+  --surface: #ffffff;
+  --foreground: #14103a;
+  --muted: #5d5878;
+  --border: #e0ddec;
+
+  --accent: var(--flare-flame);
+  --accent-foreground: #ffffff;
+
+  /* Semantic, and deliberately not the accent: a card must be able to say
+     "complete" without competing with the primary action beside it. */
+  --success: #1f7a4d;
+  --warning: #b4541a;
+  --danger: #b3271e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #100e24;
+    --surface: #1a1739;
+    --foreground: #edebf7;
+    --muted: #a29dc0;
+    --border: #302b57;
+
+    --accent: #ff6b3d;
+    --accent-foreground: #1a0d06;
+
+    --success: #5bc98d;
+    --warning: #e89b5c;
+    --danger: #f4796e;
+  }
+}
+
+:root[data-theme="dark"] {
+  --background: #100e24;
+  --surface: #1a1739;
+  --foreground: #edebf7;
+  --muted: #a29dc0;
+  --border: #302b57;
+
+  --accent: #ff6b3d;
+  --accent-foreground: #1a0d06;
+
+  --success: #5bc98d;
+  --warning: #e89b5c;
+  --danger: #f4796e;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

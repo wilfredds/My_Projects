@@ -1,9 +1,13 @@
 name: Flare CI
 
-# Lints, typechecks and builds FLARE. There's no test suite yet — the UI is
-# still placeholder markup pending Figma design access (see flare/README.md)
-# — so this only guards against the two things that regress silently:
-# broken types and a build that no longer compiles.
+# Lints, typechecks, tests and builds FLARE.
+#
+# `npm test` covers the backend logic that has no UI to eyeball: the category
+# rollup that decides what a firefighter's training record claims, the
+# validation that stops a learner marking their own assessment complete, and
+# the theme preference parser. The security rules that back all of it are
+# tested separately, against the real Firestore emulator, by
+# firestore-rules-ci.yml.
 #
 # The build needs no Firebase secrets. src/lib/firebase/admin.ts initializes
 # lazily on first use rather than at module load, specifically so `next
@@ -65,6 +69,9 @@ jobs:
 
       - name: Typecheck
         run: npx tsc --noEmit
+
+      - name: Test
+        run: npm test
 
       - name: Build
         run: npm run build

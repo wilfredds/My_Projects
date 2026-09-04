@@ -2,16 +2,31 @@ rules_version = '2';
 
 // Firestore security rules for FLARE.
 //
-// Auth model: Firebase Authentication (email/password for now; providers can
-// be added without changing these rules, since they gate on request.auth,
-// not on how the caller signed in). The server also mints an httpOnly
-// session cookie (see src/lib/auth/session.ts) for use inside Next.js
-// Server Components and Route Handlers, but the Firestore client SDK in the
-// browser talks to Firestore directly using the Firebase ID token — these
-// rules are what actually protect data, not the Next.js server.
+// Threat model: the Firebase web API key in this project is a public
+// identifier, not a secret. Anyone can point the Firestore SDK at this
+// database with their own code, so the UI constrains nothing — these rules
+// are the entire access-control boundary for anything a browser can reach.
 //
-// Default posture: closed. Every collection must be opened explicitly below;
-// nothing is readable or writable until a rule says so.
+// The data is government personnel data: names, ranks, badge numbers, station
+// assignments, and training compliance records for Bureau of Fire Protection
+// staff. The project's own Privacy Notice commits it to the Data Privacy Act
+// of 2012 (RA 10173), so "readable by accident" here is a legal problem, not
+// just a bug.
+//
+// Default posture is closed. Every collection is opened explicitly; there is
+// no catch-all allow, so a path nobody thought about is denied rather than
+// exposed.
+//
+// Three things are deliberately unreachable from any client, at any
+// privilege level, and are served only by the Admin SDK (which bypasses
+// rules entirely) inside Next.js route handlers:
+//
+//   answerKeys/    assessment answers. See the note on that block.
+//   auditLogs/     append-only record the Privacy Notice promises to keep.
+//   progress/      written server-side so completion can be audited and so
+//                  assessment results cannot be self-declared.
+//
+// Tested by ../firestore-tests/flare.test.mjs against the real emulator.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -26,20 +41,171 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // ------------------------------------------------------------- users
-    //
-    // One document per account, keyed by Firebase Auth uid. A user may read
-    // and update their own profile; nobody may read another user's profile
-    // or create/delete profile documents directly — profile creation is
-    // expected to go through a server-side path (e.g. a Route Handler using
-    // firebase-admin) once the signup flow is designed, so it can also set
-    // fields the client should not be trusted to set itself (e.g. a role).
-
-    match /users/{userId} {
-      allow read, update: if isOwner(userId);
-      allow create, delete: if false;
+    // The caller's own user document. Costs one document read per evaluation,
+    // which is why it is called through isActive()/isAdmin() rather than
+    // re-fetched in every rule.
+    function self() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
-    // Everything else stays closed by default (no catch-all rule below).
+    // Signed in AND approved. A Firebase account alone is not authorization:
+    // FLARE is restricted to BFP personnel, so an account sits at
+    // status 'pending' until an administrator activates it, and a suspended
+    // account loses access without being deleted (its training records must
+    // survive for compliance reporting).
+    function isActive() {
+      return isSignedIn() && self().status == 'active';
+    }
+
+    function isAdmin() {
+      return isActive() && self().role == 'admin';
+    }
+
+    // True when an update touches no key outside `allowed`. Used to let a
+    // learner edit their own preferences without letting them edit the
+    // fields that decide what they are allowed to do.
+    function changesOnly(allowed) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowed);
+    }
+
+    // --------------------------------------------------------------- users
+    //
+    // A learner may read their own profile and change their own preferences.
+    // They may NOT change:
+    //
+    //   role, status          — that is the authorization boundary itself.
+    //   rank, badgeNumber,    — official BFP identity. Self-editable rank
+    //   unit, position          would make every training record and
+    //                           certificate unverifiable.
+    //
+    // Creation is server-side only: the route handler that provisions an
+    // account is what decides the initial role and status, and a client that
+    // could create its own user document could create itself an active admin.
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+
+      allow create: if false;
+      allow delete: if false;
+
+      allow update: if isAdmin()
+        || (isOwner(userId)
+            && changesOnly(['preferences', 'contactNumber', 'updatedAt']));
+    }
+
+    // ------------------------------------------------------------ catalogue
+    //
+    // Training content. Readable by any activated user, writable only by an
+    // administrator through the admin surface.
+
+    match /categories/{categoryId} {
+      allow read: if isActive();
+      allow write: if isAdmin();
+
+      match /lessons/{lessonId} {
+        allow read: if isActive();
+        allow write: if isAdmin();
+
+        // discussion | resources | assessment
+        match /sections/{sectionId} {
+          allow read: if isActive();
+          allow write: if isAdmin();
+        }
+
+        // Question text and the options a learner picks between. Note what
+        // is NOT here: which option is correct.
+        match /questions/{questionId} {
+          allow read: if isActive();
+          allow write: if isAdmin();
+        }
+      }
+    }
+
+    // ---------------------------------------------------------- answerKeys
+    //
+    // Correct answers. Unreachable from every client, including admins.
+    //
+    // This collection exists because Firestore rules gate whole documents,
+    // never individual fields. If `correctOptionIds` lived on the question
+    // document a learner is allowed to read, that learner could read the
+    // answers directly out of the SDK no matter what the interface renders —
+    // omitting a field from the UI hides nothing.
+    //
+    // Grading therefore happens server-side: the browser submits answers to
+    // a route handler, the Admin SDK scores them against this collection,
+    // and the browser receives only a result. Admins author keys through
+    // that same server path, not from the browser.
+
+    match /answerKeys/{keyId} {
+      allow read, write: if false;
+    }
+
+    // ------------------------------------------------------------- progress
+    //
+    // Read-only to the learner it belongs to; every write goes through a
+    // route handler using the Admin SDK.
+    //
+    // The design puts a manual "Not Started / Finished" toggle on all three
+    // sections, assessment included. Client-writable progress would mean a
+    // learner could mark an assessment finished without ever answering it,
+    // and certificates are issued off the back of these records for a
+    // government training-compliance programme. Routing writes through the
+    // server keeps assessment state tied to an actual graded attempt, and
+    // gives the audit log the completion events the Privacy Notice promises
+    // to record.
+
+    match /users/{userId}/progress/{categoryId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if false;
+    }
+
+    // Graded assessment attempts, and the certificates issued from them.
+    // Both are evidence: the learner may read their own, nobody may forge one.
+
+    match /users/{userId}/attempts/{attemptId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if false;
+    }
+
+    match /users/{userId}/certificates/{certificateId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if false;
+    }
+
+    // -------------------------------------------------------- announcements
+    //
+    // The broadcast side of the feed. One document per announcement, read by
+    // everyone activated, written only by an administrator.
+
+    match /announcements/{announcementId} {
+      allow read: if isActive();
+      allow write: if isAdmin();
+    }
+
+    // Per-user delivery and read state. The learner may mark an item read —
+    // that is the design's "Mark as Read" — but may not author notifications,
+    // which would let anyone put text in anyone else's feed.
+
+    match /users/{userId}/notifications/{notificationId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create, delete: if false;
+      allow update: if isOwner(userId) && changesOnly(['readAt']);
+    }
+
+    // ----------------------------------------------------------- auditLogs
+    //
+    // Login history, IP addresses, device information and usage records. The
+    // Privacy Notice states FLARE keeps these, which makes them a promise
+    // rather than an optional extra.
+    //
+    // No client reads them: an audit trail readable by the people it audits
+    // is worth little, and it holds other users' access patterns. No client
+    // writes them either — a forgeable audit log is worse than none, because
+    // it is trusted.
+
+    match /auditLogs/{logId} {
+      allow read, write: if false;
+    }
   }
 }

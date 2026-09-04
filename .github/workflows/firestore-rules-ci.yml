@@ -1,7 +1,7 @@
 name: Firestore Rules CI
 
-# Runs the security-rules test suites for the two static Firebase projects,
-# corruption-reporting-system-final and bike-guide-app.
+# Runs the security-rules test suites for the three Firebase projects:
+# corruption-reporting-system-final, bike-guide-app and flare.
 #
 # These rules are the only thing standing between the public internet and the
 # data — the Firebase web API keys in both projects are public identifiers, not
@@ -12,6 +12,13 @@ name: Firestore Rules CI
 #
 # The suites run against the real Firestore emulator, not a mock, so what CI
 # checks is what Firebase will actually enforce.
+#
+# flare carries the strictest rules of the three: it holds Bureau of Fire
+# Protection personnel data and the training-compliance records built on it,
+# and its own Privacy Notice commits it to the Data Privacy Act of 2012. Its
+# suite asserts that answer keys, audit logs and progress records are
+# unreachable from every client — admins included — because those are written
+# server-side by the Admin SDK.
 #
 # Only runs when the rules or their tests change — the other projects in this
 # repository are unrelated and have their own workflow.
@@ -24,12 +31,14 @@ on:
       - "firestore-tests/**"
       - "corruption-reporting-system-final/firestore.rules"
       - "bike-guide-app/firestore.rules"
+      - "flare/firestore.rules"
       - ".github/workflows/firestore-rules-ci.yml"
   pull_request:
     paths:
       - "firestore-tests/**"
       - "corruption-reporting-system-final/firestore.rules"
       - "bike-guide-app/firestore.rules"
+      - "flare/firestore.rules"
       - ".github/workflows/firestore-rules-ci.yml"
   workflow_dispatch:
 
@@ -75,3 +84,6 @@ jobs:
 
       - name: Test the Bike Guide rules
         run: npm run test:bikeguide
+
+      - name: Test the FLARE rules
+        run: npm run test:flare

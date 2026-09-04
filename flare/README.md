@@ -15,10 +15,13 @@ in `src/app` reflects the real design — the sign-in and dashboard pages that
 exist now are deliberately plain placeholders that exercise the auth flow,
 not the visual design.
 
-What's real and permanent already: the Firebase project wiring, the
-session-cookie auth flow, the Firestore security rules, and the project
-structure. Rebuilding the UI once the design is accessible should not touch
-any of that.
+What's real and permanent already: the Firebase wiring, the session-cookie
+auth flow, the Firestore security rules, the catalogue and progress data
+layer, audit logging, and the theme system. Rebuilding the UI once the design
+is accessible should not touch any of that.
+
+`docs/DATA-MODEL.md` is the schema source of truth, including the ten open
+questions still outstanding with the client.
 
 ## Stack
 
@@ -35,20 +38,62 @@ any of that.
 ```
 src/
   app/
-    api/auth/session/route.ts   # exchanges a Firebase ID token for a session cookie
-    sign-in/page.tsx            # placeholder sign-in screen (real auth flow)
-    dashboard/page.tsx          # placeholder protected page
+    api/auth/session/route.ts       # ID token -> httpOnly session cookie
+    api/progress/route.ts           # the lesson screen's Finished toggle
+    api/preferences/theme/route.ts  # persists the Dark Mode choice
+    sign-in/page.tsx                # placeholder screen, real auth flow
+    dashboard/page.tsx              # placeholder protected page
+  components/
+    theme-toggle.tsx                # unstyled; mechanism, not design
   lib/
-    firebase/
-      env.ts       # validates and centralizes all Firebase env vars
-      client.ts     # browser Firebase app (auth, firestore)
-      admin.ts      # server Firebase app (firebase-admin)
-    auth/
-      session.ts    # creates/reads the httpOnly session cookie server-side
-middleware.ts        # redirects signed-out visitors away from /dashboard
-firestore.rules       # the actual access-control boundary for Firestore
-firebase.json         # points the Firebase CLI at firestore.rules
+    firebase/  env.ts, client.ts, admin.ts
+    auth/      session.ts           # session cookie create/verify
+    users/     profile.ts           # profile reads + requireActiveUser()
+    catalog/   queries.ts           # categories, lessons, sections, questions
+    progress/  rollup.ts            # pure: derived category percentage
+               store.ts             # server-only progress reads/writes
+               request.ts           # endpoint body validation
+               sections.ts          # which sections are self-reportable
+    audit/     log.ts               # the record the Privacy Notice promises
+    theme/     theme.ts             # three-state theme preference
+    types.ts
+tests/                              # node --test, no database needed
+middleware.ts                       # redirects signed-out visitors
+firestore.rules                     # the real access-control boundary
 ```
+
+## Three rules the backend enforces
+
+**Progress is written server-side only.** `firestore.rules` closes
+`users/{uid}/progress` to every client. The design puts a manual Finished
+toggle on all three lesson sections, assessment included — client-writable
+progress would let a learner mark an assessment complete without taking it,
+and certificates are issued from these records. Routing writes through
+`/api/progress` also gives the audit log the completion events the Privacy
+Notice promises. `markSelfReportedSection` cannot touch the assessment state:
+its parameter type does not admit it.
+
+**Assessment answers are unreachable from every client.** Firestore rules
+gate whole documents, never fields, so a `correctAnswer` on a readable
+question document is readable — whatever the UI shows. Keys live in
+`answerKeys/`, denied to everyone including admins, and grading happens
+server-side.
+
+**A Firebase account is not authorization.** FLARE is restricted to BFP
+personnel, so accounts wait at `status: 'pending'` until an administrator
+activates them. Server paths use `requireActiveUser()` rather than treating a
+valid session as sufficient.
+
+## Testing
+
+```bash
+npm test                              # rollup, request validation, theme
+cd ../firestore-tests && npm run test:flare   # 63 rules assertions
+```
+
+The rules suite runs against the real Firestore emulator (needs a JDK), so
+what it checks is what Firebase enforces. It was verified to go red, not just
+green — see `../firestore-tests/README.md`.
 
 ## Auth flow
 
@@ -94,11 +139,10 @@ firebase deploy --only firestore:rules --project <your-project-id>
 ## Next steps
 
 1. Get the Figma file shared with a viewable account, then implement the
-   real screens with `get_design_context` against node `57:374`.
-2. Design the actual Firestore schema once the client's content/data model
-   is known — `firestore.rules` currently only covers a `users/{uid}`
-   profile document as a starting example.
-3. Decide on a sign-up flow (currently absent on purpose): user creation
-   should likely go through a server-side path so the profile document can
-   set fields the client shouldn't control directly, per the note in
-   `firestore.rules`.
+   real screens with `get_design_context`.
+2. Answer the ten open questions in `docs/DATA-MODEL.md`. Three block work:
+   the language list (i18n is expensive to retrofit), the registration
+   mechanism, and whether assessments are single- or multi-answer.
+3. Build the assessment grading path — it depends on question 1 above.
+4. Design and price the admin surface. It is confirmed as needed and no
+   frames exist for it; see `docs/DATA-MODEL.md`.
