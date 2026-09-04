@@ -7,7 +7,15 @@ import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
 // signed-out visitors. It does NOT make this an admin check: middleware
 // cannot tell an administrator from a learner (see below). src/app/admin/
 // layout.tsx does that, server-side.
-const PROTECTED_PATHS = ["/dashboard", "/admin"];
+const PROTECTED_PATHS = [
+  "/home",
+  "/training",
+  "/profile",
+  "/feed",
+  "/settings",
+  "/dashboard",
+  "/admin",
+];
 
 // Middleware runs on the Edge runtime, which cannot load firebase-admin (it
 // needs Node.js APIs) — so this only checks that a session cookie is
@@ -30,5 +38,13 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*"],
+  matcher: [
+    "/home/:path*",
+    "/training/:path*",
+    "/profile/:path*",
+    "/feed/:path*",
+    "/settings/:path*",
+    "/dashboard/:path*",
+    "/admin/:path*",
+  ],
 };

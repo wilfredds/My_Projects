@@ -41,6 +41,39 @@
   --success: #1f7a4d;
   --warning: #b4541a;
   --danger: #b3271e;
+
+  /* ---------------------------------------------------- learner surfaces
+   *
+   * The design's signature: a deep indigo that runs up into vermilion and
+   * amber, with frosted panels floating on top. Defined once here so every
+   * screen shares one gradient rather than each re-mixing its own.
+   */
+  --flare-violet: #2a1c86;
+  --flare-deep: #1b1150;
+
+  --grad-hero: linear-gradient(
+    150deg,
+    var(--flare-deep) 0%,
+    var(--flare-violet) 30%,
+    var(--flare-flame) 72%,
+    var(--flare-ember) 100%
+  );
+  --grad-cta: linear-gradient(96deg, var(--flare-flame), var(--flare-ember));
+
+  /* Frosted panel over the gradient. Light text sits on these. */
+  --glass: rgba(255, 255, 255, 0.16);
+  --glass-strong: rgba(255, 255, 255, 0.26);
+  --glass-border: rgba(255, 255, 255, 0.34);
+  --on-gradient: #ffffff;
+  --on-gradient-muted: rgba(255, 255, 255, 0.76);
+
+  /* Per-category identity, taken from each training track's own screen. */
+  --cat-fire: linear-gradient(160deg, #f4601f, #d92d1a);
+  --cat-water: linear-gradient(160deg, #4a5bd6, #2a1c86);
+  --cat-land: linear-gradient(160deg, #f0a94b, #c9762a);
+  --cat-equipment: linear-gradient(160deg, #f4601f, #c0341c);
+  --cat-fitness: linear-gradient(160deg, #f4772a, #d0401d);
+  --cat-sop: linear-gradient(160deg, #ef8a3c, #c95a22);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -93,4 +126,43 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* The gradient ground the learner screens sit on. */
+.flare-gradient {
+  background: var(--grad-hero);
+  color: var(--on-gradient);
+}
+
+/* Frosted panel. Backdrop blur is progressive — where it is unsupported the
+   translucent fill alone still keeps text legible over the gradient. */
+.flare-glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.flare-glass-strong {
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* The design sets every label in wide uppercase. */
+.flare-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
