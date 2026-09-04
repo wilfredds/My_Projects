@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { THEME_COOKIE, themeAttribute, themeOrDefault } from "@/lib/theme/theme";
+import { missingFirebaseConfig } from "@/lib/firebase/env";
+import { SetupRequired } from "@/components/setup-required";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,13 +34,20 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const store = await cookies();
   const theme = themeOrDefault(store.get(THEME_COOKIE)?.value);
 
+  // Checked here, once, rather than letting each page throw from inside the
+  // Firebase SDK. An unconfigured clone is the most common first-run state,
+  // and it deserves an answer rather than a stack trace.
+  const missing = missingFirebaseConfig();
+
   return (
     <html
       lang="en"
       data-theme={themeAttribute(theme)}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {missing.length > 0 ? <SetupRequired missing={missing} /> : children}
+      </body>
     </html>
   );
 }

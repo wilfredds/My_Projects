@@ -32,6 +32,29 @@ export function getFirebaseClientConfig() {
   });
 }
 
+/**
+ * The Firebase variables that are missing, if any.
+ *
+ * Non-throwing, so the app can show someone how to fix their setup instead of
+ * meeting them with a stack trace. Static property access for the same reason
+ * as above: Next.js only substitutes NEXT_PUBLIC_ values it can see literally
+ * in the source.
+ */
+export function missingFirebaseConfig(): string[] {
+  const present: Record<string, string | undefined> = {
+    NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  };
+
+  return Object.entries(present)
+    .filter(([, value]) => !value)
+    .map(([name]) => name);
+}
+
 /** Fails naming the env vars that are missing, and keeps the object's shape. */
 function demandAll<T extends Record<string, string | undefined>>(
   config: T,
