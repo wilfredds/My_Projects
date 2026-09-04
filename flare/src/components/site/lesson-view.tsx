@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Markdown } from "./markdown";
 import { LESSON_SECTIONS, type LessonSection, type LessonSectionContent, type SectionState } from "@/lib/types";
@@ -37,6 +38,7 @@ export function LessonView({
   initialState: Partial<Record<LessonSection, SectionState>>;
   backHref: string;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState<LessonSection>("discussion");
   const [state, setState] = useState(initialState);
   const [busy, setBusy] = useState<LessonSection | null>(null);
@@ -65,6 +67,13 @@ export function LessonView({
         return;
       }
       setState((current) => ({ ...current, [section]: next }));
+
+      // Home, the category page and the profile all render this learner's
+      // progress on the server. Without this they keep serving the copy the
+      // router cached before the change, so finishing a section and going
+      // Home shows the old percentage — which, for a training-compliance
+      // record, reads as work that was not saved.
+      router.refresh();
     } catch {
       setError("That change did not save. Check your connection.");
     } finally {
