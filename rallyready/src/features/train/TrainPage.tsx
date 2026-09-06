@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import {
+  ArrowRight,
+  Dumbbell,
   Flame,
   Gamepad2,
   GraduationCap,
@@ -358,6 +360,20 @@ export function TrainPage() {
             ]}
             onChange={(next) => setTab(next as Tab)}
           />
+
+          {/* The conditioning tab is a slice of the catalogue; the workouts
+              screen is the whole thing, sorted by what a home player has to
+              know first — whether it fits the room and whether it is quiet. */}
+          {tab === 'conditioning' && (
+            <Link
+              to="/workouts"
+              className="text-muted-foreground hover:text-foreground mt-3 inline-flex items-center gap-1.5 text-sm font-medium"
+            >
+              <Dumbbell className="size-4" aria-hidden />
+              All workouts, sorted for training at home
+              <ArrowRight className="size-3.5" aria-hidden />
+            </Link>
+          )}
 
           <div className="mt-4">
             {isLoading ? (

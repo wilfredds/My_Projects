@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **557 tests across 34 files, all passing** — if you
+individually. Baseline is **566 tests across 35 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -63,6 +63,15 @@ see fewer, something is being skipped.
   `lib/audio`) is latency-sensitive; changes there need tests.
 - **The app is the random caller.** No partner, no feeder, no court. Features
   that assume a second person are out of scope.
+- **Home is the default, the court is the bonus.** Every exercise declares the
+  space it needs (`spot` / `room` / `court`) and whether the flat below can
+  hear it. `lib/training/workouts` *derives* a workout's space, noise and kit
+  from the exercises it contains — a circuit is as loud as its loudest movement
+  — so a swapped exercise cannot leave a stale label behind. A drill with no
+  circuit calls corners, which means strides and landings, never "fits a towel,
+  quiet". `/workouts` is the one place they are all listed, and both facts are
+  filters, because somebody in a small flat at eleven at night is the case the
+  screen exists for.
 - **Level and game are settings, not decoration.** `lib/training/profile`
   turns them into the three things that actually change a session: the volume
   (rounds, work, rest and call interval, scaled from the drill's own
@@ -134,12 +143,13 @@ see fewer, something is being skipped.
 
 ## Layout
 
-- `src/features/` — `train`, `progress`, `programs`, `conditioning`,
+- `src/features/` — `train`, `workouts`, `progress`, `programs`, `conditioning`,
   `benchmark`, `library`, `auth`, `profile`, `welcome`, `onboarding`, `games`,
   `premium`, `social`, `design-system`. `welcome` is the first-run flow;
   `onboarding` is still the profile questionnaire it hands over to.
 - `src/lib/` — `audio`, `timer`, `motion`, `programs`, `data`, `supabase`,
   `auth`, `coach`, `figures`, `games`, `library`, `premium`, `share`, `social`,
+  `training`,
   `download.ts`, `firstRun.ts`, `pageDirection.ts`, `rewards.ts`, `theme.ts`
 - `src/store/` — Zustand state · `src/hooks/` · `src/components/`
 - `supabase/schema.sql` — database schema

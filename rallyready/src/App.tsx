@@ -28,6 +28,7 @@ import { PremiumPage } from '@/features/premium/PremiumPage'
 import { ChallengePage } from '@/features/social/ChallengePage'
 import { WelcomePage } from '@/features/welcome/WelcomePage'
 import { FocusPage } from '@/features/train/FocusPage'
+import { WorkoutsPage } from '@/features/workouts/WorkoutsPage'
 import { SessionSummaryPage } from '@/features/train/SessionSummaryPage'
 import { TrainPage } from '@/features/train/TrainPage'
 
@@ -88,6 +89,7 @@ function AppRoutes() {
           <Route path="/" element={<TrainPage />} />
           <Route path="/train/:slug" element={<DrillSetupPage />} />
           <Route path="/focus/:id" element={<FocusPage />} />
+          <Route path="/workouts" element={<WorkoutsPage />} />
           <Route path="/play/reflex" element={<ReflexRushPage />} />
           <Route path="/premium" element={<PremiumPage />} />
           <Route path="/challenge" element={<ChallengePage />} />

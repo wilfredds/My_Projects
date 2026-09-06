@@ -1152,6 +1152,116 @@ insert into public.drills (
   'doubles', '{}', true,
   null, 1, 'court',
   '{}'
+),
+(
+  'home-full-body', 'Home Full Body', 'conditioning', 'hiit',
+  'The whole body in about twenty minutes, in the space of a towel. Jacks, climbers, push-ups, burpees — the circuit every badminton programme is built from, in the order that lets you finish it.',
+  array[
+      'Alternate hard and easy on purpose: the plank after the burpees is the rest.',
+      'Full range beats fast. Ten honest repetitions are worth more than twenty rushed ones.',
+      'If a movement is too hard today, use its substitute — every exercise has one.',
+      'Two or three of these a week is the dose. Every day is not better.'
+    ],
+  array[
+      'Going flat out in round one and crawling through round three.',
+      'Skipping the rest because it feels lazy. The rest is what makes the next block worth doing.',
+      'Holding your breath through the hard blocks.'
+    ],
+  35, 20, 3, 4,
+  1000, 'random',
+  null,
+  0, 120, 'beginner',
+  'both', '{}', true,
+  '[{"exerciseSlug":"cond-jumping-jack","workSec":35,"restSec":15},{"exerciseSlug":"str-squat","workSec":40,"restSec":20},{"exerciseSlug":"str-push-up","workSec":35,"restSec":20},{"exerciseSlug":"cond-mountain-climber","workSec":35,"restSec":20},{"exerciseSlug":"str-glute-bridge","workSec":35,"restSec":15},{"exerciseSlug":"cond-burpee","workSec":30,"restSec":25},{"exerciseSlug":"str-plank","workSec":40,"restSec":25}]'::jsonb, 3, 'anywhere',
+  '{}'
+),
+(
+  'home-explosive', 'Explosive Power', 'plyometric', 'hiit',
+  'Everything that makes a jump smash a jump smash and a lunge recoverable. Short blocks, long rests — power work stops being power work the moment you are tired.',
+  array[
+      'Land quietly. A quiet landing is an absorbed landing, and absorbing is the skill.',
+      'Take the whole rest. This is not conditioning; a tired jump trains nothing.',
+      'Every rep at full intent. Half-hearted plyometrics are just jumping about.',
+      'Stop the set when the height drops off, whatever the clock says.'
+    ],
+  array[
+      'Cutting the rest short and turning a power session into a bad cardio session.',
+      'Landing stiff-legged, which is where the knees and shins pay for it.',
+      'Doing it on consecutive days. Power work needs forty-eight hours.'
+    ],
+  25, 35, 3, 4,
+  1000, 'random',
+  null,
+  0, 120, 'intermediate',
+  'both', '{}', true,
+  '[{"exerciseSlug":"plyo-jump-squat","workSec":25,"restSec":35},{"exerciseSlug":"plyo-split-jump","workSec":25,"restSec":35},{"exerciseSlug":"plyo-lateral-bound","workSec":25,"restSec":35},{"exerciseSlug":"plyo-tuck-jump","workSec":20,"restSec":40},{"exerciseSlug":"cond-burpee","workSec":30,"restSec":40}]'::jsonb, 3, 'anywhere',
+  '{}'
+),
+(
+  'shoulder-care', 'Shoulder Care', 'strength', 'custom',
+  'The back of the shoulder, the shoulder blade and the mid-back — the three things a smashing shoulder needs and nobody trains. Ten quiet minutes, twice a week, for the injury that ends badminton careers.',
+  array[
+      'Slow. Everything here is two seconds up and two seconds down; there is nothing to rush towards.',
+      'Light and often beats heavy and rarely. This is maintenance, not a workout.',
+      'Never into pain. Discomfort in the muscle is fine, sharp anything in the joint is not.',
+      'Do it on court days as well — it takes ten minutes and it is the cheapest insurance in the sport.'
+    ],
+  array[
+      'Shrugging, which hands the work to the neck.',
+      'Going heavy or fast and turning a prevention routine into a shoulder problem.',
+      'Only starting it once the shoulder already hurts.'
+    ],
+  40, 20, 2, 4,
+  1000, 'random',
+  null,
+  0, 60, 'beginner',
+  'both', '{}', true,
+  '[{"exerciseSlug":"mob-arm-circles","workSec":40,"restSec":15},{"exerciseSlug":"str-prone-y-raise","workSec":45,"restSec":20},{"exerciseSlug":"str-bird-dog","workSec":45,"restSec":20},{"exerciseSlug":"str-shoulder-tap","workSec":40,"restSec":20},{"exerciseSlug":"mob-torso-twists","workSec":35,"restSec":15},{"exerciseSlug":"cool-shoulder-stretch","workSec":40,"restSec":10}]'::jsonb, 2, 'anywhere',
+  '{}'
+),
+(
+  'quiet-room-workout', 'Quiet Room Workout', 'strength', 'custom',
+  'Nothing that jumps, nothing the flat below can hear, nothing that needs more room than a towel. For late nights, thin floors and small rooms — the session that actually happens instead of the one you skip.',
+  array[
+      'Slow is the point here, not a compromise. Time under tension replaces the jumping.',
+      'Bare feet or socks, and place each foot rather than dropping it.',
+      'Hold the last repetition of every block for five seconds.',
+      'This is a real session. Trained properly it is harder than the one with the burpees.'
+    ],
+  array[
+      'Rushing, which brings the noise back and takes the tension away.',
+      'Treating it as a lesser workout and coasting through it.'
+    ],
+  40, 20, 3, 4,
+  1000, 'random',
+  null,
+  0, 90, 'beginner',
+  'both', '{}', true,
+  '[{"exerciseSlug":"str-wall-sit","workSec":45,"restSec":20},{"exerciseSlug":"str-push-up","workSec":40,"restSec":20},{"exerciseSlug":"str-single-leg-bridge","workSec":40,"restSec":20},{"exerciseSlug":"str-hip-hinge","workSec":40,"restSec":20},{"exerciseSlug":"str-side-plank","workSec":35,"restSec":20},{"exerciseSlug":"str-dead-bug","workSec":40,"restSec":20},{"exerciseSlug":"str-single-leg-balance","workSec":40,"restSec":15}]'::jsonb, 3, 'anywhere',
+  '{}'
+),
+(
+  'skipping-intervals', 'Skipping Intervals', 'conditioning', 'hiit',
+  'The oldest badminton conditioning there is, run as intervals. Calf endurance and ankle stiffness are what let you push off the twentieth lunge as hard as the first.',
+  array[
+      'Tiny hops on the balls of the feet. Heels never touch down.',
+      'Wrists turn the rope, not the shoulders.',
+      'Trip-ups are part of it. Restart immediately rather than resetting your posture.',
+      'No rope is fine — the calves cannot tell the difference.'
+    ],
+  array[
+      'Jumping much higher than the rope needs, which burns the session out in two minutes.',
+      'Landing flat and heavy — the reason shins ache the next day.'
+    ],
+  60, 30, 4, 4,
+  1000, 'random',
+  null,
+  0, 90, 'beginner',
+  'both', '{}', true,
+  '[{"exerciseSlug":"cond-jump-rope","workSec":60,"restSec":30},{"exerciseSlug":"cond-high-knees","workSec":25,"restSec":35},{"exerciseSlug":"cond-jump-rope","workSec":60,"restSec":30},{"exerciseSlug":"mob-ankle-rolls","workSec":30,"restSec":15}]'::jsonb, 3, 'anywhere',
+  array[
+      'skipping rope (optional)'
+    ]
 )
 on conflict (slug) do update set
   name                 = excluded.name,

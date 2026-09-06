@@ -19,7 +19,18 @@
  * would let the library offer a hamstring stretch as a way to warm up.
  */
 export type ExerciseKind = 'ladder' | 'plyometric' | 'bodyweight' | 'mobility' | 'stretch'
-export type Equipment = 'none' | 'ladder' | 'step'
+export type Equipment = 'none' | 'ladder' | 'step' | 'rope'
+
+/**
+ * How much floor a movement needs.
+ *
+ * Most people using this app are training at home, and "at home" is not one
+ * place: it is a bedroom beside a bed, a garage, or a hall. `spot` fits in the
+ * area of a towel, `room` needs a few strides, `court` needs the court. Without
+ * this the app can only say "anywhere", which is what every fitness app says
+ * right before asking you to do shuttle runs in a studio flat.
+ */
+export type SpaceNeeded = 'spot' | 'room' | 'court'
 
 /**
  * A foot on the ladder diagram. `x` runs across the ladder (-1 fully outside
@@ -131,6 +142,15 @@ export interface Exercise {
   substitute: string | null
   /** How much of it to do when practising the exercise on its own. */
   recommendedReps: string
+  space: SpaceNeeded
+  /**
+   * Whether the flat below can hear it.
+   *
+   * Sounds like a detail and is the reason a session does or does not happen:
+   * a player in an apartment at ten at night needs to know which of these they
+   * can actually do, and "just do fewer burpees" is not the answer.
+   */
+  noisy: boolean
   /** Ladder work only. */
   pattern?: FootFrame[]
   /** Jumps and bodyweight work. */
@@ -223,6 +243,8 @@ export const EXERCISES: Exercise[] = [
     substitute: 'No ladder? Chalk or tape eight 40cm squares, or just imagine the rungs.',
     recommendedReps:
       '4 lengths of the ladder, walking back between each. Stop when the feet get heavy.',
+    space: 'room',
+    noisy: true,
     pattern: IN_AND_OUT,
   },
   {
@@ -244,6 +266,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Tape a line of squares, or shuffle between two markers about 4m apart.',
     recommendedReps: '3 lengths leading with each foot, walking back between each.',
+    space: 'room',
+    noisy: true,
     pattern: LATERAL_SHUFFLE,
   },
   {
@@ -263,6 +287,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Tape or chalk works fine. This pattern is about coordination, not the kit.',
     recommendedReps: '3 lengths in each direction. Slow it down until the pattern is right.',
+    space: 'room',
+    noisy: true,
     pattern: CROSSOVER,
   },
   {
@@ -282,6 +308,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Run them on the spot with a marker line, or over eight taped squares.',
     recommendedReps: '4 lengths, flat out, with a full walk back. This one is a sprint.',
+    space: 'room',
+    noisy: true,
     pattern: HIGH_KNEES,
   },
 
@@ -304,6 +332,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: null,
     recommendedReps: '3 rounds of 8–10, fully recovered between rounds.',
+    space: 'spot',
+    noisy: true,
     poses: [
       pose('Load', 0.85, 0, 0, -0.8, 0.35),
       pose('Drive', 0.1, 0.75, 0, 1, 0.25),
@@ -327,6 +357,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Swap for jump squats if the ceiling is low or the knees are complaining.',
     recommendedReps: '3 rounds of 6–8. Quality drops fast; stop the round when it does.',
+    space: 'spot',
+    noisy: true,
     poses: [
       pose('Dip', 0.55, 0, 0, -0.7, 0.2),
       pose('Tuck', 0.15, 1, 1, 0.5, 0.1),
@@ -351,6 +383,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Step back into the lunge instead of jumping if the knees need a break.',
     recommendedReps: '3 rounds of 10 (5 each leg), landing softly every time.',
+    space: 'spot',
+    noisy: true,
     poses: [
       pose('Lunge', 0.8, 0, 0, -0.5, 1, 1),
       pose('Swap', 0.15, 0.8, 0.2, 0.8, 0.3),
@@ -374,6 +408,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Shorten the bound in a tight space. Distance is adjustable, quality is not.',
     recommendedReps: '3 rounds of 10 (5 each side), holding the landing for a beat.',
+    space: 'room',
+    noisy: true,
     poses: [
       pose('Load', 0.75, 0, 0, -0.6, 0.6),
       pose('Bound', 0.25, 0.5, 0, 0.7, 1),
@@ -397,6 +433,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'No box? Jump squats train the same drive without the trip hazard.',
     recommendedReps: '3 rounds of 8–10, stepping down rather than jumping down.',
+    space: 'room',
+    noisy: true,
     poses: [
       pose('Load', 0.8, 0, 0, -0.8, 0.3),
       pose('Up', 0.2, 0.65, 0.35, 0.9, 0.2),
@@ -421,6 +459,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: null,
     recommendedReps: '3 rounds of 30 seconds, alternating corners.',
+    space: 'room',
+    noisy: false,
     poses: [
       pose('Ready', 0.3, 0, 0, 0.2, 0.2),
       pose('Lunge', 0.85, 0, 0, 1, 1, 1),
@@ -444,6 +484,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Drop to your knees and keep the hips level rather than sagging.',
     recommendedReps: '3 rounds of 30–40 seconds, hips level throughout.',
+    space: 'spot',
+    noisy: false,
     poses: [
       pose('Plank', 0.95, 0, 0.15, -0.35, 0.7),
       pose('Tap', 0.95, 0, 0.15, 0.85, 0.7),
@@ -492,6 +534,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Hands on a chair, a step or a wall. The higher the hands, the easier it gets.',
     recommendedReps: '3 sets of 8–15, or 40 seconds of quality work.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Top', { ground: 71, armL: 85, armR: 85, legL: 10, legR: 10 }),
       mob('Chest down', {
@@ -524,6 +568,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: null,
     recommendedReps: '3 sets of 10–15, held in a straight line throughout.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Top', { ground: 66, armL: 90, armR: 90, legL: 25, legR: 25, kneeL: 80, kneeR: 80 }),
       mob('Chest down', {
@@ -559,6 +605,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Drop to the knees, or put the elbows on a chair seat and angle the body up.',
     recommendedReps: '3 holds of 30–45 seconds, stopping while the line is still good.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Set the line', {
         ground: 81,
@@ -599,6 +647,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Bend the bottom knee and rest it on the floor for a shorter lever.',
     recommendedReps: '2 holds of 20–30 seconds each side.',
+    space: 'spot',
+    noisy: false,
     /*
      * Drawn in profile, because a side plank *is* the profile: edge-on is the
      * only angle from which the line from head to heels is a line rather than a
@@ -650,6 +700,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: null,
     recommendedReps: '3 sets of 12–15 with a one-second squeeze at the top.',
+    space: 'spot',
+    noisy: false,
     /*
      * The knee angle stays at 90° and the thigh comes up to horizontal, which
      * puts the foot within a pixel of where it was in the frame before: the
@@ -711,6 +763,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Move one limb at a time until holding the back down is easy.',
     recommendedReps: '3 sets of 8 slow repetitions each side.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Ready', {
         ground: -88,
@@ -759,6 +813,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Lift the opposite arm and leg only, alternating.',
     recommendedReps: '3 sets of 10 with a one-second hold at the top.',
+    space: 'spot',
+    noisy: false,
     /*
      * Both ends leave the floor and the hip stays on it, so the lift frame is a
      * shallow V pivoting on the hip — which is exactly what the grounding code
@@ -807,6 +863,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Arm only, then leg only, before combining them.',
     recommendedReps: '3 sets of 8 each side, held two seconds.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Set', {
         ground: 66,
@@ -856,6 +914,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Squat down to a chair and stand back up, touching lightly rather than sitting.',
     recommendedReps: '3 sets of 15–20, or 45 seconds at a steady tempo.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Stand', { legL: 8, legR: 8, armL: 10, armR: 10 }),
       mob('Sit down', {
@@ -891,6 +951,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Hold a wall or a chair with one hand for balance until the pattern is steady.',
     recommendedReps: '3 sets of 8–12 each leg.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Split stance', { legL: 26, legR: 22, kneeL: 12, kneeR: 14, armL: 14, armR: 14 }),
       mob('Knee down', {
@@ -923,6 +985,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Hold a wall for balance, or shorten the range until it is controlled.',
     recommendedReps: '3 sets of 10 each leg.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Stand tall', { legL: 6, legR: 6, armL: 10, armR: 10 }),
       mob('Step back', {
@@ -955,6 +1019,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Hold a wall for balance; that changes nothing about the work the calf does.',
     recommendedReps: '3 sets of 15–20, three seconds down each time.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Down', { legL: 5, legR: 5, armL: 8, armR: 8 }),
       mob('Up on the toes', { legL: 5, legR: 5, armL: 10, armR: 10, lift: 18 }),
@@ -979,6 +1045,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Sit higher — anywhere above parallel still works, and it is honest.',
     recommendedReps: '3 holds of 30–60 seconds.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Slide down', {
         legL: 30,
@@ -1020,6 +1088,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Keep the heels on the floor, or sit more upright.',
     recommendedReps: '3 sets of 20 total turns, slow and controlled.',
+    space: 'spot',
+    noisy: false,
     /*
      * The rotation itself happens about the axis the viewer is looking down, so
      * no side view can draw it. What a side view *can* draw is its projection:
@@ -1078,6 +1148,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Walk briskly on the spot if the knees are cold or complaining.',
     recommendedReps: '45–60 seconds, building from easy to brisk.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Left knee up', { legL: 78, kneeL: 85, armR: 42, elbowR: 60, armL: -28 }),
       mob('Down', { legL: 4, legR: 4, armL: 8, armR: 8 }),
@@ -1103,6 +1175,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Shuffle on the spot, one step each way, if the room is tight.',
     recommendedReps: '45 seconds, changing direction every two or three steps.',
+    space: 'room',
+    noisy: false,
     mobility: [
       mob('Load left', {
         legL: 34,
@@ -1171,6 +1245,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: null,
     recommendedReps: '30 seconds: ten circles each ankle, then ten calf raises.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Heels down', { legL: 6, legR: 6, lift: 0 }),
       mob('Rise onto toes', { legL: 6, legR: 6, lift: 9, armL: 16, armR: 16 }),
@@ -1196,6 +1272,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Hold a wall or a chair back if balance is awkward.',
     recommendedReps: '30 seconds, ten swings each leg.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Swing forward', { legR: 62, legL: 6, armL: 46, elbowL: 20 }),
       mob('Through the middle', { legR: 4, legL: 4, armL: 46, elbowL: 20 }),
@@ -1221,6 +1299,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Hold a wall for balance and reduce the range.',
     recommendedReps: '30 seconds, ten swings each leg.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Across the body', { legR: -38, legL: 2, armL: 62, armR: 62 }),
       mob('Through the middle', { legR: 2, legL: 2, armL: 62, armR: 62 }),
@@ -1246,6 +1326,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: null,
     recommendedReps: '30 seconds, five each side.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Knee up', { legR: 74, kneeR: 90, armR: 40, elbowR: 70 }),
       mob('Open the gate', { legR: 58, kneeR: 88, twist: 16, armR: 52, elbowR: 60 }),
@@ -1271,6 +1353,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: null,
     recommendedReps: '30 seconds: ten circles each way, then shoulder rolls.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Arms down', { armR: 0, armL: 0 }),
       mob('Forward and up', { armR: 92, armL: 92 }),
@@ -1296,6 +1380,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: null,
     recommendedReps: '30 seconds of slow, controlled rotations.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Turn left', { twist: -42, armL: 58, armR: 30, elbowL: 40, elbowR: 55 }),
       mob('Centre', { twist: 0, armL: 40, armR: 40, elbowL: 45, elbowR: 45 }),
@@ -1324,6 +1410,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: null,
     recommendedReps: '30 seconds of continuous split-steps and pushes.',
+    space: 'spot',
+    noisy: true,
     mobility: [
       mob('Ready', {
         legL: 16,
@@ -1388,6 +1476,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'No court? Move to four imagined corners in whatever space you have.',
     recommendedReps: '45 seconds, covering every corner at least twice.',
+    space: 'room',
+    noisy: false,
     mobility: [
       mob('Ready at base', {
         legL: 12,
@@ -1452,6 +1542,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'No racket to hand? The pattern still works empty-handed.',
     recommendedReps: '30 seconds, building from easy to sharp.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Racket up', { armR: 128, elbowR: 62, armL: 96, twist: 22, legR: -8 }),
       mob('Reach back', { armR: 168, elbowR: 88, armL: 118, twist: 34, lean: -8, legR: -12 }),
@@ -1480,6 +1572,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: null,
     recommendedReps: '60 seconds, until your breathing has settled.',
+    space: 'spot',
+    noisy: false,
     poses: [pose('Step', 0.1, 0, 0.15, 0.3, 0.3, 0.6), pose('Step', 0.1, 0, 0.15, -0.3, 0.3, -0.6)],
     mobility: [
       mob('Step', { legL: 34, kneeL: 26, legR: -22, armR: 26, armL: -18 }),
@@ -1503,6 +1597,8 @@ export const EXERCISES: Exercise[] = [
     faults: ['Letting the back heel lift, which stretches nothing.', 'Bouncing to push deeper.'],
     substitute: 'Use a step edge, or press against any wall.',
     recommendedReps: '45 seconds, about 20 each side.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Split the stance', {
         legL: 34,
@@ -1565,6 +1661,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Lie on your side if standing balance is the problem.',
     recommendedReps: '45 seconds, about 20 each side.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Stand tall', { legL: 2, legR: 2, armL: 62, elbowL: 30 }),
       mob('Heel to backside', {
@@ -1611,6 +1709,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Sit and reach towards one foot at a time if standing is awkward.',
     recommendedReps: '45 seconds, about 20 each side.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Heel forward', { legR: 26, legL: 10, kneeL: 16, lean: 6 }),
       mob('Hinge at the hips', { legR: 30, legL: 12, kneeL: 22, lean: 34, armR: 54, armL: 54 }),
@@ -1643,6 +1743,8 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: 'Kneel on something soft, or do it standing in a split stance.',
     recommendedReps: '45 seconds, about 20 each side.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Half kneel', { legR: 62, kneeR: 96, legL: 30, kneeL: 128, armL: 16, armR: 16 }),
       mob('Tuck the pelvis', {
@@ -1692,11 +1794,424 @@ export const EXERCISES: Exercise[] = [
     ],
     substitute: null,
     recommendedReps: '45 seconds across both stretches.',
+    space: 'spot',
+    noisy: false,
     mobility: [
       mob('Arm across', { armR: 74, elbowR: -58, armL: 54, elbowL: 34 }),
       mob('Pull above the elbow', { armR: 82, elbowR: -70, armL: 60, elbowL: 40 }),
       mob('Hold', { armR: 82, elbowR: -70, armL: 60, elbowL: 40 }),
       mob('Open the chest', { armR: -48, armL: -48, elbowR: 18, elbowL: 18, lean: -6 }),
+    ],
+  },
+  /* ------------------------------------------- the home circuit (§ 12)
+   *
+   * Every published badminton home-training list is built from the same
+   * dozen movements — burpees, mountain climbers, jumping jacks, high knees,
+   * shuttle runs, skipping — and the catalogue had almost none of them,
+   * because it grew out of court drills rather than out of what somebody can
+   * actually do beside a bed.
+   *
+   * The shoulder work is the other gap, and the more important one. Badminton's
+   * signature injury is the shoulder, the prevention evidence is about the
+   * posterior cuff and the scapula, and there was nothing here for either.
+   */
+  {
+    slug: 'cond-jumping-jack',
+    name: 'Jumping jacks',
+    kind: 'plyometric',
+    equipment: 'none',
+    summary: 'Feet out, arms overhead, back together. The whole body warmed in thirty seconds.',
+    cues: [
+      'Land on the balls of the feet, knees soft. Slapping the floor flat is how shins get sore.',
+      'Arms all the way overhead, not to shoulder height.',
+      'Breathe in rhythm rather than holding your breath.',
+      'Quick and light beats big and heavy — this is a raise, not a jump session.',
+    ],
+    faults: ['Half-raising the arms.', 'Landing heavily on straight legs.'],
+    substitute: 'Step one foot out at a time instead of jumping. Same arms, no landing.',
+    recommendedReps: '30–45 seconds, or 20–30 repetitions.',
+    space: 'spot',
+    noisy: true,
+    mobility: [
+      mob('Feet together', { armL: 8, armR: 8, legL: 4, legR: 4 }),
+      mob('Out and overhead', { armL: 160, armR: 160, legL: 24, legR: 24 }),
+      mob('Back together', { armL: 8, armR: 8, legL: 4, legR: 4 }),
+    ],
+  },
+  {
+    slug: 'cond-high-knees',
+    name: 'High knees',
+    kind: 'plyometric',
+    equipment: 'none',
+    summary: 'Running on the spot with the knees to hip height. Fast feet, tall posture.',
+    cues: [
+      'Knee to hip height, no higher — height is not the point, frequency is.',
+      'Stay tall. The moment you lean back the hip flexors take over from the feet.',
+      'Land under your hips, on the ball of the foot.',
+      'Drive the arms. They set the leg speed, not the other way round.',
+    ],
+    faults: [
+      'Leaning back to lift the knees higher.',
+      'Feet landing in front of the hips, which brakes every step.',
+    ],
+    substitute: 'March on the spot at the same cadence, one foot always down.',
+    recommendedReps: '20–30 seconds fast, 3–4 sets.',
+    space: 'spot',
+    noisy: true,
+    mobility: [
+      mob('Right knee', { legR: 88, kneeR: 100, legL: 2, armL: 52, elbowL: 75, armR: -30 }),
+      mob('Left knee', { legL: 88, kneeL: 100, legR: 2, armR: 52, elbowR: 75, armL: -30 }),
+    ],
+  },
+  {
+    slug: 'cond-mountain-climber',
+    name: 'Mountain climbers',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'Plank position, knees driving to the chest one at a time. Core and lungs together.',
+    cues: [
+      'Hips stay at plank height. The moment they rise it becomes a rest.',
+      'Hands under the shoulders, arms locked — this is a plank that moves.',
+      'Drive the knee to the chest, do not just shuffle the foot.',
+      'Quiet feet. If the floor is thumping you are dropping onto it.',
+    ],
+    faults: [
+      'Hips climbing towards the ceiling.',
+      'Bouncing the hips up and down instead of moving only the legs.',
+    ],
+    substitute: 'Hands on a chair or a step, or march the knees in slowly one at a time.',
+    recommendedReps: '30–40 seconds, 3 sets.',
+    space: 'spot',
+    noisy: false,
+    mobility: [
+      mob('Plank', { profile: true, ground: 76, armR: 76, armL: 76, legL: 0, legR: 0 }),
+      mob('Knee to chest', {
+        profile: true,
+        ground: 76,
+        armR: 76,
+        armL: 76,
+        legL: 0,
+        legR: 84,
+        kneeR: 96,
+      }),
+      mob('Other knee', {
+        profile: true,
+        ground: 76,
+        armR: 76,
+        armL: 76,
+        legL: 84,
+        kneeL: 96,
+        legR: 0,
+      }),
+    ],
+  },
+  {
+    slug: 'cond-burpee',
+    name: 'Burpees',
+    kind: 'plyometric',
+    equipment: 'none',
+    summary:
+      'Down to the floor, back out to a plank, up into a jump. The whole engine in one movement.',
+    cues: [
+      'Hands down before the feet go back — reaching the feet back first is how backs get tweaked.',
+      'One straight line in the plank, even for the half-second you are in it.',
+      'Land the jump soft and immediately start the next one.',
+      'Pace it. Ten honest burpees beat twenty collapsed ones.',
+    ],
+    faults: [
+      'Hips sagging in the plank position.',
+      'Landing stiff-legged out of the jump.',
+      'Going so fast the shape disappears.',
+    ],
+    substitute:
+      'Walk the feet back and forward instead of jumping them, and stand up instead of jumping.',
+    recommendedReps: '8–12 repetitions, 3 sets.',
+    space: 'spot',
+    noisy: true,
+    mobility: [
+      mob('Stand', { armL: 8, armR: 8, legL: 4, legR: 4, profile: true }),
+      // Deep enough that the hands genuinely reach the floor. An arm angle is
+      // degrees from straight *down*, not from the leaned torso, so a negative
+      // one here pointed them up behind the back.
+      mob('Hands down', {
+        profile: true,
+        lean: 62,
+        armL: 8,
+        armR: 8,
+        legL: 75,
+        legR: 75,
+        kneeL: 140,
+        kneeR: 140,
+      }),
+      mob('Back to a plank', { profile: true, ground: 76, armR: 76, armL: 76, legL: 0, legR: 0 }),
+      mob('Jump', { profile: true, lift: 12, armL: 168, armR: 168, legL: 4, legR: 4 }),
+    ],
+  },
+  {
+    slug: 'cond-shuttle-run',
+    name: 'Shuttle runs',
+    kind: 'plyometric',
+    equipment: 'none',
+    summary:
+      'Sprint a few metres, touch the floor, sprint back. The stop is the training, not the run.',
+    cues: [
+      'Decelerate over the last two steps — do not arrive at the line and then try to stop.',
+      'Get low to touch. Bending only at the waist is how you tweak a back.',
+      'Turn off the outside foot and drive back immediately.',
+      'Three to five metres is plenty. Length is not what makes this hard.',
+    ],
+    faults: [
+      'Slowing down early so the turn never has to be sharp.',
+      'Touching with straight legs and a rounded back.',
+    ],
+    substitute: 'No room? Do fast feet on the spot with a floor touch every five seconds.',
+    recommendedReps: '6–10 lengths, 3 sets, full recovery between sets.',
+    space: 'room',
+    noisy: true,
+    mobility: [
+      mob('Drive out', {
+        profile: true,
+        lean: 24,
+        legL: 40,
+        legR: -28,
+        kneeL: 70,
+        armR: 58,
+        elbowR: 80,
+        armL: -34,
+      }),
+      mob('Touch the floor', {
+        profile: true,
+        lean: 58,
+        legL: 62,
+        legR: -22,
+        kneeL: 96,
+        kneeR: 14,
+        armL: -34,
+        armR: 12,
+      }),
+      mob('Drive back', {
+        profile: true,
+        lean: 24,
+        legR: 40,
+        legL: -28,
+        kneeR: 70,
+        armL: 58,
+        elbowL: 80,
+        armR: -34,
+      }),
+    ],
+  },
+  {
+    slug: 'cond-jump-rope',
+    name: 'Skipping',
+    kind: 'plyometric',
+    equipment: 'rope',
+    summary: 'The oldest badminton conditioning there is. Ankle stiffness, calf endurance, rhythm.',
+    cues: [
+      'Tiny hops — a centimetre or two of air is all the rope needs.',
+      'Turn the rope with the wrists. Whole-arm circles tire you out and slow the rope down.',
+      'Stay on the balls of the feet, heels never touching.',
+      'Elbows in at the ribs.',
+    ],
+    faults: [
+      'Jumping far higher than the rope needs.',
+      'Swinging from the shoulders.',
+      'Landing flat and heavy, which is what makes shins ache the next day.',
+    ],
+    substitute:
+      'No rope? Do the same tiny hops and turn imaginary handles. The calves do not know.',
+    recommendedReps: '3 rounds of 60–90 seconds, or 5 minutes as a warm-up.',
+    space: 'room',
+    noisy: true,
+    poses: [
+      pose('Down', 0.12, 0, 0, -0.15),
+      pose('Hop', 0, 0.22, 0.08, -0.15),
+      pose('Down', 0.12, 0, 0, -0.15),
+    ],
+  },
+  {
+    slug: 'str-shoulder-tap',
+    name: 'Plank shoulder taps',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary:
+      'A plank where one hand leaves the floor. Everything you own fights to stop the hips turning.',
+    cues: [
+      'Feet wider than usual. A narrow base makes this a balance test instead of a core one.',
+      'The hips must not rotate — that is the whole exercise.',
+      'Move the hand slowly. Speed here is hiding, not strength.',
+      'Anti-rotation is what holds your body still while your arm swings a smash.',
+    ],
+    faults: [
+      'Hips rocking side to side with each tap.',
+      'Rushing, so the trunk swings instead of bracing.',
+    ],
+    substitute: 'From the knees, or with the hands on a chair.',
+    recommendedReps: '3 sets of 16 taps, alternating, slow.',
+    space: 'spot',
+    noisy: false,
+    mobility: [
+      mob('Plank', { profile: true, ground: 76, armR: 76, armL: 76, legL: 0, legR: 0 }),
+      mob('Tap the shoulder', {
+        profile: true,
+        ground: 76,
+        armR: 76,
+        armL: 150,
+        elbowL: 60,
+        legL: 0,
+        legR: 0,
+      }),
+    ],
+  },
+  {
+    slug: 'str-prone-y-raise',
+    name: 'Prone Y raises',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary:
+      'Face down, arms overhead in a Y, lifted off the floor. The back of the shoulder nobody trains.',
+    cues: [
+      'Thumbs up, arms at about forty-five degrees — a Y, not a T and not straight ahead.',
+      'Lift from between the shoulder blades, not by shrugging.',
+      'Forehead stays down. Lifting the head turns it into a neck exercise.',
+      'Two seconds up, two seconds down. There is no momentum available here and there should not be.',
+    ],
+    faults: [
+      'Shrugging the shoulders up towards the ears.',
+      'Lifting the chest instead of the arms.',
+      'Going fast, which is how the lower back takes over.',
+    ],
+    substitute: 'Do it standing, hinged forward at the hips, if lying face down is uncomfortable.',
+    recommendedReps: '3 sets of 10, held for two seconds at the top.',
+    space: 'spot',
+    noisy: false,
+    mobility: [
+      // The body does not move here, only the arms — that is what separates a
+      // Y raise from a superman. `ground: 80` is the superman's angle for the
+      // same reason it is there: any flatter and the arms reach past the edge
+      // of the canvas, which the geometry test catches.
+      mob('Arms down', { profile: true, ground: 80, armL: 143, armR: 143, legL: 0, legR: 0 }),
+      mob('Lift the arms', { profile: true, ground: 80, armL: 195, armR: 195, legL: 0, legR: 0 }),
+      mob('Hold two seconds', {
+        profile: true,
+        ground: 80,
+        armL: 195,
+        armR: 195,
+        legL: 0,
+        legR: 0,
+      }),
+    ],
+  },
+  {
+    slug: 'str-single-leg-balance',
+    name: 'Single-leg balance',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'Stand on one leg and swing the other. Ankle control is what a lunge landing runs on.',
+    cues: [
+      'Foot tripod: big toe, little toe, heel. Grip the floor with the whole foot, not the toes.',
+      'Soft knee, level hips. A locked knee cannot correct anything.',
+      'Swing the free leg slowly — the standing ankle is the one being trained.',
+      'Harder version: close your eyes. It is a completely different exercise.',
+    ],
+    faults: [
+      'Hip dropping on the free-leg side.',
+      'Hopping to correct instead of controlling with the ankle.',
+    ],
+    substitute: 'Fingertips on a wall until you can hold thirty seconds without it.',
+    recommendedReps: '3 × 30 seconds each leg, eyes open then closed.',
+    space: 'spot',
+    noisy: false,
+    mobility: [
+      mob('Knee up', { profile: true, legR: 2, legL: 66, kneeL: 96, armL: 40, armR: 40 }),
+      mob('Leg back', { profile: true, legR: 2, legL: -38, kneeL: 32, armL: 40, armR: 40 }),
+      mob('Knee up', { profile: true, legR: 2, legL: 66, kneeL: 96, armL: 40, armR: 40 }),
+    ],
+  },
+  {
+    slug: 'str-hip-hinge',
+    name: 'Hip hinge',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary: 'Push the hips back with a flat back. The pattern behind every lunge and every lift.',
+    cues: [
+      'Push the hips back, do not bend the chest down. The knees barely move.',
+      'Back flat from the head to the tailbone the whole way.',
+      'Feel it in the hamstrings, never in the lower back.',
+      'Stand up by squeezing the glutes rather than pulling with the back.',
+    ],
+    faults: [
+      'Squatting instead of hinging — the knees travel forward and the hips drop.',
+      'Rounding the back at the bottom.',
+    ],
+    substitute: 'Hinge with your back against a wall, touching it with your hips each rep.',
+    recommendedReps: '3 sets of 12, slow, with a pause at the bottom.',
+    space: 'spot',
+    noisy: false,
+    mobility: [
+      mob('Stand tall', { profile: true, armL: 8, armR: 8, legL: 4, legR: 4 }),
+      mob('Hips back', {
+        profile: true,
+        lean: 62,
+        armL: -14,
+        armR: -14,
+        legL: 8,
+        legR: 8,
+        kneeL: 16,
+        kneeR: 16,
+      }),
+      mob('Stand tall', { profile: true, armL: 8, armR: 8, legL: 4, legR: 4 }),
+    ],
+  },
+  {
+    slug: 'str-single-leg-bridge',
+    name: 'Single-leg bridges',
+    kind: 'bodyweight',
+    equipment: 'none',
+    summary:
+      'A glute bridge on one leg. Twice the load, and it finds the side that has been coasting.',
+    cues: [
+      'One heel down, the other knee hugged in. Drive through the heel that is planted.',
+      'Keep the hips level — the free side must not drop.',
+      'Squeeze at the top for a full second before lowering.',
+      'Do the weaker side first and match the strong side to it, not the other way round.',
+    ],
+    faults: ['Hips tilting towards the lifted leg.', 'Arching the lower back to get higher.'],
+    substitute: 'Two-leg glute bridges until you can hold the hips level for twelve reps.',
+    recommendedReps: '3 sets of 10 each side, one second at the top.',
+    space: 'spot',
+    noisy: false,
+    mobility: [
+      mob('Hips down', {
+        profile: true,
+        ground: -84,
+        armL: -1,
+        armR: -1,
+        legL: 68,
+        legR: 130,
+        kneeL: 124,
+        kneeR: 120,
+      }),
+      mob('Drive up', {
+        profile: true,
+        ground: -108,
+        armL: -39,
+        armR: -39,
+        legL: -18,
+        legR: 52,
+        kneeL: 90,
+        kneeR: 0,
+      }),
+      mob('Hold, level hips', {
+        profile: true,
+        ground: -108,
+        armL: -39,
+        armR: -39,
+        legL: -18,
+        legR: 52,
+        kneeL: 90,
+        kneeR: 0,
+      }),
     ],
   },
 ]
