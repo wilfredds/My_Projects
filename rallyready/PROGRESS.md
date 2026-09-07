@@ -19,10 +19,12 @@ the way.
 | 7 — Finding your way in                 | ✅ Done                        |
 | 8 — Coach, rating, game, premium        | ✅ Done                        |
 | 9 — Making it feel alive                | ✅ Done                        |
-| **10 — Off-court training, strokes, integrity** | ✅ **Done — ready for review** |
+| 10 — Off-court training, strokes, integrity | ✅ Done |
+| 11 — The game you play, at your level | ✅ Done |
+| **12 — The workouts, for the room you have** | ✅ **Done — ready for review** |
 
-All ten phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 521 unit tests passing, production build clean.
+All twelve phases are built. `npm run verify` is green: 0 type errors, 0 lint
+errors/warnings, 569 unit tests passing, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -33,6 +35,96 @@ Earlier phases, one line each — the detail is in the git history:
   catalogue, and drawn demos.
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
+
+
+---
+
+## Phase 12 — the workouts, for the room you have
+
+The catalogue grew out of court drills, so the conditioning in it was
+court-shaped too: reachable only as a tab beside the drills, and listed by name
+and duration. That answers the wrong question first. Most people using this app
+are in a bedroom or a garage, and what they need to know before anything else is
+whether a session fits the floor they have and whether it will wake the house.
+
+**Space and noise are first-class now.** Every exercise declares the floor it
+needs — `spot` is the area of a towel, `room` is a few strides, `court` is a
+court — and whether it lands hard enough for the flat below to hear. A workout
+*derives* both from the exercises it contains rather than carrying a label
+somebody has to remember to update: a circuit is as loud as its loudest
+movement and needs as much room as its largest. A drill with no circuit calls
+corners, which means strides and landings, so it is never "fits a towel, quiet"
+— the first version of that fallback had four minutes of Tabata jumping
+advertised as the neighbour-friendly option.
+
+`/workouts` is the one place they are all listed, grouped by purpose, with both
+facts on every card and both as filters. With both switched on a player is
+still offered four real sessions rather than an empty screen, which is the case
+the screen exists for.
+
+**Eleven exercises** the published home lists are all built from and this one
+had almost none of: jumping jacks, high knees, mountain climbers, burpees,
+shuttle runs, skipping. Plus the gap that mattered more — badminton's signature
+injury is the shoulder and there was nothing here for it: prone Y raises, plank
+shoulder taps, single-leg balance, hip hinge, single-leg bridges.
+
+**Five workouts**: Home Full Body, Explosive Power, Shoulder Care, Quiet Room
+Workout, Skipping Intervals. The work-to-rest shape is the one the published
+programmes use — roughly 20s on / 10s off at beginner through to 40s on / 10s
+off — which is what the level scaling was already built to do.
+
+Every new pose was rendered to a contact sheet and looked at. Two were wrong:
+the burpee and the shuttle-run touch both had the hands up behind the back
+instead of on the floor, because an arm angle is degrees from straight *down*
+rather than from the leaned torso.
+
+### Verified
+
+- `npm run verify`: 569 tests across 35 files.
+- 162 route/viewport/theme combinations including a 320px phone: no console or
+  page errors, nothing scrolls sideways.
+- The filters exercised in a browser: small room plus quiet leaves Foundation
+  Strength, Smash Core, Shoulder Care and the Quiet Room Workout.
+
+---
+
+## Phase 11 — the game you play, at the level you play it
+
+Prompted by watching real players train. What separates them is not that they
+chase corners faster, it is that they rehearse *points*: the shot that wins a
+rally is usually two shots after the one that decided it, and random calling
+cannot teach that because it has no memory of what you just played.
+
+**Rally patterns.** `lib/timer/patterns` holds twelve named sequences of
+corner-plus-shot drawn from how rallies are built — smash and follow in, lift
+and get level, block and steal the net, hold and slice. `pattern` selection
+walks one and then picks another, never the same twice running. The shot comes
+from the pattern rather than being drawn at build time, because in a rally the
+shot is the reason for the corner rather than a decoration on it. Every shot is
+legal for the part of the court it is called from and inside its own level.
+
+**A vocabulary that opens up.** Eight more strokes — slice, kill, cross net,
+hold drop, punch clear, jump smash, tumble, flick — each carrying the level at
+which it starts being worth calling.
+
+**Level and game finally do something.** Onboarding had asked for both since
+Phase 2 and they steered one recommendation. `lib/training/profile` turns them
+into the volume, the vocabulary and the zone weights. The same drill at
+beginner is 4 rounds of 38s with 47s rest and a call every 1.9s; at advanced it
+is 8 rounds of 52s with 25s rest and a call every 1.4s — fewer rounds and
+*slower* calls for a beginner, because the thing being trained is arriving
+properly.
+
+Six defects followed, all found by hunting rather than by the test suite.
+Opening a drill's setup screen wrote an override, and an override beats the
+defaults for ever, so the drill silently stopped following the level. The
+warm-up inherited the whole config and ran rally patterns — ninety seconds of
+"hold, drop" under the word WARM-UP. Speech cancels the previous utterance, so
+a slot shorter than the phrase chopped a four-word call in half. The court
+picker was a control that did nothing in pattern mode. Challenges sent the
+wrong session, because level decides the vocabulary and the code did not carry
+it. And a flex item's default `min-width: auto` pushed the level control wider
+than a 320px phone.
 
 ---
 

@@ -309,6 +309,27 @@ export function TrainPage() {
           <FocusGrid entries={library} level={browseLevel} />
         </section>
 
+        {/* Sits above the game and below the focus areas on purpose: for most
+            people using this app the off-court work is the training, not a
+            bonus, and it was previously reachable only through a tab. */}
+        <Card level="quiet">
+          <CardContent className="flex items-center gap-3 p-4">
+            <span className="bg-primary/15 text-primary grid size-10 shrink-0 place-items-center rounded-xl">
+              <Dumbbell className="size-5" aria-hidden />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">Workouts</p>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                Every session off the court in one place — filtered by the room you have and whether
+                you can make noise.
+              </p>
+            </div>
+            <Button asChild size="sm" variant="outline" className="shrink-0">
+              <Link to="/workouts">Open</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
         <Card level="quiet">
           <CardContent className="flex items-center gap-3 p-4">
             <span className="bg-sprint/15 text-sprint grid size-10 shrink-0 place-items-center rounded-xl">

@@ -74,17 +74,72 @@ interface Pools {
  * Off court, the shadow drills that scale down to a small space stand in for
  * the full-court ones — you can ghost a six-corner pattern in a garage at half
  * scale, but you cannot run a rear-court scissor recovery in one.
+ *
+ * ## Order is the difficulty curve
+ *
+ * `phaseSlice` gives base and deload weeks the first half of a pool and
+ * sharpen weeks the last half, so these are written gentlest first. Putting a
+ * plyometric circuit early would hand a returning player jump training in
+ * week one under the heading "Easy conditioning".
+ *
+ * A pool is also the only way a drill reaches somebody following a program.
+ * Anything added to the catalogue and left out of here exists solely for
+ * people who browse, which is not most people — the rally patterns and the
+ * home circuits both sat outside these lists until it was noticed.
  */
 const COURT_POOLS: Pools = {
-  footwork: ['four-corner-footwork', 'net-footwork', 'six-corner-shadow', 'rear-court-scissor'],
-  conditioning: ['agility-ladder-circuit', 'match-rhythm-intervals', 'rally-hiit'],
-  speed: ['multifeed-shadow', 'deception-reaction', 'tabata-shadow'],
+  footwork: [
+    'four-corner-footwork',
+    'net-footwork',
+    'six-corner-shadow',
+    'rear-court-scissor',
+    'singles-rally-patterns',
+    'doubles-rally-patterns',
+  ],
+  conditioning: [
+    'home-full-body',
+    'agility-ladder-circuit',
+    'match-rhythm-intervals',
+    'rally-hiit',
+  ],
+  speed: [
+    'multifeed-shadow',
+    'front-court-speed',
+    'defence-into-attack',
+    'deception-reaction',
+    'hold-and-deceive',
+    'tabata-shadow',
+  ],
 }
 
 const ANYWHERE_POOLS: Pools = {
   footwork: ['match-rhythm-intervals', 'rally-hiit'],
-  conditioning: ['home-court-circuit', 'agility-ladder-circuit', 'plyometric-power-circuit'],
+  conditioning: [
+    'quiet-room-workout',
+    'home-full-body',
+    'home-court-circuit',
+    'skipping-intervals',
+    'agility-ladder-circuit',
+    'plyometric-power-circuit',
+    'home-explosive',
+  ],
   speed: ['multifeed-shadow', 'tabata-shadow'],
+}
+
+/**
+ * Every slug any pool can produce.
+ *
+ * Exported so a test can check they all resolve to real drills. A typo in a
+ * pool does not throw — it produces a program day pointing at nothing, which
+ * shows up as a blank session weeks later.
+ */
+export function pooledSlugs(): string[] {
+  const all = [COURT_POOLS, ANYWHERE_POOLS].flatMap((pools) => [
+    ...pools.footwork,
+    ...pools.conditioning,
+    ...pools.speed,
+  ])
+  return [...new Set(all)]
 }
 
 /** A session slot: what the day is for, and which pool to draw from. */

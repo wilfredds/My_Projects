@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **566 tests across 35 files, all passing** — if you
+individually. Baseline is **569 tests across 35 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here

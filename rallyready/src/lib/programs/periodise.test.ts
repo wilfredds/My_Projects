@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { SEED_DRILLS } from '@/lib/data/seed/drills'
 import type { DrillLocation, SkillLevel } from '@/lib/data/types'
 
-import { countSessions, periodise, phaseByWeek, type ProgramSpec } from './periodise'
+import { countSessions, periodise, phaseByWeek, pooledSlugs, type ProgramSpec } from './periodise'
 
 const spec = (overrides: Partial<ProgramSpec> = {}): ProgramSpec => ({
   totalWeeks: 12,
@@ -115,6 +115,39 @@ describe('periodise', () => {
         }
       }
     }
+  })
+
+  it('has no pool entry that does not resolve to a drill', () => {
+    // Stronger than checking a generated program: a pool entry that is never
+    // reached by the default spec would still be a typo waiting for the week
+    // it comes up in.
+    const known = new Set(SEED_DRILLS.map((drill) => drill.slug))
+    for (const slug of pooledSlugs()) expect(known.has(slug), slug).toBe(true)
+  })
+
+  it('puts the home workouts in front of somebody following a home program', () => {
+    // A pool is the only way a drill reaches a program follower. The home
+    // circuits and the rally patterns both sat outside these lists when they
+    // were added, so they existed only for people who browse.
+    const used = new Set<string>()
+    for (const level of LEVELS) {
+      for (const day of periodise(spec({ level, location: 'anywhere', totalWeeks: 16 }))) {
+        for (const slug of day.drillSlugs) used.add(slug)
+      }
+    }
+    for (const slug of ['home-full-body', 'quiet-room-workout', 'skipping-intervals']) {
+      expect(used, slug).toContain(slug)
+    }
+  })
+
+  it('puts the rally patterns in front of somebody following a court program', () => {
+    const used = new Set<string>()
+    for (const level of LEVELS) {
+      for (const day of periodise(spec({ level, location: 'court', totalWeeks: 16 }))) {
+        for (const slug of day.drillSlugs) used.add(slug)
+      }
+    }
+    expect([...used].some((slug) => slug.endsWith('rally-patterns'))).toBe(true)
   })
 
   it('uses only no-court drills for an anywhere program', () => {

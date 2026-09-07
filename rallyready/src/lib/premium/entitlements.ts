@@ -68,6 +68,7 @@ export const PREMIUM_FEATURES: Feature[] = [
 export const ALWAYS_FREE: string[] = [
   'Every drill, circuit and conditioning workout',
   'The full warm-up, cool-down and mobility work',
+  'Shoulder Care and every other injury-prevention routine',
   'The basics: grips, stance, the shots, with diagrams',
   'Your daily readiness check and load warnings',
   'The fitness benchmark and your whole history',
