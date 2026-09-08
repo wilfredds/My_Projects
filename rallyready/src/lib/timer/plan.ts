@@ -1,3 +1,4 @@
+import { LANGUAGE_INTERVAL_FACTOR, type CallLanguage } from '@/lib/audio/language'
 import type { CircuitStep, Drill } from '@/lib/data/types'
 import {
   patternsForProfile,
@@ -93,8 +94,17 @@ export const INTERVAL_STEP_MS = 50
  */
 export const MIN_STROKE_INTERVAL_MS = 1200
 
-export function minIntervalFor(mode: DrillMode): number {
-  return mode === 'stroke' || mode === 'pattern' ? MIN_STROKE_INTERVAL_MS : MIN_INTERVAL_MS
+/**
+ * Both floors scale with the language, because "how long it takes to say" is
+ * the only thing they were ever measuring. "harap kaliwa" is five syllables
+ * where "net left" is two, so the same 800ms that comfortably fits an English
+ * corner call clips a Filipino one.
+ *
+ * English is a factor of 1, so nothing about an English session moved.
+ */
+export function minIntervalFor(mode: DrillMode, language: CallLanguage = 'en'): number {
+  const base = mode === 'stroke' || mode === 'pattern' ? MIN_STROKE_INTERVAL_MS : MIN_INTERVAL_MS
+  return Math.round(base * LANGUAGE_INTERVAL_FACTOR[language])
 }
 
 export const MIN_SPLIT_STEP_LEAD_MS = 200
@@ -154,8 +164,14 @@ export function configFromDrill(drill: Drill, profile?: TrainingProfile): DrillC
     weights: profile
       ? weightsFor(drill.discipline === 'both' ? profile.discipline : drill.discipline)
       : {},
-    // Levelling up speeds the calls, but never past what the voice can say.
-    intervalMs: Math.max(volume.intervalMs, minIntervalFor(drill.defaultCallMode)),
+    // Levelling up speeds the calls, but never past what the voice can say —
+    // in the language it is saying it in. A challenge passes no language, so
+    // it reconstructs at the English floor for both players, whatever either
+    // of them has their calls set to.
+    intervalMs: Math.max(
+      volume.intervalMs,
+      minIntervalFor(drill.defaultCallMode, profile?.language),
+    ),
     workSec: volume.workSec,
     restSec: volume.restSec,
     rounds: volume.rounds,

@@ -1,9 +1,10 @@
 import { CORNERS } from '@/lib/timer/corners'
-import { spokenCall, type StrokeId } from '@/lib/timer/strokes'
+import type { StrokeId } from '@/lib/timer/strokes'
 import type { BlockPhase, TimelineEvent } from '@/lib/timer/types'
 
 import { vibrateComplete, vibrateCorner, vibrateCountdown } from './haptics'
-import { speak } from './speech'
+import { callText, completeText, numberText, phaseText, type CallLanguage } from './language'
+import { deliveryFor, speak } from './speech'
 import {
   playCompleteTone,
   playCornerTone,
@@ -31,6 +32,8 @@ export interface CuePreferences {
   wakeLockEnabled: boolean
   /** Speak zone numbers instead of positions — set by Number mode. */
   announceNumbers: boolean
+  /** Which language the calls come in. */
+  callLanguage: CallLanguage
 }
 
 export const DEFAULT_CUE_PREFERENCES: CuePreferences = {
@@ -46,14 +49,7 @@ export const DEFAULT_CUE_PREFERENCES: CuePreferences = {
   splitStepLeadMs: 400,
   wakeLockEnabled: true,
   announceNumbers: false,
-}
-
-const PHASE_SPEECH: Partial<Record<BlockPhase, string>> = {
-  work: 'go',
-  sprint: 'sprint',
-  rest: 'rest',
-  warmup: 'warm up',
-  cooldown: 'cool down',
+  callLanguage: 'en',
 }
 
 export interface CueContext {
@@ -84,6 +80,9 @@ function announceCorner(
   if (preferences.vibrationEnabled) vibrateCorner(def.row)
   if (!preferences.voiceEnabled) return
 
+  const language = preferences.callLanguage
+  const delivery = deliveryFor(language)
+
   /*
    * Three things the voice can say, in order of specificity: the shot to play
    * from a corner, the corner's number, or the corner itself. A stroke always
@@ -91,11 +90,11 @@ function announceCorner(
    * three that tells you what to do once you get there.
    */
   const text = stroke
-    ? spokenCall(def.spoken, stroke)
+    ? callText(def, stroke, language, delivery)
     : preferences.announceNumbers
-      ? String(zoneNumber)
-      : def.spoken
-  speak(text, { rate: preferences.voiceRate })
+      ? numberText(zoneNumber, language, delivery)
+      : callText(def, undefined, language, delivery)
+  speak(text, { rate: preferences.voiceRate, language })
 }
 
 export function playCue(event: TimelineEvent, context: CueContext): void {
@@ -133,9 +132,19 @@ export function playCue(event: TimelineEvent, context: CueContext): void {
       }
       if (!preferences.voiceEnabled) return
 
+      /*
+       * An exercise name is always spoken in English — "push up" and "plank"
+       * are the words used in a Filipino gym — so it carries no language, and
+       * the phase word around it does.
+       */
       const exercise = context.exerciseNameOf?.(event.blockIndex)
-      const word = exercise ?? PHASE_SPEECH[phase]
-      if (word) speak(word, { rate: preferences.voiceRate })
+      if (exercise) {
+        speak(exercise, { rate: preferences.voiceRate })
+        return
+      }
+      const language = preferences.callLanguage
+      const word = phaseText(phase, language, deliveryFor(language))
+      if (word) speak(word, { rate: preferences.voiceRate, language })
       return
     }
 
@@ -143,7 +152,11 @@ export function playCue(event: TimelineEvent, context: CueContext): void {
       if (preferences.toneEnabled) playCompleteTone()
       if (preferences.vibrationEnabled) vibrateComplete()
       if (preferences.voiceEnabled) {
-        speak('Session complete. Well done.', { rate: preferences.voiceRate })
+        const language = preferences.callLanguage
+        speak(completeText(language, deliveryFor(language)), {
+          rate: preferences.voiceRate,
+          language,
+        })
       }
       return
   }

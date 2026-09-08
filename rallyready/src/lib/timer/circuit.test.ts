@@ -10,7 +10,9 @@ import {
   configFromDrill,
   estimateDurationSec,
   isCircuit,
+  minIntervalFor,
   planFromConfig,
+  MIN_INTERVAL_MS,
   MIN_STROKE_INTERVAL_MS,
   type DrillConfig,
 } from './plan'
@@ -370,5 +372,74 @@ describe('a drill fitted to a player', () => {
     expect(asWritten.rounds).toBe(patternDrill.defaultRounds)
     expect(asWritten.workSec).toBe(patternDrill.defaultWorkSec)
     expect(asWritten.strokes).toBeNull()
+  })
+})
+
+describe('a drill called in Filipino', () => {
+  const LEVELS = ['beginner', 'intermediate', 'advanced'] as const
+
+  it('leaves an English session timed exactly as it was', () => {
+    // The floors are the ones the app shipped with. Nobody who never touches
+    // the language setting should notice this feature exists.
+    expect(minIntervalFor('random')).toBe(MIN_INTERVAL_MS)
+    expect(minIntervalFor('random', 'en')).toBe(MIN_INTERVAL_MS)
+    expect(minIntervalFor('stroke', 'en')).toBe(MIN_STROKE_INTERVAL_MS)
+    expect(minIntervalFor('pattern', 'en')).toBe(MIN_STROKE_INTERVAL_MS)
+  })
+
+  it('leaves more of the slot for a longer call', () => {
+    // "harap kaliwa" is five syllables where "net left" is two.
+    expect(minIntervalFor('random', 'fil')).toBeGreaterThan(minIntervalFor('random', 'en'))
+    expect(minIntervalFor('stroke', 'fil')).toBeGreaterThan(minIntervalFor('stroke', 'en'))
+  })
+
+  it('never calls a seeded drill faster than it can be said', () => {
+    /*
+     * The guard on the claim that the language does not have to be threaded any
+     * further than `configFromDrill`. Every drill in the catalogue, at every
+     * level, in the language the player has chosen: if a future drill is
+     * authored fast enough to clip a Filipino call, this fails rather than
+     * shipping a voice that gets cut off mid-corner.
+     */
+    for (const drill of SEED_DRILLS) {
+      if (drill.circuit) continue // a circuit calls exercises, not corners
+      for (const level of LEVELS) {
+        const config = configFromDrill(drill, {
+          level,
+          discipline: 'singles',
+          language: 'fil',
+        })
+        expect(config.intervalMs, `${drill.slug} at ${level}`).toBeGreaterThanOrEqual(
+          minIntervalFor(drill.defaultCallMode, 'fil'),
+        )
+      }
+    }
+  })
+
+  it('gives a shared challenge the same numbers whatever either player speaks', () => {
+    /*
+     * A challenge reconstructs the drill with no profile at all, so it never
+     * reaches the Filipino floor — both players run the identical session and
+     * the comparison stays a fair one. Their calls differ; their drill does not.
+     */
+    for (const drill of SEED_DRILLS) {
+      expect(configFromDrill(drill).intervalMs, drill.slug).toBe(
+        Math.max(drill.defaultIntervalMs, minIntervalFor(drill.defaultCallMode)),
+      )
+    }
+  })
+
+  it('slows a drill for a Filipino caller only where the call would be clipped', () => {
+    // Not a general slowdown: anything already long enough is untouched.
+    const fast = SEED_DRILLS.find((drill) => drill.defaultIntervalMs < MIN_INTERVAL_MS * 1.25)
+    expect(fast, 'expected at least one drill fast enough to be worth flooring').toBeDefined()
+    const slow = SEED_DRILLS.find(
+      (drill) => !drill.circuit && drill.defaultIntervalMs >= MIN_STROKE_INTERVAL_MS * 1.25,
+    )
+    expect(slow).toBeDefined()
+    const profile = { level: 'intermediate', discipline: 'singles' } as const
+    expect(configFromDrill(slow!, { ...profile, language: 'fil' }).intervalMs).toBe(
+      configFromDrill(slow!, profile).intervalMs,
+    )
   })
 })

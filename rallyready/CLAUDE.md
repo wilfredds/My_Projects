@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **578 tests across 36 files, all passing** — if you
+individually. Baseline is **603 tests across 37 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -58,6 +58,20 @@ see fewer, something is being skipped.
   tone and buzzes the phone, so a whole session can be completed without
   looking at the screen. Do not introduce a change that only communicates
   visually — you cannot watch a screen and move to a corner simultaneously.
+- **The calls are in the player's language, and only the calls.**
+  `lib/audio/language` holds the Taglish vocabulary: corners, zone numbers and
+  phase words are Filipino, shots and exercise names stay English because that
+  is what is actually shouted on a court in Manila, and the interface stays
+  English because it is read sitting down. Every phrase is written twice —
+  natively for a `fil-PH`/`tl-PH` voice, and **respelled** ("kah-lee-wah") for
+  an English one, because iOS has no Filipino voice at all and falling back to
+  English calls would take the feature away from the phones it is for. On the
+  respelled path the utterance is tagged `en`: the text is English spelling, and
+  a Filipino engine would read the hyphens. English is untouched by all of this
+  and a test holds it that way — `cornerText(def, 'en')` is the corner's own
+  wording and `LANGUAGE_INTERVAL_FACTOR.en` is exactly 1. Anything shown on
+  screen that quotes a call must be quoted in the same language, or the player
+  translates mid-lunge.
 - **Split-step timing is precise.** An optional metronome tick fires a
   configurable 0.2–0.7s _before_ each call. Timing code (`lib/timer`,
   `lib/audio`) is latency-sensitive; changes there need tests.

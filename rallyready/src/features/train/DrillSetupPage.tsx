@@ -124,7 +124,7 @@ export function DrillSetupPage() {
     const merged = { ...config, ...patch }
     // Switching to a mode that names the shot has to carry the interval up with
     // it, or the slider sits below its own minimum and every call is clipped.
-    const floor = minIntervalFor(merged.mode)
+    const floor = minIntervalFor(merged.mode, training.language)
     setDraft({ slug, config: { ...merged, intervalMs: Math.max(merged.intervalMs, floor) } })
   }
 
@@ -307,7 +307,7 @@ export function DrillSetupPage() {
                   </div>
                   <Slider
                     id="interval"
-                    min={minIntervalFor(config.mode)}
+                    min={minIntervalFor(config.mode, training.language)}
                     max={MAX_INTERVAL_MS}
                     step={INTERVAL_STEP_MS}
                     value={[config.intervalMs]}

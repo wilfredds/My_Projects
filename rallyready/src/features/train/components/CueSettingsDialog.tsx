@@ -1,5 +1,5 @@
-import { Settings2 } from 'lucide-react'
-import { useMemo } from 'react'
+import { Settings2, Volume2 } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -11,14 +11,46 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import { Segmented } from '@/components/ui/segmented'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { isVibrationSupported } from '@/lib/audio/haptics'
-import { isSpeechSupported } from '@/lib/audio/speech'
+import {
+  CALL_LANGUAGES,
+  callText,
+  LANGUAGE_HINT,
+  LANGUAGE_LABEL,
+  type CallLanguage,
+} from '@/lib/audio/language'
+import {
+  deliveryFor,
+  hasVoiceFor,
+  isSpeechSupported,
+  primeSpeech,
+  speak,
+  whenVoicesReady,
+} from '@/lib/audio/speech'
 import { isAudioSupported } from '@/lib/audio/tones'
 import { isWakeLockSupported } from '@/lib/audio/wakeLock'
+import { CORNERS } from '@/lib/timer/corners'
 import { MAX_SPLIT_STEP_LEAD_MS, MIN_SPLIT_STEP_LEAD_MS } from '@/lib/timer/plan'
 import { useCueStore } from '@/store/cueStore'
+
+/** The call the preview button plays: a real one, from a real corner. */
+const SAMPLE_CORNER = CORNERS['rear-left']
+const SAMPLE_STROKE = 'smash' as const
+
+/**
+ * Whether this device can speak Filipino, re-answered when the voice list
+ * arrives. Chrome publishes voices asynchronously and returns an empty list on
+ * the first call, so asking once on mount would tell every Chrome user their
+ * phone has no Filipino voice — including the ones whose phone does.
+ */
+function useHasFilipinoVoice(): boolean {
+  const [present, setPresent] = useState(() => hasVoiceFor('fil'))
+  useEffect(() => whenVoicesReady(() => setPresent(hasVoiceFor('fil'))), [])
+  return present
+}
 
 interface ToggleRowProps {
   id: string
@@ -57,6 +89,7 @@ function ToggleRow({ id, label, hint, checked, onChange, disabled, disabledHint 
  */
 export function CueSettingsDialog() {
   const cues = useCueStore()
+  const filipinoVoice = useHasFilipinoVoice()
 
   // Capability checks are stable for the life of the page.
   const support = useMemo(
@@ -96,6 +129,51 @@ export function CueSettingsDialog() {
             disabled={!support.speech}
             disabledHint="This browser has no speech synthesis."
           />
+          {support.speech && (
+            <div className="py-4">
+              <p className="mb-2 text-sm font-medium">Call language</p>
+              <Segmented
+                label="Call language"
+                value={cues.callLanguage}
+                options={CALL_LANGUAGES.map((language) => ({
+                  value: language,
+                  label: LANGUAGE_LABEL[language],
+                  hint: LANGUAGE_HINT[language],
+                }))}
+                layout="stacked"
+                onChange={(value) => cues.set('callLanguage', value as CallLanguage)}
+              />
+              <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
+                {cues.callLanguage === 'en'
+                  ? 'Shot names stay in English either way — nobody calls a smash anything else.'
+                  : filipinoVoice
+                    ? 'This device has a Filipino voice, so the calls are spoken properly.'
+                    : 'This device has no Filipino voice, so the words are spelled out for the English one. Close enough to act on, but it will sound like an accent. Hear it before you commit to it.'}
+              </p>
+              {/*
+               * Inside a click, which is the only place iOS will speak at all —
+               * and the reason this button exists rather than a note claiming
+               * the fallback sounds fine. Judge it by ear.
+               */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={() => {
+                  primeSpeech()
+                  const language = cues.callLanguage
+                  speak(callText(SAMPLE_CORNER, SAMPLE_STROKE, language, deliveryFor(language)), {
+                    rate: cues.voiceRate,
+                    language,
+                  })
+                }}
+              >
+                <Volume2 />
+                Hear a call
+              </Button>
+            </div>
+          )}
+
           <ToggleRow
             id="cue-tone"
             label="Tones"

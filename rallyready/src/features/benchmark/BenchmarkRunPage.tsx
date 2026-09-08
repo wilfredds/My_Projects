@@ -72,6 +72,7 @@ export function BenchmarkRunPage() {
       splitStepLeadMs: 0,
       wakeLockEnabled: cues.wakeLockEnabled,
       announceNumbers: false,
+      callLanguage: cues.callLanguage,
     }),
     [cues],
   )

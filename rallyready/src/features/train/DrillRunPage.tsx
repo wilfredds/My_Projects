@@ -158,6 +158,7 @@ function Runner({ drill }: { drill: Drill }) {
       splitStepLeadMs: cues.splitStepLeadMs,
       wakeLockEnabled: cues.wakeLockEnabled,
       announceNumbers: cues.announceNumbers,
+      callLanguage: cues.callLanguage,
     }),
     [cues],
   )

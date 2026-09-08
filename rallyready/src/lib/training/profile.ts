@@ -1,3 +1,4 @@
+import type { CallLanguage } from '@/lib/audio/language'
 import type { Discipline, SkillLevel } from '@/lib/data/types'
 import type { CornerId } from '@/lib/timer/corners'
 import { patternsFor, type RallyPattern } from '@/lib/timer/patterns'
@@ -37,6 +38,16 @@ import { STROKES, strokeAllowed, type StrokeId } from '@/lib/timer/strokes'
 export interface TrainingProfile {
   level: SkillLevel
   discipline: Discipline
+  /**
+   * Which language the calls come in. Optional, and absent means English —
+   * which is what a shared challenge wants, since it has to be the same
+   * session for both people however either of them has their calls set.
+   *
+   * It is here rather than in the cue preferences because it changes the
+   * session's shape: a Filipino call takes longer to say, so the interval
+   * cannot go as low. Everything else about the language stays in `lib/audio`.
+   */
+  language?: CallLanguage
 }
 
 /* ------------------------------------------------------------- vocabulary */

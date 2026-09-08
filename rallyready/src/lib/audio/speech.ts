@@ -1,3 +1,5 @@
+import { voiceMatches, utteranceLang, type CallLanguage, type Delivery } from './language'
+
 /**
  * Spoken callouts.
  *
@@ -15,6 +17,8 @@ export interface SpeakOptions {
   rate?: number
   pitch?: number
   volume?: number
+  /** Which language the text is in. Decides the voice and the `lang` tag. */
+  language?: CallLanguage
 }
 
 const DEFAULT_RATE = 1.3
@@ -30,11 +34,11 @@ export function isSpeechSupported(): boolean {
 
 let preferredVoice: SpeechSynthesisVoice | null = null
 
-export function listVoices(): SpeechSynthesisVoice[] {
+export function listVoices(language: CallLanguage = 'en'): SpeechSynthesisVoice[] {
   const speech = synth()
   if (!speech) return []
   try {
-    return speech.getVoices().filter((voice) => voice.lang.startsWith('en'))
+    return speech.getVoices().filter((voice) => voiceMatches(voice.lang, language))
   } catch {
     return []
   }
@@ -45,13 +49,37 @@ export function setPreferredVoice(voiceUri: string | null): void {
 }
 
 /**
+ * Whether this device can actually speak a language.
+ *
+ * Not cached. `getVoices()` returns a list the engine already holds and the
+ * scan is a few dozen string compares — nothing next to the cost of speaking —
+ * and caching it would mean going stale exactly when it matters, because
+ * Chrome publishes its voices asynchronously and Android can install one
+ * mid-session.
+ */
+export function hasVoiceFor(language: CallLanguage): boolean {
+  return listVoices(language).length > 0
+}
+
+/**
+ * Whether a language can be spoken as written, or has to be respelled for an
+ * English voice. English is always `native`: respelling it would mean the
+ * device has no voice at all, in which case nothing is said either way.
+ */
+export function deliveryFor(language: CallLanguage): Delivery {
+  if (language === 'en') return 'native'
+  return hasVoiceFor(language) ? 'native' : 'respelled'
+}
+
+/**
  * Chrome loads voices asynchronously and returns [] on the first call, so the
  * default is resolved lazily and re-resolved until a voice list arrives.
  */
-function resolveVoice(): SpeechSynthesisVoice | null {
-  if (preferredVoice) return preferredVoice
-  const voices = listVoices()
+function resolveVoice(language: CallLanguage): SpeechSynthesisVoice | null {
+  const voices = listVoices(language)
   if (voices.length === 0) return null
+  // A voice chosen by hand only applies to the language it was chosen from.
+  if (preferredVoice && voiceMatches(preferredVoice.lang, language)) return preferredVoice
   // Prefer a local voice: network voices add latency we cannot afford.
   return voices.find((voice) => voice.localService && voice.default) ?? voices[0] ?? null
 }
@@ -66,11 +94,16 @@ export function speak(text: string, options: SpeakOptions = {}): void {
     utterance.rate = options.rate ?? DEFAULT_RATE
     utterance.pitch = options.pitch ?? 1
     utterance.volume = options.volume ?? 1
-    const voice = resolveVoice()
-    if (voice) {
-      utterance.voice = voice
-      utterance.lang = voice.lang
-    }
+    const language = options.language ?? 'en'
+    const delivery = deliveryFor(language)
+    /*
+     * On the respelled path the text is English spelling of Filipino words, so
+     * it needs an English voice and an English tag. Handing "kah-lee-wah" to a
+     * Filipino engine would have it pronounce the respelling literally.
+     */
+    const voice = resolveVoice(delivery === 'native' ? language : 'en')
+    if (voice) utterance.voice = voice
+    utterance.lang = voice?.lang ?? utteranceLang(language, delivery)
     speech.speak(utterance)
   } catch {
     /* a broken speech stack must not take the drill down with it */

@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { vibrateCorner } from '@/lib/audio/haptics'
-import { isSpeechSupported, primeSpeech, speak } from '@/lib/audio/speech'
+import { cornerText } from '@/lib/audio/language'
+import { deliveryFor, isSpeechSupported, primeSpeech, speak } from '@/lib/audio/speech'
 import { isAudioSupported, playCornerTone, unlockAudio } from '@/lib/audio/tones'
 import { CORNERS, cornerIdsForLayout, type CornerId } from '@/lib/timer/corners'
 import { useCueStore } from '@/store/cueStore'
@@ -60,7 +61,11 @@ export function CallDemo() {
     if (isSpeechSupported()) {
       // Same options the cue layer uses, so the demo is not a nicer-sounding
       // version of the thing it is demonstrating.
-      speak(def.spoken, { rate: cues.voiceRate })
+      const language = cues.callLanguage
+      speak(cornerText(def, language, deliveryFor(language)), {
+        rate: cues.voiceRate,
+        language,
+      })
       setSilent(null)
     } else {
       // Degrade honestly rather than looking broken.
@@ -87,7 +92,7 @@ export function CallDemo() {
     }
     setProgress(0)
     frame.current = requestAnimationFrame(tick)
-  }, [corner, cues.voiceRate, reducedMotion])
+  }, [corner, cues.callLanguage, cues.voiceRate, reducedMotion])
 
   return (
     <div>
@@ -115,7 +120,7 @@ export function CallDemo() {
           (played === 0
             ? 'Turn your volume up. This is exactly what a drill sounds like.'
             : corner
-              ? `“${CORNERS[corner].spoken}” — spoken, toned and buzzed. You never have to look.`
+              ? `“${cornerText(CORNERS[corner], cues.callLanguage)}” — spoken, toned and buzzed. You never have to look.`
               : '')}
       </p>
     </div>

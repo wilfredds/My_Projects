@@ -22,10 +22,11 @@ the way.
 | 10 — Off-court training, strokes, integrity | ✅ Done |
 | 11 — The game you play, at your level | ✅ Done |
 | 12 — The workouts, for the room you have | ✅ Done |
-| **13 — Making it testable by other people** | ✅ **Done — ready for review** |
+| 13 — Making it testable by other people | ✅ Done |
+| **14 — Calling in the players' own language** | ✅ **Done — ready for review** |
 
-All thirteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 578 unit tests passing, production build clean.
+All fourteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
+errors/warnings, 603 unit tests passing, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -37,6 +38,104 @@ Earlier phases, one line each — the detail is in the git history:
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
 
+
+---
+
+## Phase 14 — calling in the players' own language
+
+Most of the people this app is for are Filipino, and the app called every
+corner in English. On a court in Manila a coach does not shout "rear left" —
+they shout "likod kaliwa", and then, in the same breath, "smash". Taglish is
+not a translation of the call; it *is* the call.
+
+### What is translated, and what deliberately is not
+
+`lib/audio/language` owns the whole vocabulary and the reasoning sits in the
+file, because the temptation to "finish the job" later is the thing most likely
+to break it:
+
+- **Corners** — translated. This is the call: the one thing you hear a hundred
+  times a session and the only one you have to act on.
+- **Zone numbers** — translated, so Number mode does not count in English
+  inside a Filipino call.
+- **Phase words** — translated. "Pahinga" is what you are told when a rest
+  starts. "Warm up" and "cool down" stay as they are, because that is what
+  Filipino coaches say.
+- **Shots** — left in English. Nobody has ever shouted a Tagalog word for a
+  smash, and inventing one would produce a call no player has heard.
+- **Exercise names** — left in English. "Push up", "plank" and "burpee" are the
+  words used in a Filipino gym; translating them would make a cue into a
+  puzzle.
+- **The interface** — left in English, for now. It is read sitting down with
+  time to think, which is the opposite of a call. If that turns out to be
+  wrong it is a separate and much larger piece of work.
+
+### The phone that has no Filipino voice
+
+This is the part that decides whether the feature is real. Android usually ships
+`fil-PH` (sometimes tagged `tl-PH`); **iOS has no Filipino voice at all**, and
+plenty of desktop browsers do not either. Falling back to English calls would
+have quietly taken the feature away from a large share of the phones it was
+built for.
+
+So every phrase is written twice: natively, and **respelled for an English
+voice**. "kaliwa" read by an English engine comes out "kal-EYE-wuh";
+"kah-lee-wah" comes out right. When a real Filipino voice exists the app uses
+the real spelling and tags the utterance `fil-PH`; when it does not, it uses the
+respelling through the English voice and tags it `en-US` — because the
+respelling *is* English spelling, and telling a Filipino engine otherwise would
+have it read the hyphens.
+
+The settings screen says which of the two is happening on your device, in
+those words, next to a **Hear a call** button. A note claiming the fallback
+sounds fine is worth nothing; the button lets you judge it by ear before you
+commit to it.
+
+### The call got longer, so the slot had to
+
+"harap kaliwa" is five syllables where "net left" is two. Speech *cancels*
+rather than queues, so a slot shorter than the phrase does not delay the call —
+it amputates it, and half a corner name is worse than none. `minIntervalFor`
+now scales both floors by the language: 800ms → 1000ms for a corner call,
+1200ms → 1500ms when the call also names a shot. English is a factor of exactly
+1, and a test asserts it, so no English session moved by a millisecond.
+
+The language reaches the drill through `TrainingProfile`, alongside level and
+game, because it changes the shape of a session rather than just its sound —
+which means every screen that already fits a drill to the player agrees with
+what will actually run. **A shared challenge passes no language at all**, so it
+reconstructs at the English floor for both players and stays the same session
+whatever either of them has their calls set to.
+
+### Verified
+
+`npm run verify`: 603 tests across 37 files, no type or lint errors, clean
+build — 25 of them new, covering the vocabulary, the respellings, the voice-tag
+matching (`fil`, `tl`, `fil_PH`, and *not* `enm` or `tlh`) and the interval
+floors.
+
+Then driven in a real browser against a stubbed voice list, because what the
+app *says* is not something a unit test can see:
+
+- with a Filipino voice, the drill speaks `harap kanan` tagged `fil-PH` through
+  the Filipino voice;
+- with only an English one, it speaks `lee-kod kah-lee-wah` tagged `en-US`
+  through the English voice, rather than going silent;
+- a 24-second run produced 9 utterances with nothing slipping out in English;
+- an install that never touched the setting still says "net right", "rear
+  left", "warm up" — byte for byte what it said before;
+- a version-1 cue store keeps its tone volume, voice rate, split-step lead and
+  haptics across the version bump (the `migrate` passthrough — zustand discards
+  persisted state on a version mismatch without one);
+- the picker fits a 320px screen with no sideways scroll and a 115×76 tap
+  target.
+
+### Known limits, stated plainly
+
+The respelled fallback is an approximation tuned by ear on an English engine,
+not a phonetic transcription, and it will sound like an accent. It has not been
+heard by a native speaker on a real iPhone — that is the first thing worth
+checking with a tester.
 
 ---
 
