@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **603 tests across 37 files, all passing** — if you
+individually. Baseline is **616 tests across 38 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -67,7 +67,15 @@ see fewer, something is being skipped.
   an English one, because iOS has no Filipino voice at all and falling back to
   English calls would take the feature away from the phones it is for. On the
   respelled path the utterance is tagged `en`: the text is English spelling, and
-  a Filipino engine would read the hyphens. English is untouched by all of this
+  a Filipino engine would read the hyphens. Which voice reads it is the
+  player's choice, kept **per language** — the Filipino voice for a native call
+  and the English one for a respelling are separate decisions — and it travels
+  in `SpeakOptions` with the call rather than sitting in a module global, which
+  is what the previous single `voiceUri` did: written by the settings screen,
+  read by nobody, for the app's whole life. A stored voice the device no longer
+  has falls through to the automatic pick rather than silencing the drill, and
+  `listVoices` puts local voices first because a network voice fetches its audio
+  and a late call is a wrong call. English is untouched by all of this
   and a test holds it that way — `cornerText(def, 'en')` is the corner's own
   wording and `LANGUAGE_INTERVAL_FACTOR.en` is exactly 1. Anything shown on
   screen that quotes a call must be quoted in the same language, or the player
@@ -113,6 +121,11 @@ see fewer, something is being skipped.
   check and the training-load warning stay free for everyone. `ALWAYS_FREE` in
   `lib/premium/entitlements.ts` records this, and a test fails the build if one
   of them turns up in the paid list. Do not move that line.
+- **`selectCuePreferences` is how a screen gets the cue preferences.** Three
+  screens used to copy the store out field by field, so every new preference
+  meant finding and editing three files and one was always missed. Build on the
+  selector and override what your screen genuinely differs on — the benchmark
+  turns the metronome off, because a test of pacing must not be paced.
 - **Motion comes from `lib/motion`.** Four durations, two easings, two springs
   and a set of shared variants, mirrored into CSS custom properties in
   `index.css` so a Tailwind `duration-*` class and a framer-motion transition

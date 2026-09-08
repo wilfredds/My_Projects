@@ -1,5 +1,5 @@
 import { Settings2, Volume2 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -24,11 +24,13 @@ import {
 } from '@/lib/audio/language'
 import {
   deliveryFor,
-  hasVoiceFor,
   isSpeechSupported,
+  listVoices,
   primeSpeech,
+  serverVoicesSnapshot,
   speak,
-  whenVoicesReady,
+  subscribeVoices,
+  voicesSnapshot,
 } from '@/lib/audio/speech'
 import { isAudioSupported } from '@/lib/audio/tones'
 import { isWakeLockSupported } from '@/lib/audio/wakeLock'
@@ -41,15 +43,19 @@ const SAMPLE_CORNER = CORNERS['rear-left']
 const SAMPLE_STROKE = 'smash' as const
 
 /**
- * Whether this device can speak Filipino, re-answered when the voice list
- * arrives. Chrome publishes voices asynchronously and returns an empty list on
- * the first call, so asking once on mount would tell every Chrome user their
- * phone has no Filipino voice — including the ones whose phone does.
+ * The voices that can speak a language, re-read when the list arrives.
+ *
+ * Chrome publishes voices asynchronously and returns an empty list on the first
+ * call, so reading once on mount would tell every Chrome user their phone has
+ * no Filipino voice — including the ones whose phone does.
  */
-function useHasFilipinoVoice(): boolean {
-  const [present, setPresent] = useState(() => hasVoiceFor('fil'))
-  useEffect(() => whenVoicesReady(() => setPresent(hasVoiceFor('fil'))), [])
-  return present
+function useVoices(language: CallLanguage): SpeechSynthesisVoice[] {
+  // The voice list is external mutable state that changes without React's
+  // knowledge, which is exactly what `useSyncExternalStore` is for. The
+  // snapshot keeps its identity until the voices actually change, so the memo
+  // below only re-sorts when there is something new to sort.
+  const all = useSyncExternalStore(subscribeVoices, voicesSnapshot, serverVoicesSnapshot)
+  return useMemo(() => (all.length === 0 ? [] : listVoices(language)), [all, language])
 }
 
 interface ToggleRowProps {
@@ -89,7 +95,27 @@ function ToggleRow({ id, label, hint, checked, onChange, disabled, disabledHint 
  */
 export function CueSettingsDialog() {
   const cues = useCueStore()
-  const filipinoVoice = useHasFilipinoVoice()
+  const filipinoVoice = useVoices('fil').length > 0
+  /*
+   * Which voice actually reads the call. On the respelled path the text is
+   * English spelling of Filipino words, so it is an English voice doing the
+   * reading and an English voice the player should be choosing between.
+   */
+  const voiceLanguage: CallLanguage =
+    deliveryFor(cues.callLanguage) === 'native' ? cues.callLanguage : 'en'
+  const voices = useVoices(voiceLanguage)
+  const chosenUri = cues.voiceUris[voiceLanguage] ?? ''
+
+  const hearACall = () => {
+    // Inside a click, which is the only place iOS will speak at all.
+    primeSpeech()
+    const language = cues.callLanguage
+    speak(callText(SAMPLE_CORNER, SAMPLE_STROKE, language, deliveryFor(language)), {
+      rate: cues.voiceRate,
+      language,
+      voiceUris: cues.voiceUris,
+    })
+  }
 
   // Capability checks are stable for the life of the page.
   const support = useMemo(
@@ -151,23 +177,45 @@ export function CueSettingsDialog() {
                     : 'This device has no Filipino voice, so the words are spelled out for the English one. Close enough to act on, but it will sound like an accent. Hear it before you commit to it.'}
               </p>
               {/*
-               * Inside a click, which is the only place iOS will speak at all —
-               * and the reason this button exists rather than a note claiming
-               * the fallback sounds fine. Judge it by ear.
+               * A picker only when there is something to pick. One voice is not
+               * a choice, and an empty select is worse than none.
                */}
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-3"
-                onClick={() => {
-                  primeSpeech()
-                  const language = cues.callLanguage
-                  speak(callText(SAMPLE_CORNER, SAMPLE_STROKE, language, deliveryFor(language)), {
-                    rate: cues.voiceRate,
-                    language,
-                  })
-                }}
-              >
+              {voices.length > 1 && (
+                <div className="mt-4">
+                  <Label className="mb-2 block" htmlFor="cue-voice-name">
+                    Voice
+                  </Label>
+                  <select
+                    id="cue-voice-name"
+                    className="border-input bg-background focus-visible:ring-ring h-11 w-full rounded-lg border px-3 text-base focus-visible:ring-2 focus-visible:outline-none"
+                    value={chosenUri}
+                    onChange={(event) =>
+                      cues.set('voiceUris', {
+                        ...cues.voiceUris,
+                        [voiceLanguage]: event.target.value || null,
+                      })
+                    }
+                  >
+                    <option value="">Chosen for me</option>
+                    {voices.map((voice) => (
+                      <option key={voice.voiceURI} value={voice.voiceURI}>
+                        {voice.name}
+                        {voice.localService ? '' : ' · needs a connection'}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
+                    Voices that need a connection fetch every call as you train, which arrives late
+                    and does not work offline. The ones on your phone are listed first.
+                  </p>
+                </div>
+              )}
+
+              {/*
+               * The reason this button exists rather than a note claiming the
+               * voice sounds fine. Judge it by ear, and change it if it is not.
+               */}
+              <Button variant="outline" size="sm" className="mt-3" onClick={hearACall}>
                 <Volume2 />
                 Hear a call
               </Button>

@@ -28,7 +28,7 @@ import { cornerIdsForLayout } from '@/lib/timer/corners'
 import { randomSeed } from '@/lib/timer/rng'
 import type { BlockPhase } from '@/lib/timer/types'
 import { formatDuration, pluralize } from '@/lib/utils'
-import { useCueStore } from '@/store/cueStore'
+import { selectCuePreferences, useCueStore } from '@/store/cueStore'
 
 import { CourtBoard } from '../train/components/CourtBoard'
 import { TimerDial } from '../train/components/TimerDial'
@@ -60,19 +60,11 @@ export function BenchmarkRunPage() {
 
   const preferences = useMemo(
     () => ({
-      voiceEnabled: cues.voiceEnabled,
-      voiceRate: cues.voiceRate,
-      voiceUri: cues.voiceUri,
-      toneEnabled: cues.toneEnabled,
-      toneVolume: cues.toneVolume,
-      vibrationEnabled: cues.vibrationEnabled,
-      countdownEnabled: cues.countdownEnabled,
+      ...selectCuePreferences(cues),
       // The metronome would pace the athlete through a test of their own pacing.
       splitStepEnabled: false,
       splitStepLeadMs: 0,
-      wakeLockEnabled: cues.wakeLockEnabled,
       announceNumbers: false,
-      callLanguage: cues.callLanguage,
     }),
     [cues],
   )

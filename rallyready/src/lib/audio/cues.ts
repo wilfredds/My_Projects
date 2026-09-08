@@ -21,7 +21,12 @@ import {
 export interface CuePreferences {
   voiceEnabled: boolean
   voiceRate: number
-  voiceUri: string | null
+  /**
+   * The voice chosen for each language, by URI. Per language because they are
+   * different choices: which Filipino voice reads a call, and which English one
+   * reads the respelling when there is no Filipino voice to read it.
+   */
+  voiceUris: Partial<Record<CallLanguage, string | null>>
   toneEnabled: boolean
   toneVolume: number
   vibrationEnabled: boolean
@@ -39,7 +44,7 @@ export interface CuePreferences {
 export const DEFAULT_CUE_PREFERENCES: CuePreferences = {
   voiceEnabled: true,
   voiceRate: 1.3,
-  voiceUri: null,
+  voiceUris: {},
   toneEnabled: true,
   toneVolume: 0.8,
   vibrationEnabled: true,
@@ -94,7 +99,7 @@ function announceCorner(
     : preferences.announceNumbers
       ? numberText(zoneNumber, language, delivery)
       : callText(def, undefined, language, delivery)
-  speak(text, { rate: preferences.voiceRate, language })
+  speak(text, { rate: preferences.voiceRate, language, voiceUris: preferences.voiceUris })
 }
 
 export function playCue(event: TimelineEvent, context: CueContext): void {
@@ -139,12 +144,14 @@ export function playCue(event: TimelineEvent, context: CueContext): void {
        */
       const exercise = context.exerciseNameOf?.(event.blockIndex)
       if (exercise) {
-        speak(exercise, { rate: preferences.voiceRate })
+        speak(exercise, { rate: preferences.voiceRate, voiceUris: preferences.voiceUris })
         return
       }
       const language = preferences.callLanguage
       const word = phaseText(phase, language, deliveryFor(language))
-      if (word) speak(word, { rate: preferences.voiceRate, language })
+      if (word) {
+        speak(word, { rate: preferences.voiceRate, language, voiceUris: preferences.voiceUris })
+      }
       return
     }
 
@@ -156,6 +163,7 @@ export function playCue(event: TimelineEvent, context: CueContext): void {
         speak(completeText(language, deliveryFor(language)), {
           rate: preferences.voiceRate,
           language,
+          voiceUris: preferences.voiceUris,
         })
       }
       return

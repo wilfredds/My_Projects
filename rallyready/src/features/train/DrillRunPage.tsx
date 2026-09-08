@@ -43,7 +43,7 @@ import { STROKES } from '@/lib/timer/strokes'
 import { randomSeed } from '@/lib/timer/rng'
 import type { BlockPhase } from '@/lib/timer/types'
 import { formatCompactDuration, formatDuration, pluralize } from '@/lib/utils'
-import { useCueStore } from '@/store/cueStore'
+import { selectCuePreferences, useCueStore } from '@/store/cueStore'
 import { useUiStore } from '@/store/uiStore'
 import { useDrillConfig } from '@/store/drillConfigStore'
 
@@ -145,23 +145,10 @@ function Runner({ drill }: { drill: Drill }) {
   // fresh drill. Re-rolling on every render would rebuild the timeline mid-run.
   const seed = useMemo(() => randomSeed(), [])
 
-  const preferences = useMemo(
-    () => ({
-      voiceEnabled: cues.voiceEnabled,
-      voiceRate: cues.voiceRate,
-      voiceUri: cues.voiceUri,
-      toneEnabled: cues.toneEnabled,
-      toneVolume: cues.toneVolume,
-      vibrationEnabled: cues.vibrationEnabled,
-      countdownEnabled: cues.countdownEnabled,
-      splitStepEnabled: cues.splitStepEnabled,
-      splitStepLeadMs: cues.splitStepLeadMs,
-      wakeLockEnabled: cues.wakeLockEnabled,
-      announceNumbers: cues.announceNumbers,
-      callLanguage: cues.callLanguage,
-    }),
-    [cues],
-  )
+  // Through the store's own selector rather than copied out field by field:
+  // the hand-written version had to be found and edited in three files every
+  // time a preference was added, and one of them always got missed.
+  const preferences = useMemo(() => selectCuePreferences(cues), [cues])
 
   const plan = useMemo(() => {
     if (!config) return null

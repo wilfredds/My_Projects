@@ -23,10 +23,11 @@ the way.
 | 11 — The game you play, at your level | ✅ Done |
 | 12 — The workouts, for the room you have | ✅ Done |
 | 13 — Making it testable by other people | ✅ Done |
-| **14 — Calling in the players' own language** | ✅ **Done — ready for review** |
+| 14 — Calling in the players' own language | ✅ Done |
+| **15 — Choosing the voice that calls** | ✅ **Done — ready for review** |
 
-All fourteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 603 unit tests passing, production build clean.
+All fifteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
+errors/warnings, 616 unit tests passing, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -38,6 +39,81 @@ Earlier phases, one line each — the detail is in the git history:
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
 
+
+---
+
+## Phase 15 — choosing the voice that calls
+
+A sweep for exports nothing imports turned up the one that mattered: the
+settings screen had been storing a chosen voice as `voiceUri` since the app
+shipped, and **nothing had ever read it**. `setPreferredVoice` — the only
+function that would have applied it — had no callers at all. Every session this
+app has ever spoken used the browser's automatic pick.
+
+That was worth fixing on its own, and Phase 14 made it urgent: when there is no
+Filipino voice the calls are respelled for an English one, and *which* English
+voice reads "kah-lee-wah" is the difference between a call you can act on and a
+noise. A player has to be able to change it, and to hear the change.
+
+### What the voice preference is now
+
+- **Per language.** Which Filipino voice speaks a native call and which English
+  voice reads a respelling are separate decisions, and switching the call
+  language back and forth keeps both. `voiceUri: string | null` became
+  `voiceUris: Partial<Record<CallLanguage, string | null>>`.
+- **Carried with the call.** It lives in `SpeakOptions` rather than in a
+  module-level global set out of band, because the out-of-band version is
+  exactly what went unwired and stayed unwired.
+- **Local voices first.** A network voice fetches its audio for every call: it
+  arrives late, which in a drill is the same as arriving wrong, and it does not
+  work offline at all in an app whose whole point is that it does. They sort
+  last and are labelled "needs a connection".
+- **Never a dead end.** A stored voice this device no longer has — an
+  uninstalled language pack, a new phone, a different browser — falls through to
+  the automatic pick rather than silencing the drill.
+
+The picker only appears when there is more than one voice to choose between,
+and the **Hear a call** button beside it plays a real call through the current
+choice.
+
+### The other dead thing
+
+`selectCuePreferences` existed to hand a screen the cue preferences and nothing
+called it: the drill runner and the benchmark each copied the store out field by
+field instead. That is why adding `callLanguage` in Phase 14 meant editing three
+files, and why the type checker had to catch the third. Both now build on the
+selector and override only what they genuinely differ on — the benchmark turns
+the metronome off, because a test of your own pacing must not be paced.
+
+`whenVoicesReady` went too, replaced by `subscribeVoices` + `voicesSnapshot`
+feeding `useSyncExternalStore`. The voice list is external mutable state that
+changes without React's knowledge, which is what that hook is for; the snapshot
+holds its array identity until the voices actually change, because returning a
+fresh array from `getVoices()` on every render loops forever.
+
+### Verified
+
+`npm run verify`: 616 tests across 38 files, no type or lint errors, clean
+build. Thirteen are new and cover the parts that are easy to get quietly wrong —
+local-before-network ordering, `fil` and `tl` both resolving, a stale stored URI
+falling back rather than going silent, the respelled path using the *English*
+choice and an English tag, `speak` cancelling before it speaks, and the snapshot
+keeping its identity.
+
+Then driven in a browser against five stubbed voices — 17 checks, all passing:
+
+- the picker offers only voices that can speak the call, network ones last and
+  labelled;
+- picking one and pressing **Hear a call** speaks through it;
+- switching the call language swaps the list, and switching back remembers the
+  earlier choice — both are stored side by side;
+- with no Filipino voice it offers the English voice that will read the
+  respelling, and reads `lee-kod kah-lee-wah` with it;
+- a real 22-second drill run used the chosen voice for all 8 calls;
+- a v2 store migrates to v3 keeping its tone volume and language, with the dead
+  `voiceUri` dropped rather than carried across — it named no language and had
+  never been used, so there was nothing to preserve;
+- no sideways scroll at 320px, and a 44px-tall select.
 
 ---
 

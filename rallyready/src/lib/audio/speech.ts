@@ -19,6 +19,15 @@ export interface SpeakOptions {
   volume?: number
   /** Which language the text is in. Decides the voice and the `lang` tag. */
   language?: CallLanguage
+  /**
+   * The voice the player picked, per language. Absent, or a URI this device no
+   * longer has, falls back to the best automatic choice.
+   *
+   * It travels with the call rather than being set once out of band, because
+   * the out-of-band version of this was a module-level global that nothing ever
+   * called: the app stored a chosen voice for months and never used it.
+   */
+  voiceUris?: Partial<Record<CallLanguage, string | null>>
 }
 
 const DEFAULT_RATE = 1.3
@@ -32,20 +41,30 @@ export function isSpeechSupported(): boolean {
   return synth() !== null && typeof window.SpeechSynthesisUtterance === 'function'
 }
 
-let preferredVoice: SpeechSynthesisVoice | null = null
-
+/**
+ * The voices that can speak a language, best first.
+ *
+ * "Best" is local before remote, because a network voice fetches its audio and
+ * the call arrives late — which in a drill is the same as arriving wrong. The
+ * rest of the order is the engine's own, then alphabetical, so the list a
+ * player picks from does not reshuffle itself between visits.
+ */
 export function listVoices(language: CallLanguage = 'en'): SpeechSynthesisVoice[] {
   const speech = synth()
   if (!speech) return []
   try {
-    return speech.getVoices().filter((voice) => voiceMatches(voice.lang, language))
+    return speech
+      .getVoices()
+      .filter((voice) => voiceMatches(voice.lang, language))
+      .sort(
+        (a, b) =>
+          Number(b.localService) - Number(a.localService) ||
+          Number(b.default) - Number(a.default) ||
+          a.name.localeCompare(b.name),
+      )
   } catch {
     return []
   }
-}
-
-export function setPreferredVoice(voiceUri: string | null): void {
-  preferredVoice = voiceUri ? (listVoices().find((v) => v.voiceURI === voiceUri) ?? null) : null
 }
 
 /**
@@ -75,13 +94,24 @@ export function deliveryFor(language: CallLanguage): Delivery {
  * Chrome loads voices asynchronously and returns [] on the first call, so the
  * default is resolved lazily and re-resolved until a voice list arrives.
  */
-function resolveVoice(language: CallLanguage): SpeechSynthesisVoice | null {
+function resolveVoice(
+  language: CallLanguage,
+  voiceUri?: string | null,
+): SpeechSynthesisVoice | null {
   const voices = listVoices(language)
   if (voices.length === 0) return null
-  // A voice chosen by hand only applies to the language it was chosen from.
-  if (preferredVoice && voiceMatches(preferredVoice.lang, language)) return preferredVoice
-  // Prefer a local voice: network voices add latency we cannot afford.
-  return voices.find((voice) => voice.localService && voice.default) ?? voices[0] ?? null
+  /*
+   * A chosen voice, if this device still has it. Voices come and go — an
+   * uninstalled language pack, a different browser, the same account on a new
+   * phone — and a stored URI that no longer resolves must fall through to the
+   * automatic choice rather than silencing the drill.
+   */
+  if (voiceUri) {
+    const chosen = voices.find((voice) => voice.voiceURI === voiceUri)
+    if (chosen) return chosen
+  }
+  // Otherwise the head of the list, which is already local-first.
+  return voices[0] ?? null
 }
 
 export function speak(text: string, options: SpeakOptions = {}): void {
@@ -101,7 +131,8 @@ export function speak(text: string, options: SpeakOptions = {}): void {
      * it needs an English voice and an English tag. Handing "kah-lee-wah" to a
      * Filipino engine would have it pronounce the respelling literally.
      */
-    const voice = resolveVoice(delivery === 'native' ? language : 'en')
+    const voiceLanguage = delivery === 'native' ? language : 'en'
+    const voice = resolveVoice(voiceLanguage, options.voiceUris?.[voiceLanguage])
     if (voice) utterance.voice = voice
     utterance.lang = voice?.lang ?? utteranceLang(language, delivery)
     speech.speak(utterance)
@@ -135,15 +166,49 @@ export function primeSpeech(): void {
   }
 }
 
-/** Resolves once the browser has published its voice list (or immediately). */
-export function whenVoicesReady(callback: () => void): () => void {
+/* ------------------------------------------------- watching the voice list */
+
+const NO_VOICES: SpeechSynthesisVoice[] = []
+let snapshot: SpeechSynthesisVoice[] = NO_VOICES
+let snapshotKey = ''
+
+/**
+ * A stable snapshot of the browser's voice list, for `useSyncExternalStore`.
+ *
+ * `getVoices()` builds a fresh array on every call, and React treats a new
+ * array as a change — returning it straight through would re-render forever.
+ * So the array is held and only replaced when the voices themselves differ.
+ */
+export function voicesSnapshot(): SpeechSynthesisVoice[] {
+  const speech = synth()
+  if (!speech) return NO_VOICES
+  let voices: SpeechSynthesisVoice[]
+  try {
+    voices = speech.getVoices()
+  } catch {
+    voices = []
+  }
+  const key = voices.map((voice) => `${voice.voiceURI}|${voice.lang}`).join(',')
+  if (key !== snapshotKey) {
+    snapshotKey = key
+    snapshot = voices
+  }
+  return snapshot
+}
+
+/** The snapshot for a render with no browser to ask. Always the same array. */
+export function serverVoicesSnapshot(): SpeechSynthesisVoice[] {
+  return NO_VOICES
+}
+
+/**
+ * Watches for the browser publishing or changing its voices. Chrome returns an
+ * empty list on the first call and fills it in later, so a screen that asks
+ * once on mount tells half its users they have no voices at all.
+ */
+export function subscribeVoices(onChange: () => void): () => void {
   const speech = synth()
   if (!speech) return () => {}
-  if (listVoices().length > 0) {
-    callback()
-    return () => {}
-  }
-  const handler = () => callback()
-  speech.addEventListener('voiceschanged', handler)
-  return () => speech.removeEventListener('voiceschanged', handler)
+  speech.addEventListener('voiceschanged', onChange)
+  return () => speech.removeEventListener('voiceschanged', onChange)
 }
