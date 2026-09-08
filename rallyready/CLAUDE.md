@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **569 tests across 35 files, all passing** — if you
+individually. Baseline is **578 tests across 36 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -136,6 +136,15 @@ see fewer, something is being skipped.
   and `null` means "never looked" — an install from before rewards existed —
   in which case the app snapshots silently and celebrates nothing. Do not
   default it to `[]`.
+- **Feedback is text, not telemetry.** There is no server to post to and no
+  analytics in this app, so `lib/feedback/report` builds a plain-text report
+  and hands it to the share sheet — Messenger, on the phone of the players this
+  is for. Plain text because a human reads it before sending it, and a blob of
+  JSON is something you forward without reading. It carries enough to reproduce
+  a bug (screen, build, level, viewport) and nothing that identifies anybody;
+  the training history is attached only if they switch it on, with the contents
+  spelled out beside the switch. Do not quietly add anything to that report
+  that its own "what this includes" section does not name.
 - **No payment provider is wired.** Premium is a local entitlement plus an
   upgrade screen that says so on the page. Anything that looks like it takes
   money must keep saying it does not until a provider and server-side receipt

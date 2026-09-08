@@ -5,7 +5,18 @@ import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+import pkg from './package.json' with { type: 'json' }
+
+/**
+ * Stamped into the bundle so a feedback report can say which build it came
+ * from. Testers are on whatever the service worker last gave them, which is
+ * not necessarily what is deployed, and "it does that on mine" is unanswerable
+ * without this.
+ */
+const BUILD = `${pkg.version} (${new Date().toISOString().slice(0, 10)})`
+
 export default defineConfig({
+  define: { __APP_BUILD__: JSON.stringify(BUILD) },
   plugins: [
     react(),
     tailwindcss(),

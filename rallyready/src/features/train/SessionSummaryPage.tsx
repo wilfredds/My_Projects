@@ -27,6 +27,8 @@ import { formatDuration, pluralize } from '@/lib/utils'
 import { useTrainingData } from '../progress/useTrainingData'
 import { ChallengeButton } from '../social/ChallengeButton'
 import { ChallengeResult } from '../social/ChallengeResult'
+import { FeedbackDialog } from '@/features/feedback/FeedbackDialog'
+
 import { ProgramDayPrompt } from '../programs/components/ProgramDayPrompt'
 import { RpePrompt } from './components/RpePrompt'
 import { ShareSessionButton } from './components/ShareSessionButton'
@@ -257,6 +259,22 @@ export function SessionSummaryPage() {
         <Button asChild variant="outline" size="lg" className="sm:flex-1">
           <Link to="/">Back to Train</Link>
         </Button>
+      </div>
+
+      {/* Quietly, at the very bottom, and never as a prompt. This is the moment
+          an opinion about the session is sharpest, but somebody who just
+          finished training does not want to be interviewed about it. */}
+      <div className="mt-6 text-center">
+        <FeedbackDialog
+          trigger={
+            <button
+              type="button"
+              className="text-muted-foreground hover:text-foreground text-xs underline underline-offset-4"
+            >
+              Something off about that session?
+            </button>
+          }
+        />
       </div>
     </motion.div>
   )

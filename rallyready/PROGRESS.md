@@ -21,10 +21,11 @@ the way.
 | 9 — Making it feel alive                | ✅ Done                        |
 | 10 — Off-court training, strokes, integrity | ✅ Done |
 | 11 — The game you play, at your level | ✅ Done |
-| **12 — The workouts, for the room you have** | ✅ **Done — ready for review** |
+| 12 — The workouts, for the room you have | ✅ Done |
+| **13 — Making it testable by other people** | ✅ **Done — ready for review** |
 
-All twelve phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 569 unit tests passing, production build clean.
+All thirteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
+errors/warnings, 578 unit tests passing, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -36,6 +37,51 @@ Earlier phases, one line each — the detail is in the git history:
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
 
+
+---
+
+## Phase 13 — making it testable by other people
+
+Twelve phases in, exactly one person had ever used this app. Every decision
+about what is confusing, what is boring and whether the rally patterns land was
+a guess, and there was no way for it to stop being one: the app had no feedback
+path at all, and everything a tester does lives in their own browser's local
+storage where nobody else can see it.
+
+There is no server to post to and no analytics here, which is a constraint
+worth keeping rather than working around. So a report is *text*: built by
+`lib/feedback/report`, handed to the share sheet, and on the phone of the
+players this is aimed at that means Messenger — the app they already have open.
+Copy and download are the fallbacks for a desktop browser, and one of the three
+always works.
+
+Plain text rather than JSON on purpose. A person reads this in a chat window
+and decides whether to send it; a blob of JSON is something you forward without
+reading, which is the wrong instinct to encourage when it may carry someone's
+training history. The complaint leads, the diagnostics are the footnote, and
+the report states on its face what it contains.
+
+It carries enough to reproduce a bug — the screen, the build, the level and
+discipline, the viewport, how many sessions they have actually logged, because
+an opinion after one go is a different opinion from one after twenty — and
+nothing that identifies anybody. The training history is attached only if the
+tester switches it on, with the contents written next to the switch.
+
+Two entry points: the profile screen, and one quiet line at the very bottom of
+the session summary, where an opinion about a session is sharpest. Not a
+prompt — somebody who has just finished training does not want to be
+interviewed about it.
+
+The build version is stamped into the bundle for this, because testers are on
+whatever the service worker last handed them rather than on what is deployed,
+and "it does not do that on mine" is unanswerable without it.
+
+### Verified
+
+- `npm run verify`: 578 tests across 36 files.
+- The dialog driven end to end in a browser: the report reads correctly, the
+  history attaches only when asked, and with six sessions in it the whole thing
+  is 2.4 KB — small enough to paste into a chat.
 
 ---
 

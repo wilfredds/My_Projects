@@ -4,6 +4,7 @@ import {
   Database,
   LogIn,
   LogOut,
+  MessageSquare,
   Palette,
   PlayCircle,
   ShieldCheck,
@@ -28,6 +29,8 @@ import type { ThemePreference } from '@/lib/theme'
 import { formatDuration, pluralize } from '@/lib/utils'
 import { useDrillConfigStore } from '@/store/drillConfigStore'
 import { usePremium } from '@/store/premiumStore'
+
+import { FeedbackDialog } from '@/features/feedback/FeedbackDialog'
 
 import { BackupCard } from './components/BackupCard'
 
@@ -281,6 +284,26 @@ export function ProfilePage() {
         {/* Directly after "Your data", because that card is where someone
             realises their training only exists in this one browser. */}
         <BackupCard />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Tell me what is wrong with it</CardTitle>
+            <CardDescription>
+              This app has been used properly by about one person. Anything that confused you,
+              broke, or bored you is worth more than a compliment.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FeedbackDialog
+              trigger={
+                <Button variant="outline">
+                  <MessageSquare />
+                  Send feedback
+                </Button>
+              }
+            />
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
