@@ -12,7 +12,7 @@ import {
   X,
   Zap,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 
 import { EmptyState } from '@/components/EmptyState'
@@ -33,6 +33,8 @@ import { configFromDrill, estimateDurationSec } from '@/lib/timer/plan'
 import { formatCompactDuration, pluralize } from '@/lib/utils'
 import { useDrillConfigStore } from '@/store/drillConfigStore'
 import { usePremium } from '@/store/premiumStore'
+import { StorageWarning } from '@/components/StorageWarning'
+import { isStorageWritable } from '@/lib/data/local/storage'
 import { useTrainingProfile } from '@/hooks/useTrainingProfile'
 import { useUiStore } from '@/store/uiStore'
 
@@ -57,6 +59,8 @@ export function TrainPage() {
   const welcomeSeenAt = useUiStore((state) => state.welcomeSeenAt)
   const premium = usePremium()
   const training = useTrainingProfile()
+  // Settled for the life of the page; the browser will not change its mind.
+  const storageWritable = useMemo(() => isStorageWritable(), [])
   const [tab, setTab] = useState<Tab>('drills')
   const [homeOnly, setHomeOnly] = useState(false)
 
@@ -124,6 +128,7 @@ export function TrainPage() {
       seenWelcome: welcomeSeenAt !== null,
       path: location.pathname,
       redirectedThisLoad: wasWelcomeShownThisLoad(),
+      storageWritable,
     })
   ) {
     return <Navigate to={WELCOME_PATH} replace />
@@ -136,6 +141,8 @@ export function TrainPage() {
         description="Pick a drill and go. Every call is spoken, so you never need to look at the screen."
         action={<CueSettingsDialog />}
       />
+
+      <StorageWarning className="mb-5" />
 
       {streak && streak.currentStreak > 0 && (
         <div className="text-muted-foreground mb-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">

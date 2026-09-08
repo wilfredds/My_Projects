@@ -35,6 +35,27 @@ export function removeKey(key: string): void {
   }
 }
 
+/**
+ * Whether this browser will actually keep what we write.
+ *
+ * Asked by the screens that promise the player their training is safe, because
+ * the alternative is telling somebody in private browsing that their history
+ * is "saved in this browser" for a week before they find out it never was.
+ *
+ * A real write and delete rather than a feature check: `localStorage` exists
+ * and answers on iOS Private Browsing and inside the Messenger and Facebook
+ * in-app browsers, and only refuses when you try to store something.
+ */
+export function isStorageWritable(): boolean {
+  try {
+    localStorage.setItem(PREFIX + 'probe', '1')
+    localStorage.removeItem(PREFIX + 'probe')
+    return true
+  } catch {
+    return false
+  }
+}
+
 /** `crypto.randomUUID` where available, with a plain fallback for old webviews. */
 export function newId(): string {
   const cryptoRef = globalThis.crypto

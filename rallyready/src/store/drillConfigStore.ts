@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { persistStorage } from './persistStorage'
+
 import type { Drill } from '@/lib/data/types'
 import { useTrainingProfile } from '@/hooks/useTrainingProfile'
 import { configFromDrill, type DrillConfig } from '@/lib/timer/plan'
@@ -31,7 +33,7 @@ export const useDrillConfigStore = create<DrillConfigStore>()(
         }),
       clearAll: () => set({ overrides: {} }),
     }),
-    { name: 'rallyready.drill-config', version: 1 },
+    { name: 'rallyready.drill-config', version: 1, storage: persistStorage },
   ),
 )
 

@@ -92,3 +92,36 @@ describe('the per-load guard', () => {
     expect(wasWelcomeShownThisLoad()).toBe(true)
   })
 })
+
+describe('a browser that will not remember anything', () => {
+  it('never shows the welcome, because it could never stop showing it', () => {
+    /*
+     * With storage refused the flag cannot be written, and no profile or
+     * session is ever kept either — so every condition stays true and the
+     * redirect fires on every visit to the home screen. Finish a drill in an
+     * in-app browser and the app greets you as a brand-new user.
+     */
+    expect(
+      shouldSeeWelcome({
+        loading: false,
+        hasProfile: false,
+        hasSessions: false,
+        seenWelcome: false,
+        path: FIRST_RUN_FROM,
+        storageWritable: false,
+      }),
+    ).toBe(false)
+  })
+
+  it('still shows it to a genuine first visit that can remember', () => {
+    const first = {
+      loading: false,
+      hasProfile: false,
+      hasSessions: false,
+      seenWelcome: false,
+      path: FIRST_RUN_FROM,
+    }
+    expect(shouldSeeWelcome(first)).toBe(true)
+    expect(shouldSeeWelcome({ ...first, storageWritable: true })).toBe(true)
+  })
+})

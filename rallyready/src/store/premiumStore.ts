@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { persistStorage } from './persistStorage'
+
 import type { Commitment } from '@/lib/premium/commitment'
 import {
   expiryFor,
@@ -77,7 +79,7 @@ export const usePremiumStore = create<PremiumStore>()(
           // question after it lapses, not only during.
         }),
     }),
-    { name: 'rallyready.premium', version: 2 },
+    { name: 'rallyready.premium', version: 2, storage: persistStorage },
   ),
 )
 

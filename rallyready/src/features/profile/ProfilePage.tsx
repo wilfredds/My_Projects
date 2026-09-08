@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import {
   CloudOff,
   Database,
@@ -23,7 +24,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { useAuth } from '@/lib/auth/context'
 import { isSupabaseConfigured } from '@/lib/data'
 import { useRepositories } from '@/lib/data/context'
-import { removeKey, STORAGE_KEYS } from '@/lib/data/local/storage'
+import { isStorageWritable, removeKey, STORAGE_KEYS } from '@/lib/data/local/storage'
 import { WELCOME_PATH } from '@/lib/firstRun'
 import type { ThemePreference } from '@/lib/theme'
 import { formatDuration, pluralize } from '@/lib/utils'
@@ -31,6 +32,8 @@ import { useDrillConfigStore } from '@/store/drillConfigStore'
 import { usePremium } from '@/store/premiumStore'
 
 import { FeedbackDialog } from '@/features/feedback/FeedbackDialog'
+
+import { StorageWarning } from '@/components/StorageWarning'
 
 import { BackupCard } from './components/BackupCard'
 
@@ -54,6 +57,7 @@ export function ProfilePage() {
   const { preference, setPreference } = useTheme()
   const premium = usePremium()
   const clearAllConfigs = useDrillConfigStore((state) => state.clearAll)
+  const storageWritable = useMemo(() => isStorageWritable(), [])
 
   const { data: sessions = [] } = useQuery({
     queryKey: ['sessions', 'all'],
@@ -75,6 +79,8 @@ export function ProfilePage() {
       />
 
       <div className="space-y-5">
+        <StorageWarning />
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -252,12 +258,17 @@ export function ProfilePage() {
                 version read "Backend: local · Supabase not configured", which
                 is a developer's status line, not an answer to "is my training
                 safe if I lose this phone?". */}
+            {/* "Saved in this browser" is a lie in a browser that refuses to
+                save, and it is the kind of lie somebody only discovers after a
+                month of training. */}
             <p className="text-muted-foreground text-xs leading-relaxed">
-              {repositories.backend === 'supabase'
-                ? 'Saved to your account, so it survives losing this phone.'
-                : isSupabaseConfigured()
-                  ? 'Saved in this browser. Sign in and it comes with you to your other devices.'
-                  : 'Saved in this browser. Clearing your browser data would erase it.'}
+              {!storageWritable
+                ? 'Not saved anywhere. This browser refuses storage — private browsing, or an app’s built-in browser — so everything above disappears when you close this tab.'
+                : repositories.backend === 'supabase'
+                  ? 'Saved to your account, so it survives losing this phone.'
+                  : isSupabaseConfigured()
+                    ? 'Saved in this browser. Sign in and it comes with you to your other devices.'
+                    : 'Saved in this browser. Clearing your browser data would erase it.'}
             </p>
 
             <Button

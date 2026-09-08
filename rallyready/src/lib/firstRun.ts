@@ -27,6 +27,11 @@ export interface FirstRunInput {
    * back to the welcome and trap the player in a loop.
    */
   redirectedThisLoad?: boolean
+  /**
+   * Whether the browser will keep anything at all. Defaults to true, because
+   * for almost everybody it does.
+   */
+  storageWritable?: boolean
 }
 
 /** The only route a first-run redirect may fire from. */
@@ -39,6 +44,20 @@ export function shouldSeeWelcome(input: FirstRunInput): boolean {
   if (input.loading) return false
   if (input.seenWelcome) return false
   if (input.redirectedThisLoad) return false
+
+  /*
+   * A browser that refuses storage can never record that the welcome was seen,
+   * and it never keeps a session or a profile either — so every one of the
+   * conditions below stays true for ever. This redirect would fire on every
+   * single visit to the home screen, and it did: finish a drill in an in-app
+   * browser and the app would greet you as a brand-new user, having thrown
+   * away the session you just did.
+   *
+   * A first-run screen that reappears is far worse than none at all, which is
+   * the whole premise of this module. So it is skipped, and the introduction
+   * stays reachable from the profile, where it does not ambush anybody.
+   */
+  if (input.storageWritable === false) return false
 
   // Either of these means a returning player, whatever the flag says — a
   // cleared browser must not re-introduce the app to somebody who has trained.

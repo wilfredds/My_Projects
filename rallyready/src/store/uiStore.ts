@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { persistStorage } from './persistStorage'
+
 import type { Adjustment } from '@/lib/data/readiness'
 import type { Discipline, SkillLevel } from '@/lib/data/types'
 
@@ -97,6 +99,7 @@ export const useUiStore = create<UiStore>()(
     }),
     {
       name: 'rallyready.ui',
+      storage: persistStorage,
       version: 7,
       /*
        * Carry the old state forward on a version bump.

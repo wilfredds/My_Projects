@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { persistStorage } from './persistStorage'
+
 /**
  * Mini-game results, kept out of the training repositories on purpose.
  *
@@ -51,6 +53,6 @@ export const useGameStore = create<GameStore>()(
         })),
       reset: () => set({ bestScore: 0, bestReactionMs: null, played: 0, history: [] }),
     }),
-    { name: 'rallyready.games', version: 1 },
+    { name: 'rallyready.games', version: 1, storage: persistStorage },
   ),
 )

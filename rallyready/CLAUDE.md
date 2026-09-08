@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **616 tests across 38 files, all passing** — if you
+individually. Baseline is **626 tests across 39 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -121,6 +121,19 @@ see fewer, something is being skipped.
   check and the training-load warning stay free for everyone. `ALWAYS_FREE` in
   `lib/premium/entitlements.ts` records this, and a test fails the build if one
   of them turns up in the paid list. Do not move that line.
+- **A browser that refuses storage must still run a drill.** iOS Private
+  Browsing, "block all cookies" and the in-app browsers inside Messenger and
+  Facebook all let `localStorage` exist and then throw when you write to it —
+  and an in-app browser is how somebody opens a link a friend sent them, which
+  is how every tester arrives. `zustand/persist` guards *getting* the storage
+  object but not the calls on it, so every persisted store goes through
+  `store/persistStorage`, which wraps each one. Nothing may promise the player
+  their training is safe without asking `isStorageWritable()` first — the
+  Profile card and `components/StorageWarning` say plainly when it is not — and
+  `shouldSeeWelcome` returns false there, because the "seen it" flag can never
+  stick and the introduction would otherwise ambush the player on every visit.
+  A refused session write is an *error*, not a shrug: returning the session
+  anyway sent somebody who had just finished a drill to "Session not found".
 - **`selectCuePreferences` is how a screen gets the cue preferences.** Three
   screens used to copy the store out field by field, so every new preference
   meant finding and editing three files and one was always missed. Build on the

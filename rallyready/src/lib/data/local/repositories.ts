@@ -72,8 +72,19 @@ const sessions: SessionRepository = {
       source: input.source,
     }
 
-    // Newest first: every read path wants recent sessions.
-    writeJson(STORAGE_KEYS.sessions, [session, ...loadSessions()])
+    /*
+     * Newest first: every read path wants recent sessions.
+     *
+     * A refused write has to be an error rather than a shrug. Returning the
+     * session anyway sent the runner to `/session/<id>` for a session that was
+     * never stored, so somebody who had just finished a full drill in private
+     * browsing was shown "Session not found" — the worst possible answer to
+     * forty minutes of work. The caller catches this and goes somewhere that
+     * explains itself instead.
+     */
+    if (!writeJson(STORAGE_KEYS.sessions, [session, ...loadSessions()])) {
+      throw new Error('This browser would not let RallyReady save the session.')
+    }
 
     if (metrics.length > 0) {
       const store = loadMetrics()

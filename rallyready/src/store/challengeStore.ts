@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { persistStorage } from './persistStorage'
+
 import type { Challenge } from '@/lib/social/challenge'
 
 export interface AcceptedChallenge extends Challenge {
@@ -29,6 +31,6 @@ export const useChallengeStore = create<ChallengeStore>()(
       accept: (challenge) => set({ active: challenge }),
       clear: () => set({ active: null }),
     }),
-    { name: 'rallyready.challenge', version: 1 },
+    { name: 'rallyready.challenge', version: 1, storage: persistStorage },
   ),
 )

@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { persistStorage } from './persistStorage'
+
 import { DEFAULT_CUE_PREFERENCES, type CuePreferences } from '@/lib/audio/cues'
 import { MAX_SPLIT_STEP_LEAD_MS, MIN_SPLIT_STEP_LEAD_MS } from '@/lib/timer/plan'
 import { clamp } from '@/lib/utils'
@@ -29,6 +31,7 @@ export const useCueStore = create<CueStore>()(
     }),
     {
       name: 'rallyready.cue-preferences',
+      storage: persistStorage,
       version: 3,
       /*
        * Version 2 added `callLanguage`; version 3 replaced the single

@@ -24,10 +24,11 @@ the way.
 | 12 — The workouts, for the room you have | ✅ Done |
 | 13 — Making it testable by other people | ✅ Done |
 | 14 — Calling in the players' own language | ✅ Done |
-| **15 — Choosing the voice that calls** | ✅ **Done — ready for review** |
+| 15 — Choosing the voice that calls | ✅ Done |
+| **16 — Training where the browser fights you** | ✅ **Done — ready for review** |
 
-All fifteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 616 unit tests passing, production build clean.
+All sixteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
+errors/warnings, 626 unit tests passing, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -39,6 +40,84 @@ Earlier phases, one line each — the detail is in the git history:
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
 
+
+---
+
+## Phase 16 — training where the browser fights you
+
+Two of this app's own promises had never actually been tested: that it works
+offline, and that it degrades rather than breaking when a browser refuses to
+store anything. So both were driven in a real browser rather than reasoned
+about.
+
+### Offline: the promise held
+
+One online visit, then the connection cut. The app precached itself, cold-reloaded
+with no network, every screen rendered, a full drill ran, the session was logged,
+and it was still there after another offline reload — with no console errors
+anywhere. Nothing to fix; now it is a thing that was checked rather than a thing
+that was claimed.
+
+### Storage refused: three real bugs
+
+The other promise did not hold. With a browser that lets `localStorage` exist
+and throws on every call — iOS Private Browsing, "block all cookies", and the
+in-app browsers inside Messenger and Facebook — every screen degraded politely
+**except the drill runner**, the only one that matters. And an in-app browser is
+not an edge case: it is how somebody opens a link a friend sent them, which is
+exactly how every tester of this app will arrive.
+
+1. **The runner crashed to the error boundary.** `zustand/persist` guards
+   *getting* the storage object but not the calls on it, and the runner writes a
+   cue preference as it mounts. All six persisted stores now go through
+   `store/persistStorage`, which wraps every call the way
+   `lib/data/local/storage` already wrapped the session history. A refusal now
+   means settings do not survive a reload — a disappointment. It used to mean no
+   training at all — a broken app.
+
+2. **Finishing a drill dead-ended on "Session not found".** The local session
+   repository ignored whether the write succeeded and handed back an id that
+   resolved to nothing, so the runner navigated to a summary for a session that
+   was never stored. That is the worst possible answer to forty minutes of work.
+   A refused write is now an error, which the runner's existing catch already
+   knew what to do with.
+
+3. **And then the app greeted them as a brand-new user.** Landing back on the
+   home screen fired the first-run redirect — because with nothing stored there
+   is no profile, no session and no "seen it" flag, so every condition stays
+   true for ever and the introduction would have appeared on *every single
+   visit*. `shouldSeeWelcome` now returns false when storage is unwritable,
+   which is the module's own premise: a first-run screen that reappears is far
+   worse than none at all. The introduction stays reachable from the profile,
+   where it ambushes nobody.
+
+### Saying so, rather than lying quietly
+
+The Profile card said "Saved in this browser. Clearing your browser data would
+erase it." to somebody for whom nothing was being saved at all — the kind of
+lie you discover after a month of training. `isStorageWritable()` probes with a
+real write and delete, because `localStorage` *exists* and answers in all of
+these browsers and only refuses when you store something.
+
+`components/StorageWarning` renders on Train and Profile and draws nothing at
+all for almost everybody. For the rest it is the difference between finding out
+now and finding out later:
+
+> **This browser will not let RallyReady save anything.** You can train, and
+> every call still works — but your sessions, streak and settings will be gone
+> when you close this tab. Open RallyReady in Safari or Chrome to keep them.
+
+### Verified
+
+`npm run verify`: 626 tests across 39 files, no type or lint errors, clean
+build. Ten are new — the guarded storage adapter under refusal and under quota,
+the probe leaving nothing behind, and the first-run rule.
+
+Then the browser audit, 12 checks, all passing: precache, offline cold start,
+all fifteen routes offline, an offline drill logged and surviving a reload; then
+with storage refused, all fifteen routes again, a drill started and run,
+finishing landing on Train rather than a dead end or the welcome, and both
+screens telling the truth about what is being kept.
 
 ---
 
