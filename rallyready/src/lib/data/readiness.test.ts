@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import { SEED_DRILLS, isPrepOrRecovery } from '@/lib/data/seed/drills'
+import { configFromDrill, estimateDurationSec } from '@/lib/timer/plan'
 
 import {
+  configForToday,
   autoRegulate,
   clampAnswer,
   READINESS_QUESTIONS,
@@ -133,5 +136,39 @@ describe('READINESS_QUESTIONS', () => {
       expect(question.scale).toHaveLength(5)
       expect(question.scale.every((label) => label.length > 0)).toBe(true)
     }
+  })
+})
+
+describe('the settings a drill actually runs with today', () => {
+  const drill = SEED_DRILLS.find((d) => d.slug === 'six-corner-shadow')!
+  const warmUp = SEED_DRILLS.find((d) => isPrepOrRecovery(d))!
+  const config = configFromDrill(drill, { level: 'intermediate', discipline: 'singles' })
+
+  it('is the drill as configured when nothing was accepted', () => {
+    expect(configForToday(config, drill, null)).toBe(config)
+  })
+
+  it('is shorter once the player accepts a lighter day', () => {
+    /*
+     * The runner has always scaled this. Every screen that quoted a duration
+     * did not, so a card promised eight minutes and the drill ran six — the
+     * one number mismatch only a returning player could ever see, because it
+     * needs the daily check-in.
+     */
+    const lighter = configForToday(config, drill, 'lighter')
+    expect(estimateDurationSec(lighter)).toBeLessThan(estimateDurationSec(config))
+  })
+
+  it('is longer on a good day', () => {
+    expect(estimateDurationSec(configForToday(config, drill, 'harder'))).toBeGreaterThan(
+      estimateDurationSec(config),
+    )
+  })
+
+  it('never shortens a warm-up or a cool-down', () => {
+    // A shorter warm-up is not a lighter session, it is a worse one.
+    const prep = configFromDrill(warmUp, { level: 'intermediate', discipline: 'singles' })
+    expect(configForToday(prep, warmUp, 'lighter')).toBe(prep)
+    expect(configForToday(prep, warmUp, 'harder')).toBe(prep)
   })
 })

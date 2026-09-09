@@ -26,10 +26,11 @@ the way.
 | 14 — Calling in the players' own language | ✅ Done |
 | 15 — Choosing the voice that calls | ✅ Done |
 | 16 — Training where the browser fights you | ✅ Done |
-| **17 — Playing the app as a player** | ✅ **Done — ready for review** |
+| 17 — Playing the app as a player | ✅ Done |
+| **18 — Playing it as a player ten weeks in** | ✅ **Done — ready for review** |
 
-All seventeen phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 634 unit tests passing, production build clean.
+All eighteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
+errors/warnings, 641 unit tests passing, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -41,6 +42,80 @@ Earlier phases, one line each — the detail is in the git history:
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
 
+
+---
+
+## Phase 18 — playing it as a player ten weeks in
+
+Phase 17 played the app as somebody opening it for the first time. This is the
+other player, and a different set of screens: ten weeks of history, a missed
+week, an enrolment part-way through a program, a benchmark from six weeks ago,
+and a daily check-in due. None of it reachable by a new player, and five defects
+were living there.
+
+**The app argued with itself about what to do today.** On a rest day, with a bad
+check-in, the screen said — in this order — "Beat up · Lighten today", "Today
+would be: Rest day — take it", "Today · Rest · Walk, stretch, sleep", and then
+**"Picked for you · Six-Corner Shadow · Start"**, the loudest control on the
+page. Three systems saying back off and one hard drill under a green button.
+
+The rule already existed in the code and its comment: the hero is a fallback for
+a player nothing else is deciding for, "and two competing 'do this' cards answer
+it worse than either alone". It was applied to Premium's coach and not to a
+program. Now it covers both — and with no program running the hero comes back,
+so nothing was lost.
+
+**An accepted "take today lighter" moved the drill but not a single number.**
+The runner has always scaled an accepted adjustment by 0.7, cutting rounds by
+30%. Every screen that quoted a duration ignored it, so a card promised eight
+minutes and the drill ran six — the same class of lie as a card that ignores the
+player's level, and only reachable by somebody who does the daily check-in.
+`configForToday` is now the single rule, used by the runner and by every card;
+measured before and after accepting a lighter day, the cards went
+`8, 6, 3, 8, 8, 7` → `6, 6, 3, 5, 5, 5` minutes. The two that did not move are
+the warm-ups, which are never scaled: a shorter warm-up is not a lighter
+session, it is a worse one.
+
+**The streak tile and the heatmap disagreed on the same screen** — one session
+this week against two — because `computeStreak` refuses to count a session
+dated after today and `computeStats` did not. A wrong device clock or a flight
+across the date line is all it takes. The week buckets now carry the same guard;
+the totals still count it, because it is the date that is wrong and not the
+training.
+
+**The readiness buttons showed a number and were named a word.** Each one reads
+"1" and was announced as "How did you sleep? Barely" — a WCAG 2.5.3 failure that
+makes the daily check-in unreachable by voice control, which is one of the
+input methods somebody with wrecked legs might actually be using. They are now
+"How did you sleep? 1, Barely": the number that is on the screen, then the word
+that gives it meaning. `RpePrompt` already did this correctly; the check-in was
+the outlier.
+
+**The benchmark showed one number twice.** "Latest score 42" beside "Personal
+best 42 across 1 attempt" is the same fact dressed as two, and only starts
+meaning anything on the second attempt. One attempt now reads "Your score".
+
+### Checked and found sound
+
+The streak maths (`longestStreak` is clamped to at least the current run — a
+screenshot made it look wrong and the text did not), the twelve-week heatmap
+against the session totals, the program's week-and-day advance, the inverted
+pace axis, the training-load ratio, the personal-bests table, the trophy case
+progress, and the premium teaser, whose blurred headline is properly
+`aria-hidden` with `sr-only` replacement text — it is not leaking the answer it
+is asking you to pay for.
+
+### Verified
+
+`npm run verify`: 641 tests across 39 files, no type or lint errors, clean
+build — seven new, covering the adjustment rule including the warm-up exemption,
+and the future-dated session in the week buckets but not the totals.
+
+Then re-driven in the browser against ten weeks of seeded history: the rest day
+no longer carries a Start button, the plan still says what today is, the hero
+returns when no program is running, the readiness buttons are operable by the
+number they show, and accepting a lighter day moves every quoted duration except
+the warm-ups.
 
 ---
 

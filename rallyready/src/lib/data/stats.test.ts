@@ -184,3 +184,44 @@ describe('computeStats', () => {
     expect(stats.intervalTrend.map((p) => p.intervalMs)).toEqual([1500, 1200])
   })
 })
+
+describe('a session dated in the future', () => {
+  const today = new Date('2026-09-09T12:00:00')
+  const tomorrow = new Date('2026-09-10T19:00:00').toISOString()
+  const yesterday = new Date('2026-09-08T19:00:00').toISOString()
+
+  it('is not counted into a week', () => {
+    /*
+     * A wrong device clock, or a flight across the date line. `computeStreak`
+     * already refuses to count one into "this week", and without the same
+     * guard here the heatmap disagreed with the streak tile on the same
+     * screen — one said one session this week, the other said two.
+     */
+    const stats = computeStats(
+      [session({ startedAt: yesterday }), session({ startedAt: tomorrow })],
+      [],
+      today,
+    )
+    expect(stats.weekly.at(-1)?.sessions).toBe(1)
+  })
+
+  it('still counts towards the totals, because the training happened', () => {
+    // It is the date that is wrong, not the session.
+    const stats = computeStats(
+      [session({ startedAt: yesterday }), session({ startedAt: tomorrow })],
+      [],
+      today,
+    )
+    expect(stats.totalTrainingSec).toBe(1200)
+  })
+
+  it('leaves an ordinary history alone', () => {
+    const stats = computeStats(
+      [session({ startedAt: yesterday }), session({ startedAt: yesterday })],
+      [],
+      today,
+    )
+    expect(stats.weekly.at(-1)?.sessions).toBe(2)
+    expect(stats.totalTrainingSec).toBe(1200)
+  })
+})

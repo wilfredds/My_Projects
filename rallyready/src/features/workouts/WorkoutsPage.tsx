@@ -9,7 +9,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { useRepositories } from '@/lib/data/context'
 import { isConditioning, isPrepOrRecovery } from '@/lib/data/seed/drills'
 import type { Drill } from '@/lib/data/types'
+import { useTodayAdjustment } from '@/hooks/useTodayAdjustment'
 import { useTrainingProfile } from '@/hooks/useTrainingProfile'
+import { configForToday } from '@/lib/data/readiness'
 import { configFromDrill, estimateDurationSec } from '@/lib/timer/plan'
 import { factsFor, groupWorkouts, SPACE_LABEL } from '@/lib/training/workouts'
 import { cn, formatCompactDuration, pluralize } from '@/lib/utils'
@@ -27,6 +29,7 @@ import { useDrillConfigStore } from '@/store/drillConfigStore'
 export function WorkoutsPage() {
   const repositories = useRepositories()
   const training = useTrainingProfile()
+  const adjustment = useTodayAdjustment()
   const overrides = useDrillConfigStore((state) => state.overrides)
   const [smallSpace, setSmallSpace] = useState(false)
   const [quietOnly, setQuietOnly] = useState(false)
@@ -41,7 +44,9 @@ export function WorkoutsPage() {
   const hidden = workouts.length - groups.reduce((sum, entry) => sum + entry.drills.length, 0)
 
   const minutesFor = (drill: Drill) =>
-    estimateDurationSec(overrides[drill.slug] ?? configFromDrill(drill, training))
+    estimateDurationSec(
+      configForToday(overrides[drill.slug] ?? configFromDrill(drill, training), drill, adjustment),
+    )
 
   return (
     <>

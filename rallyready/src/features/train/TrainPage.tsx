@@ -29,12 +29,15 @@ import { shouldSeeWelcome, wasWelcomeShownThisLoad, WELCOME_PATH } from '@/lib/f
 import { isConditioning, isPrepOrRecovery } from '@/lib/data/seed/drills'
 import type { Drill, SkillLevel } from '@/lib/data/types'
 import { buildLibrary } from '@/lib/library/entries'
+import { configForToday } from '@/lib/data/readiness'
 import { configFromDrill, estimateDurationSec } from '@/lib/timer/plan'
 import { formatCompactDuration, pluralize } from '@/lib/utils'
 import { useDrillConfigStore } from '@/store/drillConfigStore'
 import { usePremium } from '@/store/premiumStore'
 import { StorageWarning } from '@/components/StorageWarning'
 import { isStorageWritable } from '@/lib/data/local/storage'
+import { useProgramState } from '@/features/programs/useProgramState'
+import { useTodayAdjustment } from '@/hooks/useTodayAdjustment'
 import { useTrainingProfile } from '@/hooks/useTrainingProfile'
 import { useUiStore } from '@/store/uiStore'
 
@@ -59,6 +62,17 @@ export function TrainPage() {
   const welcomeSeenAt = useUiStore((state) => state.welcomeSeenAt)
   const premium = usePremium()
   const training = useTrainingProfile()
+  const adjustment = useTodayAdjustment()
+  const program = useProgramState()
+  /*
+   * Whether something above the hero has already answered "what do I do
+   * today?". The rule was already here for Premium — two competing "do this"
+   * cards answer it worse than either alone — but not for a program, so a
+   * player on a rest day was told to rest by the plan and handed a hard drill
+   * with the loudest button on the screen directly underneath.
+   */
+  const answeredAbove =
+    premium.has('coach') || Boolean(program.enrollment && program.program && program.today)
   // Settled for the life of the page; the browser will not change its mind.
   const storageWritable = useMemo(() => isStorageWritable(), [])
   const [tab, setTab] = useState<Tab>('drills')
@@ -105,7 +119,11 @@ export function TrainPage() {
 
   // Every duration on this page is the one this player will actually run, not
   // the one the drill was written at.
-  const configFor = (drill: Drill) => overrides[drill.slug] ?? configFromDrill(drill, training)
+  // What the drill will run as *today*, adjustment and all — the runner scales
+  // an accepted "take it lighter" by 30%, and a card that ignores that is
+  // advertising a session nobody is about to do.
+  const configFor = (drill: Drill) =>
+    configForToday(overrides[drill.slug] ?? configFromDrill(drill, training), drill, adjustment)
 
   const library = buildLibrary(drills)
   const browseLevel: SkillLevel = training.level
@@ -220,9 +238,10 @@ export function TrainPage() {
        * Intermediate" under "never played before" is two pieces of advice
        * contradicting each other — and withheld again once Premium is on,
        * because the coach card above has already answered this question and two
-       * competing "do this" cards answer it worse than either alone.
+       * competing "do this" cards answer it worse than either alone — and
+       * withheld the same way when a program is running, for the same reason.
        */}
-      {featured && !isNewHere && !premium.has('coach') && (
+      {featured && !isNewHere && !answeredAbove && (
         <Card level="lead" className="mb-6 overflow-hidden">
           <CardContent className="flex flex-col gap-4 p-5">
             <div>

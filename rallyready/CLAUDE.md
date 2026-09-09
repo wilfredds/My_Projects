@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **634 tests across 39 files, all passing** — if you
+individually. Baseline is **641 tests across 39 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -85,6 +85,17 @@ see fewer, something is being skipped.
   `lib/audio`) is latency-sensitive; changes there need tests.
 - **The app is the random caller.** No partner, no feeder, no court. Features
   that assume a second person are out of scope.
+- **One screen, one answer to "what do I do today?".** The hero on Train is a
+  *fallback*, for a player nothing else is deciding for. It is withheld when
+  Premium's coach is on and when a program is running — a plan that says rest
+  with a big green Start button under it is the app arguing with itself, and on
+  a bad check-in three separate systems were saying back off while the loudest
+  control started a six-corner drill.
+- **An accepted "take today lighter" is a 30% cut, and every number must know.**
+  `configForToday` in `lib/data/readiness` is the single rule — the runner and
+  every card that quotes a duration go through it, or the card advertises a
+  session nobody is about to do. A warm-up or cool-down is never scaled: a
+  shorter warm-up is not a lighter session, it is a worse one.
 - **Say a thing once, and name it once.** Two exercises called "Plank shoulder
   taps" and two called "High knees" sat in the library for two phases, so the
   same movement appeared twice with two different write-ups; a test now fails

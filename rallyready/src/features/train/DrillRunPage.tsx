@@ -14,13 +14,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
+import { useTodayAdjustment } from '@/hooks/useTodayAdjustment'
 import { useTrainingProfile } from '@/hooks/useTrainingProfile'
 import { swapVariants, useInitialSafe, useMotionSafe } from '@/lib/motion'
 import { useSessionGuard } from '@/hooks/useSessionGuard'
 import { useRepositories } from '@/lib/data/context'
 import { findExercise } from '@/lib/data/seed/exercises'
 import { isConditioning, isPrepOrRecovery } from '@/lib/data/seed/drills'
-import { ADJUSTMENT_SCALE } from '@/lib/data/readiness'
+import { configForToday } from '@/lib/data/readiness'
 import {
   METRIC_CALLS,
   METRIC_COMPLETED,
@@ -33,10 +34,9 @@ import {
   METRIC_SEED,
   METRIC_WORK_SEC,
 } from '@/lib/data/stats'
-import { localDateKey } from '@/lib/data/streaks'
 import type { Drill } from '@/lib/data/types'
 import { cornerIdsForLayout } from '@/lib/timer/corners'
-import { estimateDurationSec, isCircuit, planFromConfig, scaleConfig } from '@/lib/timer/plan'
+import { estimateDurationSec, isCircuit, planFromConfig } from '@/lib/timer/plan'
 import { CircuitBoard } from '@/features/conditioning/components/CircuitBoard'
 import { patternById } from '@/lib/timer/patterns'
 import { STROKES } from '@/lib/timer/strokes'
@@ -111,17 +111,11 @@ function Runner({ drill }: { drill: Drill }) {
    * normal for this drill. Warm-ups and cool-downs are exempt — a lighter
    * warm-up is not a lighter session, it is a worse one.
    */
-  const storedAdjustment = useUiStore((state) => state.adjustment)
-  const adjustmentDate = useUiStore((state) => state.adjustmentDate)
-  const adjustment =
-    isPrepOrRecovery(drill) || adjustmentDate !== localDateKey(new Date()) ? null : storedAdjustment
-
+  // The same rule the cards use, so what was advertised is what runs.
+  const adjustment = useTodayAdjustment()
   const config = useMemo(
-    () =>
-      savedConfig && adjustment
-        ? scaleConfig(savedConfig, ADJUSTMENT_SCALE[adjustment])
-        : savedConfig,
-    [savedConfig, adjustment],
+    () => (savedConfig ? configForToday(savedConfig, drill, adjustment) : savedConfig),
+    [savedConfig, drill, adjustment],
   )
 
   // Pulled out of the optional chain so hook dependency arrays stay plain

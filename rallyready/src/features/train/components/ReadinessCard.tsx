@@ -203,7 +203,13 @@ export function ReadinessCard() {
                         type="button"
                         role="radio"
                         aria-checked={selected}
-                        aria-label={`${question.prompt} ${label}`}
+                        /* The button reads "3"; naming it only "Rough" makes
+                           it unreachable by voice control, which is the one
+                           input method somebody with wrecked legs might be
+                           using. The number comes first because it is what is
+                           on the screen (WCAG 2.5.3), the word after it
+                           because a bare number means nothing spoken aloud. */
+                        aria-label={`${question.prompt} ${value}, ${label}`}
                         disabled={saving}
                         onClick={() => void answer(question.key, value)}
                         className={cn(

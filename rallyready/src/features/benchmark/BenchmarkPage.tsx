@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useRepositories } from '@/lib/data/context'
 import { BENCHMARK_LEVELS, benchmarkDurationSec, gradeBenchmark } from '@/lib/timer/benchmark'
-import { formatDuration } from '@/lib/utils'
+import { cn, formatDuration } from '@/lib/utils'
 
 import { AXIS_TICK, CHART, TOOLTIP_STYLE } from '../progress/chartTheme'
 
@@ -58,26 +58,35 @@ export function BenchmarkPage() {
         score.
       </p>
 
+      {/*
+       * One attempt is one number. Showing "Latest 42" beside "Personal best
+       * 42 across 1 attempt" is the same fact twice, dressed as two, and it
+       * only starts meaning something on the second attempt.
+       */}
       {latest && (
-        <div className="mt-6 grid grid-cols-2 gap-3">
+        <div className={cn('mt-6 grid gap-3', benchmarks.length > 1 && 'grid-cols-2')}>
           <Card>
             <CardContent className="p-4">
-              <p className="text-muted-foreground text-xs font-medium">Latest score</p>
+              <p className="text-muted-foreground text-xs font-medium">
+                {benchmarks.length > 1 ? 'Latest score' : 'Your score'}
+              </p>
               <p className="tnum mt-1 text-3xl font-bold tracking-tight">{latest.score}</p>
               <p className="text-muted-foreground mt-1 text-xs">
                 Level {latest.levelReached ?? 0} · {gradeBenchmark(latest.levelReached ?? 0).label}
               </p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-muted-foreground text-xs font-medium">Personal best</p>
-              <p className="tnum mt-1 text-3xl font-bold tracking-tight">{best}</p>
-              <p className="text-muted-foreground mt-1 text-xs">
-                across {benchmarks.length} {benchmarks.length === 1 ? 'attempt' : 'attempts'}
-              </p>
-            </CardContent>
-          </Card>
+          {benchmarks.length > 1 && (
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-muted-foreground text-xs font-medium">Personal best</p>
+                <p className="tnum mt-1 text-3xl font-bold tracking-tight">{best}</p>
+                <p className="text-muted-foreground mt-1 text-xs">
+                  across {benchmarks.length} attempts
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
 

@@ -134,6 +134,7 @@ export function computeStats(
 
   const byId = metricsBySession(metrics)
   const currentWeek = weekIndex(today)
+  const todayKey = localDateKey(today)
 
   const rpes = rpeBySession(metrics)
   const weekCounts = new Map<
@@ -159,6 +160,19 @@ export function computeStats(
     totalCalls += calls
     totalRounds += session.roundsCompleted
     if (own?.get(METRIC_DECEPTION) === 1) deceptionSessions += 1
+
+    /*
+     * A session dated after today has not happened — a wrong device clock, or
+     * a flight across the date line. `computeStreak` already refuses to count
+     * those into "this week", and without the same guard here the heatmap
+     * disagreed with the streak tile on the very same screen: one said one
+     * session this week, the other said two.
+     *
+     * Only the week buckets skip it. The totals above still count it, because
+     * the session was logged and the time was trained; it is the date that is
+     * wrong, not the training.
+     */
+    if (dateKey > todayKey) continue
 
     const bucket = weekCounts.get(week) ?? { sessions: 0, seconds: 0, calls: 0, load: 0 }
     bucket.sessions += 1

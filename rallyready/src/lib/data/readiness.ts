@@ -1,5 +1,8 @@
+import { scaleConfig, type DrillConfig } from '@/lib/timer/plan'
+
 import type { LoadStatus } from './load'
-import type { ReadinessAnswers } from './types'
+import { isPrepOrRecovery } from './seed/drills'
+import type { Drill, ReadinessAnswers } from './types'
 
 /**
  * The five-second check-in, and what the app does with the answer.
@@ -206,4 +209,27 @@ export function autoRegulate(input: {
   }
 
   return AS_PLANNED
+}
+
+/**
+ * The settings a drill will *actually* run with today.
+ *
+ * An accepted "take today lighter" cuts the rounds by 30%, and the runner has
+ * always applied it — but every screen that showed a duration was still
+ * quoting the unadjusted one, so a card promised eight minutes and the drill
+ * ran six. That is the same class of lie as a card that ignores the player's
+ * level, and it is only reachable by somebody who does the daily check-in,
+ * which is to say a returning player.
+ *
+ * A warm-up or a cool-down is never scaled: a shorter warm-up is not a lighter
+ * session, it is a worse one. The rule lives here so the runner and the cards
+ * cannot drift apart on it.
+ */
+export function configForToday(
+  config: DrillConfig,
+  drill: Drill,
+  adjustment: Adjustment | null,
+): DrillConfig {
+  if (!adjustment || isPrepOrRecovery(drill)) return config
+  return scaleConfig(config, ADJUSTMENT_SCALE[adjustment])
 }
