@@ -124,6 +124,21 @@ rather than snap, then removes it.
   development environment, so its card shows a stylised placeholder rather than
   a mock-up of a screen nobody ran. Drop in a real screenshot and swap the
   `.card-shot.is-empty` block for an `<img>` when one exists.
+- **The certificates are scans of the real documents.** `assets/img/certs/*.jpg`
+  is rendered from the issuer's own PDF, longest side 1800px, JPEG quality 85.
+  To add one, render page 1 of the PDF and add a `.cert` entry in `index.html`.
+  The card carries `data-cert-src`, `data-cert-title` and `data-cert-note`, and
+  `site.js` fills the single `#lightbox` overlay from whichever button was
+  clicked, so no JavaScript changes when a certificate is added.
+- **Two certificates have no scan.** Python Essentials 2 and the AWS Educate
+  badge show a `.cert-shot.is-empty` placeholder rather than a stand-in image,
+  because inventing a picture of a credential is the one thing this section
+  must never do. Swap in an `<img>` and the three `data-cert-*` attributes when
+  the files turn up.
+- **Certificate images stay out of the crop.** They are documents, so
+  `.cert-shot img` uses `object-fit: contain` against the `--cert-mat` token
+  rather than `cover`. Cropping a certificate cuts off the text that makes it
+  worth showing.
 - **Fonts come from Google Fonts.** Both faces have real fallbacks
   (`ui-monospace` and `system-ui`), so a blocked CDN changes the typography but
   not the layout.
@@ -151,7 +166,13 @@ cd portfolio && python3 -m http.server 8090 &
 
 Or simply open `/resume` and use the browser's Print, then Save as PDF. The
 print stylesheet at the bottom of `style.css` is tuned so the result lands on
-two A4 pages; if you add a project, check it still does.
+two A4 pages; if you add a project or a certification, check it still does.
+
+Two things in that block exist only to hold those two pages, so do not "tidy"
+them away: the certifications list is set in two columns (`.cv-certs`), and
+`.cv-skills` is deliberately allowed to break across pages. Held together it is
+one block too tall for whatever is left of page two, so it gets pushed whole
+onto a third page. Its rows keep `break-inside: avoid` individually.
 
 ## Deploying to Vercel
 

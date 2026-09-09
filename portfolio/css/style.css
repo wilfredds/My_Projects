@@ -42,6 +42,7 @@
   --term-top: #101310;
   --term-bottom: #0c0f0c;
   --term-bar: #0d100d;
+  --cert-mat: #1c211b;
 
   /* --- type ---------------------------------------------------------- */
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -91,6 +92,7 @@
   --scan:     rgb(20 24 15 / 2.4%);
   --glow:     rgb(25 107 44 / 7%);
   --shadow:   0 20px 45px -28px rgb(20 24 15 / 40%);
+  --cert-mat: #e9ede4;
 }
 
 @media (prefers-color-scheme: light) {
@@ -121,6 +123,7 @@
     --scan:     rgb(20 24 15 / 2.4%);
     --glow:     rgb(25 107 44 / 7%);
     --shadow:   0 20px 45px -28px rgb(20 24 15 / 40%);
+    --cert-mat: #e9ede4;
   }
 }
 
@@ -1068,6 +1071,13 @@ code {
 }
 
 /* ----------------------------------------------------------------- certs -- */
+.certs-lead {
+  color: var(--dim);
+  font-size: 0.93rem;
+  max-width: 64ch;
+  margin-bottom: 1.25rem;
+}
+
 .certs {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -1077,11 +1087,98 @@ code {
 }
 
 .cert {
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--line);
   border-left: 3px solid var(--green);
   border-radius: 0 var(--radius) var(--radius) 0;
   background: var(--surface);
-  padding: 1.1rem 1.25rem;
+  overflow: hidden;
+}
+
+.cert-body { padding: 1.1rem 1.25rem; }
+
+/* The certificate itself. These are documents, not screenshots, so the whole
+   page has to stay visible: object-fit is contain and the box carries its own
+   pale ground rather than cropping to fill. */
+.cert-shot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  /* A fixed height, not aspect-ratio. As a column flex item the box's height
+     is content-based, so aspect-ratio loses to the image and the one portrait
+     certificate stretched its whole grid row. A definite height also gives the
+     image's max-height something real to resolve against. */
+  flex: none;
+  height: 12.5rem;
+  padding: 0.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--cert-mat);
+  cursor: zoom-in;
+  font: inherit;
+  color: var(--faint);
+}
+
+.cert-shot img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 2px;
+  box-shadow: 0 2px 10px -4px rgb(0 0 0 / 45%);
+}
+
+/* The magnifier only appears on hover or focus, so the thumbnail reads as the
+   document rather than as a control. */
+.cert-zoom {
+  position: absolute;
+  right: 0.55rem;
+  bottom: 0.55rem;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: var(--float-bg);
+  border: 1px solid var(--line);
+  color: var(--green);
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cert-zoom svg { width: 1rem; height: 1rem; }
+
+.cert-shot:hover .cert-zoom,
+.cert-shot:focus-visible .cert-zoom { opacity: 1; transform: none; }
+
+.cert-shot:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: -2px;
+}
+
+/* A certificate that has not been scanned says so, rather than showing a
+   broken frame. Not a button: there is nothing to open. */
+.cert-shot.is-empty {
+  flex-direction: column;
+  gap: 0.4rem;
+  cursor: default;
+  border-bottom: 1px dashed var(--line);
+  background: var(--surface-2);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cert-shot.is-empty .empty-icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  opacity: 0.55;
 }
 
 .cert-issuer {
@@ -1116,9 +1213,99 @@ code {
   margin-top: 1.25rem;
 }
 
-/* A certificate whose issuer is not named on the certificate itself keeps its
-   title flush with the others. */
-.cert h3:first-child { margin-top: 0.15rem; }
+
+/* ------------------------------------------------------------- lightbox -- */
+/* One overlay, reused by every certificate. It is a plain element rather than
+   <dialog>: showModal() puts the image in the top layer, where the ::backdrop
+   cannot read our theme tokens, and the close animation gets awkward. This is
+   less machinery for the same behaviour. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.75rem;
+  padding: clamp(0.75rem, 2.5vw, 1.5rem);
+  background: var(--overlay);
+  backdrop-filter: blur(6px);
+}
+
+.lightbox-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: var(--page);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.lightbox-caption {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.lightbox-caption b { display: block; color: var(--green); }
+.lightbox-caption span { color: var(--dim); font-size: 0.74rem; }
+
+.lightbox-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--float-bg);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.lightbox-close svg { width: 1.15rem; height: 1.15rem; }
+.lightbox-close:hover { border-color: var(--edge); color: var(--green); }
+
+.lightbox-stage {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+
+.lightbox-stage img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.lightbox-hint {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--faint);
+}
+
+.lightbox-hint kbd {
+  font-family: inherit;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.05rem 0.3rem;
+  background: var(--surface-2);
+}
+
+/* A touch visitor has no Esc key and no hover, so the hint is pointless there
+   and the close button does the work. */
+@media (hover: none) {
+  .lightbox-hint { display: none; }
+}
+
+/* The page behind the lightbox must not scroll under it. */
+body.is-locked { overflow: hidden; }
 
 /* ==========================================================================
    Motion
@@ -1230,7 +1417,7 @@ code {
 
   /* Denser than the screen version. A résumé that runs to three pages because
      of leading is a résumé nobody finishes. */
-  body { font-size: 9.5pt; line-height: 1.4; }
+  body { font-size: 9.5pt; line-height: 1.3; }
 
   /* Name on the left, contact details on the right, on one line. */
   .cv-head { flex-wrap: nowrap; align-items: flex-start; gap: 2rem; }
@@ -1240,14 +1427,25 @@ code {
   /* Paper has no hover and no click, so the layout can be denser and the
      links have to say where they go. */
   .cv-head { padding-bottom: 0.55rem; }
-  .cv h2 { margin-top: 0.7rem; margin-bottom: 0.3rem; font-size: 8pt; letter-spacing: 0.12em; }
-  .cv-entry { margin-bottom: 0.45rem; break-inside: avoid; page-break-inside: avoid; }
+  .cv h2 { margin-top: 0.5rem; margin-bottom: 0.22rem; font-size: 8pt; letter-spacing: 0.12em; }
+  .cv-entry { margin-bottom: 0.32rem; break-inside: avoid; page-break-inside: avoid; }
   .cv-entry h3 { font-size: 10pt; }
   .cv-entry .when { font-size: 8pt; }
   .cv-entry p, .cv-entry ul { font-size: 9pt; margin-top: 0.15rem; }
   .cv-entry ul { padding-left: 0.9rem; }
-  .cv-entry ul li { margin-bottom: 0.04rem; }
-  .cv-skills { gap: 0.25rem 1.4rem; font-size: 8.5pt; break-inside: avoid; page-break-inside: avoid; }
+  .cv-entry ul li { margin-bottom: 0.02rem; }
+  /* The skills grid is allowed to break. Held together it is one 213pt block
+     that will not fit in whatever is left of page two, so it was being pushed
+     whole onto a third page. Its rows are short and self-contained, so a break
+     between them costs nothing. */
+  .cv-skills { gap: 0.25rem 1.4rem; font-size: 8.5pt; }
+  .cv-skills > div { break-inside: avoid; page-break-inside: avoid; }
+
+  /* Seven certifications set as one column is most of a page of short lines.
+     Two columns on paper keeps the CV at two pages, which is the point of
+     this whole block. */
+  .cv-certs { columns: 2; column-gap: 1.4rem; }
+  .cv-certs li { break-inside: avoid; page-break-inside: avoid; }
   .lede-prose { font-size: 9pt; max-width: none; }
   .cv-contact { line-height: 1.5; font-size: 8.5pt; }
   .cv h2, .cv-entry h3 { break-after: avoid; page-break-after: avoid; }
