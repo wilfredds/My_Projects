@@ -141,7 +141,7 @@
     },
     rallyready: {
       path: 'projects/rallyready.html',
-      line: 'React and TypeScript. Badminton drills, 478 tests.'
+      line: 'React and TypeScript. Badminton drills, 557 tests.'
     },
     'badminton-ph': {
       href: 'https://badminton-ph.web.app',
@@ -283,6 +283,7 @@
           line('frontend    React, Next.js, Flutter, Vite, Tailwind, PWA');
           line('backend     Node.js, Prisma, PostgreSQL, Firebase, Supabase');
           line('networking  Cisco CCNA, Networking Basics, Ethical Hacker');
+          line('data        SQL, Python, pandas, cleaning, visualisation');
           line('cloud       AWS Educate, Vercel, Firebase Hosting, Neon');
           line('games       Unity 6, C#');
           line('testing     Vitest, node:test, Playwright, Firestore emulator');
@@ -305,11 +306,15 @@
           break;
 
         case 'certs':
+          line('DataCamp          Associate Data Analyst             Sep 2026');
           line('Cisco NetAcad     Ethical Hacker                     Jul 2026');
           line('Cisco NetAcad     Networking Basics                  Feb 2026');
           line('Cisco NetAcad     CCNA: Introduction to Networks     Jan 2026');
+          line('SAP / Erudite     SAP Business One Courseware        May 2025');
           line('Cisco / OpenEDG   Python Essentials 2                May 2024');
           line('AWS Educate       Getting Started with Compute       trained');
+          blank();
+          line('Five of the seven are scanned on the certifications section.');
           break;
 
         case 'contact':
@@ -690,6 +695,80 @@
 
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+
+  /* --- certificate lightbox --------------------------------------------
+     Every .cert-shot button carries its own image and caption in data
+     attributes, so one overlay serves all of them and adding a certificate
+     needs no JavaScript change.                                           */
+  var lightbox = document.getElementById('lightbox');
+
+  if (lightbox) {
+    var lbImg = document.getElementById('lightbox-img');
+    var lbTitle = document.getElementById('lightbox-title');
+    var lbNote = document.getElementById('lightbox-note');
+    var lbClose = document.getElementById('lightbox-close');
+    var lastOpener = null;
+
+    function openCert(button) {
+      var img = button.querySelector('img');
+
+      lbImg.src = button.getAttribute('data-cert-src');
+      /* The thumbnail already describes the document. Reusing its alt keeps
+         one description rather than two that can drift apart. */
+      lbImg.alt = img ? img.alt : '';
+      lbTitle.textContent = button.getAttribute('data-cert-title') || '';
+      /* The parser has already decoded the entities in the attribute, so this
+         is plain text by the time it gets here. No innerHTML needed. */
+      lbNote.textContent = button.getAttribute('data-cert-note') || '';
+
+      lastOpener = button;
+      lightbox.hidden = false;
+      document.body.classList.add('is-locked');
+      lbClose.focus();
+    }
+
+    function closeCert() {
+      lightbox.hidden = true;
+      /* removeAttribute, not src = '': an empty src resolves to the page URL
+         and the browser fetches the document a second time. */
+      lbImg.removeAttribute('src');
+      document.body.classList.remove('is-locked');
+      /* Send focus back where it came from, or a keyboard visitor is dropped
+         at the top of the document. */
+      if (lastOpener) lastOpener.focus();
+      lastOpener = null;
+    }
+
+    document.querySelectorAll('.cert-shot[data-cert-src]').forEach(function (button) {
+      button.addEventListener('click', function () { openCert(button); });
+    });
+
+    lbClose.addEventListener('click', closeCert);
+
+    /* Clicking the backdrop closes. Clicking the certificate itself does not,
+       so a visitor reading it cannot dismiss it by accident. */
+    lightbox.addEventListener('click', function (event) {
+      if (event.target === lightbox || event.target.classList.contains('lightbox-stage')) {
+        closeCert();
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (lightbox.hidden) return;
+
+      if (event.key === 'Escape') {
+        closeCert();
+        return;
+      }
+
+      /* Only the close button is focusable inside, so Tab holds it there
+         rather than walking the page behind the overlay. */
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        lbClose.focus();
+      }
+    });
+  }
 
   /* --- résumé: print / save as PDF ------------------------------------- */
   var printBtn = document.getElementById('print-cv');

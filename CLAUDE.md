@@ -77,7 +77,7 @@ Every project now has a workflow, each path-filtered to its own directory:
 | Workflow | Covers |
 |---|---|
 | `autocare-ci.yml` | lint, typecheck, test, migrate, seed, DB tests, build |
-| `rallyready-ci.yml` | `npm run verify` — typecheck, lint, 515 tests, build |
+| `rallyready-ci.yml` | `npm run verify` — typecheck, lint, 557 tests, build |
 | `hiroshi-ci.yml` | lint, 132 tests, build, 43 RLS policy tests against a Postgres service |
 | `firestore-rules-ci.yml` | 144 rules assertions against the real Firestore and Storage emulators |
 | `static-sites-ci.yml` | parses all JS in the three static sites |
