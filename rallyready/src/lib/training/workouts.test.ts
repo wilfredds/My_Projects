@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { SEED_DRILLS, isConditioning, isPrepOrRecovery } from '@/lib/data/seed/drills'
-import { findExercise } from '@/lib/data/seed/exercises'
+import { EXERCISES, findExercise } from '@/lib/data/seed/exercises'
 
 import { factsFor, groupWorkouts, matchesFilter, WORKOUT_GROUPS } from './workouts'
 
@@ -92,6 +92,67 @@ describe('the workouts screen', () => {
       expect(group.title.length).toBeGreaterThan(3)
       expect(group.blurb.length).toBeGreaterThan(25)
       expect(group.categories.length).toBeGreaterThan(0)
+    }
+  })
+})
+
+describe('the kit a workout asks for', () => {
+  it('never asks for the same thing twice', () => {
+    /*
+     * The derived label is a fallback for a drill that did not list its kit.
+     * Adding it on top of a drill that did produced cards reading "skipping
+     * rope (optional)" next to "skipping rope" — the same item, asked for
+     * twice, in two different voices.
+     */
+    for (const drill of SEED_DRILLS) {
+      const listed = factsFor(drill).equipment.map((item) => item.toLowerCase())
+      for (const word of ['ladder', 'rope', 'step', 'box', 'bench']) {
+        const hits = listed.filter((item) => item.includes(word))
+        expect(hits.length, `${drill.slug}: ${JSON.stringify(hits)}`).toBeLessThan(2)
+      }
+    }
+  })
+
+  it('still names kit a drill forgot to list', () => {
+    // The fallback has to survive: a circuit that needs a rope and says
+    // nothing must not look like it needs nothing.
+    const forgot = {
+      ...SEED_DRILLS.find((drill) => drill.slug === 'skipping-intervals')!,
+      equipment: [],
+    }
+    expect(factsFor(forgot).equipment).toContain('skipping rope')
+  })
+
+  it('keeps the drill’s own wording, which says what a generic label cannot', () => {
+    // "(optional)" and "(or tape)" are the words that decide whether somebody
+    // without the kit can do the workout at all.
+    const ladder = SEED_DRILLS.find((drill) => drill.slug === 'agility-ladder-circuit')!
+    expect(factsFor(ladder).equipment).toEqual(['agility ladder (or tape)'])
+  })
+})
+
+describe('the exercise catalogue', () => {
+  it('never lists two exercises under one name', () => {
+    // Two entries called "Plank shoulder taps" and two called "High knees"
+    // sat in the library for two phases, each pair written up differently, so
+    // the same movement appeared twice and neither entry looked canonical.
+    const byName = new Map<string, string[]>()
+    for (const exercise of EXERCISES) {
+      const key = exercise.name.toLowerCase()
+      byName.set(key, [...(byName.get(key) ?? []), exercise.slug])
+    }
+    const clashes = [...byName].filter(([, slugs]) => slugs.length > 1)
+    expect(clashes, JSON.stringify(clashes)).toEqual([])
+  })
+
+  it('has an exercise for every circuit step that names one', () => {
+    for (const drill of SEED_DRILLS) {
+      for (const step of drill.circuit ?? []) {
+        expect(
+          EXERCISES.some((exercise) => exercise.slug === step.exerciseSlug),
+          `${drill.slug} → ${step.exerciseSlug}`,
+        ).toBe(true)
+      }
     }
   })
 })

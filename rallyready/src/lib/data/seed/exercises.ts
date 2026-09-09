@@ -293,7 +293,10 @@ export const EXERCISES: Exercise[] = [
   },
   {
     slug: 'ladder-high-knees',
-    name: 'High knees',
+    // Named for the ladder because there is a second high-knees in here that
+    // needs nothing at all, and which of the two you can do at home is the
+    // only thing a player wants to know from a list.
+    name: 'High knees through the ladder',
     kind: 'ladder',
     equipment: 'ladder',
     summary: 'One foot per cell, knees driven high, as fast as you can hold form.',
@@ -465,31 +468,6 @@ export const EXERCISES: Exercise[] = [
       pose('Ready', 0.3, 0, 0, 0.2, 0.2),
       pose('Lunge', 0.85, 0, 0, 1, 1, 1),
       pose('Recover', 0.5, 0, 0, 0.5, 0.55, 0.5),
-    ],
-  },
-  {
-    slug: 'core-plank-reach',
-    name: 'Plank shoulder taps',
-    kind: 'bodyweight',
-    equipment: 'none',
-    summary: 'High plank, tap the opposite shoulder, keep the hips still.',
-    cues: [
-      'Widen the feet — a wider base makes the hips easier to keep level.',
-      'Move slowly. The point is resisting rotation, not counting taps.',
-      'Squeeze the glutes and brace as if about to take a hit to the stomach.',
-    ],
-    faults: [
-      'Rocking the hips side to side, which removes the entire challenge.',
-      'Racing through the taps.',
-    ],
-    substitute: 'Drop to your knees and keep the hips level rather than sagging.',
-    recommendedReps: '3 rounds of 30–40 seconds, hips level throughout.',
-    space: 'spot',
-    noisy: false,
-    poses: [
-      pose('Plank', 0.95, 0, 0.15, -0.35, 0.7),
-      pose('Tap', 0.95, 0, 0.15, 0.85, 0.7),
-      pose('Return', 0.95, 0, 0.15, -0.35, 0.7),
     ],
   },
 
@@ -1840,7 +1818,7 @@ export const EXERCISES: Exercise[] = [
   },
   {
     slug: 'cond-high-knees',
-    name: 'High knees',
+    name: 'High knees on the spot',
     kind: 'plyometric',
     equipment: 'none',
     summary: 'Running on the spot with the knees to hip height. Fast feet, tall posture.',
@@ -2030,6 +2008,13 @@ export const EXERCISES: Exercise[] = [
     ],
   },
   {
+    /*
+     * There were two of these for a while: this one and `core-plank-reach`,
+     * added in different phases, both called "Plank shoulder taps" and both
+     * describing the same movement — so the library listed the same exercise
+     * twice, with two different write-ups. This is the one that survived,
+     * because a plank has to be drawn edge-on and the other was a front view.
+     */
     slug: 'str-shoulder-tap',
     name: 'Plank shoulder taps',
     kind: 'bodyweight',

@@ -8,6 +8,9 @@ import { cornerIdsForLayout } from './corners'
 import {
   circuitToLadder,
   configFromDrill,
+  isFittedDifficulty,
+  isFittedStructure,
+  matchDifficulty,
   estimateDurationSec,
   isCircuit,
   minIntervalFor,
@@ -21,7 +24,7 @@ import { buildTimeline } from './timeline'
 const STEPS: CircuitStep[] = [
   { exerciseSlug: 'ladder-in-out', workSec: 30, restSec: 20 },
   { exerciseSlug: 'plyo-jump-squat', workSec: 25, restSec: 20 },
-  { exerciseSlug: 'core-plank-reach', workSec: 40, restSec: 30 },
+  { exerciseSlug: 'str-shoulder-tap', workSec: 40, restSec: 30 },
 ]
 
 function circuitDrill(overrides: Partial<Drill> = {}): Drill {
@@ -69,10 +72,10 @@ describe('circuitToLadder', () => {
     expect(ladder.map((step) => step.exerciseSlug)).toEqual([
       'ladder-in-out',
       'plyo-jump-squat',
-      'core-plank-reach',
+      'str-shoulder-tap',
       'ladder-in-out',
       'plyo-jump-squat',
-      'core-plank-reach',
+      'str-shoulder-tap',
     ])
   })
 
@@ -151,10 +154,10 @@ describe('a circuit timeline', () => {
     expect(work.map((block) => block.exerciseSlug)).toEqual([
       'ladder-in-out',
       'plyo-jump-squat',
-      'core-plank-reach',
+      'str-shoulder-tap',
       'ladder-in-out',
       'plyo-jump-squat',
-      'core-plank-reach',
+      'str-shoulder-tap',
     ])
   })
 
@@ -441,5 +444,47 @@ describe('a drill called in Filipino', () => {
     expect(configFromDrill(slow!, { ...profile, language: 'fil' }).intervalMs).toBe(
       configFromDrill(slow!, profile).intervalMs,
     )
+  })
+})
+
+describe('what the setup screen can honestly call a drill', () => {
+  const LEVELS = ['beginner', 'intermediate', 'advanced'] as const
+  const callDrills = SEED_DRILLS.filter((drill) => !drill.circuit)
+
+  it('recognises an untouched drill as fitted rather than as the player’s own', () => {
+    /*
+     * The scaling factors in `lib/training/profile` multiply the drill's own
+     * numbers, so a fitted drill matches no named preset — which had the setup
+     * screen telling every beginner and every advanced player, on every drill,
+     * that they had chosen a pace the app chose for them.
+     */
+    for (const level of LEVELS) {
+      for (const drill of callDrills) {
+        const fitted = configFromDrill(drill, { level, discipline: 'singles' })
+        expect(isFittedDifficulty(fitted, fitted), `${drill.slug} @ ${level}`).toBe(true)
+        expect(isFittedStructure(fitted, fitted), `${drill.slug} @ ${level}`).toBe(true)
+      }
+    }
+  })
+
+  it('knows the difference once the player actually changes something', () => {
+    const drill = callDrills[0]!
+    const fitted = configFromDrill(drill, { level: 'beginner', discipline: 'singles' })
+    expect(isFittedDifficulty({ ...fitted, intervalMs: fitted.intervalMs + 50 }, fitted)).toBe(
+      false,
+    )
+    expect(isFittedStructure({ ...fitted, rounds: fitted.rounds + 1 }, fitted)).toBe(false)
+    // Changing the shape must not make the pace read as customised, and the
+    // reverse — they are separate decisions on separate cards.
+    expect(isFittedDifficulty({ ...fitted, rounds: fitted.rounds + 1 }, fitted)).toBe(true)
+    expect(isFittedStructure({ ...fitted, intervalMs: fitted.intervalMs + 50 }, fitted)).toBe(true)
+  })
+
+  it('leaves a named preset named', () => {
+    // Picking "Advanced" must still read as Advanced, not as "your level".
+    const drill = callDrills[0]!
+    const fitted = configFromDrill(drill, { level: 'intermediate', discipline: 'singles' })
+    const picked = { ...fitted, intervalMs: 1100, avoidImmediateRepeat: true }
+    expect(matchDifficulty(picked)?.id).toBe('advanced')
   })
 })

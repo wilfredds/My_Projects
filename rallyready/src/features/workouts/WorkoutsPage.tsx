@@ -113,7 +113,10 @@ function FilterChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'focus-visible:ring-ring inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none',
+        // 40px tall rather than the 34 this used to be: these two chips are the
+        // whole point of the screen, and they get tapped by somebody halfway
+        // through a workout with a shaking hand.
+        'focus-visible:ring-ring inline-flex min-h-10 items-center gap-1.5 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none',
         active
           ? 'border-primary bg-accent text-accent-foreground'
           : 'border-border text-muted-foreground hover:text-foreground',

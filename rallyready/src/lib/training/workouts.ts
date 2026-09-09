@@ -35,6 +35,27 @@ const EQUIPMENT_LABEL: Partial<Record<Equipment, string>> = {
   rope: 'skipping rope',
 }
 
+/**
+ * Words that mean a drill has already named a piece of kit.
+ *
+ * The derived label is a fallback for a drill that forgot to list what it
+ * needs. Where the drill *did* list it, its own wording wins — it says whether
+ * the thing is optional and what will do instead, which a generic label cannot
+ * — and adding the label as well produced cards that asked for the same item
+ * twice: "skipping rope (optional)" next to "skipping rope".
+ */
+const EQUIPMENT_WORDS: Partial<Record<Equipment, string[]>> = {
+  ladder: ['ladder'],
+  step: ['step', 'box', 'bench'],
+  rope: ['rope'],
+}
+
+function alreadyNamed(listed: string[], kind: Equipment): boolean {
+  const words = EQUIPMENT_WORDS[kind]
+  if (!words) return false
+  return listed.some((item) => words.some((word) => item.toLowerCase().includes(word)))
+}
+
 export function factsFor(drill: Drill): WorkoutFacts {
   const steps = drill.circuit ?? []
   const exercises = steps
@@ -52,16 +73,17 @@ export function factsFor(drill: Drill): WorkoutFacts {
   const callsCorners = exercises.length === 0
   let space: SpaceNeeded = drill.location === 'court' ? 'court' : callsCorners ? 'room' : 'spot'
   let quiet = !callsCorners
-  const equipment = new Set(drill.equipment)
+  // The drill's own list first, so its wording is the one the card shows.
+  const equipment = [...drill.equipment]
 
   for (const exercise of exercises) {
     if (SPACE_RANK[exercise.space] > SPACE_RANK[space]) space = exercise.space
     if (exercise.noisy) quiet = false
     const label = EQUIPMENT_LABEL[exercise.equipment]
-    if (label) equipment.add(label)
+    if (label && !alreadyNamed(equipment, exercise.equipment)) equipment.push(label)
   }
 
-  return { space, quiet, equipment: [...equipment], exercises: exercises.length }
+  return { space, quiet, equipment, exercises: exercises.length }
 }
 
 export const SPACE_LABEL: Record<SpaceNeeded, string> = {

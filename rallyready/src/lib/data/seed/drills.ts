@@ -484,7 +484,7 @@ export const SEED_DRILLS: Drill[] = [
       { exerciseSlug: 'shadow-lunge', workSec: 40, restSec: 25 },
       { exerciseSlug: 'plyo-jump-squat', workSec: 25, restSec: 35 },
       { exerciseSlug: 'plyo-lateral-bound', workSec: 30, restSec: 30 },
-      { exerciseSlug: 'core-plank-reach', workSec: 40, restSec: 40 },
+      { exerciseSlug: 'str-shoulder-tap', workSec: 40, restSec: 40 },
     ],
     circuitRounds: 3,
     location: 'anywhere',

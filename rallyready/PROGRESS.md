@@ -25,10 +25,11 @@ the way.
 | 13 — Making it testable by other people | ✅ Done |
 | 14 — Calling in the players' own language | ✅ Done |
 | 15 — Choosing the voice that calls | ✅ Done |
-| **16 — Training where the browser fights you** | ✅ **Done — ready for review** |
+| 16 — Training where the browser fights you | ✅ Done |
+| **17 — Playing the app as a player** | ✅ **Done — ready for review** |
 
-All sixteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 626 unit tests passing, production build clean.
+All seventeen phases are built. `npm run verify` is green: 0 type errors, 0 lint
+errors/warnings, 634 unit tests passing, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -40,6 +41,78 @@ Earlier phases, one line each — the detail is in the git history:
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
 
+
+---
+
+## Phase 17 — playing the app as a player
+
+Not a feature phase. The whole app was played end to end the way a club player
+would — a first visit, the introduction, the questionnaire, the catalogue, a
+drill set up and run and logged and rated — with a screenshot at every step,
+and then swept mechanically across seventeen routes at three widths.
+
+### What held
+
+- **Every number the app shows a player is the number it runs.** Every drill,
+  at every level, card estimate against what `buildTimeline` actually builds:
+  no drift anywhere. That was the bug class most likely to be hiding here, and
+  it is not.
+- No console or page errors anywhere in the journey, or on any route.
+- No horizontal overflow, no element covered by the sticky footer or the bottom
+  nav, no link without a name, no image without alt text — at 320, 390 and 768.
+
+### What did not
+
+**The app told every player they had chosen a pace it chose for them.** The
+level factors in `lib/training/profile` *scale* a drill's numbers, so a fitted
+drill matches no named preset — and the setup screen had only two states, a
+preset or "Custom · your own pace". Measured: at beginner **16 of 16** call
+drills read as Custom, at advanced 16 of 16, at intermediate 11 of 16. So the
+screen was lying to essentially everybody, and hiding the useful fact — that
+this is what your level asks for.
+
+There is now a third state. "Your level", with the actual pace on it, an
+explanation underneath, and — because it is always offered rather than only
+when selected — a way back after trying a preset, which did not exist before.
+
+**The library listed the same exercise twice.** "Plank shoulder taps" appeared
+as both `core-plank-reach` and `str-shoulder-tap`, added in different phases,
+same movement, two different write-ups. The front-view one was deleted (a plank
+has to be drawn edge-on) and its references repointed. "High knees" was also
+there twice — but those are genuinely two exercises, one through an agility
+ladder and one on the spot, so they are now named for the difference, which is
+the only thing a player training at home needs to know from a list.
+
+**Three workout cards asked for the same kit twice** — "skipping rope
+(optional)" next to "skipping rope", "agility ladder (or tape)" next to "agility
+ladder". `factsFor` was merging the drill's own wording with a derived label for
+the same item. The derived label is now a fallback only, so the drill's wording
+survives: "(optional)" and "(or tape)" are the words that decide whether
+somebody without the kit can do the workout at all.
+
+**The workouts filters were 34px tall.** They are the whole point of that
+screen and they get tapped mid-workout with a shaking hand. Now 40.
+
+### Not bugs, checked and dismissed
+
+The duplicated "Week of 22 Jun: 0 sessions" on Progress is the chart's
+screen-reader text and correctly `sr-only`. The repeated "Assumes court access"
+on Programs is once per program, not three times on one card. "Needs a few
+strides" on eleven workout cards is a per-card fact and a filter, not a repeated
+sentence.
+
+### Verified
+
+`npm run verify`: 634 tests across 39 files, no type or lint errors, clean
+build — eight new, covering the three setup-screen states, kit never named
+twice while a drill that forgot its kit still gets a label, no two exercises
+sharing a name, and every circuit step resolving to an exercise that exists.
+
+Then re-driven in the browser: seventeen routes at three widths with no errors,
+overflow or overlap; the library with no duplicate name and both high-knees
+distinguishable; the kit chip in the drill's own words; and the pace reading
+"Your level · 1.15s" for an advanced player, with picking a preset and coming
+back both working.
 
 ---
 

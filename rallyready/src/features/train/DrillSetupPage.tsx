@@ -31,6 +31,8 @@ import {
   minIntervalFor,
   STRUCTURE_PRESETS,
   isCircuit,
+  isFittedDifficulty,
+  isFittedStructure,
   matchDifficulty,
   matchStructure,
   type DrillConfig,
@@ -153,6 +155,15 @@ export function DrillSetupPage() {
   const circuit = isCircuit(config)
   const difficulty = matchDifficulty(config)
   const structure = matchStructure(config)
+  /*
+   * What this drill looks like before anybody touches it — the drill's own
+   * numbers, scaled to the player's level. It is a third state alongside "a
+   * named preset" and "custom", and it is the one nearly every drill is
+   * actually in.
+   */
+  const fitted = drill ? configFromDrill(drill, training) : null
+  const usingFittedPace = Boolean(fitted && !difficulty && isFittedDifficulty(config, fitted))
+  const usingFittedShape = Boolean(fitted && !structure && isFittedStructure(config, fitted))
   const durationSec = estimateDurationSec(config)
 
   return (
@@ -322,17 +333,31 @@ export function DrillSetupPage() {
                     label="Difficulty preset"
                     layout="stacked"
                     columns={3}
-                    value={difficulty?.id ?? 'custom'}
+                    value={difficulty?.id ?? (usingFittedPace ? 'fitted' : 'custom')}
                     options={[
                       ...DIFFICULTY_PRESETS.map((preset) => ({
                         value: preset.id,
                         label: preset.label,
                         hint: `${(preset.intervalMs / 1000).toFixed(2)}s`,
                       })),
-                      { value: 'custom', label: 'Custom', hint: 'Your own pace' },
+                      // Always offered, so a preset can be undone. "Custom"
+                      // only appears when the numbers really are the player's.
+                      ...(fitted
+                        ? [
+                            {
+                              value: 'fitted',
+                              label: 'Your level',
+                              hint: `${(fitted.intervalMs / 1000).toFixed(2)}s`,
+                            },
+                          ]
+                        : []),
+                      ...(difficulty || usingFittedPace
+                        ? []
+                        : [{ value: 'custom', label: 'Custom', hint: 'Your own pace' }]),
                     ]}
                     onChange={(id) => {
-                      const preset = DIFFICULTY_PRESETS.find((p) => p.id === id)
+                      const preset =
+                        id === 'fitted' ? fitted : DIFFICULTY_PRESETS.find((p) => p.id === id)
                       if (!preset) return
                       update({
                         intervalMs: preset.intervalMs,
@@ -341,9 +366,14 @@ export function DrillSetupPage() {
                       })
                     }}
                   />
-                  {difficulty && (
+                  {difficulty ? (
                     <p className="text-muted-foreground mt-2 text-xs">{difficulty.description}</p>
-                  )}
+                  ) : usingFittedPace ? (
+                    <p className="text-muted-foreground mt-2 text-xs">
+                      The pace your level asks for, not one you picked. Choose a preset to override
+                      it for this drill.
+                    </p>
+                  ) : null}
                 </div>
               </CardContent>
             </Card>
@@ -360,17 +390,29 @@ export function DrillSetupPage() {
                 <Segmented
                   label="Structure preset"
                   layout="stacked"
-                  value={structure?.id ?? 'custom'}
+                  value={structure?.id ?? (usingFittedShape ? 'fitted' : 'custom')}
                   options={[
                     ...STRUCTURE_PRESETS.map((preset) => ({
                       value: preset.id,
                       label: preset.label,
                       hint: `${preset.workSec}s / ${preset.restSec}s × ${preset.rounds}`,
                     })),
-                    { value: 'custom', label: 'Custom', hint: 'Set it yourself' },
+                    ...(fitted
+                      ? [
+                          {
+                            value: 'fitted',
+                            label: 'Your level',
+                            hint: `${fitted.workSec}s / ${fitted.restSec}s × ${fitted.rounds}`,
+                          },
+                        ]
+                      : []),
+                    ...(structure || usingFittedShape
+                      ? []
+                      : [{ value: 'custom', label: 'Custom', hint: 'Set it yourself' }]),
                   ]}
                   onChange={(id) => {
-                    const preset = STRUCTURE_PRESETS.find((p) => p.id === id)
+                    const preset =
+                      id === 'fitted' ? fitted : STRUCTURE_PRESETS.find((p) => p.id === id)
                     if (!preset) return
                     update({
                       workSec: preset.workSec,
@@ -379,6 +421,11 @@ export function DrillSetupPage() {
                     })
                   }}
                 />
+                {usingFittedShape && !structure && (
+                  <p className="text-muted-foreground -mt-3 text-xs">
+                    Rounds, work and rest as your level asks for them.
+                  </p>
+                )}
 
                 <NumberSlider
                   id="work"

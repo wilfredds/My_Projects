@@ -409,6 +409,36 @@ export function matchStructure(config: DrillConfig): StructurePreset | undefined
   )
 }
 
+/**
+ * Whether a setting is still exactly what the app fitted to the player.
+ *
+ * Without this there were only two states — a named preset, or "Custom · your
+ * own pace" — and a level-fitted drill matches no preset, because the factors
+ * in `lib/training/profile` scale the drill's own numbers rather than snapping
+ * them to one. So the app told *every* beginner and *every* advanced player,
+ * on *every* drill, that they had chosen a pace it had chosen for them. It
+ * also hid the one useful fact: that this is what your level asks for.
+ *
+ * Split in two because they are independent decisions — somebody can lengthen
+ * the rounds without touching the pace, and the pace should still read as the
+ * fitted one.
+ */
+export function isFittedDifficulty(config: DrillConfig, fitted: DrillConfig): boolean {
+  return (
+    config.intervalMs === fitted.intervalMs &&
+    config.avoidImmediateRepeat === fitted.avoidImmediateRepeat &&
+    config.deceptionProbability === fitted.deceptionProbability
+  )
+}
+
+export function isFittedStructure(config: DrillConfig, fitted: DrillConfig): boolean {
+  return (
+    config.workSec === fitted.workSec &&
+    config.restSec === fitted.restSec &&
+    config.rounds === fitted.rounds
+  )
+}
+
 /** Total wall-clock length of a configured drill, in seconds. */
 export function estimateDurationSec(config: DrillConfig): number {
   if (isCircuit(config) && config.circuit) {

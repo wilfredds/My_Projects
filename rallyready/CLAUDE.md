@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **626 tests across 39 files, all passing** — if you
+individually. Baseline is **634 tests across 39 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -85,6 +85,14 @@ see fewer, something is being skipped.
   `lib/audio`) is latency-sensitive; changes there need tests.
 - **The app is the random caller.** No partner, no feeder, no court. Features
   that assume a second person are out of scope.
+- **Say a thing once, and name it once.** Two exercises called "Plank shoulder
+  taps" and two called "High knees" sat in the library for two phases, so the
+  same movement appeared twice with two different write-ups; a test now fails
+  the build on a duplicate name. `factsFor`'s kit label is a *fallback* for a
+  drill that did not list its own — where the drill did, its wording wins,
+  because "(optional)" and "(or tape)" are what decide whether somebody without
+  the kit can train at all, and adding the generic label too produced cards
+  asking for "skipping rope (optional)" next to "skipping rope".
 - **Home is the default, the court is the bonus.** Every exercise declares the
   space it needs (`spot` / `room` / `court`) and whether the flat below can
   hear it. `lib/training/workouts` *derives* a workout's space, noise and kit
@@ -104,7 +112,12 @@ see fewer, something is being skipped.
   challenge code reconstructs from. Anywhere a number is shown *to* the player
   it has to be the fitted one, or the card says 8 min and the drill runs 13.
   Opening a setup screen must not write an override: an override wins over the
-  defaults for ever, so the drill silently stops following the level.
+  defaults for ever, so the drill silently stops following the level. A fitted
+  drill matches no named preset, because the factors *scale* the drill's own
+  numbers rather than snapping them to one — so the setup screen has three
+  states, not two (`isFittedDifficulty` / `isFittedStructure`). Calling the
+  fitted state "Custom · your own pace" told every beginner and every advanced
+  player, on every drill, that they had chosen a pace the app chose.
 - **A rally pattern calls a point, not a corner.** `lib/timer/patterns` holds
   named sequences of corner-plus-shot taken from how rallies are constructed;
   `pattern` selection walks one, then picks another. Every shot must be legal
