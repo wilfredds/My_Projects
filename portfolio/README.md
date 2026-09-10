@@ -130,11 +130,12 @@ rather than snap, then removes it.
   The card carries `data-cert-src`, `data-cert-title` and `data-cert-note`, and
   `site.js` fills the single `#lightbox` overlay from whichever button was
   clicked, so no JavaScript changes when a certificate is added.
-- **Two certificates have no scan.** Python Essentials 2 and the AWS Educate
-  badge show a `.cert-shot.is-empty` placeholder rather than a stand-in image,
-  because inventing a picture of a credential is the one thing this section
-  must never do. Swap in an `<img>` and the three `data-cert-*` attributes when
-  the files turn up.
+- **One certificate has no scan.** The AWS Educate badge shows a
+  `.cert-shot.is-empty` placeholder rather than a stand-in image, because
+  inventing a picture of a credential is the one thing this section must never
+  do. It is a PNG badge rather than a PDF, so it needs no rendering step: drop
+  it in `assets/img/certs/`, then swap the placeholder for an `<img>` and the
+  three `data-cert-*` attributes.
 - **Certificate images stay out of the crop.** They are documents, so
   `.cert-shot img` uses `object-fit: contain` against the `--cert-mat` token
   rather than `cover`. Cropping a certificate cuts off the text that makes it

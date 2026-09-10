@@ -314,7 +314,7 @@
           line('Cisco / OpenEDG   Python Essentials 2                May 2024');
           line('AWS Educate       Getting Started with Compute       trained');
           blank();
-          line('Five of the seven are scanned on the certifications section.');
+          line('Six of the seven are scanned on the certifications section.');
           break;
 
         case 'contact':
