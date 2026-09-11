@@ -16,6 +16,12 @@ on:
 permissions:
   contents: write
 
+# Only one deploy at a time. Concurrent runs all force-push gh-pages and lose
+# the race with "cannot lock ref", leaving the demo on whichever build won.
+concurrency:
+  group: deploy-web
+  cancel-in-progress: true
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -46,12 +52,14 @@ jobs:
         run: flutter test
         continue-on-error: true
 
-      # base-href must match the repo name's EXACT casing, because GitHub Pages
-      # serves the project site at https://<owner>.github.io/CorruptionReportSystem/
-      # A lowercase base-href makes asset requests 404 and the app renders blank.
+      # base-href must match the path GitHub Pages serves the project site at:
+      # https://<owner>.github.io/<repo>/ — including the repo name's exact
+      # casing. A mismatch makes every asset request 404 and the app renders
+      # blank. Derived from GITHUB_REPOSITORY rather than hardcoded so a repo
+      # rename can't silently break the demo again.
       - name: Build web (mock mode)
         working-directory: cyclemind_ai
-        run: flutter build web --release --base-href /CorruptionReportSystem/
+        run: flutter build web --release --base-href "/${GITHUB_REPOSITORY#*/}/"
 
       - name: Publish to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
