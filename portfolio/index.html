@@ -26,7 +26,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;450;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <script src="js/boot.js"></script>
 </head>
@@ -35,7 +35,7 @@
 
 <nav class="nav" aria-label="Primary">
   <div class="wrap nav-inner">
-    <a class="nav-brand" href="#top"><span class="caret">&gt;</span> francis<span class="caret">_</span></a>
+    <a class="nav-brand" href="#top">Francis W. Antiporda</a>
     <ul class="nav-links">
       <li><a href="#about">about</a></li>
       <li><a href="#skills">skills</a></li>
@@ -59,40 +59,11 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div>
-      <div class="term reveal" id="term">
-        <div class="term-bar">
-          <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
-          <span class="term-title">francis@portfolio: ~</span>
-          <span class="term-hint" id="term-hint" hidden>type <b>help</b></span>
-        </div>
-        <div class="term-body" id="term-body">
-          <div class="term-out" id="term-out">
-            <span class="line"><span class="prompt">$</span><span class="cmdtext">whoami</span></span>
-            <span class="line out-strong">francis, full-stack developer in General Trias, Cavite</span>
-            <span class="line"><span class="prompt">$</span><span class="cmdtext">ls ~/projects</span></span>
-            <span class="line out">autocare/  rallyready/  cyclemind_ai/  bike-guide-app/  corruption-watch/</span>
-            <span class="line"><span class="prompt">$</span><span class="cmdtext">cat status.txt</span></span>
-            <span class="line out">4th-year BSIT at LPU Cavite, looking for OJT and freelance work</span>
-            <span class="line"><span class="prompt">$</span><span class="cmdtext">cat capstone.txt</span></span>
-            <span class="line out">FloodGuard, IoT and AI flood early-warning for Noveleta, Cavite. Team leader.</span>
-          </div>
-
-          <span class="line" id="term-idle"><span class="prompt">$</span><span class="cursor" aria-hidden="true"></span></span>
-
-          <form class="term-form" id="term-form" hidden>
-            <label class="prompt" for="term-input">$</label>
-            <input id="term-input" name="command" type="text" autocomplete="off"
-                   autocapitalize="off" spellcheck="false"
-                   aria-label="Terminal command. Type help for a list of commands.">
-          </form>
-        </div>
-      </div>
-
-      <h1 class="reveal">Francis Wilfred Antiporda</h1>
-      <p class="hero-role reveal">Full-stack developer. Web, mobile, and the parts that never make it into a demo.</p>
+      <p class="hero-kicker reveal">Francis Wilfred Antiporda &middot; full-stack developer</p>
+      <h1 class="reveal">Web, mobile, and <em>the parts that never make it into a demo.</em></h1>
       <p class="hero-blurb reveal">
-        I build things people actually use. One of them replaced a car shop's paper
-        notebook. Another calls out badminton drills so you can train with nobody
+        I build things people actually use. One replaced a car shop's paper notebook.
+        Another calls out badminton drills in Taglish, so you can train with nobody
         else in the room. Nine projects, six of them running somewhere you can open
         right now.
       </p>
@@ -109,29 +80,60 @@
     <figure class="portrait reveal">
       <img src="assets/img/portrait.jpg" width="720" height="960"
            alt="Francis Wilfred Antiporda" fetchpriority="high">
-      <figcaption><span>~/me.jpg</span> <b>online</b></figcaption>
+      <figcaption><span>General Trias, Cavite</span> <b>open to OJT</b></figcaption>
     </figure>
   </div>
 </header>
 
-<!-- ============================================================= stats -- -->
-<section class="section" aria-label="At a glance">
+<!-- ============================================================ ledger -- -->
+<section class="section" aria-labelledby="ledger-h">
   <div class="wrap">
-    <div class="stats reveal">
-      <div class="stat"><b data-count="9">9</b><span>projects</span></div>
-      <div class="stat"><b data-count="820">820</b><span>automated tests</span></div>
-      <div class="stat"><b data-count="7">7</b><span>CI pipelines</span></div>
-      <div class="stat"><b data-count="3">3</b><span>databases in prod</span></div>
-      <div class="stat"><b data-count="7">7</b><span>certifications</span></div>
+    <div class="section-head">
+      <span class="eyebrow">Measured, not claimed</span>
+      <h2 id="ledger-h">What the demo does not show</h2>
+      <p>~/evidence</p>
     </div>
+
+    <div class="ledger reveal">
+      <div class="ledger-row">
+        <p>Row Level Security policies standing between a customer and every reservation</p>
+        <b><span data-count="43">43</span> of 43 <i>pass</i></b>
+      </div>
+      <div class="ledger-row">
+        <p>Firestore and Storage rules, loosened on purpose to prove the suite fails</p>
+        <b><span data-count="144">144</span> <i>assertions</i></b>
+      </div>
+      <div class="ledger-row">
+        <p>Automated tests across every project in the repository</p>
+        <b><span data-count="1102">1102</span></b>
+      </div>
+      <div class="ledger-row">
+        <p>Pipelines that gate every push, one per project</p>
+        <b><span data-count="8">8</span></b>
+      </div>
+      <div class="ledger-row">
+        <p>Rate limiter, proved with 30 concurrent callers against a cap of ten</p>
+        <b><span data-count="10">10</span> <i>got through</i></b>
+      </div>
+      <div class="ledger-row">
+        <p>Projects, six of them running somewhere you can open right now</p>
+        <b><span data-count="9">9</span></b>
+      </div>
+    </div>
+
+    <p class="ledger-note">
+      Every figure above was read off a suite that was run, not counted by hand.
+    </p>
   </div>
 </section>
+
 
 <!-- ============================================================= about -- -->
 <section class="section" id="about">
   <div class="wrap">
     <div class="section-head">
-      <h2><span class="prompt">$</span>cat about.md</h2>
+      <span class="eyebrow">Background</span>
+      <h2>Why any of this exists</h2>
       <p>~/about</p>
     </div>
 
@@ -185,7 +187,8 @@
 <section class="section" id="skills">
   <div class="wrap">
     <div class="section-head">
-      <h2><span class="prompt">$</span>ls -la ~/skills</h2>
+      <span class="eyebrow">Toolkit</span>
+      <h2>What I work with</h2>
       <p>~/skills</p>
     </div>
 
@@ -261,7 +264,8 @@
 <section class="section" id="certs">
   <div class="wrap">
     <div class="section-head">
-      <h2><span class="prompt">$</span>ls ~/certs</h2>
+      <span class="eyebrow">Credentials</span>
+      <h2>Certifications</h2>
       <p>~/certs</p>
     </div>
 
@@ -403,7 +407,8 @@
 <section class="section" id="security">
   <div class="wrap">
     <div class="section-head">
-      <h2><span class="prompt">$</span>cat security.md</h2>
+      <span class="eyebrow">The part that never demos</span>
+      <h2>Security</h2>
       <p>~/security</p>
     </div>
 
@@ -422,7 +427,7 @@
           Firestore rules behind Corruption Watch PH do the same for anonymous
           reports. Neither depends on the interface behaving.
         </p>
-        <p class="secmeta">43 policy tests &middot; 60 rules assertions &middot; both in CI</p>
+        <p class="secmeta">43 policy tests &middot; 25 rules assertions &middot; both in CI</p>
       </div>
 
       <div class="seccard reveal">
@@ -498,7 +503,8 @@
 <section class="section" id="projects">
   <div class="wrap">
     <div class="section-head">
-      <h2><span class="prompt">$</span>ls ~/projects</h2>
+      <span class="eyebrow">Selected work</span>
+      <h2>Nine projects</h2>
       <p id="project-count">9 projects</p>
     </div>
 
@@ -593,7 +599,7 @@
           </p>
           <ul class="tags">
             <li>React 19</li><li>TypeScript</li><li>Vite</li><li>Supabase</li>
-            <li>Vitest, 557 tests</li><li>PWA</li>
+            <li>Vitest, 641 tests</li><li>PWA</li>
           </ul>
           <div class="card-links">
             <a class="btn btn-primary" href="projects/rallyready.html">Case study</a>
@@ -727,7 +733,7 @@
             happened, and can file without giving a name. An admin console reviews what
             comes in. The work that matters is the part nobody sees: Firestore rules
             that let anyone write a report and stop anyone from reading someone else's,
-            with 60 assertions run against the real emulator in CI.
+            with 25 assertions run against the real emulator in CI.
           </p>
           <ul class="tags">
             <li>Firebase</li><li>Firestore rules</li><li>Emulator tests</li>
@@ -775,7 +781,8 @@
 <section class="section" id="timeline">
   <div class="wrap">
     <div class="section-head">
-      <h2><span class="prompt">$</span>git log --oneline --reverse</h2>
+      <span class="eyebrow">In order</span>
+      <h2>How I got here</h2>
       <p>first commit per project</p>
     </div>
 
@@ -813,7 +820,7 @@
       <li>
         <span class="hash">46fa322</span>
         <span class="when">2026-08</span>
-        <span class="what">RallyReady, five phases and 557 tests</span>
+        <span class="what">RallyReady, five phases and 641 tests</span>
         <span class="note">The most complete thing I have built. Audio drills, a benchmark, conditioning, periodised programs and progress tracking, all gated by <code>npm run verify</code>.</span>
       </li>
       <li>
@@ -826,11 +833,55 @@
   </div>
 </section>
 
+<!-- ========================================================== terminal -- -->
+<section class="section" id="shell" aria-labelledby="shell-h">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Optional</span>
+      <h2 id="shell-h">Or poke around yourself</h2>
+      <p>~/shell</p>
+    </div>
+    <p class="shell-lead reveal">
+      Everything on this page is already above. This is here because it was fun to
+      build. Type <b>help</b>, or <b>ls</b> to list the projects.
+    </p>
+    <div class="term reveal" id="term">
+      <div class="term-bar">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        <span class="term-title">francis@portfolio: ~</span>
+        <span class="term-hint" id="term-hint" hidden>type <b>help</b></span>
+      </div>
+      <div class="term-body" id="term-body">
+        <div class="term-out" id="term-out">
+          <span class="line"><span class="prompt">$</span><span class="cmdtext">whoami</span></span>
+          <span class="line out-strong">francis, full-stack developer in General Trias, Cavite</span>
+          <span class="line"><span class="prompt">$</span><span class="cmdtext">ls ~/projects</span></span>
+          <span class="line out">autocare/  rallyready/  cyclemind_ai/  bike-guide-app/  corruption-watch/</span>
+          <span class="line"><span class="prompt">$</span><span class="cmdtext">cat status.txt</span></span>
+          <span class="line out">4th-year BSIT at LPU Cavite, looking for OJT and freelance work</span>
+          <span class="line"><span class="prompt">$</span><span class="cmdtext">cat capstone.txt</span></span>
+          <span class="line out">FloodGuard, IoT and AI flood early-warning for Noveleta, Cavite. Team leader.</span>
+        </div>
+
+        <span class="line" id="term-idle"><span class="prompt">$</span><span class="cursor" aria-hidden="true"></span></span>
+
+        <form class="term-form" id="term-form" hidden>
+          <label class="prompt" for="term-input">$</label>
+          <input id="term-input" name="command" type="text" autocomplete="off"
+                 autocapitalize="off" spellcheck="false"
+                 aria-label="Terminal command. Type help for a list of commands.">
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- =========================================================== contact -- -->
 <section class="section" id="contact">
   <div class="wrap">
     <div class="contact-box reveal">
-      <h2><span class="prompt">$</span>./say-hello.sh</h2>
+      <span class="eyebrow">Contact</span>
+      <h2>Say hello</h2>
       <p>
         I am looking for an <strong>OJT placement</strong> and open to
         <strong>freelance work</strong>. Email reaches me fastest and I answer

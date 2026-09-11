@@ -141,7 +141,7 @@
     },
     rallyready: {
       path: 'projects/rallyready.html',
-      line: 'React and TypeScript. Badminton drills, 557 tests.'
+      line: 'React and TypeScript. Badminton drills, 641 tests.'
     },
     'badminton-ph': {
       href: 'https://badminton-ph.web.app',
@@ -653,18 +653,6 @@
     });
   }
 
-  // Parallax is a desktop-pointer nicety. On a touch screen it competes with
-  // the scroll itself, and with reduced motion it should not run at all.
-  var portrait = null;
-  var portraitTop = 0;
-
-  if (!reduceMotion && window.matchMedia('(pointer: fine)').matches) {
-    portrait = document.querySelector('.portrait img');
-    if (portrait) {
-      portraitTop = portrait.getBoundingClientRect().top + window.scrollY;
-    }
-  }
-
   var ticking = false;
 
   function onScroll() {
@@ -681,13 +669,6 @@
       }
 
       if (toTop) toTop.hidden = top < 600;
-
-      if (portrait) {
-        // A few pixels of drift against the scroll. Clamped so the image never
-        // pulls away from its frame.
-        var drift = Math.max(-14, Math.min(14, (top - portraitTop) * 0.03));
-        portrait.style.transform = 'translate3d(0,' + drift.toFixed(1) + 'px,0) scale(1.06)';
-      }
 
       ticking = false;
     });
