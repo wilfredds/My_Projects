@@ -162,6 +162,14 @@ rather than snap, then removes it.
   They have drifted three times already. The total is the sum of all of them.
   Note that each rules suite belongs to one project: Corruption Watch's own
   figure is 25, not the 144 total, and the site says 25 on that card.
+- **The favicon is an inline SVG, so it cannot use Fraunces.** A data-URI SVG
+  rendered as an icon resolves fonts against the system, not the page, so the
+  monogram is set in Arial with a Helvetica and generic-sans fallback. It was
+  chosen by rendering the candidates at 16px rather than by eye at full size:
+  a serif's thin strokes disappear at that size, and a teal ground with dark
+  letters reads as a bright blob. Bold sans on the ink ground survives. If you
+  change it, render it at 16 against both a light and a dark browser chrome
+  before deciding.
 - **The portrait does not move.** It used to drift and scale on scroll. The
   scale escaped its container once the caption moved out from over the
   photograph, and a moving portrait fought the stillness the rest of the page
