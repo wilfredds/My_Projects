@@ -259,9 +259,27 @@ skips the build, any other code runs it.** It lives in the repo rather than
 in the dashboard so it is reviewable and travels with the code.
 
 This is a monorepo of eight unrelated projects wired to one Vercel project,
-so every push to any branch was starting a build here. Pushes to `gh-pages`
-and to feature branches for other projects were producing failed deployments
-at a fair rate, none of which had anything to say about the portfolio.
+so every push to any branch was starting a build here. This stops the builds
+that have nothing to say about the portfolio.
+
+**What it does not fix, despite an earlier claim here that it did.** Vercel
+reads `vercel.json` from the Root Directory, which is `portfolio`. On a
+branch that has no `portfolio/` directory, there is no `vercel.json` to
+read, so `ignoreCommand` never runs. Those deployments fail earlier, at
+`The specified Root Directory "portfolio" does not exist`, and the build
+log carries no `Running "git cat-file ..."` line at all. That covers
+`gh-pages` and any branch cut before the portfolio existed, which is every
+failing deployment. Testing the command against those branches locally
+says nothing about this, because the command is never reached.
+
+So `ignoreCommand` skips pointless *successful* builds, which is real but
+smaller: a push to `main` touching only `autocare/` no longer rebuilds the
+site. Silencing the *failed* ones needs a project-level setting, since it
+has to apply to branches whose files Vercel cannot consult. That is
+**Settings, Git, Ignored Build Step** in the dashboard, which stores the
+command against the project rather than the branch. Confirm it with the
+next push to `gh-pages`: a build log that shows the command running, or no
+deployment at all, means it took.
 
 ```sh
 git cat-file -e HEAD:portfolio 2>/dev/null || exit 0
@@ -273,10 +291,10 @@ Three lines because two edge cases bite:
 
 - **`gh-pages` is an orphan branch with no parent commit.** The usual
   recipe, `git diff --quiet HEAD^ HEAD ./`, fails there with `bad revision`
-  and exits 128, which Vercel reads as "build it". That is the single
-  largest source of the failed deployments, so the first line settles it by
-  asking whether the commit contains a `portfolio/` tree at all. `gh-pages`
-  does not, so it never builds.
+  and exits 128, which Vercel reads as "build it". The first line asks
+  whether the commit contains a `portfolio/` tree at all instead, so the
+  command is correct wherever it does run. Note the caveat above: on
+  `gh-pages` it does not run.
 - **A commit with no parent could be a shallow clone**, where the answer is
   genuinely unknown. The second line builds rather than skips, because
   skipping wrongly means the site silently stops updating and skipping is
