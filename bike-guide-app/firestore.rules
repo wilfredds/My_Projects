@@ -1,0 +1,69 @@
+rules_version = '2';
+
+// Firestore security rules for Kasama / Bike Guide PH.
+//
+// IMPORTANT: the default "test mode" rules (allow read, write: if true)
+// let anyone wipe every hazard and run the read/write bill to whatever
+// they like. Deploy these instead:
+//   Firebase Console -> Firestore Database -> Rules -> paste -> Publish
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Community hazard reports ──
+    // Readable by everyone (that's the point). Creatable by anyone, since
+    // the app has no login — but shape-validated so a bad client cannot
+    // write junk, and never updatable or deletable from the client.
+    match /hazards/{hazardId} {
+      allow read: if true;
+
+      allow create: if request.resource.data.keys().hasOnly(
+                        ['lat','lng','type','note','reporter','createdAt','confirms'])
+                    && request.resource.data.lat is number
+                    && request.resource.data.lng is number
+                    // Philippines bounding box — rejects junk and foreign spam.
+                    && request.resource.data.lat >= 4.0  && request.resource.data.lat <= 21.5
+                    && request.resource.data.lng >= 116.0 && request.resource.data.lng <= 127.0
+                    && request.resource.data.type in
+                       ['pothole','theft','danger','traffic','flood','dog','construction','glass']
+                    && request.resource.data.note is string
+                    && request.resource.data.note.size() <= 200
+                    && request.resource.data.reporter is string
+                    && request.resource.data.reporter.size() <= 64;
+
+      // Moderation happens server-side / in the console, never from a client.
+      allow update, delete: if false;
+    }
+
+    // ── Per-device private data ──
+    // No auth yet, so this is scoped by the device UUID in the path. It is
+    // obscurity, not real security: treat it as "keeps honest users apart",
+    // and move to Firebase Auth (email/Google — never SMS) before storing
+    // anything genuinely sensitive.
+    match /users/{deviceId}/{document=**} {
+      allow read, write: if deviceId is string && deviceId.size() >= 16;
+    }
+
+    // ── Premium payment requests ──
+    // Users may submit one; only the console may read or change them.
+    match /premiumRequests/{requestId} {
+      allow create: if request.resource.data.amount == 79
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.gcashRef is string
+                    && request.resource.data.gcashRef.size() <= 64;
+      allow read, update, delete: if false;
+    }
+
+    // ── Premium activation flags ──
+    // Written by the developer in the console; the app only reads its own.
+    match /premiumUsers/{deviceId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Deny anything not matched above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
