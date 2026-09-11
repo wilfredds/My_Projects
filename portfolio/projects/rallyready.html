@@ -45,7 +45,7 @@
 
 <main id="main" class="wrap detail">
   <header class="page-head">
-    <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
+    <a class="back" href="../index.html#projects">&larr; All projects</a>
     <h1>rallyready<span class='slash'>/</span></h1>
     <p class="lede">Self-directed badminton training for a player with no coach and no partner. The app is the random caller. Every corner is spoken out loud, so a whole session can go by without you looking at the screen once.</p>
   </header>
@@ -62,14 +62,20 @@
     <figcaption>The Train screen. You pick an intent, the app picks the drill.</figcaption>
   </figure>
 
-  <h2><span class="prompt">$</span>cat problem.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">The problem</span>
+    <h2>Training alone means nobody is shouting a corner</h2>
+  </div>
   <p>
     Badminton footwork gets trained by someone shouting a corner at you. Alone, there
     is nobody to shout, no partner to feed, and often no court. What is left is a
     dozen YouTube tabs and no record of whether any of it worked.
   </p>
 
-  <h2><span class="prompt">$</span>cat solution.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">The build</span>
+    <h2>Audio first, and load instead of minutes</h2>
+  </div>
   <ul>
     <li><strong>Audio first.</strong> Every call is spoken, carries its own tone and buzzes the phone. You cannot watch a screen and move to a corner at the same time, so the screen is optional.</li>
     <li><strong>Split-step training.</strong> An optional metronome tick fires a configurable 0.2 to 0.7 seconds before each call, so you learn to land the split-step as the call arrives. That timing is the most common club-player fault I know of.</li>
@@ -84,7 +90,10 @@
     <figcaption>Programs: periodised plans that decide what to train and when.</figcaption>
   </figure>
 
-  <h2><span class="prompt">$</span>cat engineering.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Engineering</span>
+    <h2>641 tests, and the parts that decide how hard you train</h2>
+  </div>
   <p>
     There are <strong>641 tests</strong> under Vitest, and <code>npm run verify</code>
     (typecheck, lint, tests, build) is what CI runs on every push. The drill engine,
@@ -107,7 +116,10 @@
   </div>
 
 
-  <h2><span class="prompt">$</span>cat six-bugs.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Six bugs</span>
+    <h2>Green tests, and an app still wrong in the hand</h2>
+  </div>
   <p>
     The tests were green and the app was still wrong in ways only using it on a
     phone would show. Six of them, found by treating it like a real session
@@ -156,7 +168,10 @@
     a hand.
   </div>
 
-  <h2><span class="prompt">$</span>cat why-it-matters.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Why it matters</span>
+    <h2>The most complete thing I have built</h2>
+  </div>
   <p>
     It is the most complete thing I have built. Five phases, a real domain model, an
     offline story, an audio pipeline, and enough tests that I can change the program

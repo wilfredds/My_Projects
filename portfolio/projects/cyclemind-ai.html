@@ -45,7 +45,7 @@
 
 <main id="main" class="wrap detail">
   <header class="page-head">
-    <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
+    <a class="back" href="../index.html#projects">&larr; All projects</a>
     <h1>cyclemind_ai<span class='slash'>/</span></h1>
     <p class="lede">An AI cycling companion that puts a coach and a bike doctor in the same Flutter app. Photograph a bike and a vision model returns a health report. The coach reads your rides and plans the next one.</p>
   </header>
@@ -57,7 +57,10 @@
     <div><dt>status</dt><dd>Runs on mocks with zero config</dd></div>
   </dl>
 
-  <h2><span class="prompt">$</span>cat problem.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">The problem</span>
+    <h2>Nobody reads your ride data, and nobody checks the bike</h2>
+  </div>
   <p>
     Two things stop a self-coached cyclist from improving. Nobody is reading their
     ride data and telling them what to do next, and nobody looks at the bike until
@@ -65,7 +68,10 @@
     with the right context can help with.
   </p>
 
-  <h2><span class="prompt">$</span>cat architecture.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Architecture</span>
+    <h2>Three decisions the whole app hangs on</h2>
+  </div>
   <p>
     This is the project where I took architecture seriously. It follows
     <strong>Clean Architecture</strong> with a feature-first layout and the repository
@@ -100,7 +106,10 @@
     go stale.
   </p>
 
-  <h2><span class="prompt">$</span>ls lib/</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Inside lib/</span>
+    <h2>Six features, each behind its own interface</h2>
+  </div>
   <ul>
     <li><strong>auth</strong>: email and password sign-in, Google sign-in, profile creation.</li>
     <li><strong>dashboard</strong>: readiness, weekly stats, AI recommendations and bike health at a glance.</li>
@@ -117,7 +126,10 @@
     mock-up of a screen I never ran.
   </div>
 
-  <h2><span class="prompt">$</span>cat takeaway.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Takeaway</span>
+    <h2>Mock-first, or the architecture is wrong</h2>
+  </div>
   <p>
     Material 3, go_router and Riverpod throughout. The rule I want to carry into every
     future project is the mock-first one: if somebody cannot clone the repo and see

@@ -26,6 +26,7 @@ portfolio/
 ├── projects/               # one case-study page per project
 │   ├── autocare.html
 │   ├── rallyready.html
+│   ├── hiroshi-master-grill.html
 │   ├── cyclemind-ai.html
 │   ├── bike-guide-ph.html
 │   └── corruption-watch-ph.html
@@ -110,6 +111,15 @@ rather than snap, then removes it.
   the published Flutter app resolved to a path that no longer existed and the
   demo loaded to a blank page. The workflow now reads the name off the event,
   but the two hrefs here are still plain text. Check them after any rename.
+- **Section headings are an eyebrow and a sentence, not a shell command.**
+  Every section on every page opens the same way: a small uppercase mono
+  eyebrow in `--amber` naming the section, then a Fraunces heading in
+  `--green` that says something. On the home page that pairing is
+  `.section-head`; on the case-study pages it is `.detail-head`. Both draw the
+  eyebrow from the same standalone `.eyebrow` rule. The earlier design wrote
+  these as `$ cat problem.md`, which read as a command nobody could run and
+  told a recruiter nothing about the section underneath. If you add a section,
+  write the heading as a claim, not a filename.
 - **Colours come from tokens, never literals.** Every colour lives in the
   custom properties at the top of `style.css`, which is what makes the light
   theme a block of overrides rather than a rewrite. A hard-coded hex in a rule

@@ -45,7 +45,7 @@
 
 <main id="main" class="wrap detail">
   <header class="page-head">
-    <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
+    <a class="back" href="../index.html#projects">&larr; All projects</a>
     <h1>bike-guide-app<span class='slash'>/</span></h1>
     <p class="lede">A cycling companion for Filipino beginner and intermediate riders. Sixteen pages of hand-written HTML, CSS and JavaScript that installs like an app, works with no signal, and explains the one thing nobody explains: which gear to be in.</p>
   </header>
@@ -62,7 +62,10 @@
     <figcaption>Home, the gear master simulator, and curated Philippine routes.</figcaption>
   </figure>
 
-  <h2><span class="prompt">$</span>cat problem.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">The problem</span>
+    <h2>Twenty-one gears, and nobody explains any of them</h2>
+  </div>
   <p>
     New riders here buy a bike with 21 gears and never get told what any of them are
     for. The advice online is written for other countries, with other roads, other
@@ -70,7 +73,10 @@
     often is not one.
   </p>
 
-  <h2><span class="prompt">$</span>ls features/</h2>
+  <div class="detail-head">
+    <span class="eyebrow">What it does</span>
+    <h2>A gear simulator, routes, and a ride recorder</h2>
+  </div>
   <ul>
     <li><strong>Gear guide and simulator.</strong> Tap any front-ring and rear-cog pair to see the ratio, the terrain it suits, and whether it cross-chains. Uphill, flat, downhill and sprint each get their own explanation.</li>
     <li><strong>Routes.</strong> Curated Philippine rides with distance, elevation, difficulty, best time to go, and what the traffic is like.</li>
@@ -78,7 +84,10 @@
     <li><strong>A 30-day challenge</strong>, plus maintenance, safety, warm-up, diet and a carbon-saved calculator.</li>
   </ul>
 
-  <h2><span class="prompt">$</span>cat engineering.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Engineering</span>
+    <h2>Built by hand, to find out what a framework was doing</h2>
+  </div>
   <p>
     No framework, no bundler, no package manager. That was the point. Building a PWA
     by hand is how you find out what a framework has been doing for you: the service worker
