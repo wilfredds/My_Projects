@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bike Guide PH</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    body { background: linear-gradient(160deg, #1b4332 0%, #2d6a4f 50%, #52b788 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding-bottom: 0; }
+    .splash-container { width: 100%; max-width: 420px; padding: 40px 28px; text-align: center; }
+
+    .logo-ring {
+      width: 110px; height: 110px;
+      background: rgba(255,255,255,0.12);
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      position: relative;
+    }
+    .logo-ring i { font-size: 3.2rem; color: #fff; }
+    .wheel-spin {
+      position: absolute;
+      width: 110px; height: 110px;
+      border: 3px solid transparent;
+      border-top-color: #f4722b;
+      border-right-color: rgba(244,114,43,0.4);
+      border-radius: 50%;
+      animation: spinWheel 2s linear infinite;
+    }
+
+    .app-title { font-size: 2.2rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin-bottom: 4px; }
+    .app-title span { color: #f4722b; }
+    .app-subtitle { font-size: 0.88rem; color: rgba(255,255,255,0.75); margin-bottom: 40px; font-weight: 400; }
+
+    .onboard-label { font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+
+    .level-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .level-card {
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 18px;
+      padding: 18px 20px;
+      display: flex; align-items: center; gap: 16px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: left;
+    }
+    .level-card:hover, .level-card.selected {
+      background: rgba(255,255,255,0.22);
+      border-color: #f4722b;
+      transform: translateX(4px);
+    }
+    .level-card .level-icon {
+      width: 50px; height: 50px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .level-card .level-text .level-name { font-size: 1rem; font-weight: 700; color: #fff; }
+    .level-card .level-text .level-desc { font-size: 0.75rem; color: rgba(255,255,255,0.65); margin-top: 2px; }
+    .level-card.selected .level-icon { background: #f4722b; }
+
+    .start-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 50px;
+      background: #f4722b;
+      color: #fff;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(244,114,43,0.45);
+      transition: all 0.25s ease;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .start-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(244,114,43,0.55); }
+    .start-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .lang-row { display: flex; justify-content: center; gap: 12px; margin-top: 20px; }
+    .lang-opt { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.8); padding: 6px 18px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .lang-opt.active { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.6); color: #fff; }
+
+    .already-link { margin-top: 14px; font-size: 0.75rem; color: rgba(255,255,255,0.5); cursor: pointer; }
+    .already-link:hover { color: rgba(255,255,255,0.9); }
+  </style>
+</head>
+<body>
+  <div class="splash-container fade-in-up">
+
+    <div class="logo-ring">
+      <div class="wheel-spin"></div>
+      <i class="fa-solid fa-person-biking"></i>
+    </div>
+
+    <h1 class="app-title">Bike Guide <span>PH</span></h1>
+    <p class="app-subtitle">Your ultimate Filipino cycling companion</p>
+
+    <p class="onboard-label">I am a...</p>
+
+    <div class="level-cards" id="level-cards">
+      <div class="level-card" data-level="beginner" onclick="selectLevel(this)">
+        <div class="level-icon"><i class="fa-solid fa-seedling"></i></div>
+        <div class="level-text">
+          <div class="level-name">Beginner</div>
+          <div class="level-desc">Just starting out, learning the basics</div>
+        </div>
+        <i class="fa-solid fa-chevron-right" style="color:rgba(255,255,255,0.4);margin-left:auto;"></i>
+      </div>
+      <div class="level-card" data-level="intermediate" onclick="selectLevel(this)">
+        <div class="level-icon"><i class="fa-solid fa-person-biking"></i></div>
+        <div class="level-text">
+          <div class="level-name">Intermediate</div>
+          <div class="level-desc">Riding regularly, building endurance</div>
+        </div>
+        <i class="fa-solid fa-chevron-right" style="color:rgba(255,255,255,0.4);margin-left:auto;"></i>
+      </div>
+      <div class="level-card" data-level="advanced" onclick="selectLevel(this)">
+        <div class="level-icon"><i class="fa-solid fa-trophy"></i></div>
+        <div class="level-text">
+          <div class="level-name">Advanced</div>
+          <div class="level-desc">Experienced rider, chasing goals</div>
+        </div>
+        <i class="fa-solid fa-chevron-right" style="color:rgba(255,255,255,0.4);margin-left:auto;"></i>
+      </div>
+    </div>
+
+    <button class="start-btn" id="start-btn" onclick="startApp()" disabled>
+      <i class="fa-solid fa-flag-checkered"></i> Start Riding
+    </button>
+
+    <div class="lang-row">
+      <button class="lang-opt active" id="btn-en" onclick="chooseLang('en')">English</button>
+      <button class="lang-opt" id="btn-tl" onclick="chooseLang('tl')">Tagalog</button>
+    </div>
+
+    <p class="already-link" onclick="goToDashboard()">Already set up? Skip to home →</p>
+  </div>
+
+  <script>
+    // Check if already onboarded — skip to dashboard
+    if (localStorage.getItem('riderLevel') && localStorage.getItem('bikeUserId')) {
+      window.location.href = 'dashboard.html';
+    }
+
+    // Generate user ID on first visit
+    if (!localStorage.getItem('bikeUserId')) {
+      localStorage.setItem('bikeUserId', crypto.randomUUID());
+    }
+
+    let selectedLevel = null;
+
+    function selectLevel(card) {
+      document.querySelectorAll('.level-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedLevel = card.dataset.level;
+      document.getElementById('start-btn').disabled = false;
+    }
+
+    function startApp() {
+      if (!selectedLevel) return;
+      localStorage.setItem('riderLevel', selectedLevel);
+      window.location.href = 'dashboard.html';
+    }
+
+    function goToDashboard() {
+      window.location.href = 'dashboard.html';
+    }
+
+    function chooseLang(lang) {
+      localStorage.setItem('lang', lang);
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      document.getElementById('btn-tl').classList.toggle('active', lang === 'tl');
+    }
+  </script>
+
+  <script type="module">
+    // Ripple, haptics and reveal animations on the splash screen
+    import { initUI } from './js/ui.js';
+    initUI();
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

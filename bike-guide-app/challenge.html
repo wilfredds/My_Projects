@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>30-Day Challenge - Bike Guide PH</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .streak-banner {
+      background: linear-gradient(135deg,#f4722b,#ff9a5c);
+      padding:20px; margin-bottom:16px;
+      border-radius: 0 0 24px 24px;
+    }
+    .streak-num { font-size: 3rem; font-weight: 800; color:#fff; line-height:1; }
+    .streak-sub { font-size: 0.78rem; color:rgba(255,255,255,0.8); }
+    .progress-track { margin:0 20px 20px; background:#f0f0f0; border-radius:50px; height:10px; overflow:hidden; }
+    .progress-fill-ch { height:100%; background:linear-gradient(90deg,#2d6a4f,#52b788); border-radius:50px; transition:width 0.6s ease; }
+    .today-card { margin:0 20px 20px; background:#fff; border-radius:20px; box-shadow:0 8px 24px rgba(0,0,0,0.1); overflow:hidden; }
+    .today-header { background:linear-gradient(135deg,#2d6a4f,#52b788); padding:16px 20px; color:#fff; }
+    .today-header .day-label { font-size:0.72rem; opacity:0.8; text-transform:uppercase; letter-spacing:0.8px; }
+    .today-header .day-title { font-size:1.1rem; font-weight:700; }
+    .today-body { padding:16px 20px; }
+    .drills-list { list-style:none; margin:10px 0 16px; }
+    .drills-list li { font-size:0.8rem; color:#555; padding:5px 0; display:flex; gap:8px; align-items:flex-start; }
+    .drills-list li::before { content:'✓'; color:#2d6a4f; font-weight:700; flex-shrink:0; }
+    .meta-badges { display:flex; gap:8px; margin:8px 0 12px; flex-wrap:wrap; }
+    .meta-badge { background:#f0f7f4; color:#2d6a4f; font-size:0.7rem; font-weight:600; padding:5px 12px; border-radius:50px; }
+    .mark-done-btn { width:100%; padding:14px; background:linear-gradient(135deg,#2d6a4f,#52b788); color:#fff; border:none; border-radius:50px; font-family:'Poppins',sans-serif; font-size:0.95rem; font-weight:700; cursor:pointer; }
+    .mark-done-btn:disabled { background:#ccc; cursor:not-allowed; }
+    .calendar-section { padding:0 20px 20px; }
+    .calendar-title { font-size:0.9rem; font-weight:700; margin-bottom:12px; }
+    .challenge-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="top-bar">
+    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name"><i class="fa-solid fa-fire" style="color:#f4722b;margin-right:6px;"></i>30-Day Challenge</span>
+    <div class="top-actions"><span class="rider-badge" id="rider-badge"></span></div>
+  </div>
+
+  <div class="streak-banner">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div>
+        <div class="streak-num" id="streak-num">0</div>
+        <div class="streak-sub">days completed 🔥</div>
+      </div>
+      <div style="margin-left:auto;text-align:right;">
+        <div style="font-size:0.78rem;color:rgba(255,255,255,0.8);">Progress</div>
+        <div style="font-size:1rem;font-weight:700;color:#fff;" id="progress-label">0 / 30</div>
+      </div>
+    </div>
+    <div class="progress-track" style="margin:12px 0 0;">
+      <div class="progress-fill-ch" id="progress-bar" style="width:0%;"></div>
+    </div>
+  </div>
+
+  <!-- Today's Workout -->
+  <div class="today-card" id="today-card">
+    <div class="today-header">
+      <div class="day-label" id="today-label">TODAY — DAY 1</div>
+      <div class="day-title" id="today-title">Loading...</div>
+    </div>
+    <div class="today-body">
+      <div class="meta-badges" id="meta-badges"></div>
+      <p id="today-desc" style="font-size:0.82rem;color:#555;margin-bottom:10px;"></p>
+      <ul class="drills-list" id="drills-list"></ul>
+      <button class="mark-done-btn" id="mark-done-btn" onclick="markToday()">
+        <i class="fa-solid fa-flag-checkered"></i> Mark as Done
+      </button>
+    </div>
+  </div>
+
+  <!-- Calendar -->
+  <div class="calendar-section">
+    <p class="calendar-title">Your 30-Day Journey</p>
+    <div class="challenge-grid" id="challenge-grid"></div>
+  </div>
+
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script type="module">
+  import { initPage, isPremium, confetti, toast } from './js/app.js';
+  import { CHALLENGE_PLAN, getDayStatus, markDayComplete, getStreakCount } from './js/challenge.js';
+  initPage('challenge');
+
+  let dayStatus = {};
+  let currentDay = 1;
+
+  async function render() {
+    dayStatus = await getDayStatus();
+    const done  = Object.values(dayStatus).filter(d => d.completed).length;
+    const streak = getStreakCount(dayStatus);
+    document.getElementById('streak-num').textContent = streak;
+    document.getElementById('progress-label').textContent = `${done} / 30`;
+    document.getElementById('progress-bar').style.width = `${(done/30)*100}%`;
+
+    // Find next incomplete day
+    currentDay = 1;
+    for (let d = 1; d <= 30; d++) {
+      const key = `day_${String(d).padStart(2,'0')}`;
+      if (!dayStatus[key]?.completed) { currentDay = d; break; }
+      if (d === 30) currentDay = 30;
+    }
+
+    const plan = CHALLENGE_PLAN[currentDay - 1];
+    const isLocked = plan.premium && !isPremium();
+    document.getElementById('today-label').textContent = `TODAY — DAY ${currentDay}`;
+    document.getElementById('today-title').textContent = isLocked ? '🔒 Premium Content' : plan.title;
+    document.getElementById('today-desc').textContent  = isLocked ? 'Unlock Premium (₱79) to access Days 16–30 of the challenge.' : plan.desc;
+    document.getElementById('meta-badges').innerHTML   = isLocked ? '' :
+      `<span class="meta-badge"><i class="fa-regular fa-clock"></i> ${plan.duration}</span>
+       <span class="meta-badge"><i class="fa-solid fa-route"></i> ${plan.distance}</span>`;
+    document.getElementById('drills-list').innerHTML   = isLocked
+      ? `<li><a href="premium.html" style="color:#f4722b;font-weight:700;">→ Unlock Premium for ₱79 to continue</a></li>`
+      : plan.drills.map(d => `<li>${d}</li>`).join('');
+
+    const btn = document.getElementById('mark-done-btn');
+    const key = `day_${String(currentDay).padStart(2,'0')}`;
+    if (dayStatus[key]?.completed) {
+      btn.textContent = '✓ Completed!'; btn.disabled = true;
+    } else if (isLocked) {
+      btn.textContent = '🔒 Premium Required'; btn.disabled = true;
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-flag-checkered"></i> Mark as Done';
+    }
+
+    // Calendar
+    const grid = document.getElementById('challenge-grid');
+    grid.innerHTML = CHALLENGE_PLAN.map(p => {
+      const k = `day_${String(p.day).padStart(2,'0')}`;
+      const isDone    = dayStatus[k]?.completed;
+      const isToday   = p.day === currentDay;
+      const isLocked2 = p.premium && !isPremium();
+      let cls = 'day-cell';
+      if (isDone)    cls += ' done';
+      else if (isToday) cls += ' today';
+      else if (isLocked2) cls += ' locked';
+      return `<div class="${cls}" title="Day ${p.day}: ${p.title}">${p.day}</div>`;
+    }).join('');
+  }
+
+  window.markToday = async function() {
+    const btn = document.getElementById('mark-done-btn');
+    const completedDay = currentDay;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+    try {
+      await markDayComplete(completedDay);
+      await render();
+      // 🎉 Celebrate the completed day
+      confetti();
+      const streak = getStreakCount(dayStatus);
+      const card = document.getElementById('today-card');
+      if (card) { card.classList.remove('celebrate'); void card.offsetWidth; card.classList.add('celebrate'); }
+      if (completedDay === 30) {
+        confetti({ count: 160, duration: 4000 });
+        toast('🏆 Challenge complete! You are a cyclist now!', { type: 'success', duration: 4000 });
+      } else {
+        toast(`Day ${completedDay} done! ${streak}-day streak 🔥`, { type: 'success' });
+      }
+    } catch (_) {
+      toast('Could not save. Check your connection.', { type: 'error' });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-flag-checkered"></i> Mark as Done';
+    }
+  };
+
+  render();
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>

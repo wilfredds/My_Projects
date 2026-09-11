@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Safety Gear - Bike Guide PH</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .gear-category { padding:16px 20px 8px; }
+    .gear-category h3 { font-size:0.95rem; font-weight:700; display:flex; align-items:center; gap:8px; }
+    .safety-card { margin:0 20px 14px; background:#fff; border-radius:18px; padding:16px; box-shadow:0 4px 14px rgba(0,0,0,0.08); }
+    .safety-card .sc-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .sc-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0; }
+    .sc-title { font-size:0.92rem; font-weight:700; color:#1a1a2e; }
+    .sc-price { font-size:0.72rem; color:#f4722b; font-weight:600; }
+    .priority-tag { display:inline-block; font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:3px 10px; border-radius:50px; margin-left:8px; }
+    .priority-must { background:#fdecea; color:#c0392b; }
+    .priority-rec  { background:#fff3e0; color:#e65100; }
+    .priority-opt  { background:#f0f7f4; color:#2d6a4f; }
+    .safety-card p { font-size:0.8rem; color:#555; line-height:1.6; margin-bottom:8px; }
+    .where-to-buy { font-size:0.75rem; color:#888; }
+    .where-to-buy strong { color:#2d6a4f; }
+    .road-rules { margin:0 20px 20px; }
+    .rule-item { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid #f0f0f0; }
+    .rule-item:last-child { border:none; }
+    .rule-item .ri-icon { color:#2d6a4f; font-size:0.95rem; flex-shrink:0; margin-top:2px; }
+    .rule-item p { font-size:0.8rem; color:#444; margin:0; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="top-bar">
+    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name"><i class="fa-solid fa-shield-halved" style="color:#f4722b;margin-right:6px;"></i>Safety Gear</span>
+    <div class="top-actions"><span class="rider-badge" id="rider-badge"></span></div>
+  </div>
+
+  <div class="tip-card" style="background:linear-gradient(135deg,#fdecea,#fff3f3);border-left-color:#c0392b;">
+    <div class="tip-label" style="color:#c0392b;"><i class="fa-solid fa-triangle-exclamation"></i> Safety First</div>
+    <p>Your safety gear is not optional. A ₱1,500 helmet can save your ₱1,500,000 medical bill — or your life.</p>
+  </div>
+
+  <!-- Must Have -->
+  <div class="gear-category"><h3><i class="fa-solid fa-circle-exclamation" style="color:#c0392b;"></i> Must-Have Gear</h3></div>
+
+  <div class="safety-card">
+    <div class="sc-header">
+      <div class="sc-icon" style="background:#fdecea;color:#c0392b;"><i class="fa-solid fa-hard-hat"></i></div>
+      <div><div class="sc-title">Cycling Helmet <span class="priority-tag priority-must">Must Have</span></div><div class="sc-price">₱500 – ₱5,000+</div></div>
+    </div>
+    <p>The single most important piece of safety equipment. A helmet reduces risk of head injury by 85%. Any head-impact crash at any speed can be fatal without a helmet. Philippines law (RA 10916) requires helmets on roads.</p>
+    <p class="where-to-buy"><strong>Where to buy PH:</strong> Decathlon, R.O.X., local bike shops (Bike King, Crank PH), Lazada/Shopee. Brands: Giro, Bell, Abus, Nutcase.</p>
+  </div>
+
+  <div class="safety-card">
+    <div class="sc-header">
+      <div class="sc-icon" style="background:#fff3e0;color:#e65100;"><i class="fa-solid fa-eye"></i></div>
+      <div><div class="sc-title">Cycling Sunglasses <span class="priority-tag priority-must">Must Have</span></div><div class="sc-price">₱300 – ₱3,000+</div></div>
+    </div>
+    <p>Protects eyes from UV rays (intense in the Philippines), wind, dust, insects, and road debris. A bug or stone in your eye at 25 km/h is a serious safety hazard.</p>
+    <p class="where-to-buy"><strong>Where to buy PH:</strong> Decathlon (Quechua brand is great value), R.O.X., Shopee. Brands: Oakley, Rudy Project, Decathlon.</p>
+  </div>
+
+  <!-- Recommended -->
+  <div class="gear-category"><h3><i class="fa-solid fa-thumbs-up" style="color:#e65100;"></i> Highly Recommended</h3></div>
+
+  <div class="safety-card">
+    <div class="sc-header">
+      <div class="sc-icon" style="background:#fff8e1;color:#f9a825;"><i class="fa-solid fa-hand-dots"></i></div>
+      <div><div class="sc-title">Cycling Gloves <span class="priority-tag priority-rec">Recommended</span></div><div class="sc-price">₱200 – ₱1,500</div></div>
+    </div>
+    <p>Protects palms in a crash (instinct is to catch yourself with hands). Reduces vibration fatigue, improves grip, and prevents blisters on long rides.</p>
+    <p class="where-to-buy"><strong>Where to buy PH:</strong> Decathlon, Lazada, Shopee. Any padded fingerless glove works for beginners.</p>
+  </div>
+
+  <div class="safety-card">
+    <div class="sc-header">
+      <div class="sc-icon" style="background:#e8f5e9;color:#2d6a4f;"><i class="fa-solid fa-vest"></i></div>
+      <div><div class="sc-title">Reflective Vest / Bright Jersey <span class="priority-tag priority-rec">Recommended</span></div><div class="sc-price">₱150 – ₱800</div></div>
+    </div>
+    <p>Visibility to drivers is critical, especially in Philippine traffic. A bright neon or reflective vest makes you visible from 200+ meters. Essential for any riding near vehicles, and mandatory for night riding.</p>
+    <p class="where-to-buy"><strong>Where to buy PH:</strong> Construction supply stores (cheapest), bike shops, Shopee. Yellow, orange, or neon green are most visible.</p>
+  </div>
+
+  <div class="safety-card">
+    <div class="sc-header">
+      <div class="sc-icon" style="background:#e3f2fd;color:#1565c0;"><i class="fa-solid fa-lightbulb"></i></div>
+      <div><div class="sc-title">Bike Lights (Front & Rear) <span class="priority-tag priority-rec">Recommended</span></div><div class="sc-price">₱200 – ₱2,000</div></div>
+    </div>
+    <p>A front white light and rear red light are required for riding during dawn, dusk, or night. Many Philippine accidents happen in low-light conditions because riders are invisible to drivers.</p>
+    <p class="where-to-buy"><strong>Where to buy PH:</strong> Shopee has affordable sets starting at ₱200. Cateye, Lezyne, and Bontrager for quality.</p>
+  </div>
+
+  <!-- Optional -->
+  <div class="gear-category"><h3><i class="fa-solid fa-plus-circle" style="color:#2d6a4f;"></i> Nice to Have</h3></div>
+
+  <div class="safety-card">
+    <div class="sc-header">
+      <div class="sc-icon" style="background:#f0f7f4;color:#2d6a4f;"><i class="fa-solid fa-shield"></i></div>
+      <div><div class="sc-title">Knee & Elbow Pads <span class="priority-tag priority-opt">Optional</span></div><div class="sc-price">₱300 – ₱2,000</div></div>
+    </div>
+    <p>Important for MTB trail riding or if you're learning technical skills. For road/flat riding, they're less critical but add peace of mind for beginners.</p>
+  </div>
+
+  <div style="height:1px;background:#eee;margin:8px 20px 16px;"></div>
+
+  <!-- Road Rules Philippines -->
+  <div class="gear-category"><h3><i class="fa-solid fa-traffic-light" style="color:#2980b9;"></i> Road Rules for Philippine Cyclists</h3></div>
+  <div class="road-rules">
+    <div class="rule-item"><div class="ri-icon"><i class="fa-solid fa-chevron-right"></i></div><p>Ride on the rightmost lane or designated bike lane. Never ride against traffic.</p></div>
+    <div class="rule-item"><div class="ri-icon"><i class="fa-solid fa-chevron-right"></i></div><p>Signal turns using hand signals — left arm out = left turn, right arm out = right turn.</p></div>
+    <div class="rule-item"><div class="ri-icon"><i class="fa-solid fa-chevron-right"></i></div><p>Helmets are required by law (RA 10916) on public roads. You can be fined without one.</p></div>
+    <div class="rule-item"><div class="ri-icon"><i class="fa-solid fa-chevron-right"></i></div><p>Do not use earphones while riding — you need to hear traffic, horns, and approaching vehicles.</p></div>
+    <div class="rule-item"><div class="ri-icon"><i class="fa-solid fa-chevron-right"></i></div><p>Give way to pedestrians at crossings. Stop for red lights — yes, even on a bicycle.</p></div>
+    <div class="rule-item"><div class="ri-icon"><i class="fa-solid fa-chevron-right"></i></div><p>Avoid riding 2-abreast on busy roads. Single file when traffic is present.</p></div>
+    <div class="rule-item"><div class="ri-icon"><i class="fa-solid fa-chevron-right"></i></div><p>Be visible — wear bright colors during the day and use lights at night and at dawn/dusk.</p></div>
+  </div>
+
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script type="module">
+  import { initPage } from './js/app.js';
+  initPage('home');
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>

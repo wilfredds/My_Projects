@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Maintenance - Bike Guide PH</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .check-item { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid #f0f0f0; }
+    .check-item:last-child { border:none; }
+    .check-item input[type=checkbox] { width:20px; height:20px; accent-color:#2d6a4f; margin-top:2px; flex-shrink:0; cursor:pointer; }
+    .check-item label { font-size:0.85rem; color:#333; cursor:pointer; flex:1; }
+    .check-item label .check-sub { font-size:0.72rem; color:#888; display:block; margin-top:2px; }
+    .maint-card { margin:0 20px 16px; background:#fff; border-radius:18px; box-shadow:0 6px 20px rgba(0,0,0,0.08); overflow:hidden; }
+    .maint-card-header { background:linear-gradient(135deg,#2d6a4f,#52b788); color:#fff; padding:14px 18px; font-size:0.9rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:space-between; }
+    .maint-card-body { padding:16px 18px; display:none; }
+    .maint-card-body.open { display:block; }
+    .step-num { width:26px; height:26px; background:#2d6a4f; color:#fff; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:700; flex-shrink:0; margin-right:10px; }
+    .step-row { display:flex; align-items:flex-start; margin-bottom:12px; }
+    .step-row p { font-size:0.82rem; color:#444; margin:0; }
+    .schedule-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 20px 20px; }
+    .schedule-card { background:#fff; border-radius:14px; padding:14px; box-shadow:0 4px 12px rgba(0,0,0,0.07); }
+    .schedule-card .freq { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--orange-accent); margin-bottom:6px; }
+    .schedule-card ul { list-style:none; font-size:0.76rem; color:#555; }
+    .schedule-card ul li { padding:3px 0; display:flex; gap:6px; }
+    .schedule-card ul li::before { content:'•'; color:#2d6a4f; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="top-bar">
+    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name"><i class="fa-solid fa-wrench" style="color:#f4722b;margin-right:6px;"></i>Maintenance</span>
+    <div class="top-actions"><span class="rider-badge" id="rider-badge"></span></div>
+  </div>
+
+  <!-- Pre-ride Checklist -->
+  <div style="padding:16px 20px 8px;">
+    <h2 style="font-size:1rem;margin-bottom:4px;"><i class="fa-solid fa-list-check" style="color:#2d6a4f;"></i> Pre-Ride Checklist</h2>
+    <p style="font-size:0.78rem;color:#888;margin-bottom:14px;">Check these before every single ride. Takes 2 minutes.</p>
+    <div id="checklist">
+      <div class="check-item"><input type="checkbox" id="c1"><label for="c1">Tire pressure is correct (MTB: 35–50 PSI)<span class="check-sub">Squeeze tires firmly — should feel firm but not rock hard</span></label></div>
+      <div class="check-item"><input type="checkbox" id="c2"><label for="c2">Brakes are firm — no spongy feeling<span class="check-sub">Squeeze each lever hard — wheel should stop immediately</span></label></div>
+      <div class="check-item"><input type="checkbox" id="c3"><label for="c3">Chain is lubricated and not dry<span class="check-sub">Should be slightly shiny, not orange/rusty or bone dry</span></label></div>
+      <div class="check-item"><input type="checkbox" id="c4"><label for="c4">Quick releases or thru-axles are secure<span class="check-sub">Wheels should not wobble side to side at all</span></label></div>
+      <div class="check-item"><input type="checkbox" id="c5"><label for="c5">Helmet is strapped and fitted correctly<span class="check-sub">Two fingers under chin max. Helmet shouldn't tip backward</span></label></div>
+      <div class="check-item"><input type="checkbox" id="c6"><label for="c6">Water bottle / hydration filled<span class="check-sub">At least 500ml per 30 min of riding expected</span></label></div>
+      <div class="check-item"><input type="checkbox" id="c7"><label for="c7">Phone charged and route known<span class="check-sub">Or tell someone where you're going</span></label></div>
+      <div class="check-item"><input type="checkbox" id="c8"><label for="c8">Repair kit packed (tube, levers, pump, multitool)<span class="check-sub">For rides longer than 15 km</span></label></div>
+    </div>
+    <p id="check-progress" style="font-size:0.78rem;color:#2d6a4f;margin-top:10px;font-weight:600;"></p>
+  </div>
+
+  <div style="height:1px;background:#eee;margin:8px 20px 16px;"></div>
+
+  <!-- Maintenance Guides (accordion) -->
+  <div style="padding:0 0 8px;">
+    <div style="padding:0 20px 12px;"><h2 style="font-size:1rem;"><i class="fa-solid fa-screwdriver-wrench" style="color:#2d6a4f;"></i> Step-by-Step Guides</h2></div>
+
+    <div class="maint-card">
+      <div class="maint-card-header" onclick="toggleAccordion(this)">
+        <span><i class="fa-solid fa-oil-can" style="margin-right:8px;"></i>Chain Cleaning & Lubrication</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="maint-card-body">
+        <div class="step-row"><span class="step-num">1</span><p>Backpedal and wipe the chain with a dry rag to remove loose dirt.</p></div>
+        <div class="step-row"><span class="step-num">2</span><p>Apply degreaser (or dish soap + water) with a brush or chain cleaning tool. Scrub the chain thoroughly.</p></div>
+        <div class="step-row"><span class="step-num">3</span><p>Rinse with water (avoid high-pressure water on hubs and bottom bracket) and dry completely with a rag.</p></div>
+        <div class="step-row"><span class="step-num">4</span><p>Apply chain lube one drop per inner roller while backpedaling. Let it soak 5 minutes.</p></div>
+        <div class="step-row"><span class="step-num">5</span><p>Wipe off all excess lube — a dry-looking chain is correct. Excess attracts dirt and accelerates wear.</p></div>
+        <div style="background:#fff3cd;border-radius:10px;padding:10px;font-size:0.75rem;color:#856404;"><i class="fa-solid fa-lightbulb" style="margin-right:4px;"></i>In the Philippines, use WET lube (Finish Line Wet or Squirt) for our humid, sometimes rainy conditions.</div>
+      </div>
+    </div>
+
+    <div class="maint-card">
+      <div class="maint-card-header" onclick="toggleAccordion(this)">
+        <span><i class="fa-solid fa-circle-dot" style="margin-right:8px;"></i>Flat Tire Repair</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="maint-card-body">
+        <div class="step-row"><span class="step-num">1</span><p>Remove the wheel: open quick release or unscrew thru-axle. Shift to smallest cog before removing rear wheel.</p></div>
+        <div class="step-row"><span class="step-num">2</span><p>Use 2 tire levers to pry one side of the tire off the rim. Work around the wheel, not just one spot.</p></div>
+        <div class="step-row"><span class="step-num">3</span><p>Remove the inner tube. Inflate it slightly and listen/feel for the puncture location.</p></div>
+        <div class="step-row"><span class="step-num">4</span><p>IMPORTANT: Run your fingers inside the tire to find the object that caused the flat. Remove it or you'll flat again immediately.</p></div>
+        <div class="step-row"><span class="step-num">5</span><p>Install a new tube OR patch the existing one (sand the area → apply vulcanizing cement → press patch for 60 sec).</p></div>
+        <div class="step-row"><span class="step-num">6</span><p>Re-seat the tire by hand (avoid tire levers — they can pinch the tube). Inflate to correct pressure. Reinstall wheel.</p></div>
+      </div>
+    </div>
+
+    <div class="maint-card">
+      <div class="maint-card-header" onclick="toggleAccordion(this)">
+        <span><i class="fa-solid fa-hand" style="margin-right:8px;"></i>Brake Adjustment</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="maint-card-body">
+        <div class="step-row"><span class="step-num">1</span><p>Check pad thickness — you should see at least 1mm of pad material. Replace if worn to the metal backing.</p></div>
+        <div class="step-row"><span class="step-num">2</span><p>For mechanical disc brakes: turn the barrel adjuster on the brake lever counter-clockwise to increase braking power.</p></div>
+        <div class="step-row"><span class="step-num">3</span><p>For disc brakes rubbing on one side: loosen the caliper bolts slightly, squeeze the brake lever firmly, then retighten while holding the lever.</p></div>
+        <div class="step-row"><span class="step-num">4</span><p>For hydraulic brakes with spongy feel: you need a brake bleed. This requires bleed kits and is best done at a local bike shop your first time.</p></div>
+        <div style="background:#fdecea;border-radius:10px;padding:10px;font-size:0.75rem;color:#c0392b;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>Never ride with brakes that feel weak or spongy. This is a safety issue, not a comfort issue.</div>
+      </div>
+    </div>
+
+    <div class="maint-card">
+      <div class="maint-card-header" onclick="toggleAccordion(this)">
+        <span><i class="fa-solid fa-gears" style="margin-right:8px;"></i>Gear Adjustment (Cable Tension)</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="maint-card-body">
+        <div class="step-row"><span class="step-num">1</span><p>Shift to the middle rear cog (cog 4). Pedal and observe if the chain sits cleanly or skips.</p></div>
+        <div class="step-row"><span class="step-num">2</span><p>If shifting UP (toward harder gears) is slow: turn barrel adjuster COUNTER-clockwise by half turns.</p></div>
+        <div class="step-row"><span class="step-num">3</span><p>If shifting DOWN (toward easier gears) is slow: turn barrel adjuster CLOCKWISE by half turns.</p></div>
+        <div class="step-row"><span class="step-num">4</span><p>Test after each half-turn adjustment. Small adjustments make big differences.</p></div>
+        <div class="step-row"><span class="step-num">5</span><p>If no barrel adjustment fixes it, the cable may need replacing. Cable replacement is a bike shop job for beginners.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Maintenance Schedule -->
+  <div style="padding:16px 20px 8px;"><h2 style="font-size:1rem;"><i class="fa-solid fa-calendar-check" style="color:#2d6a4f;"></i> Maintenance Schedule</h2></div>
+  <div class="schedule-grid">
+    <div class="schedule-card"><div class="freq">Every Ride</div><ul><li>Pre-ride checklist</li><li>Wipe down bike</li><li>Check tire pressure</li></ul></div>
+    <div class="schedule-card"><div class="freq">Weekly</div><ul><li>Lube chain</li><li>Check brake pads</li><li>Inspect tires for cuts</li></ul></div>
+    <div class="schedule-card"><div class="freq">Monthly</div><ul><li>Deep clean chain</li><li>Check cable tension</li><li>Tighten all bolts</li><li>Check wheel true</li></ul></div>
+    <div class="schedule-card"><div class="freq">Every 2,000 km</div><ul><li>Replace chain</li><li>Check cassette</li><li>Inspect brake pads</li><li>Check bottom bracket</li></ul></div>
+  </div>
+
+  <!-- Bike Doctor Chatbot -->
+  <div class="chatbot-btn" onclick="toggleChat()"><i class="fa-solid fa-stethoscope"></i></div>
+  <div class="chatbot-window" id="chatWindow">
+    <div class="chatbot-header">
+      <i class="fa-solid fa-stethoscope"></i> Bike Doctor
+      <span class="close-chat" onclick="toggleChat()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="chatbot-messages" id="chatMessages">
+      <div class="chat-msg bot">Hi! I'm the <strong>Bike Doctor</strong> 🩺 Describe your bike problem and I'll walk you through the fix. Tap a common issue below or type your own.</div>
+    </div>
+    <div class="chip-row" id="chatChips">
+      <button class="chip" data-q="squeaky brakes">🔊 Squeaky brakes</button>
+      <button class="chip" data-q="flat tire">🛞 Flat tire</button>
+      <button class="chip" data-q="gear slipping">⚙️ Gear slipping</button>
+      <button class="chip" data-q="chain fell off">⛓️ Chain fell off</button>
+      <button class="chip" data-q="creaking noise">🔧 Creaking</button>
+      <button class="chip" data-q="tire pressure">💨 Tire pressure</button>
+    </div>
+    <div class="chatbot-input-row">
+      <input type="text" id="chatInput" placeholder="Describe your problem...">
+      <button onclick="handleSend()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script type="module">
+  import { initPage } from './js/app.js';
+  initPage('home');
+</script>
+<script src="js/bike-doctor.js"></script>
+<script>
+  function toggleAccordion(header) {
+    const body = header.nextElementSibling;
+    const icon = header.querySelector('.fa-chevron-down,.fa-chevron-up');
+    body.classList.toggle('open');
+    if (icon) { icon.classList.toggle('fa-chevron-down'); icon.classList.toggle('fa-chevron-up'); }
+  }
+
+  // Checklist progress
+  document.querySelectorAll('#checklist input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', updateProgress);
+  });
+  function updateProgress() {
+    const total   = document.querySelectorAll('#checklist input').length;
+    const checked = document.querySelectorAll('#checklist input:checked').length;
+    const el = document.getElementById('check-progress');
+    if (checked === total) {
+      el.textContent = '✓ All done! You\'re ready to ride safely.';
+    } else {
+      el.textContent = `${checked} / ${total} checked`;
+    }
+  }
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>

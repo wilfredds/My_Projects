@@ -1,0 +1,60 @@
+{
+  "id": "./",
+  "name": "Bike Guide PH - Cycling for Filipinos",
+  "short_name": "BikeGuidePH",
+  "description": "The ultimate cycling companion for Filipino beginners to intermediate riders. Learn gear shifting, find Philippines routes, track your rides, and complete the 30-Day Cycling Challenge.",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "portrait",
+  "background_color": "#2d6a4f",
+  "theme_color": "#2d6a4f",
+  "lang": "en-PH",
+  "dir": "ltr",
+  "categories": ["health", "sports", "lifestyle"],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/screenshots/dashboard.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Bike Guide PH Dashboard"
+    },
+    {
+      "src": "assets/screenshots/dashboard-wide.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Bike Guide PH Dashboard"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

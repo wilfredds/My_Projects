@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Record Ride - Bike Guide PH</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    body { padding-bottom: 0; overflow: hidden; }
+    .rec-wrap { position: fixed; inset: 0; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; background: var(--gray-light); }
+
+    /* Map fills the upper area */
+    #rec-map { flex: 1; width: 100%; z-index: 1; background: #dfe6e9; }
+    [data-theme="dark"] #rec-map { background: #11161e; }
+
+    /* Top status bar floating over the map */
+    .rec-top {
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; z-index: 600;
+      display: flex; align-items: center; gap: 10px;
+      padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.45), transparent);
+      color: #fff;
+    }
+    .rec-top a { color: #fff; font-size: 1.1rem; }
+    .rec-title { font-weight: 700; font-size: 0.95rem; }
+    .gps-chip {
+      margin-left: auto; display: flex; align-items: center; gap: 6px;
+      background: rgba(0,0,0,0.4); border-radius: 50px; padding: 5px 12px; font-size: 0.72rem; font-weight: 600;
+    }
+    .gps-dot { width: 9px; height: 9px; border-radius: 50%; background: #f1c40f; }
+    .gps-dot.ok { background: #2ecc71; box-shadow: 0 0 0 0 rgba(46,204,113,0.7); animation: pulseGreen 2s infinite; }
+    .gps-dot.weak { background: #e67e22; }
+    .gps-dot.bad { background: #e74c3c; }
+
+    /* Metrics panel */
+    .metrics-panel {
+      background: var(--white); border-radius: 26px 26px 0 0; margin-top: -22px; z-index: 500;
+      box-shadow: 0 -8px 30px rgba(0,0,0,0.18); padding: 18px 18px calc(env(safe-area-inset-bottom) + 18px);
+      position: relative;
+    }
+    .hero-metric { text-align: center; margin-bottom: 6px; }
+    .hero-metric .val { font-size: 3.6rem; font-weight: 800; line-height: 1; color: var(--green-primary); letter-spacing: -1px; }
+    [data-theme="dark"] .hero-metric .val { color: var(--green-light); }
+    .hero-metric .unit { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 16px; }
+    .metric-box { background: var(--gray-light); border-radius: 16px; padding: 12px 6px; text-align: center; }
+    [data-theme="dark"] .metric-box { background: #141a23; }
+    .metric-box .mv { font-size: 1.25rem; font-weight: 800; color: var(--dark); }
+    .metric-box .ml { font-size: 0.62rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+    .rec-controls { display: flex; gap: 12px; }
+    .rec-btn {
+      flex: 1; padding: 16px; border: none; border-radius: 50px; cursor: pointer;
+      font-family: var(--font-main); font-size: 1rem; font-weight: 700; color: #fff;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+    }
+    .rec-btn:active { transform: scale(0.97); }
+    .btn-start  { background: linear-gradient(135deg,#2d6a4f,#52b788); box-shadow: 0 8px 24px rgba(45,106,79,0.4); }
+    .btn-pause  { background: linear-gradient(135deg,#e67e22,#f4a942); box-shadow: 0 8px 24px rgba(230,126,34,0.4); }
+    .btn-resume { background: linear-gradient(135deg,#2d6a4f,#52b788); box-shadow: 0 8px 24px rgba(45,106,79,0.4); }
+    .btn-finish { background: linear-gradient(135deg,#c0392b,#e74c3c); box-shadow: 0 8px 24px rgba(192,57,43,0.4); }
+    .btn-ghost  { flex: 0 0 auto; background: var(--gray-mid); color: var(--charcoal); padding: 16px 20px; }
+
+    .start-big { width: 100%; }
+    .hint { text-align: center; font-size: 0.74rem; color: var(--text-muted); margin-top: 10px; }
+
+    /* Recording pulse on the hero */
+    .rec-live-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #e74c3c; margin-right: 6px; animation: blink 1.2s infinite; vertical-align: middle; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+    /* Modal (quick profile + finish summary) */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-backdrop.show { display: flex; }
+    .modal-card { background: var(--white); border-radius: 22px; width: 100%; max-width: 380px; padding: 24px; box-shadow: var(--shadow-lg); animation: fadeInUp 0.3s ease; }
+    .modal-card h3 { font-size: 1.15rem; margin-bottom: 6px; }
+    .modal-card p.sub { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px; }
+    .modal-card label { font-size: 0.78rem; font-weight: 600; color: var(--text-soft); display: block; margin: 12px 0 6px; }
+    .modal-card input {
+      width: 100%; padding: 12px 14px; border: 1.5px solid var(--gray-mid); border-radius: 12px;
+      font-family: var(--font-main); font-size: 0.9rem; outline: none; background: var(--gray-light); color: var(--charcoal);
+    }
+    .modal-card input:focus { border-color: var(--green-primary); }
+    .summary-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+    .summary-stats .ss { background: var(--gray-light); border-radius: 14px; padding: 12px; text-align: center; }
+    [data-theme="dark"] .summary-stats .ss, [data-theme="dark"] .modal-card input { background: #141a23; }
+    .summary-stats .ssv { font-size: 1.4rem; font-weight: 800; color: var(--green-primary); }
+    .summary-stats .ssl { font-size: 0.64rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  </style>
+</head>
+<body>
+<div class="rec-wrap">
+  <div class="rec-top">
+    <a href="dashboard.html" id="back-link" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="rec-title">Record Ride</span>
+    <span class="gps-chip"><span class="gps-dot" id="gps-dot"></span><span id="gps-text">Locating…</span></span>
+  </div>
+
+  <div id="rec-map"></div>
+
+  <div class="metrics-panel">
+    <div class="hero-metric">
+      <div class="val"><span id="hero-distance">0.00</span></div>
+      <div class="unit"><span id="rec-live" style="display:none;"><span class="rec-live-dot"></span></span>kilometres</div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-box"><div class="mv" id="m-duration">00:00</div><div class="ml">Time</div></div>
+      <div class="metric-box"><div class="mv" id="m-speed">0.0</div><div class="ml">km/h now</div></div>
+      <div class="metric-box"><div class="mv" id="m-avg">0.0</div><div class="ml">Avg km/h</div></div>
+      <div class="metric-box"><div class="mv" id="m-max">0.0</div><div class="ml">Max km/h</div></div>
+      <div class="metric-box"><div class="mv" id="m-elev">0</div><div class="ml">~Elev m</div></div>
+      <div class="metric-box"><div class="mv" id="m-cal">0</div><div class="ml">Kcal</div></div>
+    </div>
+
+    <div class="rec-controls" id="controls">
+      <button class="rec-btn btn-start start-big" id="btn-start"><i class="fa-solid fa-play"></i> Start Ride</button>
+    </div>
+    <p class="hint" id="hint">Keep this screen open while riding. Your screen will stay awake automatically.</p>
+  </div>
+</div>
+
+<!-- Quick profile modal -->
+<div class="modal-backdrop" id="profile-modal">
+  <div class="modal-card">
+    <h3>Quick setup 🚴</h3>
+    <p class="sub">We use this to estimate calories accurately. Saved on your device only.</p>
+    <label>Your name (optional)</label>
+    <input type="text" id="p-name" placeholder="e.g. Juan">
+    <label>Weight (kg) — for calorie estimate</label>
+    <input type="number" id="p-weight" placeholder="65" min="20" max="250" inputmode="decimal">
+    <button class="rec-btn btn-start" style="margin-top:18px;width:100%;" id="p-save"><i class="fa-solid fa-check"></i> Save & Continue</button>
+  </div>
+</div>
+
+<!-- Finish summary modal -->
+<div class="modal-backdrop" id="finish-modal">
+  <div class="modal-card">
+    <h3 id="finish-title">Ride complete! 🎉</h3>
+    <p class="sub">Great work. Save this ride to your history?</p>
+    <div class="summary-stats">
+      <div class="ss"><div class="ssv" id="f-dist">0</div><div class="ssl">km</div></div>
+      <div class="ss"><div class="ssv" id="f-time">0</div><div class="ssl">duration</div></div>
+      <div class="ss"><div class="ssv" id="f-avg">0</div><div class="ssl">avg km/h</div></div>
+      <div class="ss"><div class="ssv" id="f-cal">0</div><div class="ssl">kcal</div></div>
+    </div>
+    <label style="font-size:0.78rem;font-weight:600;color:var(--text-soft);display:block;margin-bottom:6px;">Name this ride</label>
+    <input type="text" id="f-name" placeholder="Morning ride" style="width:100%;padding:12px 14px;border:1.5px solid var(--gray-mid);border-radius:12px;font-family:var(--font-main);font-size:0.9rem;outline:none;background:var(--gray-light);color:var(--charcoal);">
+    <div class="rec-controls" style="margin-top:16px;">
+      <button class="rec-btn btn-ghost" id="f-discard">Discard</button>
+      <button class="rec-btn btn-start" id="f-save" style="flex:1;"><i class="fa-solid fa-floppy-disk"></i> Save Ride</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script type="module">
+  import { initPage, toast, haptic, confetti } from './js/app.js';
+  import { logRide } from './js/tracker.js';
+  import { RideRecorder, formatDuration } from './js/recorder.js';
+
+  initPage(null);
+
+  // ── Map setup ──
+  const map = L.map('rec-map', { zoomControl: false, attributionControl: false }).setView([14.5995, 120.9842], 15);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+  L.control.attribution({ prefix: false }).addAttribution('© OpenStreetMap').addTo(map);
+
+  let line = L.polyline([], { color: '#f4722b', weight: 5, opacity: 0.9, lineJoin: 'round' }).addTo(map);
+  let marker = null;
+  let firstFix = true;
+
+  function placeMarker(lat, lng) {
+    if (!marker) {
+      marker = L.circleMarker([lat, lng], { radius: 8, color: '#fff', weight: 3, fillColor: '#2d6a4f', fillOpacity: 1 }).addTo(map);
+    } else {
+      marker.setLatLng([lat, lng]);
+    }
+  }
+
+  // Show the rider's position immediately (before they hit Start)
+  navigator.geolocation?.getCurrentPosition(
+    pos => { const { latitude, longitude } = pos.coords; map.setView([latitude, longitude], 16); placeMarker(latitude, longitude); setGps('ok', 'GPS ready'); },
+    () => setGps('weak', 'Enable location'),
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+
+  // ── GPS status chip ──
+  const gpsDot = document.getElementById('gps-dot');
+  const gpsText = document.getElementById('gps-text');
+  function setGps(level, text) {
+    gpsDot.className = 'gps-dot ' + (level === 'ok' ? 'ok' : level === 'weak' ? 'weak' : level === 'bad' ? 'bad' : '');
+    gpsText.textContent = text;
+  }
+
+  // ── Profile (weight powers calories) ──
+  function getProfile() {
+    try { return JSON.parse(localStorage.getItem('riderProfile') || 'null'); } catch { return null; }
+  }
+  function ensureProfile() {
+    return new Promise(resolve => {
+      const p = getProfile();
+      if (p && p.weightKg) return resolve(p);
+      const modal = document.getElementById('profile-modal');
+      modal.classList.add('show');
+      document.getElementById('p-save').onclick = () => {
+        const name = document.getElementById('p-name').value.trim();
+        const weightKg = parseFloat(document.getElementById('p-weight').value) || 65;
+        const prof = { name, weightKg };
+        localStorage.setItem('riderProfile', JSON.stringify(prof));
+        modal.classList.remove('show');
+        resolve(prof);
+      };
+    });
+  }
+
+  // ── Recorder wiring ──
+  let recorder = null;
+
+  function buildRecorder(profile) {
+    return new RideRecorder({
+      weightKg: profile.weightKg,
+      hydrationMin: 15,
+      onUpdate: renderMetrics,
+      onPoint: (point) => {
+        line.addLatLng([point.lat, point.lng]);
+        placeMarker(point.lat, point.lng);
+        if (firstFix) { map.setView([point.lat, point.lng], 16); firstFix = false; }
+        else map.panTo([point.lat, point.lng], { animate: true, duration: 0.5 });
+      },
+      onHydrate: () => {
+        haptic([200, 100, 200]);
+        beep();
+        toast('💧 Hydration check — take a sip of water!', { type: 'info', duration: 5000, icon: 'fa-bottle-water' });
+      },
+      onStatus: (s) => {
+        if (s === 'gps-ok') setGps('ok', 'GPS strong');
+        else if (s === 'gps-weak') setGps('weak', 'Weak GPS…');
+        else if (s === 'denied') { setGps('bad', 'Location denied'); toast('Please allow location access to record.', { type: 'error' }); }
+        else if (s === 'error') setGps('bad', 'GPS error');
+      },
+    });
+  }
+
+  function renderMetrics(m) {
+    document.getElementById('hero-distance').textContent = m.distanceKm.toFixed(2);
+    document.getElementById('m-duration').textContent = formatDuration(m.durationMs);
+    document.getElementById('m-speed').textContent = m.currentSpeedKmh.toFixed(1);
+    document.getElementById('m-avg').textContent = m.avgSpeedKmh.toFixed(1);
+    document.getElementById('m-max').textContent = m.maxSpeedKmh.toFixed(1);
+    document.getElementById('m-elev').textContent = m.elevationGain;
+    document.getElementById('m-cal').textContent = m.calories;
+  }
+
+  // ── Controls ──
+  const controls = document.getElementById('controls');
+  function showControls(state) {
+    document.getElementById('rec-live').style.display = state === 'recording' ? 'inline' : 'none';
+    if (state === 'recording') {
+      controls.innerHTML = `
+        <button class="rec-btn btn-pause" id="btn-pause"><i class="fa-solid fa-pause"></i> Pause</button>
+        <button class="rec-btn btn-finish" id="btn-finish"><i class="fa-solid fa-flag-checkered"></i> Finish</button>`;
+      document.getElementById('btn-pause').onclick = () => { recorder.pause(); showControls('paused'); haptic(); };
+      document.getElementById('btn-finish').onclick = doFinish;
+      document.getElementById('hint').textContent = 'Recording… screen stays awake. Ride safe! 🚴';
+    } else if (state === 'paused') {
+      controls.innerHTML = `
+        <button class="rec-btn btn-resume" id="btn-resume"><i class="fa-solid fa-play"></i> Resume</button>
+        <button class="rec-btn btn-finish" id="btn-finish"><i class="fa-solid fa-flag-checkered"></i> Finish</button>`;
+      document.getElementById('btn-resume').onclick = () => { recorder.resume(); showControls('recording'); haptic(); };
+      document.getElementById('btn-finish').onclick = doFinish;
+      document.getElementById('hint').textContent = 'Paused — distance won’t count until you resume.';
+    }
+  }
+
+  async function startRide() {
+    const profile = await ensureProfile();
+    recorder = buildRecorder(profile);
+    await recorder.start();
+    showControls('recording');
+    haptic([10, 30, 10]);
+    toast('Ride started — go! 🚴‍♂️', { type: 'success' });
+  }
+  document.getElementById('btn-start').onclick = startRide;
+
+  // ── Finish flow ──
+  let pendingRide = null;
+  function doFinish() {
+    if (!recorder) return;
+    const summary = recorder.finish();
+    if (summary.distanceKm < 0.05) {
+      toast('Ride too short to save.', { type: 'info' });
+      recorder = null; line.setLatLngs([]); showStartButton();
+      return;
+    }
+    pendingRide = summary;
+    document.getElementById('f-dist').textContent = summary.distanceKm.toFixed(2);
+    document.getElementById('f-time').textContent = formatDuration(summary.durationMs);
+    document.getElementById('f-avg').textContent = summary.avgSpeedKmh.toFixed(1);
+    document.getElementById('f-cal').textContent = summary.calories;
+    const hour = new Date().getHours();
+    document.getElementById('f-name').value = (hour < 12 ? 'Morning' : hour < 18 ? 'Afternoon' : 'Evening') + ' ride';
+    document.getElementById('finish-modal').classList.add('show');
+    confetti();
+  }
+
+  function showStartButton() {
+    document.getElementById('rec-live').style.display = 'none';
+    controls.innerHTML = `<button class="rec-btn btn-start start-big" id="btn-start"><i class="fa-solid fa-play"></i> Start Ride</button>`;
+    document.getElementById('btn-start').onclick = startRide;
+    document.getElementById('hint').textContent = 'Keep this screen open while riding. Your screen will stay awake automatically.';
+  }
+
+  document.getElementById('f-discard').onclick = () => {
+    document.getElementById('finish-modal').classList.remove('show');
+    pendingRide = null; recorder = null; line.setLatLngs([]); showStartButton();
+    toast('Ride discarded.', { type: 'info' });
+  };
+
+  document.getElementById('f-save').onclick = async () => {
+    if (!pendingRide) return;
+    const btn = document.getElementById('f-save');
+    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving…';
+    const m = pendingRide;
+    try {
+      await logRide({
+        distanceKm: +m.distanceKm.toFixed(2),
+        durationMinutes: Math.max(1, Math.round(m.durationMs / 60000)),
+        date: new Date().toISOString().split('T')[0],
+        routeName: document.getElementById('f-name').value.trim() || 'GPS Ride',
+        notes: '',
+        avgSpeed: +m.avgSpeedKmh.toFixed(1),
+        maxSpeed: +m.maxSpeedKmh.toFixed(1),
+        elevationGain: m.elevationGain,
+        calories: m.calories,
+        source: 'gps',
+        track: m.track,
+      });
+      toast('Ride saved! 🎉', { type: 'success' });
+      setTimeout(() => { window.location.href = 'tracker.html'; }, 700);
+    } catch (_) {
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Ride';
+      toast('Could not save — check your connection.', { type: 'error' });
+    }
+  };
+
+  // ── Crash recovery ──
+  const recovery = RideRecorder.getRecovery();
+  if (recovery) {
+    setTimeout(() => {
+      toast('Unsaved ride found.', {
+        type: 'info', duration: 8000,
+        action: { label: 'Resume', onClick: () => resumeRecovery(recovery) },
+      });
+    }, 600);
+  }
+  async function resumeRecovery(data) {
+    const profile = getProfile() || { weightKg: 65 };
+    recorder = RideRecorder.fromRecovery(data, {
+      weightKg: profile.weightKg, hydrationMin: 15,
+      onUpdate: renderMetrics,
+      onPoint: (point) => { line.addLatLng([point.lat, point.lng]); placeMarker(point.lat, point.lng); map.panTo([point.lat, point.lng]); },
+      onHydrate: () => { haptic([200,100,200]); beep(); toast('💧 Hydration check!', { type: 'info' }); },
+      onStatus: () => {},
+    });
+    // redraw existing track
+    line.setLatLngs(data.track.map(p => [p.lat, p.lng]));
+    const last = data.track[data.track.length - 1];
+    if (last) { map.setView([last.lat, last.lng], 16); placeMarker(last.lat, last.lng); firstFix = false; }
+    renderMetrics(recorder.metrics());
+    showControls('paused');
+    toast('Ride restored — tap Resume to continue.', { type: 'success' });
+  }
+
+  // ── Keep wake lock across tab switches ──
+  document.addEventListener('visibilitychange', () => recorder?.handleVisibility());
+
+  // ── Warn before leaving mid-ride ──
+  window.addEventListener('beforeunload', e => {
+    if (recorder && (recorder.state === 'recording' || recorder.state === 'paused')) {
+      e.preventDefault(); e.returnValue = '';
+    }
+  });
+
+  // ── Tiny beep for hydration ──
+  let audioCtx;
+  function beep() {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.type = 'sine'; o.frequency.value = 880;
+      g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+      o.start(); o.stop(audioCtx.currentTime + 0.5);
+    } catch (_) {}
+  }
+
+  // Fix Leaflet sizing once layout settles
+  setTimeout(() => map.invalidateSize(), 300);
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>

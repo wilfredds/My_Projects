@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Carbon Tracker - Bike Guide PH</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .hero-green { background:linear-gradient(135deg,#1b4332,#2d6a4f); padding:24px 20px 32px; border-radius:0 0 30px 30px; text-align:center; color:#fff; margin-bottom:20px; }
+    .co2-display { font-size:3.5rem; font-weight:800; line-height:1; }
+    .co2-unit    { font-size:0.85rem; opacity:0.75; margin-top:4px; margin-bottom:16px; }
+    .eco-stats   { display:flex; justify-content:center; gap:20px; }
+    .eco-stat    { text-align:center; }
+    .eco-stat .ev { font-size:1.4rem; font-weight:800; color:#a8d5b5; }
+    .eco-stat .el { font-size:0.68rem; opacity:0.75; }
+    .calc-section { margin:0 20px 20px; background:#fff; border-radius:18px; padding:18px; box-shadow:0 6px 20px rgba(0,0,0,0.08); }
+    .calc-section h3 { font-size:0.95rem; margin-bottom:14px; }
+    .form-group { margin-bottom:14px; }
+    .form-group label { font-size:0.78rem; font-weight:600; color:#555; display:block; margin-bottom:6px; }
+    .form-group input, .form-group select { width:100%; padding:10px 14px; border:1.5px solid #e0e0e0; border-radius:12px; font-family:'Poppins',sans-serif; font-size:0.85rem; background:#fafafa; outline:none; }
+    .calc-result { background:linear-gradient(135deg,#e8f5e9,#f1f8e9); border-radius:14px; padding:14px; margin:14px 0 0; border-left:4px solid #2d6a4f; display:none; }
+    .cr-title { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#2d6a4f; margin-bottom:8px; }
+    .cr-value { font-size:1.6rem; font-weight:800; color:#2d6a4f; }
+    .cr-label { font-size:0.78rem; color:#555; }
+    .share-btn { width:100%; padding:13px; background:linear-gradient(135deg,#2d6a4f,#52b788); color:#fff; border:none; border-radius:50px; font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:700; cursor:pointer; margin-top:12px; }
+    .history-section { padding:0 20px 80px; }
+    .history-section h3 { font-size:0.95rem; font-weight:700; margin-bottom:12px; }
+    .history-item { background:#fff; border-radius:12px; padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+    .history-item .hi-icon { color:#2d6a4f; font-size:1rem; }
+    .history-item .hi-info { flex:1; font-size:0.8rem; }
+    .history-item .hi-co2  { font-weight:700; color:#2d6a4f; font-size:0.88rem; }
+    .fact-green { background:linear-gradient(135deg,#e8f5e9,#f1f8e9); border-radius:14px; padding:14px 16px; margin:0 20px 16px; }
+    .fact-green p { font-size:0.8rem; color:#2d6a4f; margin:0; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="top-bar">
+    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name"><i class="fa-solid fa-leaf" style="color:#52b788;margin-right:6px;"></i>Carbon Tracker</span>
+    <div class="top-actions"><span class="rider-badge" id="rider-badge"></span></div>
+  </div>
+
+  <div class="hero-green">
+    <div style="font-size:0.72rem;opacity:0.7;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.8px;">Total CO₂ Saved</div>
+    <div class="co2-display" id="total-co2">0.0</div>
+    <div class="co2-unit">kg of CO₂ saved by cycling</div>
+    <div class="eco-stats">
+      <div class="eco-stat"><div class="ev" id="trees-eq">0.0</div><div class="el">Trees' worth</div></div>
+      <div class="eco-stat"><div class="ev" id="total-km">0</div><div class="el">km cycled</div></div>
+    </div>
+  </div>
+
+  <div class="fact-green">
+    <p>🌍 Every kilometer you cycle instead of driving saves ~192g of CO₂. The Philippines is one of the most climate-vulnerable countries in the world — every ride matters.</p>
+  </div>
+
+  <!-- Calculator -->
+  <div class="calc-section">
+    <h3><i class="fa-solid fa-calculator" style="color:#2d6a4f;"></i> Calculate a Trip</h3>
+    <div class="form-group">
+      <label>Distance cycled (km)</label>
+      <input type="number" id="c-dist" placeholder="15" min="0.1" step="0.1">
+    </div>
+    <div class="form-group">
+      <label>What vehicle would you have used instead?</label>
+      <select id="c-vehicle">
+        <option value="jeepney">Jeepney (₱13 tipid!)</option>
+        <option value="car" selected>Private Car</option>
+        <option value="motorcycle">Motorcycle / Habal-habal</option>
+        <option value="bus">Bus</option>
+      </select>
+    </div>
+    <button class="btn-primary-green" style="width:100%;justify-content:center;" onclick="calculate()"><i class="fa-solid fa-leaf"></i> Calculate Savings</button>
+    <div class="calc-result" id="calc-result">
+      <div class="cr-title">You saved approximately</div>
+      <div><span class="cr-value" id="r-co2">0</span> <span style="font-size:0.85rem;font-weight:600;color:#555;">kg CO₂</span></div>
+      <div class="cr-label" id="r-trees" style="margin-top:4px;"></div>
+      <button class="share-btn" onclick="shareResult()"><i class="fa-solid fa-share-nodes"></i> Share This Achievement</button>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="history-section">
+    <h3>Saved Calculations</h3>
+    <div id="carbon-history"><p style="color:#aaa;font-size:0.8rem;">No saved calculations yet. Calculate a trip above and it will appear here.</p></div>
+  </div>
+
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script type="module">
+  import { initPage } from './js/app.js';
+  import { calcCO2Saved, treesEquivalent, shareCarbonBadge } from './js/carbon.js';
+  initPage('home');
+
+  const STORAGE_KEY = 'carbonHistory';
+  let lastResult = null;
+
+  function loadHistory() {
+    const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const totalCO2  = history.reduce((s,h) => s + h.co2, 0);
+    const totalKm   = history.reduce((s,h) => s + h.km,  0);
+    document.getElementById('total-co2').textContent = totalCO2.toFixed(2);
+    document.getElementById('trees-eq').textContent  = treesEquivalent(totalCO2);
+    document.getElementById('total-km').textContent  = totalKm.toFixed(1);
+    const cont = document.getElementById('carbon-history');
+    cont.innerHTML = history.length === 0
+      ? '<p style="color:#aaa;font-size:0.8rem;">No saved calculations yet.</p>'
+      : history.slice().reverse().map(h => `
+        <div class="history-item">
+          <div class="hi-icon"><i class="fa-solid fa-bicycle"></i></div>
+          <div class="hi-info">${h.km} km instead of ${h.vehicle} · ${h.date}</div>
+          <div class="hi-co2">${h.co2} kg CO₂</div>
+        </div>
+      `).join('');
+  }
+
+  window.calculate = function() {
+    const km      = parseFloat(document.getElementById('c-dist').value);
+    const vehicle = document.getElementById('c-vehicle').value;
+    if (!km) { alert('Please enter a distance.'); return; }
+    const co2 = calcCO2Saved(km, vehicle);
+    const trees = treesEquivalent(co2);
+    lastResult = { km, vehicle, co2, date: new Date().toLocaleDateString('en-PH') };
+    document.getElementById('r-co2').textContent  = co2;
+    document.getElementById('r-trees').textContent = `Equivalent to what ${trees} tree${trees !== 1 ? 's' : ''} absorb in a day.`;
+    document.getElementById('calc-result').style.display = 'block';
+    const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    history.push(lastResult);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    loadHistory();
+  };
+
+  window.shareResult = async function() {
+    if (!lastResult) return;
+    await shareCarbonBadge(lastResult.co2, lastResult.km);
+  };
+
+  loadHistory();
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>

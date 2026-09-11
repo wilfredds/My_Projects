@@ -1,0 +1,160 @@
+{
+  "warmup": [
+    {
+      "id": "neck-rolls",
+      "name": "Neck Rolls",
+      "nameTl": "Pag-ikot ng Leeg",
+      "durationSec": 30,
+      "reps": null,
+      "muscle": "Neck & Upper Traps",
+      "instruction": "Slowly roll your head in a full circle — 5 times clockwise, 5 times counter-clockwise. Keep shoulders relaxed.",
+      "animClass": "anim-neck",
+      "icon": "fa-person"
+    },
+    {
+      "id": "arm-circles",
+      "name": "Arm Circles",
+      "nameTl": "Pag-ikot ng Braso",
+      "durationSec": 30,
+      "reps": null,
+      "muscle": "Shoulders & Upper Back",
+      "instruction": "Extend arms wide. Make large circles forward for 15 seconds, then backward for 15 seconds.",
+      "animClass": "anim-stretch",
+      "icon": "fa-person"
+    },
+    {
+      "id": "hip-circles",
+      "name": "Hip Circles",
+      "nameTl": "Pag-ikot ng Balakang",
+      "durationSec": 30,
+      "reps": null,
+      "muscle": "Hips & Lower Back",
+      "instruction": "Hands on hips, feet shoulder-width apart. Rotate your hips in large circles — 10 each direction.",
+      "animClass": "anim-hip",
+      "icon": "fa-person"
+    },
+    {
+      "id": "leg-swings",
+      "name": "Leg Swings",
+      "nameTl": "Pagpapaindayog ng Binti",
+      "durationSec": 40,
+      "reps": "10 each leg",
+      "muscle": "Hip Flexors & Hamstrings",
+      "instruction": "Hold a wall for balance. Swing one leg forward and backward like a pendulum. Keep it controlled, not forced.",
+      "animClass": "anim-legswing",
+      "icon": "fa-person-walking"
+    },
+    {
+      "id": "quad-stretch",
+      "name": "Standing Quad Stretch",
+      "nameTl": "Pag-unat ng Quad",
+      "durationSec": 40,
+      "reps": "20 sec each leg",
+      "muscle": "Quadriceps",
+      "instruction": "Stand on one leg, bend the other knee and hold your ankle behind you. Keep hips forward and knees together.",
+      "animClass": "anim-squat",
+      "icon": "fa-person"
+    },
+    {
+      "id": "calf-raises",
+      "name": "Calf Raises",
+      "nameTl": "Pag-angat sa Paa",
+      "durationSec": 40,
+      "reps": "20 reps",
+      "muscle": "Calves",
+      "instruction": "Stand on the edge of a step or flat ground. Rise up on your toes slowly, then lower. Builds calf strength for pedaling.",
+      "animClass": "anim-squat",
+      "icon": "fa-person"
+    },
+    {
+      "id": "light-pedaling",
+      "name": "Easy 5-Minute Spin",
+      "nameTl": "Mahinang Pedal (5 Minuto)",
+      "durationSec": 300,
+      "reps": null,
+      "muscle": "Full Body (warm-up)",
+      "instruction": "Get on your bike in your easiest gear. Spin lightly at very low effort for 5 full minutes to warm up your muscles and joints.",
+      "animClass": "anim-pedal",
+      "icon": "fa-person-biking"
+    }
+  ],
+  "cooldown": [
+    {
+      "id": "easy-spin",
+      "name": "2-Minute Easy Spin",
+      "nameTl": "Mahinang Pedal (2 Minuto)",
+      "durationSec": 120,
+      "reps": null,
+      "muscle": "Full Body (flush lactic acid)",
+      "instruction": "Keep pedaling in your easiest gear at very low effort. This flushes lactic acid from your muscles and brings your heart rate down.",
+      "animClass": "anim-pedal",
+      "icon": "fa-person-biking"
+    },
+    {
+      "id": "standing-hamstring",
+      "name": "Standing Hamstring Stretch",
+      "nameTl": "Pag-unat ng Hamstring",
+      "durationSec": 40,
+      "reps": "20 sec each leg",
+      "muscle": "Hamstrings",
+      "instruction": "Stand, extend one leg forward with heel on ground and toes up. Hinge forward at the hips (keep back flat) until you feel the stretch in the back of the thigh.",
+      "animClass": "anim-legswing",
+      "icon": "fa-person"
+    },
+    {
+      "id": "figure-four",
+      "name": "Figure Four Hip Stretch",
+      "nameTl": "Hip Stretch (Figure 4)",
+      "durationSec": 50,
+      "reps": "25 sec each side",
+      "muscle": "Glutes & Hip Rotators",
+      "instruction": "Sit or stand. Cross one ankle over the opposite knee forming a figure-4 shape. Press down gently on the raised knee. Cyclists need this one — long saddle time tightens the glutes.",
+      "animClass": "anim-squat",
+      "icon": "fa-person"
+    },
+    {
+      "id": "chest-opener",
+      "name": "Chest Opener",
+      "nameTl": "Pag-unat ng Dibdib",
+      "durationSec": 30,
+      "reps": null,
+      "muscle": "Chest & Shoulders",
+      "instruction": "Interlace fingers behind your back. Gently squeeze shoulder blades together and lift your hands slightly. Counter the hunched riding position.",
+      "animClass": "anim-stretch",
+      "icon": "fa-person"
+    },
+    {
+      "id": "cat-cow",
+      "name": "Cat-Cow Back Stretch",
+      "nameTl": "Cat-Cow Likod Stretch",
+      "durationSec": 40,
+      "reps": "10 cycles",
+      "muscle": "Lower & Upper Back",
+      "instruction": "On all fours: arch your back up (cat) then drop your belly down (cow). Alternate slowly. Essential for the lower back strain from cycling posture.",
+      "animClass": "anim-neck",
+      "icon": "fa-person"
+    },
+    {
+      "id": "calf-stretch",
+      "name": "Wall Calf Stretch",
+      "nameTl": "Pag-unat ng Guya",
+      "durationSec": 40,
+      "reps": "20 sec each leg",
+      "muscle": "Calves & Achilles",
+      "instruction": "Stand facing a wall, one foot back with heel flat on the ground. Lean into the wall until you feel the calf stretch. Switch legs.",
+      "animClass": "anim-legswing",
+      "icon": "fa-person"
+    },
+    {
+      "id": "deep-breathing",
+      "name": "Deep Breathing (4-7-8)",
+      "nameTl": "Malalim na Paghinga",
+      "durationSec": 60,
+      "reps": "5 cycles",
+      "muscle": "Recovery & Stress Relief",
+      "instruction": "Inhale for 4 counts, hold for 7, exhale slowly for 8. This activates the parasympathetic nervous system — bringing you from 'fight or flight' to full recovery mode.",
+      "animClass": "anim-breathe",
+      "icon": "fa-wind"
+    }
+  ]
+}

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ride Tracker - Bike Guide PH</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:16px 20px; }
+    .stat-card { background:#fff; border-radius:16px; padding:16px; box-shadow:0 4px 14px rgba(0,0,0,0.08); text-align:center; }
+    .stat-card .sv { font-size:1.6rem; font-weight:800; color:var(--green-primary); }
+    .stat-card .sl { font-size:0.7rem; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
+    .log-form { margin:0 20px 20px; background:#fff; border-radius:20px; box-shadow:0 8px 24px rgba(0,0,0,0.1); padding:20px; }
+    .log-form h3 { font-size:1rem; margin-bottom:14px; }
+    .form-group { margin-bottom:14px; }
+    .form-group label { font-size:0.78rem; font-weight:600; color:#555; display:block; margin-bottom:6px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width:100%; padding:11px 14px;
+      border:1.5px solid #e0e0e0; border-radius:12px;
+      font-family:'Poppins',sans-serif; font-size:0.85rem;
+      outline:none; transition:border-color 0.2s;
+      background:#fafafa;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#2d6a4f; background:#fff; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .submit-btn { width:100%; padding:14px; background:linear-gradient(135deg,#2d6a4f,#52b788); color:#fff; border:none; border-radius:50px; font-family:'Poppins',sans-serif; font-size:0.95rem; font-weight:700; cursor:pointer; }
+    .rides-list { padding:0 20px 20px; }
+    .rides-list h3 { font-size:0.95rem; font-weight:700; margin-bottom:12px; }
+    .ride-item { background:#fff; border-radius:14px; padding:14px; margin-bottom:10px; box-shadow:0 2px 10px rgba(0,0,0,0.07); display:flex; align-items:center; gap:12px; }
+    .ride-icon { width:42px; height:42px; background:#f0f7f4; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#2d6a4f; font-size:1.1rem; flex-shrink:0; }
+    .ride-info { flex:1; }
+    .ride-name { font-size:0.88rem; font-weight:700; color:#1a1a2e; }
+    .ride-meta { font-size:0.72rem; color:#888; margin-top:2px; }
+    .ride-km { font-size:1rem; font-weight:800; color:#2d6a4f; }
+    .empty-state { text-align:center; padding:40px 20px; color:#aaa; }
+
+    /* GPS record CTA */
+    .gps-cta { display:flex; align-items:center; gap:14px; margin:16px 20px 4px; padding:16px 18px;
+      background:linear-gradient(135deg,#2d6a4f,#52b788); border-radius:20px; text-decoration:none;
+      box-shadow:0 8px 24px rgba(45,106,79,0.35); color:#fff; }
+    .gps-cta-icon { width:46px; height:46px; border-radius:14px; background:rgba(255,255,255,0.2);
+      display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
+    .gps-cta-title { font-size:0.95rem; font-weight:700; }
+    .gps-cta-sub { font-size:0.72rem; opacity:0.85; }
+
+    /* GPS ride extras */
+    .ride-badge-gps { display:inline-block; background:#f0f7f4; color:#2d6a4f; font-size:0.58rem; font-weight:700;
+      padding:2px 7px; border-radius:50px; text-transform:uppercase; letter-spacing:0.5px; margin-left:6px; vertical-align:middle; }
+    [data-theme="dark"] .ride-badge-gps { background:#16251d; color:#7fd1a8; }
+    .route-thumb { width:54px; height:54px; border-radius:12px; background:#eef4f1; flex-shrink:0; overflow:hidden; }
+    [data-theme="dark"] .route-thumb { background:#141a23; }
+    .ride-substats { display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; }
+    .ride-substats span { font-size:0.66rem; color:var(--text-muted); }
+    .ride-substats i { color:var(--green-primary); }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="top-bar">
+    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name"><i class="fa-solid fa-chart-line" style="color:#f4722b;margin-right:6px;"></i>Ride Tracker</span>
+    <div class="top-actions"><span class="rider-badge" id="rider-badge"></span></div>
+  </div>
+
+  <!-- Record with GPS CTA -->
+  <a href="record.html" class="gps-cta">
+    <div class="gps-cta-icon"><i class="fa-solid fa-location-crosshairs"></i></div>
+    <div class="gps-cta-text">
+      <div class="gps-cta-title">Record a Ride with GPS</div>
+      <div class="gps-cta-sub">Live map, speed, distance & calories</div>
+    </div>
+    <i class="fa-solid fa-chevron-right" style="margin-left:auto;opacity:0.8;"></i>
+  </a>
+
+  <!-- Stats -->
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card"><div class="sv" id="s-rides">0</div><div class="sl">Total Rides</div></div>
+    <div class="stat-card"><div class="sv" id="s-km">0</div><div class="sl">Total km</div></div>
+    <div class="stat-card"><div class="sv" id="s-avg">0</div><div class="sl">Avg Speed km/h</div></div>
+    <div class="stat-card"><div class="sv" id="s-best">0</div><div class="sl">Longest Ride km</div></div>
+  </div>
+
+  <!-- Log Form -->
+  <div class="log-form">
+    <h3><i class="fa-solid fa-plus" style="color:#2d6a4f;"></i> Log a Ride</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Distance (km)*</label>
+        <input type="number" id="f-dist" placeholder="15.5" min="0.1" step="0.1" required>
+      </div>
+      <div class="form-group">
+        <label>Duration (min)*</label>
+        <input type="number" id="f-dur" placeholder="60" min="1" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Date*</label>
+      <input type="date" id="f-date" required>
+    </div>
+    <div class="form-group">
+      <label>Route Name</label>
+      <input type="text" id="f-route" placeholder="BGC Loop, Tagaytay, etc.">
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="f-notes" rows="2" placeholder="How was the ride?"></textarea>
+    </div>
+    <button class="submit-btn" onclick="submitRide()"><i class="fa-solid fa-floppy-disk"></i> Save Ride</button>
+    <p id="log-msg" style="text-align:center;font-size:0.8rem;margin-top:10px;color:#2d6a4f;display:none;"></p>
+  </div>
+
+  <!-- Rides List -->
+  <div class="rides-list">
+    <h3>Ride History</h3>
+    <div id="rides-container"><div class="empty-state"><i class="fa-solid fa-person-biking" style="font-size:2rem;margin-bottom:8px;display:block;"></i>No rides yet. Log your first one!</div></div>
+  </div>
+
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script type="module">
+  import { initPage, toast, countUp } from './js/app.js';
+  import { logRide, getRides, deleteRide, calcStats } from './js/tracker.js';
+  initPage('tracker');
+
+  // Set today's date as default
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+
+  let rides = [];
+  const pendingDeletes = {}; // id -> timeout (debounced server delete, allows Undo)
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+
+  function setStats(list) {
+    const stats = calcStats(list);
+    countUp(document.getElementById('s-rides'), stats.totalRides);
+    countUp(document.getElementById('s-km'),    stats.totalKm,    { decimals: 1 });
+    countUp(document.getElementById('s-avg'),   stats.avgSpeed,   { decimals: 1 });
+    countUp(document.getElementById('s-best'),  stats.longestRide,{ decimals: 1 });
+  }
+
+  const EMPTY = '<div class="empty-state"><i class="fa-solid fa-person-biking" style="font-size:2rem;margin-bottom:8px;display:block;"></i>No rides yet. Log your first one!</div>';
+
+  async function loadRides() {
+    rides = await getRides();
+    setStats(rides);
+    renderRides();
+  }
+
+  // Build a tiny SVG thumbnail of a GPS track (fast, offline, no map tiles)
+  function routeThumb(track) {
+    if (!Array.isArray(track) || track.length < 2) return '';
+    const lats = track.map(p => p.lat), lngs = track.map(p => p.lng);
+    const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+    const w = 54, h = 54, pad = 7;
+    const spanLat = (maxLat - minLat) || 1e-6, spanLng = (maxLng - minLng) || 1e-6;
+    const scale = Math.min((w - 2 * pad) / spanLng, (h - 2 * pad) / spanLat);
+    const offX = (w - spanLng * scale) / 2, offY = (h - spanLat * scale) / 2;
+    const pts = track.map(p => {
+      const x = offX + (p.lng - minLng) * scale;
+      const y = h - (offY + (p.lat - minLat) * scale); // flip Y (north up)
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    return `<svg class="route-thumb" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+      <polyline points="${pts}" fill="none" stroke="#f4722b" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${pts.split(' ')[0].split(',')[0]}" cy="${pts.split(' ')[0].split(',')[1]}" r="3" fill="#2d6a4f"/>
+    </svg>`;
+  }
+
+  function renderRides() {
+    const container = document.getElementById('rides-container');
+    if (rides.length === 0) { container.innerHTML = EMPTY; return; }
+    container.innerHTML = rides.map(r => {
+      const isGps = r.source === 'gps';
+      const icon = isGps && r.track ? routeThumb(r.track)
+        : `<div class="ride-icon"><i class="fa-solid fa-person-biking"></i></div>`;
+      const substats = isGps ? `
+        <div class="ride-substats">
+          ${r.avgSpeed != null ? `<span><i class="fa-solid fa-gauge-high"></i> ${esc(r.avgSpeed)} km/h</span>` : ''}
+          ${r.elevationGain ? `<span><i class="fa-solid fa-mountain"></i> ${esc(r.elevationGain)} m</span>` : ''}
+          ${r.calories ? `<span><i class="fa-solid fa-fire"></i> ${esc(r.calories)} kcal</span>` : ''}
+        </div>` : '';
+      return `
+      <div class="ride-swipe" data-id="${esc(r.id)}">
+        <div class="ride-delete"><span class="swipe-hint">Swipe to delete</span> <i class="fa-solid fa-trash"></i></div>
+        <div class="ride-item">
+          ${icon}
+          <div class="ride-info">
+            <div class="ride-name">${esc(r.routeName) || 'Unnamed Ride'}${isGps ? '<span class="ride-badge-gps">GPS</span>' : ''}</div>
+            <div class="ride-meta">${esc(r.date)} · ${esc(r.durationMinutes) || '?'} min</div>
+            ${substats}
+            ${r.notes ? `<div class="ride-meta" style="margin-top:2px;">${esc(r.notes)}</div>` : ''}
+          </div>
+          <div class="ride-km">${esc(r.distanceKm)} km</div>
+        </div>
+      </div>`;
+    }).join('');
+    attachSwipe();
+  }
+
+  function attachSwipe() {
+    document.querySelectorAll('.ride-swipe').forEach(row => {
+      const item = row.querySelector('.ride-item');
+      const OPEN = -76;
+      let startX = 0, dx = 0, dragging = false;
+      item.addEventListener('pointerdown', e => {
+        dragging = true; startX = e.clientX; dx = 0;
+        item.style.transition = 'none';
+        item.setPointerCapture(e.pointerId);
+      });
+      item.addEventListener('pointermove', e => {
+        if (!dragging) return;
+        dx = e.clientX - startX;
+        if (dx > 0) dx *= 0.25; // resist swiping right
+        item.style.transform = `translateX(${dx}px)`;
+      });
+      const finish = () => {
+        if (!dragging) return;
+        dragging = false;
+        item.style.transition = '';
+        const threshold = row.clientWidth * 0.4;
+        if (dx < -threshold) { item.style.transform = 'translateX(-110%)'; removeRide(row); }
+        else if (dx < OPEN / 1.5) { item.style.transform = `translateX(${OPEN}px)`; }
+        else { item.style.transform = ''; }
+        dx = 0;
+      };
+      item.addEventListener('pointerup', finish);
+      item.addEventListener('pointercancel', finish);
+      row.querySelector('.ride-delete').addEventListener('click', () => {
+        item.style.transition = ''; item.style.transform = 'translateX(-110%)';
+        removeRide(row);
+      });
+    });
+  }
+
+  function removeRide(row) {
+    const id = row.dataset.id;
+    if (navigator.vibrate) { try { navigator.vibrate(15); } catch (_) {} }
+    // Optimistically collapse the row and update stats
+    rides = rides.filter(r => r.id !== id);
+    setStats(rides);
+    row.style.height = row.offsetHeight + 'px';
+    requestAnimationFrame(() => {
+      row.style.transition = 'height 0.25s ease, opacity 0.25s ease, margin 0.25s ease';
+      row.style.height = '0'; row.style.opacity = '0'; row.style.marginBottom = '0';
+    });
+    setTimeout(() => { row.remove(); if (rides.length === 0) document.getElementById('rides-container').innerHTML = EMPTY; }, 260);
+    // Defer the real delete so Undo can cancel it
+    pendingDeletes[id] = setTimeout(async () => {
+      try { await deleteRide(id); } catch (_) {}
+      delete pendingDeletes[id];
+    }, 4500);
+    toast('Ride deleted', {
+      type: 'info', duration: 4500,
+      action: { label: 'Undo', onClick: () => { clearTimeout(pendingDeletes[id]); delete pendingDeletes[id]; loadRides(); } },
+    });
+  }
+
+  window.submitRide = async function() {
+    const dist = parseFloat(document.getElementById('f-dist').value);
+    const dur  = parseInt(document.getElementById('f-dur').value);
+    if (!dist || !dur) { toast('Please enter distance and duration.', { type: 'error' }); return; }
+    const btn = document.querySelector('.submit-btn');
+    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+    try {
+      await logRide({
+        distanceKm: dist,
+        durationMinutes: dur,
+        date: document.getElementById('f-date').value,
+        routeName: document.getElementById('f-route').value,
+        notes: document.getElementById('f-notes').value,
+      });
+      document.getElementById('f-dist').value  = '';
+      document.getElementById('f-dur').value   = '';
+      document.getElementById('f-route').value = '';
+      document.getElementById('f-notes').value = '';
+      toast(`Ride saved — ${dist} km logged! 🚴`, { type: 'success' });
+      await loadRides();
+    } catch (_) {
+      toast('Could not save ride. Check your connection.', { type: 'error' });
+    } finally {
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Ride';
+    }
+  };
+
+  loadRides();
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>

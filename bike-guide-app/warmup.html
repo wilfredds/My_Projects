@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Warm-Up & Cool-Down - Bike Guide PH</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/animations.css" rel="stylesheet">
+  <style>
+    .phase-toggle { display:flex; margin:16px 20px; background:#f0f0f0; border-radius:50px; padding:4px; }
+    .phase-btn    { flex:1; padding:10px; border-radius:50px; border:none; font-family:'Poppins',sans-serif; font-size:0.85rem; font-weight:700; cursor:pointer; transition:all 0.25s; color:#777; background:transparent; }
+    .phase-btn.active { background:#2d6a4f; color:#fff; box-shadow:0 4px 14px rgba(45,106,79,0.35); }
+
+    .exercise-list  { padding:0 20px 100px; }
+    .exercise-card  { background:#fff; border-radius:18px; padding:16px; margin-bottom:12px; box-shadow:0 4px 14px rgba(0,0,0,0.08); display:flex; gap:14px; align-items:center; cursor:pointer; transition:all 0.2s; }
+    .exercise-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.12); }
+    .exercise-card.current { border:2px solid #2d6a4f; }
+    .ex-anim-box { width:64px; height:64px; background:#f0f7f4; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#2d6a4f; flex-shrink:0; }
+    .ex-info { flex:1; }
+    .ex-name { font-size:0.9rem; font-weight:700; color:#1a1a2e; }
+    .ex-muscle { font-size:0.7rem; color:#888; margin-top:2px; }
+    .ex-dur { font-size:0.85rem; font-weight:700; color:#f4722b; }
+
+    /* Full-screen exercise mode */
+    .exercise-mode {
+      position:fixed; inset:0; background:linear-gradient(160deg,#1b4332,#2d6a4f);
+      display:none; flex-direction:column; align-items:center; justify-content:center;
+      padding:30px; z-index:200; color:#fff;
+    }
+    .exercise-mode.active { display:flex; }
+    .ex-step-label { font-size:0.75rem; opacity:0.7; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+    .ex-mode-name  { font-size:1.6rem; font-weight:800; text-align:center; margin-bottom:6px; }
+    .ex-mode-muscle{ font-size:0.82rem; opacity:0.75; margin-bottom:24px; }
+    .ex-anim-big   { width:110px; height:110px; background:rgba(255,255,255,0.12); border-radius:30px; display:flex; align-items:center; justify-content:center; font-size:2.8rem; margin-bottom:24px; }
+    .timer-display { font-size:4rem; font-weight:800; line-height:1; margin-bottom:8px; }
+    .timer-unit    { font-size:0.8rem; opacity:0.7; margin-bottom:24px; }
+    .ex-mode-inst  { text-align:center; font-size:0.85rem; opacity:0.85; line-height:1.6; margin-bottom:32px; max-width:300px; }
+    .mode-controls { display:flex; gap:14px; }
+    .mode-btn { padding:14px 28px; border-radius:50px; border:none; font-family:'Poppins',sans-serif; font-size:0.9rem; font-weight:700; cursor:pointer; }
+    .mode-btn.next  { background:#f4722b; color:#fff; }
+    .mode-btn.skip  { background:rgba(255,255,255,0.15); color:#fff; }
+    .mode-close { position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.15); border:none; color:#fff; width:40px; height:40px; border-radius:50%; cursor:pointer; font-size:1rem; }
+    .ex-progress-dots { display:flex; gap:6px; margin-bottom:20px; }
+    .ex-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.3); transition:background 0.3s; }
+    .ex-dot.done  { background:#52b788; }
+    .ex-dot.current { background:#f4722b; }
+
+    .start-routine-btn { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); width:calc(100% - 40px); max-width:440px; padding:16px; background:linear-gradient(135deg,#2d6a4f,#52b788); color:#fff; border:none; border-radius:50px; font-family:'Poppins',sans-serif; font-size:1rem; font-weight:700; cursor:pointer; box-shadow:0 8px 24px rgba(45,106,79,0.4); z-index:100; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="top-bar">
+    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name"><i class="fa-solid fa-person-running" style="color:#f4722b;margin-right:6px;"></i>Warm-Up & Cool-Down</span>
+    <div class="top-actions"><span class="rider-badge" id="rider-badge"></span></div>
+  </div>
+
+  <div class="phase-toggle">
+    <button class="phase-btn active" id="btn-warmup" onclick="switchPhase('warmup')"><i class="fa-solid fa-fire"></i> Warm-Up</button>
+    <button class="phase-btn" id="btn-cooldown" onclick="switchPhase('cooldown')"><i class="fa-solid fa-snowflake"></i> Cool-Down</button>
+  </div>
+
+  <div style="padding:0 20px 10px;">
+    <p id="phase-desc" style="font-size:0.8rem;color:#777;">Complete this routine BEFORE your ride to prepare muscles and joints and reduce injury risk.</p>
+    <p id="total-time" style="font-size:0.85rem;font-weight:700;color:#2d6a4f;">Total time: ~7 minutes</p>
+  </div>
+
+  <div class="exercise-list" id="exercise-list"></div>
+
+  <button class="start-routine-btn" onclick="startRoutine()">
+    <i class="fa-solid fa-play"></i> Start Routine
+  </button>
+</div>
+
+<!-- Full-screen exercise mode -->
+<div class="exercise-mode" id="exercise-mode">
+  <button class="mode-close" onclick="closeRoutine()"><i class="fa-solid fa-xmark"></i></button>
+  <div class="ex-step-label" id="ex-step-label">EXERCISE 1 OF 7</div>
+  <div class="ex-progress-dots" id="ex-dots"></div>
+  <div class="ex-anim-big" id="ex-anim-big"></div>
+  <div class="ex-mode-name" id="ex-mode-name"></div>
+  <div class="ex-mode-muscle" id="ex-mode-muscle"></div>
+  <div class="timer-display timer-pulse" id="timer-display">30</div>
+  <div class="timer-unit">seconds remaining</div>
+  <div class="ex-mode-inst" id="ex-mode-inst"></div>
+  <div class="mode-controls">
+    <button class="mode-btn skip" onclick="skipExercise()">Skip</button>
+    <button class="mode-btn next" id="next-btn" onclick="nextExercise()">Next <i class="fa-solid fa-arrow-right"></i></button>
+  </div>
+</div>
+
+<nav class="bottom-nav" id="bottom-nav"></nav>
+
+<script type="module">
+  import { initPage } from './js/app.js';
+  initPage('home');
+</script>
+<script>
+  let exercises = { warmup:[], cooldown:[] };
+  let currentPhase = 'warmup';
+  let currentIdx   = 0;
+  let timerInterval = null;
+  let timeLeft = 0;
+
+  async function loadExercises() {
+    const res = await fetch('assets/data/exercises.json');
+    exercises  = await res.json();
+    renderList();
+  }
+
+  function switchPhase(phase) {
+    currentPhase = phase;
+    document.getElementById('btn-warmup').classList.toggle('active',  phase === 'warmup');
+    document.getElementById('btn-cooldown').classList.toggle('active', phase === 'cooldown');
+    document.getElementById('phase-desc').textContent = phase === 'warmup'
+      ? 'Complete this routine BEFORE your ride to prepare muscles and joints and reduce injury risk.'
+      : 'Complete this routine AFTER your ride to flush lactic acid and prevent soreness.';
+    renderList();
+  }
+  window.switchPhase = switchPhase;
+
+  function renderList() {
+    const list = exercises[currentPhase] || [];
+    const totalSec = list.reduce((s,e) => s + e.durationSec, 0);
+    document.getElementById('total-time').textContent = `Total time: ~${Math.ceil(totalSec/60)} minutes`;
+    document.getElementById('exercise-list').innerHTML = list.map((ex, i) => `
+      <div class="exercise-card" id="ex-card-${i}">
+        <div class="ex-anim-box"><i class="fa-solid ${ex.icon}"></i></div>
+        <div class="ex-info">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-muscle">${ex.muscle}</div>
+        </div>
+        <div class="ex-dur">${ex.reps || ex.durationSec + 's'}</div>
+      </div>
+    `).join('');
+  }
+
+  function startRoutine() {
+    const list = exercises[currentPhase];
+    if (!list || !list.length) return;
+    currentIdx = 0;
+    showExercise(currentIdx);
+    document.getElementById('exercise-mode').classList.add('active');
+  }
+  window.startRoutine = startRoutine;
+
+  function showExercise(idx) {
+    clearInterval(timerInterval);
+    const list = exercises[currentPhase];
+    const ex   = list[idx];
+    if (!ex) { finishRoutine(); return; }
+
+    document.getElementById('ex-step-label').textContent = `EXERCISE ${idx+1} OF ${list.length}`;
+    document.getElementById('ex-mode-name').textContent  = ex.name;
+    document.getElementById('ex-mode-muscle').textContent = ex.muscle;
+    document.getElementById('ex-mode-inst').textContent  = ex.instruction;
+    document.getElementById('ex-anim-big').innerHTML     = `<i class="fa-solid ${ex.icon} ${ex.animClass}"></i>`;
+
+    // Dots
+    document.getElementById('ex-dots').innerHTML = list.map((_,i) =>
+      `<div class="ex-dot ${i < idx ? 'done' : i === idx ? 'current' : ''}"></div>`
+    ).join('');
+
+    // Timer
+    timeLeft = ex.durationSec;
+    document.getElementById('timer-display').textContent = timeLeft;
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      document.getElementById('timer-display').textContent = timeLeft;
+      if (timeLeft <= 0) { clearInterval(timerInterval); nextExercise(); }
+    }, 1000);
+  }
+
+  function nextExercise() {
+    clearInterval(timerInterval);
+    currentIdx++;
+    showExercise(currentIdx);
+  }
+  window.nextExercise = nextExercise;
+
+  function skipExercise() { nextExercise(); }
+  window.skipExercise = skipExercise;
+
+  function finishRoutine() {
+    clearInterval(timerInterval);
+    document.getElementById('exercise-mode').classList.remove('active');
+    const phase = currentPhase === 'warmup' ? 'warm-up' : 'cool-down';
+    alert(`Great work! Your ${phase} routine is complete. 💪`);
+  }
+
+  function closeRoutine() {
+    clearInterval(timerInterval);
+    document.getElementById('exercise-mode').classList.remove('active');
+  }
+  window.closeRoutine = closeRoutine;
+
+  loadExercises();
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>

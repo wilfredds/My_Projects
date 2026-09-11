@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PH Routes - Bike Guide PH</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .filter-row { display:flex; gap:8px; padding:12px 20px 8px; overflow-x:auto; scrollbar-width:none; }
+    .filter-row::-webkit-scrollbar { display:none; }
+    .filter-btn { flex-shrink:0; padding:7px 16px; border-radius:50px; border:1.5px solid #ddd; background:#fff; font-family:'Poppins',sans-serif; font-size:0.78rem; font-weight:600; color:#666; cursor:pointer; transition:all 0.2s; }
+    .filter-btn.active { background:#2d6a4f; color:#fff; border-color:#2d6a4f; }
+    .routes-container { padding:8px 20px 20px; }
+    .route-count { font-size:0.78rem; color:#888; margin-bottom:12px; }
+    .premium-banner { background:linear-gradient(135deg,#f4722b,#ff9a5c); border-radius:16px; padding:16px 18px; margin:0 20px 16px; color:#fff; }
+    .premium-banner h4 { font-size:0.92rem; font-weight:700; margin-bottom:4px; }
+    .premium-banner p  { font-size:0.75rem; opacity:0.9; margin-bottom:10px; }
+    .premium-banner a  { background:rgba(255,255,255,0.25); color:#fff; padding:8px 18px; border-radius:50px; font-size:0.8rem; font-weight:700; text-decoration:none; display:inline-block; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="top-bar">
+    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name"><i class="fa-solid fa-map-location-dot" style="color:#f4722b;margin-right:6px;"></i>PH Routes</span>
+    <div class="top-actions"><span class="rider-badge" id="rider-badge"></span></div>
+  </div>
+
+  <div class="filter-row" id="diff-filters">
+    <button class="filter-btn active" data-diff="all" onclick="setFilter('diff','all',this)">All</button>
+    <button class="filter-btn" data-diff="beginner" onclick="setFilter('diff','beginner',this)">🌱 Beginner</button>
+    <button class="filter-btn" data-diff="intermediate" onclick="setFilter('diff','intermediate',this)">🚴 Intermediate</button>
+    <button class="filter-btn" data-diff="advanced" onclick="setFilter('diff','advanced',this)">🏆 Advanced</button>
+  </div>
+
+  <div class="filter-row" id="region-filters">
+    <button class="filter-btn active" data-reg="all" onclick="setFilter('region','all',this)">All Regions</button>
+    <button class="filter-btn" onclick="setFilter('region','Metro Manila',this)">Metro Manila</button>
+    <button class="filter-btn" onclick="setFilter('region','Cavite',this)">Cavite</button>
+    <button class="filter-btn" onclick="setFilter('region','Luzon (North)',this)">North Luzon</button>
+    <button class="filter-btn" onclick="setFilter('region','Visayas',this)">Visayas</button>
+    <button class="filter-btn" onclick="setFilter('region','Mindanao',this)">Mindanao</button>
+  </div>
+
+  <div class="premium-banner" id="premium-banner" style="display:none;">
+    <h4>🔒 Advanced Routes Locked</h4>
+    <p>Unlock Premium for ₱79 to access all advanced and epic Philippine routes.</p>
+    <a href="premium.html">Unlock Premium →</a>
+  </div>
+
+  <div class="routes-container">
+    <p class="route-count" id="route-count">Loading routes...</p>
+    <div id="routes-list"></div>
+  </div>
+
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script type="module">
+  import { initPage, isPremium } from './js/app.js';
+  import { loadRoutes, filterRoutes, renderRouteCard } from './js/routes.js';
+  initPage('routes');
+
+  let activeFilters = { diff:'all', region:'all' };
+  let routesLoaded  = false;
+
+  window.setFilter = function(type, value, btn) {
+    activeFilters[type] = value;
+    const group = type === 'diff' ? 'diff-filters' : 'region-filters';
+    document.querySelectorAll(`#${group} .filter-btn`).forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderRoutes();
+  };
+
+  function renderRoutes() {
+    const premium = isPremium();
+    const filtered = filterRoutes({ difficulty: activeFilters.diff, region: activeFilters.region, premiumUnlocked: premium });
+    const hasPremiumLocked = !premium;
+    document.getElementById('premium-banner').style.display = hasPremiumLocked ? 'block' : 'none';
+    document.getElementById('route-count').textContent = `${filtered.length} route${filtered.length !== 1 ? 's' : ''} found`;
+    document.getElementById('routes-list').innerHTML = filtered.length
+      ? filtered.map(r => renderRouteCard(r, premium)).join('')
+      : '<p style="text-align:center;color:#aaa;padding:30px 0;">No routes match your filters.</p>';
+  }
+
+  await loadRoutes();
+  renderRoutes();
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>

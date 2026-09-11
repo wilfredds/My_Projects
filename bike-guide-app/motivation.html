@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Motivation - Bike Guide PH</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .quote-hero { background:linear-gradient(160deg,#8e44ad,#c39bd3); padding:30px 24px; text-align:center; border-radius:0 0 30px 30px; color:#fff; margin-bottom:20px; }
+    .quote-text { font-size:1.15rem; font-weight:700; line-height:1.5; margin-bottom:10px; }
+    .quote-author { font-size:0.8rem; opacity:0.8; }
+    .quote-dots { display:flex; justify-content:center; gap:6px; margin-top:14px; }
+    .q-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.4); cursor:pointer; }
+    .q-dot.active { background:#fff; }
+    .challenge-callout { margin:0 20px 20px; background:linear-gradient(135deg,#f4722b,#ff9a5c); border-radius:18px; padding:18px; color:#fff; }
+    .challenge-callout h3 { font-size:1rem; font-weight:700; margin-bottom:6px; }
+    .challenge-callout p  { font-size:0.78rem; opacity:0.9; margin-bottom:12px; }
+    .challenge-callout a  { background:rgba(255,255,255,0.25); color:#fff; padding:9px 20px; border-radius:50px; font-size:0.82rem; font-weight:700; text-decoration:none; display:inline-block; }
+    .facts-section { padding:0 20px 20px; }
+    .facts-section h3 { font-size:0.95rem; font-weight:700; margin-bottom:12px; }
+    .fact-card { background:#fff; border-radius:14px; padding:14px; margin-bottom:10px; box-shadow:0 3px 10px rgba(0,0,0,0.07); display:flex; gap:12px; align-items:flex-start; }
+    .fact-card .fc-icon { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+    .fact-card p { font-size:0.8rem; color:#444; margin:0; line-height:1.6; }
+    .music-section { margin:0 20px 20px; background:#fff; border-radius:18px; padding:18px; box-shadow:0 4px 14px rgba(0,0,0,0.08); }
+    .music-section h3 { font-size:0.95rem; font-weight:700; margin-bottom:12px; }
+    .playlist-item { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid #f0f0f0; }
+    .playlist-item:last-child { border:none; }
+    .playlist-item .pl-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+    .playlist-item .pl-info { flex:1; }
+    .playlist-item .pl-name { font-size:0.82rem; font-weight:700; color:#1a1a2e; }
+    .playlist-item .pl-sub  { font-size:0.7rem; color:#888; }
+    .playlist-item .pl-link { color:#2d6a4f; font-size:0.78rem; font-weight:600; text-decoration:none; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="top-bar">
+    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name"><i class="fa-solid fa-star" style="color:#f4722b;margin-right:6px;"></i>Motivation</span>
+    <div class="top-actions"><span class="rider-badge" id="rider-badge"></span></div>
+  </div>
+
+  <!-- Quote Carousel -->
+  <div class="quote-hero" id="quote-hero">
+    <i class="fa-solid fa-quote-left" style="font-size:1.5rem;opacity:0.6;margin-bottom:8px;display:block;"></i>
+    <div class="quote-text" id="quote-text"></div>
+    <div class="quote-author" id="quote-author"></div>
+    <div class="quote-dots" id="quote-dots"></div>
+  </div>
+
+  <!-- Challenge Callout -->
+  <div class="challenge-callout">
+    <h3>🔥 Still on your 30-Day Challenge?</h3>
+    <p>Every day you ride makes you stronger. Consistency beats intensity — one ride at a time.</p>
+    <a href="challenge.html">See Today's Workout →</a>
+  </div>
+
+  <!-- Did You Know Facts -->
+  <div class="facts-section">
+    <h3><i class="fa-solid fa-lightbulb" style="color:#f4722b;font-size:1rem;"></i> Did You Know?</h3>
+    <div class="fact-card"><div class="fc-icon" style="background:#f0f7f4;color:#2d6a4f;"><i class="fa-solid fa-heart-pulse"></i></div><p>Just 30 minutes of cycling 3x per week reduces your risk of heart disease by up to 50%. Your bike is literally a medicine machine.</p></div>
+    <div class="fact-card"><div class="fc-icon" style="background:#fff3e0;color:#e65100;"><i class="fa-solid fa-brain"></i></div><p>Cycling releases endorphins, dopamine, and serotonin — the same chemicals triggered by antidepressant medication. Feeling sad? Go ride.</p></div>
+    <div class="fact-card"><div class="fc-icon" style="background:#e3f2fd;color:#1565c0;"><i class="fa-solid fa-earth-asia"></i></div><p>The Philippines has over 2 million registered cyclists as of 2023. The pandemic cycling boom of 2020 permanently changed Filipino commuting habits.</p></div>
+    <div class="fact-card"><div class="fc-icon" style="background:#fce4ec;color:#c2185b;"><i class="fa-solid fa-clock"></i></div><p>The average Filipino cyclist who rides 3x per week gains 2–3 extra healthy years of life expectancy, according to global cycling health studies.</p></div>
+    <div class="fact-card"><div class="fc-icon" style="background:#e8f5e9;color:#2d6a4f;"><i class="fa-solid fa-peso-sign"></i></div><p>Cycling to work saves the average Filipino ₱3,000–₱8,000 per month in commuting costs. That's ₱36,000–₱96,000 per year — enough for a better bike!</p></div>
+    <div class="fact-card"><div class="fc-icon" style="background:#f3e5f5;color:#7b1fa2;"><i class="fa-solid fa-moon"></i></div><p>Regular cyclists sleep an average of 1 hour more per night than non-cyclists. The physical exertion regulates sleep hormones naturally.</p></div>
+    <div class="fact-card"><div class="fc-icon" style="background:#fff8e1;color:#f9a825;"><i class="fa-solid fa-fire"></i></div><p>Tagalog cycling term: "Ang mahirap na ruta ay nagbibigay ng pinakamalakas na kasiyahan." The hardest route gives the greatest satisfaction. 🚴‍♂️</p></div>
+  </div>
+
+  <!-- Music for Riding -->
+  <div class="music-section">
+    <h3><i class="fa-solid fa-music" style="color:#8e44ad;font-size:1rem;"></i> Riding Playlists</h3>
+    <div class="playlist-item">
+      <div class="pl-icon" style="background:#e8f5e9;color:#2d6a4f;"><i class="fa-solid fa-forward"></i></div>
+      <div class="pl-info"><div class="pl-name">High Energy Cycling Mix</div><div class="pl-sub">BPM 140–160 · For intense rides and climbs</div></div>
+      <span style="font-size:0.75rem;color:#888;">Spotify</span>
+    </div>
+    <div class="playlist-item">
+      <div class="pl-icon" style="background:#f3e5f5;color:#8e44ad;"><i class="fa-solid fa-music"></i></div>
+      <div class="pl-info"><div class="pl-name">OPM Cycling Hits</div><div class="pl-sub">Philippine hits · Great for flat road rides</div></div>
+      <span style="font-size:0.75rem;color:#888;">YouTube</span>
+    </div>
+    <div class="playlist-item">
+      <div class="pl-icon" style="background:#e3f2fd;color:#1565c0;"><i class="fa-solid fa-spa"></i></div>
+      <div class="pl-info"><div class="pl-name">Easy Ride Chill Mix</div><div class="pl-sub">Relaxed BPM · Perfect for recovery days</div></div>
+      <span style="font-size:0.75rem;color:#888;">Spotify</span>
+    </div>
+    <p style="font-size:0.72rem;color:#aaa;margin-top:8px;">⚠️ Use bone-conduction headphones or keep one ear free — never block both ears in traffic.</p>
+  </div>
+
+  <!-- Community -->
+  <div style="margin:0 20px 80px;">
+    <div style="background:#fff;border-radius:18px;padding:18px;box-shadow:0 4px 14px rgba(0,0,0,0.08);">
+      <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:12px;"><i class="fa-brands fa-facebook" style="color:#1877f2;font-size:1rem;"></i> Philippine Cycling Communities</h3>
+      <p style="font-size:0.8rem;color:#555;margin-bottom:12px;">Join these Facebook groups to find riding partners, route recommendations, and endless motivation from fellow Filipino cyclists.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#f0f7f4;border-radius:10px;padding:10px 14px;font-size:0.8rem;color:#2d6a4f;font-weight:600;">🚴 Pinoy Cycling Community</div>
+        <div style="background:#f0f7f4;border-radius:10px;padding:10px 14px;font-size:0.8rem;color:#2d6a4f;font-weight:600;">🚴 Cyclists of the Philippines</div>
+        <div style="background:#f0f7f4;border-radius:10px;padding:10px 14px;font-size:0.8rem;color:#2d6a4f;font-weight:600;">🚴 BGC Cyclists PH</div>
+        <div style="background:#f0f7f4;border-radius:10px;padding:10px 14px;font-size:0.8rem;color:#2d6a4f;font-weight:600;">🚴 Beginner Cyclists Philippines</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script type="module">
+  import { initPage } from './js/app.js';
+  initPage('home');
+</script>
+<script>
+  const QUOTES = [
+    { text: 'It never gets easier. You just get faster.', author: '— Greg LeMond, 3× Tour de France winner' },
+    { text: 'The bicycle is the most civilized conveyance known to man. Other forms of transport grow daily more nightmarish. Only the bicycle remains pure in heart.', author: '— Iris Murdoch' },
+    { text: 'Life is like riding a bicycle. To keep your balance, you must keep moving.', author: '— Albert Einstein' },
+    { text: 'Ang pagbibike ay hindi lang ehersisyo — ito ay kalayaan.', author: '— Filipino Cycling Wisdom' },
+    { text: 'The best rides are the ones where you bite off much more than you can chew, and live through it.', author: '— Doug Bradbury' },
+    { text: 'You don\'t have to be great to start, but you have to start to be great.', author: '— Zig Ziglar' },
+    { text: 'Every mountain you climb is a victory over yesterday\'s version of you.', author: '— Bike Guide PH' },
+    { text: 'Pain is temporary. Quitting lasts forever.', author: '— Lance Armstrong' },
+    { text: 'Cycling is not a sport — it\'s a way of life.', author: '— Filipino Rider' },
+    { text: 'A bicycle ride around the world begins with a single pedal stroke.', author: '— Scott Stoll' },
+  ];
+
+  let currentQuote = Math.floor(Math.random() * QUOTES.length);
+
+  function showQuote(idx) {
+    document.getElementById('quote-text').textContent   = QUOTES[idx].text;
+    document.getElementById('quote-author').textContent = QUOTES[idx].author;
+    document.querySelectorAll('.q-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  }
+
+  const dotsEl = document.getElementById('quote-dots');
+  dotsEl.innerHTML = QUOTES.map((_, i) => `<div class="q-dot ${i === currentQuote ? 'active' : ''}" onclick="goQuote(${i})"></div>`).join('');
+  showQuote(currentQuote);
+
+  window.goQuote = function(i) { currentQuote = i; showQuote(i); };
+  setInterval(() => { currentQuote = (currentQuote + 1) % QUOTES.length; showQuote(currentQuote); }, 6000);
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>

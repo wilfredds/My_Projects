@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Unlock Premium - Bike Guide PH</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a4f">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .premium-hero { background:linear-gradient(135deg,#f4722b,#ff9a5c); padding:28px 24px; text-align:center; color:#fff; border-radius:0 0 30px 30px; margin-bottom:20px; }
+    .price-display { font-size:3.5rem; font-weight:800; line-height:1; margin:8px 0 4px; }
+    .price-note    { font-size:0.78rem; opacity:0.85; }
+    .benefits-section { padding:0 20px 16px; }
+    .benefits-section h3 { font-size:0.95rem; font-weight:700; margin-bottom:12px; }
+    .compare-table { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,0.08); margin-bottom:20px; }
+    .ct-row { display:grid; grid-template-columns:2fr 1fr 1fr; border-bottom:1px solid #f0f0f0; }
+    .ct-row:last-child { border:none; }
+    .ct-cell { padding:12px 14px; font-size:0.78rem; }
+    .ct-header { background:#f8f9fa; font-weight:700; font-size:0.72rem; text-transform:uppercase; color:#888; }
+    .ct-free  { text-align:center; color:#aaa; }
+    .ct-premium { text-align:center; color:#2d6a4f; font-weight:700; }
+    .col-header-free    { background:#f8f9fa; text-align:center; font-size:0.8rem; color:#888; }
+    .col-header-premium { background:linear-gradient(135deg,#f4722b,#ff9a5c); text-align:center; font-size:0.8rem; color:#fff; font-weight:700; }
+    .payment-section { margin:0 20px 20px; background:#fff; border-radius:18px; padding:18px; box-shadow:0 6px 20px rgba(0,0,0,0.08); }
+    .payment-section h3 { font-size:0.95rem; margin-bottom:14px; }
+    .gcash-box { background:#f0f7f4; border-radius:14px; padding:16px; text-align:center; margin-bottom:16px; border:2px dashed #2d6a4f; }
+    .gcash-box .gcash-label { font-size:0.72rem; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+    .gcash-box .gcash-number { font-size:1.4rem; font-weight:800; color:#2d6a4f; letter-spacing:2px; }
+    .gcash-box .gcash-name { font-size:0.78rem; color:#555; margin-top:4px; }
+    .gcash-steps { list-style:none; margin-bottom:14px; }
+    .gcash-steps li { font-size:0.8rem; color:#555; padding:6px 0; display:flex; gap:8px; align-items:flex-start; }
+    .gcash-steps li .step-n { width:22px; height:22px; background:#f4722b; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.68rem; font-weight:700; flex-shrink:0; }
+    .ref-form input { width:100%; padding:12px 14px; border:1.5px solid #e0e0e0; border-radius:12px; font-family:'Poppins',sans-serif; font-size:0.9rem; margin-bottom:10px; outline:none; }
+    .ref-form input:focus { border-color:#f4722b; }
+    .submit-ref { width:100%; padding:14px; background:linear-gradient(135deg,#f4722b,#ff9a5c); color:#fff; border:none; border-radius:50px; font-family:'Poppins',sans-serif; font-size:0.95rem; font-weight:700; cursor:pointer; }
+    .check-btn { width:100%; padding:12px; background:transparent; color:#2d6a4f; border:2px solid #2d6a4f; border-radius:50px; font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:700; cursor:pointer; margin-top:10px; }
+    .premium-already { text-align:center; padding:20px; }
+    .premium-already .pa-icon { font-size:3rem; color:#2d6a4f; margin-bottom:8px; display:block; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="top-bar">
+    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name"><i class="fa-solid fa-crown" style="color:#f4722b;margin-right:6px;"></i>Unlock Premium</span>
+  </div>
+
+  <div id="already-premium" class="premium-already" style="display:none;">
+    <i class="fa-solid fa-circle-check pa-icon"></i>
+    <h2 style="font-size:1.2rem;margin-bottom:8px;">You're Premium!</h2>
+    <p style="font-size:0.82rem;color:#555;">All 30 days, all routes, and all premium features are unlocked. Thank you for your support!</p>
+    <a href="challenge.html" style="display:inline-block;margin-top:16px;padding:12px 28px;background:#2d6a4f;color:#fff;border-radius:50px;font-weight:700;font-size:0.88rem;text-decoration:none;">Continue Challenge →</a>
+  </div>
+
+  <div id="premium-content">
+    <div class="premium-hero">
+      <div style="font-size:0.8rem;opacity:0.85;">One-time payment · No subscription</div>
+      <div class="price-display">₱79</div>
+      <div class="price-note">Unlock everything. Forever.</div>
+    </div>
+
+    <div class="benefits-section">
+      <h3>Free vs Premium</h3>
+      <div class="compare-table">
+        <div class="ct-row">
+          <div class="ct-cell ct-header">Feature</div>
+          <div class="ct-cell col-header-free">Free</div>
+          <div class="ct-cell col-header-premium">Premium</div>
+        </div>
+        <div class="ct-row"><div class="ct-cell">All learning modules (Gear, Maintenance, Safety, etc.)</div><div class="ct-cell ct-free">✓</div><div class="ct-cell ct-premium">✓</div></div>
+        <div class="ct-row"><div class="ct-cell">30-Day Challenge Days 1–15</div><div class="ct-cell ct-free">✓</div><div class="ct-cell ct-premium">✓</div></div>
+        <div class="ct-row"><div class="ct-cell">30-Day Challenge Days 16–30</div><div class="ct-cell ct-free">✗</div><div class="ct-cell ct-premium">✓</div></div>
+        <div class="ct-row"><div class="ct-cell">Ride Tracker & Carbon Calculator</div><div class="ct-cell ct-free">✓</div><div class="ct-cell ct-premium">✓</div></div>
+        <div class="ct-row"><div class="ct-cell">14 Free Philippine Routes</div><div class="ct-cell ct-free">✓</div><div class="ct-cell ct-premium">✓</div></div>
+        <div class="ct-row"><div class="ct-cell">6 Advanced / Epic Routes</div><div class="ct-cell ct-free">✗</div><div class="ct-cell ct-premium">✓</div></div>
+        <div class="ct-row"><div class="ct-cell">Offline access (all content cached)</div><div class="ct-cell ct-free">Partial</div><div class="ct-cell ct-premium">✓ Full</div></div>
+        <div class="ct-row"><div class="ct-cell">Support the developer 🙏</div><div class="ct-cell ct-free">—</div><div class="ct-cell ct-premium">✓</div></div>
+      </div>
+    </div>
+
+    <!-- Payment Section -->
+    <div class="payment-section">
+      <h3><i class="fa-solid fa-mobile-screen" style="color:#0d6efd;"></i> Pay via GCash</h3>
+
+      <div class="gcash-box">
+        <div class="gcash-label">Send ₱79 to this GCash number</div>
+        
+        <!-- DEVELOPER: Replace with your actual GCash number and name -->
+        <div class="gcash-number">0929 365 6299</div>
+        <div class="gcash-name">FRANCIS WILFRED ANTIPORDA</div>
+        <div style="font-size:0.72rem;color:#2d6a4f;margin-top:8px;font-weight:600;">Amount: ₱79.00 exactly</div>
+      </div>
+
+      <ul class="gcash-steps">
+        <li><span class="step-n">1</span>Open your GCash app → "Send Money" → "GCash"</li>
+        <li><span class="step-n">2</span>Enter the number above and send exactly ₱79</li>
+        <li><span class="step-n">3</span>Copy your GCash Reference Number from the transaction receipt</li>
+        <li><span class="step-n">4</span>Paste it below and tap "Submit"</li>
+        <li><span class="step-n">5</span>Premium will be activated within 1–24 hours. Tap "Check Activation" to verify.</li>
+      </ul>
+
+      <div class="ref-form">
+        <input type="text" id="ref-input" placeholder="GCash Reference Number (e.g. 12345678901)">
+        <button class="submit-ref" onclick="submitRef()"><i class="fa-solid fa-paper-plane"></i> Submit Payment</button>
+        <button class="check-btn" onclick="checkActivation()"><i class="fa-solid fa-rotate"></i> Check Activation</button>
+      </div>
+      <p id="payment-msg" style="text-align:center;font-size:0.8rem;margin-top:10px;display:none;"></p>
+    </div>
+  </div>
+
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script type="module">
+  import { initPage, isPremium } from './js/app.js';
+  import { submitPremiumRequest, checkPremiumActivation } from './js/premium.js';
+  initPage('home');
+
+  if (isPremium()) {
+    document.getElementById('already-premium').style.display = 'block';
+    document.getElementById('premium-content').style.display = 'none';
+  }
+
+  window.submitRef = async function() {
+    const ref = document.getElementById('ref-input').value.trim();
+    const btn = document.querySelector('.submit-ref');
+    btn.disabled = true; btn.textContent = 'Submitting...';
+    const result = await submitPremiumRequest(ref);
+    const msg = document.getElementById('payment-msg');
+    msg.style.display = 'block';
+    msg.style.color = result.success ? '#2d6a4f' : '#c0392b';
+    msg.textContent = result.msg;
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Payment';
+  };
+
+  window.checkActivation = async function() {
+    const btn = document.querySelector('.check-btn');
+    btn.disabled = true; btn.textContent = 'Checking...';
+    const activated = await checkPremiumActivation();
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Check Activation';
+    if (activated) {
+      document.getElementById('already-premium').style.display = 'block';
+      document.getElementById('premium-content').style.display = 'none';
+    } else {
+      const msg = document.getElementById('payment-msg');
+      msg.style.display = 'block'; msg.style.color = '#888';
+      msg.textContent = 'Not activated yet. Please wait 1–24 hours after submitting your reference number.';
+    }
+  };
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>
