@@ -140,9 +140,32 @@ rather than snap, then removes it.
   `.cert-shot img` uses `object-fit: contain` against the `--cert-mat` token
   rather than `cover`. Cropping a certificate cuts off the text that makes it
   worth showing.
-- **Fonts come from Google Fonts.** Both faces have real fallbacks
-  (`ui-monospace` and `system-ui`), so a blocked CDN changes the typography but
-  not the layout.
+- **Three faces, three jobs.** Fraunces carries the voice (the headline and
+  every section heading), IBM Plex Sans the prose, IBM Plex Mono every
+  measurement, label and directory name. Keeping numbers in one face is what
+  lets the ledger column line up. All three come from Google Fonts and all
+  three have real fallbacks, so a blocked CDN changes the typography but not
+  the layout.
+- **The ledger is measured, never copied.** The figures under "What the demo
+  does not show" are the point of the page, so a wrong one costs more than a
+  missing one. Re-derive them by running the suites, not by reading this file:
+
+  ```bash
+  (cd autocare && npm test && npm run test:db)   # 11 + 34
+  (cd rallyready && npm test)                    # 641
+  (cd hiroshi-grill && npm test)                 # 132
+  (cd hiroshi-grill && npm run db:test)          # 43 RLS policies
+  (cd flare && npm test)                         # 97
+  (cd firestore-tests && npm test)               # 25 + 35 + 63 + 21 = 144
+  ```
+
+  They have drifted three times already. The total is the sum of all of them.
+  Note that each rules suite belongs to one project: Corruption Watch's own
+  figure is 25, not the 144 total, and the site says 25 on that card.
+- **The portrait does not move.** It used to drift and scale on scroll. The
+  scale escaped its container once the caption moved out from over the
+  photograph, and a moving portrait fought the stillness the rest of the page
+  depends on, so the parallax was removed rather than patched.
 - **The timeline hashes are real.** They are the first commit touching each
   project directory. If you rewrite history, regenerate them with
   `git log --reverse --format='%h %as' -- <dir> | head -1`.
