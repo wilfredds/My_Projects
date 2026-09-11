@@ -4,7 +4,7 @@ import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/features/auth/domain/entities/app_user.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
-import 'package:cyclemind_ai/features/coach/domain/entities/ride.dart';
+import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 /// In-memory data store backing every *mock* data source.

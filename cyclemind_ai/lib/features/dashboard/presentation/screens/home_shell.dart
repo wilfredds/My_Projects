@@ -1,6 +1,5 @@
 import 'package:cyclemind_ai/features/bike_doctor/presentation/screens/bike_doctor_screen.dart';
 import 'package:cyclemind_ai/features/bikes/presentation/screens/bikes_screen.dart';
-import 'package:cyclemind_ai/features/coach/presentation/screens/coach_screen.dart';
 import 'package:cyclemind_ai/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:cyclemind_ai/features/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +18,6 @@ class _HomeShellState extends State<HomeShell> {
 
   static const _tabs = [
     DashboardScreen(),
-    CoachScreen(),
     BikeDoctorScreen(),
     BikesScreen(),
     ProfileScreen(),
@@ -37,10 +35,6 @@ class _HomeShellState extends State<HomeShell> {
               icon: Icon(Icons.dashboard_outlined),
               selectedIcon: Icon(Icons.dashboard),
               label: 'Home'),
-          NavigationDestination(
-              icon: Icon(Icons.insights_outlined),
-              selectedIcon: Icon(Icons.insights),
-              label: 'Coach'),
           NavigationDestination(
               icon: Icon(Icons.medical_services_outlined),
               selectedIcon: Icon(Icons.medical_services),

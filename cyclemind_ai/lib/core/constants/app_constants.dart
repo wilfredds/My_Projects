@@ -37,14 +37,11 @@ enum RiderLevel { beginner, intermediate, advanced }
 /// Training goals a user can pick.
 enum RiderGoal { loseWeight, improveEndurance, prepareRace, firstHundredKm }
 
-/// Readiness states surfaced on the dashboard.
-enum ReadinessState { ready, moderate, recoveryNeeded }
-
 /// Risk levels returned by the Bike Doctor.
 enum RiskLevel { low, medium, high }
 
 /// AI report categories.
-enum AiReportType { rideSummary, bikeHealth, trainingPlan, readiness }
+enum AiReportType { bikeHealth }
 
 extension RiderLevelX on RiderLevel {
   String get label => switch (this) {
@@ -60,14 +57,6 @@ extension RiderGoalX on RiderGoal {
         RiderGoal.improveEndurance => 'Improve endurance',
         RiderGoal.prepareRace => 'Prepare for a race',
         RiderGoal.firstHundredKm => 'Complete first 100 km',
-      };
-}
-
-extension ReadinessStateX on ReadinessState {
-  String get label => switch (this) {
-        ReadinessState.ready => 'Ready',
-        ReadinessState.moderate => 'Moderate',
-        ReadinessState.recoveryNeeded => 'Recovery Needed',
       };
 }
 

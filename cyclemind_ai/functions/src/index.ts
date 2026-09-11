@@ -1,22 +1,30 @@
 /**
- * CycleMind AI — Cloud Functions (server-side Claude proxy).
+ * Bike Passport — Cloud Functions (server-side Claude proxy).
  *
  * WHY THIS EXISTS (architectural decision):
  * The Claude API key must never ship inside the mobile app. These HTTPS
- * functions hold the key (set via `firebase functions:config` or a secret) and
- * call Claude on the device's behalf, returning structured JSON. The Flutter
- * `ClaudeAiService` / `ClaudeVisionService` post to these endpoints.
+ * functions hold the key (set via a secret) and call Claude on the device's
+ * behalf, returning structured JSON. The Flutter `ClaudeAiService` /
+ * `ClaudeVisionService` post to these endpoints.
  *
  * Set the key before deploy:
  *   firebase functions:secrets:set ANTHROPIC_API_KEY
  *
- * NOTE: This is a reference implementation. Add auth (verify the Firebase ID
- * token), rate limiting, and input validation before production use.
+ * Every endpoint is wrapped in `guarded()`, which enforces App Check, a valid
+ * Firebase ID token, and a per-user daily budget. See auth.ts for why.
  */
 import Anthropic from "@anthropic-ai/sdk";
+import { initializeApp } from "firebase-admin/app";
 import { onRequest } from "firebase-functions/v2/https";
 
-const MODEL = "claude-sonnet-4-6";
+import { guarded, RequestRejected } from "./auth";
+
+initializeApp();
+
+const MODEL = "claude-sonnet-5";
+
+/** Shared runtime options. Auth is by Bearer token, so CORS is not a CSRF risk. */
+const OPTS = { secrets: ["ANTHROPIC_API_KEY"], cors: true };
 
 function client(): Anthropic {
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -38,112 +46,76 @@ function parseJson<T>(raw: string, fallback: T): T {
   }
 }
 
-const json = (res: any, body: unknown) =>
-  res.set("Content-Type", "application/json").status(200).send(body);
-
-/** POST /summarizeRide { ride, history } -> { headline, bullets } */
-export const summarizeRide = onRequest(
-  { secrets: ["ANTHROPIC_API_KEY"] },
-  async (req, res) => {
-    const { ride, history } = req.body ?? {};
-    const msg = await client().messages.create({
-      model: MODEL,
-      max_tokens: 600,
-      system:
-        "You are an expert cycling coach. Given ride data, respond ONLY with " +
-        'JSON: {"headline": string, "bullets": string[]} — concise, actionable.',
-      messages: [
-        {
-          role: "user",
-          content: `Ride: ${JSON.stringify(ride)}\nRecent history: ${JSON.stringify(
-            history ?? []
-          )}`,
-        },
-      ],
-    });
-    json(res, parseJson(textOf(msg), { headline: "", bullets: [] }));
+function requireString(value: unknown, field: string, maxLen: number): string {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new RequestRejected(400, `Field "${field}" must be a non-empty string.`);
   }
-);
-
-/** POST /weeklyInsight { rides } -> { headline, bullets } */
-export const weeklyInsight = onRequest(
-  { secrets: ["ANTHROPIC_API_KEY"] },
-  async (req, res) => {
-    const { rides } = req.body ?? {};
-    const msg = await client().messages.create({
-      model: MODEL,
-      max_tokens: 600,
-      system:
-        "You are a cycling coach. Summarise the week's training. Respond ONLY " +
-        'with JSON {"headline": string, "bullets": string[]}.',
-      messages: [
-        { role: "user", content: `Rides this week: ${JSON.stringify(rides ?? [])}` },
-      ],
-    });
-    json(res, parseJson(textOf(msg), { headline: "", bullets: [] }));
+  if (value.length > maxLen) {
+    throw new RequestRejected(400, `Field "${field}" exceeds ${maxLen} characters.`);
   }
-);
+  return value;
+}
 
-/** POST /readinessAdvice { score, sleep, recovery, fatigue } -> { advice } */
-export const readinessAdvice = onRequest(
-  { secrets: ["ANTHROPIC_API_KEY"] },
-  async (req, res) => {
-    const msg = await client().messages.create({
-      model: MODEL,
-      max_tokens: 200,
-      system: "You are a recovery coach. Give one or two sentences of advice.",
-      messages: [{ role: "user", content: JSON.stringify(req.body ?? {}) }],
-    });
-    json(res, { advice: textOf(msg) });
-  }
-);
-
-/** POST /generateTrainingPlan { level, goal } -> structured plan */
-export const generateTrainingPlan = onRequest(
-  { secrets: ["ANTHROPIC_API_KEY"] },
-  async (req, res) => {
-    const { level, goal } = req.body ?? {};
-    const msg = await client().messages.create({
-      model: MODEL,
-      max_tokens: 2000,
-      system:
-        "You are a cycling coach. Build a 4-week plan. Respond ONLY with JSON: " +
-        '{"id":string,"summary":string,"weeks":[{"weekNumber":number,"focus":string,' +
-        '"days":[{"dayLabel":string,"title":string,"description":string,"durationMin":number,"isRest":boolean}]}]}',
-      messages: [
-        { role: "user", content: `Level: ${level}. Goal: ${goal}.` },
-      ],
-    });
-    json(res, parseJson(textOf(msg), { id: "plan", summary: "", weeks: [] }));
-  }
-);
-
-/** POST /mechanicChat { message, history } -> { reply } */
+/**
+ * POST /mechanicChat { message, history } -> { reply }
+ *
+ * History is capped because it is attacker-controlled and bills per token.
+ */
 export const mechanicChat = onRequest(
-  { secrets: ["ANTHROPIC_API_KEY"] },
-  async (req, res) => {
+  OPTS,
+  guarded(1, async (req, res) => {
     const { message, history } = req.body ?? {};
-    const turns = (history ?? []).map((t: { role: string; text: string }) => ({
-      role: t.role === "user" ? "user" : "assistant",
-      content: t.text,
-    }));
+    const text = requireString(message, "message", 4000);
+    const raw = Array.isArray(history) ? history.slice(-20) : [];
+    const turns = raw
+      .filter((t): t is { role: string; text: string } =>
+        !!t && typeof t.text === "string" && t.text.length <= 4000
+      )
+      .map((t) => ({
+        role: t.role === "user" ? ("user" as const) : ("assistant" as const),
+        content: t.text,
+      }));
+
     const msg = await client().messages.create({
       model: MODEL,
       max_tokens: 700,
       system:
         "You are an expert bike mechanic. Ask clarifying questions when needed, " +
         "then give a clear, safe, step-by-step diagnosis.",
-      messages: [...turns, { role: "user", content: message }],
+      messages: [...turns, { role: "user", content: text }],
     });
-    json(res, { reply: textOf(msg) });
-  }
+    res.json({ reply: textOf(msg) });
+  })
 );
 
-/** POST /analyzeBike { part, imageBase64 } -> structured health report */
+/**
+ * POST /analyzeBike { part, imageBase64 } -> structured health report
+ *
+ * `part` is an allowlisted enum, never free text: it is interpolated into the
+ * system prompt, so accepting arbitrary strings would be a prompt-injection
+ * vector letting a caller rewrite the model's instructions.
+ */
+const BIKE_PARTS = ["whole", "tires", "chain", "brakes", "frame", "drivetrain"] as const;
+
+/** ~5 MB of image once base64-decoded. Guards memory and model spend. */
+const MAX_IMAGE_CHARS = 7_000_000;
+
 export const analyzeBike = onRequest(
-  { secrets: ["ANTHROPIC_API_KEY"], memory: "512MiB" },
-  async (req, res) => {
+  { ...OPTS, memory: "512MiB" },
+  guarded(5, async (req, res) => {
     const { part, imageBase64 } = req.body ?? {};
+
+    if (typeof part !== "string" || !BIKE_PARTS.includes(part as never)) {
+      throw new RequestRejected(
+        400,
+        `Field "part" must be one of: ${BIKE_PARTS.join(", ")}.`
+      );
+    }
+    const image = requireString(imageBase64, "imageBase64", MAX_IMAGE_CHARS);
+    if (!/^[A-Za-z0-9+/]+={0,2}$/.test(image)) {
+      throw new RequestRejected(400, 'Field "imageBase64" is not valid base64.');
+    }
+
     const msg = await client().messages.create({
       model: MODEL,
       max_tokens: 1500,
@@ -158,19 +130,14 @@ export const analyzeBike = onRequest(
           content: [
             {
               type: "image",
-              source: {
-                type: "base64",
-                media_type: "image/jpeg",
-                data: imageBase64,
-              },
+              source: { type: "base64", media_type: "image/jpeg", data: image },
             },
             { type: "text", text: "Inspect this and report issues." },
           ],
         },
       ],
     });
-    json(
-      res,
+    res.json(
       parseJson(textOf(msg), {
         healthScore: 0,
         riskLevel: "low",
@@ -178,5 +145,5 @@ export const analyzeBike = onRequest(
         findings: [],
       })
     );
-  }
+  })
 );

@@ -7,7 +7,7 @@ import 'package:cyclemind_ai/features/bike_doctor/data/repositories/mock_reports
 import 'package:cyclemind_ai/features/bike_doctor/domain/entities/bike_health_report.dart';
 import 'package:cyclemind_ai/features/bike_doctor/domain/repositories/reports_repository.dart';
 import 'package:cyclemind_ai/features/bike_doctor/domain/usecases/analyze_bike_photo.dart';
-import 'package:cyclemind_ai/features/coach/presentation/controllers/coach_providers.dart';
+import 'package:cyclemind_ai/features/rides/presentation/controllers/rides_providers.dart';
 import 'package:cyclemind_ai/services/ai/ai_providers.dart';
 import 'package:cyclemind_ai/services/vision/vision_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -5,7 +5,7 @@ import 'package:cyclemind_ai/features/bikes/data/repositories/mock_bikes_reposit
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/bikes/domain/repositories/bikes_repository.dart';
 import 'package:cyclemind_ai/features/bikes/domain/usecases/generate_reminders.dart';
-import 'package:cyclemind_ai/features/coach/presentation/controllers/coach_providers.dart';
+import 'package:cyclemind_ai/features/rides/presentation/controllers/rides_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Binds the [BikesRepository] implementation.

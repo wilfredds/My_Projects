@@ -5,8 +5,7 @@ import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/bikes/presentation/screens/add_bike_screen.dart';
 import 'package:cyclemind_ai/features/bikes/presentation/screens/bike_detail_screen.dart';
 import 'package:cyclemind_ai/features/bike_doctor/presentation/screens/mechanic_chat_screen.dart';
-import 'package:cyclemind_ai/features/coach/presentation/screens/add_ride_screen.dart';
-import 'package:cyclemind_ai/features/coach/presentation/screens/training_plan_screen.dart';
+import 'package:cyclemind_ai/features/rides/presentation/screens/add_ride_screen.dart';
 import 'package:cyclemind_ai/features/dashboard/presentation/screens/home_shell.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,7 +37,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/signup', builder: (_, __) => const SignupScreen()),
       GoRoute(path: '/home', builder: (_, __) => const HomeShell()),
       GoRoute(path: '/rides/new', builder: (_, __) => const AddRideScreen()),
-      GoRoute(path: '/training', builder: (_, __) => const TrainingPlanScreen()),
       GoRoute(path: '/bikes/new', builder: (_, __) => const AddBikeScreen()),
       GoRoute(
         path: '/bikes/detail',
