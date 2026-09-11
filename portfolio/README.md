@@ -127,25 +127,50 @@ rather than snap, then removes it.
 - **Contrast is checked, not assumed.** Body and secondary text clear 4.5:1 in
   both themes. If you darken `--faint` or `--dim`, re-check them.
 - **The screenshots are composites**, generated from the running apps at
-  1200x750 on the site's own background so all five cards match. They live in
+  1200x750 on the site's own background so all six cards match. They live in
   `assets/img/shot-*.jpg`. To regenerate one, screenshot the app and paste it
-  onto a `#0b0e0b` canvas at that size.
-- **`cyclemind_ai` has no screenshot.** There is no Flutter SDK in the
-  development environment, so its card shows a stylised placeholder rather than
-  a mock-up of a screen nobody ran. Drop in a real screenshot and swap the
-  `.card-shot.is-empty` block for an `<img>` when one exists.
+  onto a `#0C0E0B` canvas at that size. That value is measured off the existing
+  files, not guessed; the README used to say `#0b0e0b`, which is close but not
+  what is actually in them.
+- **`cyclemind_ai` is screenshotted from its own published build.** There is no
+  Flutter SDK here, so the app cannot be built locally, but the `gh-pages`
+  branch already holds the web build its workflow published. Serving that branch
+  locally runs the real app, which is where `shot-cyclemind.jpg` comes from.
+  Four things are needed to make it render offline, and all four are
+  local-only: the branch is never modified.
+
+  1. Serve it at the path its `<base href>` expects (`/My_Projects/`), or every
+     asset 404s.
+  2. Point CanvasKit at the copy in the build: add
+     `config: { canvasKitBaseUrl: "canvaskit/" }` to the `_flutter.loader.load`
+     call in `flutter_bootstrap.js`. Otherwise it fetches CanvasKit from
+     gstatic and nothing paints at all.
+  3. Give the browser `locale="en-US"`, or Dart throws
+     `Incorrect locale information provided` before the first frame.
+  4. Let the Roboto request through. CanvasKit draws no text without it, so a
+     blocked font gives you a screenshot of a UI with every label missing, and
+     it looks like a layout bug rather than a network one.
+
+  Click through it with Flutter's semantics tree rather than pixel
+  coordinates: `document.querySelector('flt-semantics-placeholder').click()`
+  turns `flt-semantics` nodes into real DOM with `aria-label`s, so controls can
+  be found by name. Move the pointer off a nav item before capturing, or
+  Material's tooltip fades in and lands in the shot.
 - **The certificates are scans of the real documents.** `assets/img/certs/*.jpg`
   is rendered from the issuer's own PDF, longest side 1800px, JPEG quality 85.
   To add one, render page 1 of the PDF and add a `.cert` entry in `index.html`.
   The card carries `data-cert-src`, `data-cert-title` and `data-cert-note`, and
   `site.js` fills the single `#lightbox` overlay from whichever button was
   clicked, so no JavaScript changes when a certificate is added.
-- **One certificate has no scan.** The AWS Educate badge shows a
-  `.cert-shot.is-empty` placeholder rather than a stand-in image, because
-  inventing a picture of a credential is the one thing this section must never
-  do. It is a PNG badge rather than a PDF, so it needs no rendering step: drop
-  it in `assets/img/certs/`, then swap the placeholder for an `<img>` and the
-  three `data-cert-*` attributes.
+- **The AWS badge is artwork, not a scan.** `cert-aws.png` is the issuer's own
+  PNG, transparent and square, where the other five are rendered pages. It
+  carries `class="is-badge"`, which drops the paper shadow and corner radius:
+  both trace the image's square bounds rather than the shield, and on a badge
+  that reads as a bug. Every other certificate rule applies to it unchanged.
+- **Never draw a credential.** If a badge or certificate has not been supplied,
+  the card shows `.cert-shot.is-empty` and says so. Recreating one from memory,
+  or from having seen it once, would put a picture on the site that no issuer
+  ever produced. Wait for the file.
 - **Certificate images stay out of the crop.** They are documents, so
   `.cert-shot img` uses `object-fit: contain` against the `--cert-mat` token
   rather than `cover`. Cropping a certificate cuts off the text that makes it
