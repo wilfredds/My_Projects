@@ -1,7 +1,7 @@
-const CACHE_NAME = 'bikeguide-v4';
-const RUNTIME_CACHE = 'bikeguide-runtime-v4';
-const TILE_CACHE = 'bikeguide-tiles-v1';
-const MAX_TILES = 600; // cap cached map tiles so storage stays bounded
+const CACHE_NAME = 'bikeguide-v5';
+const RUNTIME_CACHE = 'bikeguide-runtime-v5';
+const TILE_CACHE = 'bikeguide-tiles-v2';
+const MAX_TILES = 1200; // cap cached map tiles so storage stays bounded
 
 // Relative paths resolve against the service worker's location, so the app
 // works whether hosted at the domain root or a GitHub Pages project subpath.
@@ -18,6 +18,7 @@ const STATIC_ASSETS = [
   'routes.html',
   'tracker.html',
   'record.html',
+  'ride.html',
   'carbon.html',
   'motivation.html',
   'premium.html',
@@ -30,6 +31,11 @@ const STATIC_ASSETS = [
   'js/challenge.js',
   'js/tracker.js',
   'js/recorder.js',
+  'js/geo.js',
+  'js/voice.js',
+  'js/hazards.js',
+  'js/copilot.js',
+  'js/ride-screen.js',
   'js/carbon.js',
   'js/gear-simulator.js',
   'js/bike-doctor.js',
@@ -39,6 +45,7 @@ const STATIC_ASSETS = [
   'assets/data/routes.json',
   'assets/data/exercises.json',
   'assets/data/troubleshooting.json',
+  'assets/data/hazards.json',
   'manifest.json',
 ];
 
@@ -73,6 +80,10 @@ function isCacheableThirdParty(url) {
 // OpenStreetMap raster tiles — cache-first with an LRU-ish cap so a ride's
 // route stays viewable offline without unbounded storage growth.
 function isMapTile(url) {
+  // OpenFreeMap vector tiles + glyphs/sprites — no API key, no request cap.
+  if (/(^|\.)openfreemap\.org$/.test(url.hostname)) return true;
+  // Legacy raster tiles used by record.html. OSM's usage policy forbids
+  // production use of this endpoint; migrate record.html to MapLibre.
   return /(^|\.)tile\.openstreetmap\.org$/.test(url.hostname);
 }
 async function cacheTile(request) {
