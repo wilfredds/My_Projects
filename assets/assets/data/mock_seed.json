@@ -1,0 +1,46 @@
+{
+  "_comment": "Deterministic demo data used by the mock data sources so the app is fully explorable offline with USE_MOCKS=true.",
+  "user": {
+    "id": "mock-user-1",
+    "email": "rider@cyclemind.ai",
+    "displayName": "Alex Rider",
+    "level": "intermediate",
+    "weightKg": 72,
+    "goals": ["improveEndurance", "firstHundredKm"]
+  },
+  "bikes": [
+    {
+      "id": "bike-1",
+      "name": "Roadie",
+      "frame": "Carbon endurance",
+      "groupset": "Shimano 105 R7000",
+      "tires": "Continental GP5000 28c",
+      "totalMileageKm": 4200,
+      "components": [
+        {"id": "c1", "type": "Chain", "brand": "Shimano", "installedAtKm": 2000, "lifespanKm": 3000},
+        {"id": "c2", "type": "Cassette", "brand": "Shimano", "installedAtKm": 0, "lifespanKm": 9000},
+        {"id": "c3", "type": "Brake Pads", "brand": "SwissStop", "installedAtKm": 3800, "lifespanKm": 1500},
+        {"id": "c4", "type": "Tires", "brand": "Continental", "installedAtKm": 1500, "lifespanKm": 5000}
+      ]
+    },
+    {
+      "id": "bike-2",
+      "name": "Trail MTB",
+      "frame": "Aluminium hardtail",
+      "groupset": "SRAM NX Eagle",
+      "tires": "Maxxis Minion 2.4",
+      "totalMileageKm": 1100,
+      "components": [
+        {"id": "c5", "type": "Chain", "brand": "SRAM", "installedAtKm": 0, "lifespanKm": 2500},
+        {"id": "c6", "type": "Brake Pads", "brand": "Shimano", "installedAtKm": 600, "lifespanKm": 1200}
+      ]
+    }
+  ],
+  "rides": [
+    {"id": "r1", "title": "Saturday endurance", "bikeId": "bike-1", "daysAgo": 1, "distanceKm": 62.4, "elevationM": 540, "avgSpeedKmh": 27.8, "durationSec": 8080, "calories": 1480, "cadence": 84, "heartRate": 152, "power": 198},
+    {"id": "r2", "title": "Recovery spin", "bikeId": "bike-1", "daysAgo": 3, "distanceKm": 24.1, "elevationM": 120, "avgSpeedKmh": 23.2, "durationSec": 3740, "calories": 560, "cadence": 88, "heartRate": 128, "power": 140},
+    {"id": "r3", "title": "Hill repeats", "bikeId": "bike-1", "daysAgo": 5, "distanceKm": 38.9, "elevationM": 910, "avgSpeedKmh": 21.5, "durationSec": 6510, "calories": 1120, "cadence": 76, "heartRate": 164, "power": 232},
+    {"id": "r4", "title": "Trail session", "bikeId": "bike-2", "daysAgo": 6, "distanceKm": 18.3, "elevationM": 430, "avgSpeedKmh": 14.8, "durationSec": 4450, "calories": 690, "cadence": 70, "heartRate": 158, "power": 0},
+    {"id": "r5", "title": "Coffee ride", "bikeId": "bike-1", "daysAgo": 8, "distanceKm": 31.2, "elevationM": 210, "avgSpeedKmh": 25.6, "durationSec": 4390, "calories": 720, "cadence": 86, "heartRate": 134, "power": 162}
+  ]
+}
