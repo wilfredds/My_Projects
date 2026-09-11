@@ -861,6 +861,12 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   max-width: 68ch;
 }
 
+/* A callout can hold more than one paragraph. Inherit the callout's own colour
+   and width rather than .detail p's, which would restate a 68ch cap inside a box
+   that already has one. */
+.callout p { color: inherit; max-width: none; }
+.callout p + p { margin-top: 0.8rem; }
+
 .pager {
   display: flex;
   justify-content: space-between;
