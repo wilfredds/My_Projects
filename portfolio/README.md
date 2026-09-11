@@ -252,6 +252,46 @@ The canonical URL, `robots.txt` and `sitemap.xml` all reference
 `https://wilfred-website.vercel.app`. If the Vercel project gets renamed,
 update those three places to match.
 
+### The project only builds when this folder changes
+
+`ignoreCommand` in `vercel.json` is Vercel's Ignored Build Step. **Exit 0
+skips the build, any other code runs it.** It lives in the repo rather than
+in the dashboard so it is reviewable and travels with the code.
+
+This is a monorepo of eight unrelated projects wired to one Vercel project,
+so every push to any branch was starting a build here. Pushes to `gh-pages`
+and to feature branches for other projects were producing failed deployments
+at a fair rate, none of which had anything to say about the portfolio.
+
+```sh
+git cat-file -e HEAD:portfolio 2>/dev/null || exit 0
+git rev-parse --verify -q HEAD^ >/dev/null 2>&1 || exit 1
+git diff --quiet HEAD^ HEAD -- ':/portfolio'
+```
+
+Three lines because two edge cases bite:
+
+- **`gh-pages` is an orphan branch with no parent commit.** The usual
+  recipe, `git diff --quiet HEAD^ HEAD ./`, fails there with `bad revision`
+  and exits 128, which Vercel reads as "build it". That is the single
+  largest source of the failed deployments, so the first line settles it by
+  asking whether the commit contains a `portfolio/` tree at all. `gh-pages`
+  does not, so it never builds.
+- **A commit with no parent could be a shallow clone**, where the answer is
+  genuinely unknown. The second line builds rather than skips, because
+  skipping wrongly means the site silently stops updating and skipping is
+  the failure you would not notice.
+
+The `:/portfolio` pathspec is anchored to the repository root, so the
+command gives the same answer whether it runs from the repo root or from
+the Root Directory. That was verified from both, against real commits on
+`main`, `gh-pages` and a project branch, rather than assumed: an ordinary
+`./` or `-- portfolio/` would be wrong in one of the two and, in one
+direction, would skip every build forever.
+
+When a build is skipped the previous deployment stays live, which is
+correct: the portfolio did not change, so neither should the site.
+
 ## CI
 
 `.github/workflows/static-sites-ci.yml` runs two checks over this folder on
