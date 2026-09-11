@@ -45,7 +45,7 @@
 
 <main id="main" class="wrap detail">
   <header class="page-head">
-    <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
+    <a class="back" href="../index.html#projects">&larr; All projects</a>
     <h1>cyclemind_ai<span class='slash'>/</span></h1>
     <p class="lede">An AI cycling companion that puts a coach and a bike doctor in the same Flutter app. Photograph a bike and a vision model returns a health report. The coach reads your rides and plans the next one.</p>
   </header>
@@ -57,7 +57,10 @@
     <div><dt>status</dt><dd>Runs on mocks with zero config</dd></div>
   </dl>
 
-  <h2><span class="prompt">$</span>cat problem.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">The problem</span>
+    <h2>Nobody reads your ride data, and nobody checks the bike</h2>
+  </div>
   <p>
     Two things stop a self-coached cyclist from improving. Nobody is reading their
     ride data and telling them what to do next, and nobody looks at the bike until
@@ -65,7 +68,10 @@
     with the right context can help with.
   </p>
 
-  <h2><span class="prompt">$</span>cat architecture.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Architecture</span>
+    <h2>Three decisions the whole app hangs on</h2>
+  </div>
   <p>
     This is the project where I took architecture seriously. It follows
     <strong>Clean Architecture</strong> with a feature-first layout and the repository
@@ -100,7 +106,10 @@
     go stale.
   </p>
 
-  <h2><span class="prompt">$</span>ls lib/</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Inside lib/</span>
+    <h2>Six features, each behind its own interface</h2>
+  </div>
   <ul>
     <li><strong>auth</strong>: email and password sign-in, Google sign-in, profile creation.</li>
     <li><strong>dashboard</strong>: readiness, weekly stats, AI recommendations and bike health at a glance.</li>
@@ -110,14 +119,23 @@
     <li><strong>profile</strong>: goals and preferences.</li>
   </ul>
 
+  <figure class="shot-full reveal">
+    <img src="../assets/img/shot-cyclemind.jpg" width="1200" height="750" loading="lazy"
+         alt="CycleMind AI running on a phone: the weekly dashboard, the Bike Doctor scan screen, and the bike list, all on mock data.">
+    <figcaption>Three screens from the published web build, running on mock data.</figcaption>
+  </figure>
+
   <div class="callout">
-    You will have noticed there are no screenshots here. The app is built for web by
-    its own GitHub Actions workflow and published to Pages, but the environment I
-    write from has no Flutter SDK. I would rather show you the architecture than a
-    mock-up of a screen I never ran.
+    These are captured from the build its own GitHub Actions workflow publishes, not
+    from a simulator. There is no Flutter SDK where I write from, so the way to see
+    the app is to run the artefact CI produced. That is the mock-first rule paying
+    for itself: no keys, no backend, no setup, and the app still runs.
   </div>
 
-  <h2><span class="prompt">$</span>cat takeaway.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Takeaway</span>
+    <h2>Mock-first, or the architecture is wrong</h2>
+  </div>
   <p>
     Material 3, go_router and Riverpod throughout. The rule I want to carry into every
     future project is the mock-first one: if somebody cannot clone the repo and see

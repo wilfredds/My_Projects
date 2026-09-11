@@ -45,7 +45,7 @@
 
 <main id="main" class="wrap detail">
   <header class="page-head">
-    <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
+    <a class="back" href="../index.html#projects">&larr; All projects</a>
     <h1>corruption-watch-ph<span class='slash'>/</span></h1>
     <p class="lede">A public reporting site. A citizen picks a department, describes what happened, and can file without giving a name. An admin console reviews what arrives. The form is the easy half. The hard half is making sure nobody except an admin can ever read what it collects.</p>
   </header>
@@ -62,7 +62,10 @@
     <figcaption>The role picker on first visit: citizen or administrator.</figcaption>
   </figure>
 
-  <h2><span class="prompt">$</span>cat problem.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">The problem</span>
+    <h2>A report is only safe if it stays private</h2>
+  </div>
   <p>
     Reporting corruption is only safe if the report stays private. A form that accepts
     anonymous submissions but leaves them world-readable is worse than no form at all.
@@ -70,14 +73,20 @@
     findable.
   </p>
 
-  <h2><span class="prompt">$</span>cat solution.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">The build</span>
+    <h2>A public form, an admin console, and rules between them</h2>
+  </div>
   <ul>
     <li>A public report form covering department, description and optional anonymity, with an inline help responder for people who are not sure what counts.</li>
     <li>An admin console that lists submissions and lets a reviewer work through them.</li>
     <li>Firestore security rules that let anyone create a report and let nobody read one back unless they are an admin.</li>
   </ul>
 
-  <h2><span class="prompt">$</span>cat rules.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">The rules</span>
+    <h2>The security rules are the product</h2>
+  </div>
   <p>
     The rules are the product. They get exercised by a test suite that boots the real
     Firestore emulator and runs assertions as an anonymous visitor, a signed-in
@@ -92,7 +101,10 @@
     purpose before trusting it.
   </div>
 
-  <h2><span class="prompt">$</span>cat honest-notes.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Honest notes</span>
+    <h2>The oldest project here, and it shows</h2>
+  </div>
   <p>
     This is the oldest project here and it shows. The behaviour lives in inline
     <code>&lt;script&gt;</code> blocks inside the HTML, and two JavaScript files sit

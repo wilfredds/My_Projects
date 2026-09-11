@@ -45,7 +45,7 @@
 
 <main id="main" class="wrap detail">
   <header class="page-head">
-    <a class="back" href="../index.html#projects">&larr; cd ../projects</a>
+    <a class="back" href="../index.html#projects">&larr; All projects</a>
     <h1>hiroshi-grill<span class="slash">/</span></h1>
     <p class="lede">A reservation web app for Hiroshi Master Grill Samgyupsal, an unli samgyupsal restaurant in General Trias, Cavite. My first paying client. Two faces on one codebase: a public site anyone can browse and book from, and a staff portal behind a login.</p>
   </header>
@@ -63,7 +63,10 @@
     <figcaption>The public site. No login, because asking a hungry stranger to make an account loses the booking.</figcaption>
   </figure>
 
-  <h2><span class="prompt">$</span>cat problem.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">The problem</span>
+    <h2>Friday's booking lives in a Messenger thread</h2>
+  </div>
   <p>
     An unli samgyupsal place takes bookings over Facebook Messenger, which means
     the reservation for Friday evening lives in a chat thread somewhere and the
@@ -71,7 +74,10 @@
     from, and a screen the people working that night could actually open.
   </p>
 
-  <h2><span class="prompt">$</span>cat solution.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">The build</span>
+    <h2>A public site, a staff portal, one schema run twice</h2>
+  </div>
   <ul>
     <li><strong>Public site.</strong> Branding, the unli sets, the rice and ramen menu, house rules, location, and a reservation request form. No login, because asking a hungry stranger to make an account loses the booking.</li>
     <li><strong>Staff portal.</strong> Sign-in at <code>/portal</code>, then a dashboard listing each day's bookings with only the controls that role is allowed to use.</li>
@@ -84,7 +90,10 @@
     <figcaption>The staff portal, and the same site on a phone. Staff accounts are created by the owner: there is no sign-up to attack.</figcaption>
   </figure>
 
-  <h2><span class="prompt">$</span>cat security.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Security</span>
+    <h2>Where the strict answer costs something</h2>
+  </div>
   <p>
     This is the project where the security work went in at the start rather than
     at the end, and where several decisions came with a cost worth stating.
@@ -151,7 +160,10 @@
     Otherwise a 9pm booking made in Manila gets rejected for being yesterday.
   </div>
 
-  <h2><span class="prompt">$</span>cat honest-notes.md</h2>
+  <div class="detail-head">
+    <span class="eyebrow">Honest notes</span>
+    <h2>Placeholders, and what the tests actually cover</h2>
+  </div>
   <p>
     Every business detail on the site is still a placeholder, and they live in two
     files so they can be corrected in one place. That matters more than it sounds:
