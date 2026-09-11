@@ -110,6 +110,7 @@
     <span class="eyebrow">Inside lib/</span>
     <h2>Six features, each behind its own interface</h2>
   </div>
+  <p>On <code>main</code>, the branch the source link below points at:</p>
   <ul>
     <li><strong>auth</strong>: email and password sign-in, Google sign-in, profile creation.</li>
     <li><strong>dashboard</strong>: readiness, weekly stats, AI recommendations and bike health at a glance.</li>
@@ -122,14 +123,23 @@
   <figure class="shot-full reveal">
     <img src="../assets/img/shot-cyclemind.jpg" width="1200" height="750" loading="lazy"
          alt="CycleMind AI running on a phone: the weekly dashboard, the Bike Doctor scan screen, and the bike list, all on mock data.">
-    <figcaption>Three screens from the published web build, running on mock data.</figcaption>
+    <figcaption>Three screens from the published demo, running on mock data.</figcaption>
   </figure>
 
   <div class="callout">
-    These are captured from the build its own GitHub Actions workflow publishes, not
-    from a simulator. There is no Flutter SDK where I write from, so the way to see
-    the app is to run the artefact CI produced. That is the mock-first rule paying
-    for itself: no keys, no backend, no setup, and the app still runs.
+    <p>
+      These are captured from the build its own GitHub Actions workflow publishes,
+      not from a simulator. There is no Flutter SDK where I write from, so the way
+      to see the app is to run the artefact CI produced. That is the mock-first rule
+      paying for itself: no keys, no backend, no setup, and the app still runs.
+    </p>
+    <p>
+      One mismatch worth naming rather than hiding: the demo is published from a
+      branch ahead of <code>main</code>, where <code>features/coach</code> has been
+      replaced by <code>features/rides</code>. So the screenshot shows four tabs and
+      no Coach, while the list above, and the source link, still describe
+      <code>main</code>.
+    </p>
   </div>
 
   <div class="detail-head">
