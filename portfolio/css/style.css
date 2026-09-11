@@ -1,6 +1,11 @@
 /* ==========================================================================
    Francis Wilfred Antiporda, portfolio
-   Terminal look: mono for structure, sans for prose, one phosphor accent.
+
+   Editorial, evidence-led. Fraunces carries the voice, IBM Plex Sans the
+   prose, IBM Plex Mono every measurement. Deep teal is structural, burnt
+   sienna marks what a number means. The page argues that he measures rather
+   than claims, so the ledger is the signature and everything else stays quiet.
+
    No build step. Plain CSS, custom properties, no framework.
    ========================================================================== */
 
@@ -382,13 +387,6 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   font-variation-settings: "SOFT" 40, "WONK" 1;
 }
 
-.hero-role {
-  font-family: var(--mono);
-  color: var(--green);
-  font-size: clamp(0.9rem, 2vw, 1.05rem);
-  letter-spacing: -0.01em;
-}
-
 .hero-blurb {
   color: var(--dim);
   max-width: 46ch;
@@ -426,7 +424,6 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   text-transform: uppercase;
   color: var(--faint);
 }
-.portrait figcaption b { color: var(--green); font-weight: 500; }
 .portrait figcaption b { color: var(--green); font-weight: 500; }
 
 /* The name sits above the headline rather than being it: a recruiter already
@@ -735,14 +732,18 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .contact-box {
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: linear-gradient(160deg, var(--surface), #0c100c);
+  background: linear-gradient(160deg, var(--surface), var(--surface-2));
   padding: clamp(1.5rem, 5vw, 2.75rem);
   text-align: center;
 }
 .contact-box h2 {
-  font-family: var(--mono);
-  font-size: clamp(1.3rem, 4vw, 2rem);
-  letter-spacing: -0.03em;
+  font-family: var(--display);
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-size: clamp(1.7rem, 4.4vw, 2.4rem);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--green);
   margin-bottom: 0.6rem;
 }
 .contact-box p { color: var(--dim); max-width: 48ch; margin-inline: auto; }
@@ -916,8 +917,8 @@ code {
   .cv { max-width: none; padding: 0; }
   .cv-head { border-color: #ccc; }
   .cv-head h1, .cv-entry h3 { color: #111; }
-  .cv-head .role { color: #2f6f3a; }
-  .cv h2 { color: #2f6f3a; margin-top: 1.3rem; }
+  .cv-head .role { color: #17423E; }
+  .cv h2 { color: #8F4413; margin-top: 1.3rem; }
   .cv-contact, .cv-entry p, .cv-entry ul, .cv-skills, .cv-entry .when { color: #333; }
   a { color: #111; text-decoration: none; }
   .cv-entry { page-break-inside: avoid; }
@@ -1450,19 +1451,6 @@ body.is-locked { overflow: hidden; }
 .nav-links a:hover::after { transform: scaleX(1); }
 .nav-links a:hover { text-decoration: none; }
 
-/* Section headings: the prompt slides in just ahead of the command, which is
-   what a shell looks like when it is about to be typed into. */
-@keyframes prompt-in {
-  from { opacity: 0; transform: translateX(-4px); }
-  to   { opacity: 1; transform: none; }
-}
-.js .section-head h2 .prompt { animation: prompt-in 0.4s ease both; }
-
-/* Stat tiles lift very slightly under the pointer, enough to read as a group
-   of separate things rather than one striped block. */
-.stat { transition: background 0.2s ease; }
-.stat:hover { background: var(--surface-2); }
-
 /* Project cards already move on hover. The screenshot inside gets a slower
    ease so the two do not travel together. The portrait no longer drifts: a
    moving, scaled photograph fought the stillness the rest of the page needs. */
@@ -1485,15 +1473,8 @@ body.is-locked { overflow: hidden; }
               box-shadow 0.3s ease !important;
 }
 
-/* The portrait drifts a few pixels against the scroll. Pointer-fine only, so
-   it never runs on a phone where it would fight the scroll. */
-@media (pointer: fine) {
-  .portrait img { will-change: transform; }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .js .card.is-entering,
-  .js .section-head h2 .prompt { animation: none; }
+  .js .card.is-entering { animation: none; }
   .js .reveal { transition-delay: 0ms; }
   .btn:active, .chip:active, .theme-toggle:active, .to-top:active { transform: none; }
   .nav-links a::after { transition: none; }
