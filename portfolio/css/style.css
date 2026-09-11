@@ -895,7 +895,9 @@ code {
 /* ------------------------------------------------------- résumé page -- */
 .cv { max-width: 820px; padding-block: clamp(2rem, 6vw, 3.5rem); }
 .cv-head { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: flex-end; justify-content: space-between; padding-bottom: 1.25rem; border-bottom: 1px solid var(--line); }
-.cv-head h1 { font-family: var(--mono); font-size: clamp(1.6rem, 4.5vw, 2.2rem); letter-spacing: -0.03em; line-height: 1.15; }
+/* The name carries the same voice here as on the homepage. Entry titles stay
+   in the mono face: those are project names, the way the cards set them. */
+.cv-head h1 { font-family: var(--display); font-optical-sizing: auto; font-weight: 400; font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: -0.02em; line-height: 1.1; }
 .cv-head .role { color: var(--green); font-family: var(--mono); font-size: 0.9rem; margin-top: 0.35rem; }
 .cv-contact { font-family: var(--mono); font-size: 0.8rem; color: var(--dim); text-align: right; line-height: 2; }
 .cv h2 { font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber); margin-top: 2.25rem; margin-bottom: 0.9rem; }
