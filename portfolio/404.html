@@ -17,22 +17,20 @@
 </head>
 <body>
 <main id="main" class="wrap notfound">
-  <div class="term">
-    <div class="term-bar">
-      <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
-      <span class="term-title">francis@portfolio: ~</span>
-    </div>
-    <div class="term-body">
-      <span class="line"><span class="prompt">$</span><span class="cmdtext">cd <span id="wanted">that-page</span></span></span>
-      <span class="line out">cd: no such file or directory</span>
-      <span class="line"><span class="prompt">$</span><span class="cmdtext">ls ~</span></span>
-      <span class="line out">index.html  resume.html  projects/</span>
-      <span class="line"><span class="prompt">$</span><span class="cursor" aria-hidden="true"></span></span>
+  <p class="hero-kicker">Error 404</p>
+  <h1>That page is <em>not here.</em></h1>
+  <p>
+    Either the link is wrong or I moved something. Both are fixable, and the rest
+    of the site is where it was.
+  </p>
+
+  <div class="ledger">
+    <div class="ledger-row">
+      <p>You asked for <span class="notfound-path" id="wanted">that page</span></p>
+      <b><i>not found</i></b>
     </div>
   </div>
 
-  <h1>That page is not here</h1>
-  <p>Either the link is wrong or I moved something. Both are fixable.</p>
   <div class="hero-actions">
     <a class="btn btn-primary" href="/">Go home</a>
     <a class="btn" href="/index.html#projects">See the projects</a>

@@ -1113,11 +1113,30 @@ code {
   max-width: 720px;
 }
 .notfound h1 {
-  font-family: var(--mono);
-  font-size: clamp(1.5rem, 5vw, 2.2rem);
-  letter-spacing: -0.03em;
+  font-family: var(--display);
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--green);
 }
-.notfound p { color: var(--dim); }
+.notfound h1 em {
+  font-style: italic;
+  font-variation-settings: "SOFT" 40, "WONK" 1;
+}
+
+/* Direct children only. The ledger row inside carries its own colour, and a
+   blanket `.notfound p` would win on source order and dim it. */
+.notfound > p { color: var(--dim); }
+
+/* The path the visitor actually asked for, set as the literal it is. */
+.notfound-path {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
 
 /* `ls` output: keep wrapped descriptions under the description column rather
    than sliding back under the project name. */
