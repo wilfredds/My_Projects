@@ -68,7 +68,7 @@ export function applyLanguage(lang) {
 const navItems = [
   { icon: 'fa-house',        label: { en: 'Home',      tl: 'Tahanan'  }, href: 'dashboard.html', key: 'home' },
   { icon: 'fa-fire',         label: { en: 'Challenge', tl: 'Hamon'    }, href: 'challenge.html', key: 'challenge' },
-  { icon: 'fa-location-crosshairs', label: { en: 'Record', tl: 'I-rekord' }, href: 'record.html', key: 'record', fab: true },
+  { icon: 'fa-shield-halved', label: { en: 'Ride', tl: 'Sakay' }, href: 'ride.html', key: 'ride', fab: true },
   { icon: 'fa-map-location-dot', label: { en: 'Routes', tl: 'Ruta'   }, href: 'routes.html',    key: 'routes' },
   { icon: 'fa-chart-line',   label: { en: 'Tracker',   tl: 'Talaan'  }, href: 'tracker.html',   key: 'tracker' },
 ];
