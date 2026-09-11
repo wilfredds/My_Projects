@@ -1,0 +1,22 @@
+[
+  { "id": "seed_001", "seed": true, "type": "pothole",      "lat": 14.6352, "lng": 121.0961, "note": "Rough patches along the riverbank path — demo seed data" },
+  { "id": "seed_002", "seed": true, "type": "pothole",      "lat": 14.6389, "lng": 121.0925, "note": "Broken pavement near the bend — demo seed data" },
+  { "id": "seed_003", "seed": true, "type": "flood",        "lat": 14.6301, "lng": 121.0998, "note": "Low section, pools after heavy rain — demo seed data" },
+  { "id": "seed_004", "seed": true, "type": "traffic",      "lat": 14.6763, "lng": 121.0785, "note": "Busy multi-lane stretch, ride defensively — demo seed data" },
+  { "id": "seed_005", "seed": true, "type": "danger",       "lat": 14.6745, "lng": 121.0840, "note": "Wide intersection, watch merging vehicles — demo seed data" },
+  { "id": "seed_006", "seed": true, "type": "pothole",      "lat": 14.5512, "lng": 121.0468, "note": "Uneven surface near kerb — demo seed data" },
+  { "id": "seed_007", "seed": true, "type": "construction", "lat": 14.5534, "lng": 121.0501, "note": "Roadworks, narrowed lane — demo seed data" },
+  { "id": "seed_008", "seed": true, "type": "traffic",      "lat": 14.5602, "lng": 120.9841, "note": "Heavy vehicle traffic along the bay stretch — demo seed data" },
+  { "id": "seed_009", "seed": true, "type": "glass",        "lat": 14.5631, "lng": 120.9866, "note": "Debris reported on shoulder — demo seed data" },
+  { "id": "seed_010", "seed": true, "type": "danger",       "lat": 14.5881, "lng": 121.1762, "note": "Fast descent with blind corners — demo seed data" },
+  { "id": "seed_011", "seed": true, "type": "pothole",      "lat": 14.5905, "lng": 121.1801, "note": "Broken edge on the climb — demo seed data" },
+  { "id": "seed_012", "seed": true, "type": "dog",          "lat": 14.5934, "lng": 121.1845, "note": "Loose dogs reported near roadside homes — demo seed data" },
+  { "id": "seed_013", "seed": true, "type": "danger",       "lat": 14.1152, "lng": 120.9624, "note": "Steep descent, check brakes before starting — demo seed data" },
+  { "id": "seed_014", "seed": true, "type": "traffic",      "lat": 14.1186, "lng": 120.9598, "note": "Tourist traffic on weekends — demo seed data" },
+  { "id": "seed_015", "seed": true, "type": "pothole",      "lat": 14.2243, "lng": 121.0638, "note": "Surface damage after the turn — demo seed data" },
+  { "id": "seed_016", "seed": true, "type": "construction", "lat": 14.2271, "lng": 121.0672, "note": "Ongoing roadworks — demo seed data" },
+  { "id": "seed_017", "seed": true, "type": "flood",        "lat": 14.6512, "lng": 121.1032, "note": "Known low point, floods quickly — demo seed data" },
+  { "id": "seed_018", "seed": true, "type": "danger",       "lat": 14.6088, "lng": 121.0223, "note": "Narrow lane with no shoulder — demo seed data" },
+  { "id": "seed_019", "seed": true, "type": "pothole",      "lat": 14.6047, "lng": 121.0189, "note": "Cluster of potholes — demo seed data" },
+  { "id": "seed_020", "seed": true, "type": "traffic",      "lat": 14.5378, "lng": 121.0014, "note": "Congested corridor during rush hour — demo seed data" }
+]
