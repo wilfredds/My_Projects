@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1b4332">
+  <title>Stolen Bike Check — Kasama</title>
+  <link rel="icon" href="assets/icons/favicon.ico">
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .check-hero {
+      background: linear-gradient(145deg, #1b4332, #2d6a4f 60%, #40916c);
+      padding: 22px 20px 26px; border-radius: 0 0 28px 28px; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .check-hero::after {
+      content: '\f002'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+      position: absolute; right: -8px; bottom: -14px;
+      font-size: 6rem; color: rgba(255,255,255,0.06);
+    }
+    .check-hero h2 { font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .check-hero p  { font-size: 0.8rem; color: rgba(255,255,255,0.75); margin-bottom: 15px; line-height: 1.55; }
+    .check-row { display: flex; gap: 9px; position: relative; z-index: 2; }
+    .check-row input {
+      flex: 1; padding: 14px 16px; border: none; border-radius: 14px;
+      font-family: 'Poppins', sans-serif; font-size: 0.95rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; outline: none; color: #1a1a2e;
+    }
+    .check-row button {
+      padding: 0 20px; border: none; border-radius: 14px;
+      background: #f4722b; color: #fff; font-size: 1.05rem; cursor: pointer;
+      box-shadow: 0 6px 18px rgba(244,114,43,0.45);
+    }
+    .check-row button:active { transform: scale(0.95); }
+
+    .result { margin: 16px 20px 0; border-radius: 18px; padding: 17px 19px; display: none; }
+    .result.clean  { background: #e8f8f0; border-left: 4px solid #2ecc71; display: block; }
+    .result.stolen { background: #fdecea; border-left: 4px solid #c0392b; display: block; }
+    .result.info   { background: #f0f3f5; border-left: 4px solid #95a5a6; display: block; }
+    .result h3 { font-size: 1rem; margin-bottom: 5px; }
+    .result p  { font-size: 0.82rem; line-height: 1.6; margin: 0; }
+    .result.clean h3  { color: #1e8449; }
+    .result.stolen h3 { color: #a93226; }
+
+    .board-head { padding: 22px 20px 10px; }
+    .board-head h3 { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .board-head p  { font-size: 0.76rem; color: #8a929a; margin-top: 3px; }
+
+    .bike-card {
+      background: #fff; border-radius: 18px; margin: 0 20px 13px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08); overflow: hidden;
+    }
+    .bike-photo { width: 100%; height: 165px; object-fit: cover; background: #eef1f3; display: block; }
+    .bike-body { padding: 14px 16px; }
+    .bike-title { font-size: 0.95rem; font-weight: 800; color: #1a1a2e; }
+    .bike-sub   { font-size: 0.75rem; color: #8a929a; margin-top: 2px; }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 9px; }
+    .chip {
+      font-size: 0.66rem; font-weight: 700; padding: 4px 10px; border-radius: 50px;
+      background: #f0f3f5; color: #5a666f;
+    }
+    .chip.good { background: #e8f8f0; color: #1e8449; }
+    .chip.ok   { background: #fff4e5; color: #b9770e; }
+    .chip.warn { background: #fdecea; color: #a93226; }
+    .bike-note { font-size: 0.78rem; color: #5a666f; line-height: 1.55; margin-top: 9px; }
+    .bike-contact {
+      margin-top: 11px; padding-top: 11px; border-top: 1px solid #f0f3f5;
+      font-size: 0.78rem; color: #2d6a4f; font-weight: 700;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .empty { text-align: center; padding: 40px 24px; color: #9aa4ac; }
+    .empty i { font-size: 2.2rem; display: block; margin-bottom: 10px; opacity: 0.5; }
+    .empty p { font-size: 0.82rem; line-height: 1.6; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="top-bar">
+    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name"><i class="fa-solid fa-magnifying-glass" style="color:#f4722b;margin-right:6px;"></i>Stolen Bike Check</span>
+  </div>
+
+  <div class="check-hero">
+    <h2>Buying a used bike?</h2>
+    <p>Check the serial before you pay. Every check makes a stolen bike harder to sell.</p>
+    <div class="check-row">
+      <input id="serial-in" placeholder="Serial number" autocomplete="off" spellcheck="false">
+      <button id="check-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+  </div>
+
+  <div class="result" id="result"></div>
+
+  <div class="board-head">
+    <h3><i class="fa-solid fa-triangle-exclamation" style="color:#c0392b;"></i> Reported stolen</h3>
+    <p>Seen one of these? Contact the owner directly.</p>
+  </div>
+  <div id="board"><div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading…</p></div></div>
+
+  <div style="height:24px;"></div>
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<script type="module">
+  import { initPage } from './js/app.js';
+  import { checkSerial, getStolenBoard, registrationLeadDays, trustLabel, normalizeSerial } from './js/bikes.js';
+  initPage('home');
+
+  const $ = id => document.getElementById(id);
+  const esc = s => { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; };
+
+  function fmtDate(ts) {
+    const ms = ts?.toMillis ? ts.toMillis() : ts;
+    if (!ms) return '';
+    return new Date(ms).toLocaleDateString('en-PH', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  // ── Serial check ──
+  $('check-btn').addEventListener('click', runCheck);
+  $('serial-in').addEventListener('keydown', e => { if (e.key === 'Enter') runCheck(); });
+
+  async function runCheck() {
+    const raw = $('serial-in').value;
+    const r = $('result');
+    if (normalizeSerial(raw).length < 4) {
+      r.className = 'result info';
+      r.innerHTML = '<h3>Enter a serial</h3><p>Usually stamped under the bottom bracket — flip the bike over and look where the pedals attach.</p>';
+      return;
+    }
+    r.className = 'result info';
+    r.innerHTML = '<h3>Checking…</h3><p>Looking this serial up against reported thefts.</p>';
+
+    const res = await checkSerial(raw);
+    if (!res.ok) {
+      r.className = 'result info';
+      r.innerHTML = `<h3>Could not check</h3><p>${esc(res.msg || 'Try again in a moment.')}</p>`;
+      return;
+    }
+    if (res.stolen) {
+      const h = res.hits[0];
+      r.className = 'result stolen';
+      r.innerHTML = `<h3>⚠️ REPORTED STOLEN</h3>
+        <p><b>${esc([h.brand, h.model].filter(Boolean).join(' ') || 'Bike')}</b>${h.color ? ' · ' + esc(h.color) : ''}<br>
+        Reported ${esc(fmtDate(h.reportedAt))}${h.area ? ' · ' + esc(h.area) : ''}<br><br>
+        <b>Do not buy this bike.</b> If you already have it, contact the owner below — they may be able to help you recover your money.</p>`;
+    } else {
+      r.className = 'result clean';
+      r.innerHTML = `<h3>✅ Not reported stolen</h3>
+        <p>This serial is not on the stolen list. That is good — but it is not proof the bike is legitimate.
+        Still ask for the receipt, and meet somewhere safe and public.</p>`;
+    }
+  }
+
+  // ── Board ──
+  const board = await getStolenBoard(50);
+  const el = $('board');
+  if (!board.length) {
+    el.innerHTML = `<div class="empty"><i class="fa-solid fa-shield-heart"></i>
+      <p>No bikes reported stolen yet.<br>Register yours so a check can protect it.</p></div>`;
+  } else {
+    el.innerHTML = board.map(b => {
+      const t = trustLabel(registrationLeadDays(b));
+      const name = [b.brand, b.model].filter(Boolean).join(' ') || 'Bike';
+      return `
+        <div class="bike-card">
+          ${b.photo ? `<img class="bike-photo" src="${esc(b.photo)}" alt="">` : ''}
+          <div class="bike-body">
+            <div class="bike-title">${esc(name)}</div>
+            <div class="bike-sub">${esc([b.color, b.year].filter(Boolean).join(' · '))}${b.serialTail ? ' · Serial ' + esc(b.serialTail) : ''}</div>
+            <div class="chips">
+              <span class="chip warn">Stolen ${esc(fmtDate(b.reportedAt))}</span>
+              ${b.area ? `<span class="chip">${esc(b.area)}</span>` : ''}
+              <span class="chip ${esc(t.tone)}">${esc(t.text)}</span>
+            </div>
+            ${b.marks ? `<div class="bike-note"><b>Marks:</b> ${esc(b.marks)}</div>` : ''}
+            ${b.note  ? `<div class="bike-note">${esc(b.note)}</div>` : ''}
+            ${b.contact ? `<div class="bike-contact"><i class="fa-solid fa-phone"></i> ${esc(b.contact)}</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>

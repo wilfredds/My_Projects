@@ -120,9 +120,10 @@ Why this beats Facebook posts:
 - [ ] Pre-ride safety checklist
 
 ### Phase 3 — The moat
-- [ ] Bike registry (serial + photos + receipt)
-- [ ] Stolen bike board + auto-poster
-- [ ] **Pre-purchase serial check**
+- [x] Bike registry (serial + photo + marks)
+- [x] Stolen bike board
+- [x] **Pre-purchase serial check** — hashed, so the board can't be scraped
+- [ ] Auto-generated poster image for Facebook
 - [ ] Theft hotspot map feeding voice warnings
 - [ ] Contribution stats / rider reputation
 

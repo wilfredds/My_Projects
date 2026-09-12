@@ -76,6 +76,33 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── Stolen bike board ──
+    // Only documents already marked stolen are readable. That single
+    // condition does a lot of work: the serial check returns a hit or
+    // nothing, and the collection can never be scraped into a list of
+    // every registered bike in the country.
+    //
+    // Serials are never stored here in the clear — only a SHA-256 hash
+    // and the last four characters.
+    match /stolenBikes/{reportId} {
+      allow read: if resource.data.status == 'stolen';
+
+      allow create: if request.resource.data.status == 'stolen'
+                    && request.resource.data.serialHash is string
+                    && request.resource.data.serialHash.size() == 64
+                    && request.resource.data.brand is string
+                    && request.resource.data.brand.size() <= 40
+                    && request.resource.data.area is string
+                    && request.resource.data.area.size() <= 80
+                    && request.resource.data.contact is string
+                    && request.resource.data.contact.size() <= 60
+                    && request.resource.data.note is string
+                    && request.resource.data.note.size() <= 300;
+
+      // A thief must never be able to erase or edit a report.
+      allow update, delete: if false;
+    }
+
     // ── Premium payment requests ──
     // Users may submit one; only the console may read or change them.
     match /premiumRequests/{requestId} {

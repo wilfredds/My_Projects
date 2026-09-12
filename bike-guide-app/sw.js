@@ -1,5 +1,5 @@
-const CACHE_NAME = 'bikeguide-v7';
-const RUNTIME_CACHE = 'bikeguide-runtime-v7';
+const CACHE_NAME = 'bikeguide-v8';
+const RUNTIME_CACHE = 'bikeguide-runtime-v8';
 const TILE_CACHE = 'bikeguide-tiles-v2';
 const MAX_TILES = 1200; // cap cached map tiles so storage stays bounded
 
@@ -21,6 +21,8 @@ const STATIC_ASSETS = [
   'ride.html',
   'follow.html',
   'firebase-check.html',
+  'garage.html',
+  'stolen.html',
   'carbon.html',
   'motivation.html',
   'premium.html',
@@ -39,6 +41,7 @@ const STATIC_ASSETS = [
   'js/copilot.js',
   'js/ride-screen.js',
   'js/livesafe.js',
+  'js/bikes.js',
   'js/follow-screen.js',
   'js/carbon.js',
   'js/gear-simulator.js',
