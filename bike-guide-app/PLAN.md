@@ -113,8 +113,9 @@ Why this beats Facebook posts:
 - [x] One-tap hazard reporting
 
 ### Phase 2 — Safety net
-- [ ] Live share with family (watch-my-dot link)
-- [ ] SOS / breakdown mode + nearest bike shop
+- [x] Live share with family (watch-my-dot link)
+- [x] SOS — one tap sends a Maps pin via native share / SMS
+- [ ] Nearest open bike shop when stranded
 - [ ] Rain check before ride
 - [ ] Pre-ride safety checklist
 
