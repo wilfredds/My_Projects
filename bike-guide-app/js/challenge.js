@@ -36,7 +36,7 @@ const CHALLENGE_PLAN = [
   { day:27, title:'Active Recovery',              desc:'Easy spin + full warm-up/cool-down routine. Let your body prepare for the final push.', duration:'30 min', distance:'8–12 km',  drills:['Easy spin + full stretching routine','Hydrate extra today','Sleep well tonight'], premium:true },
   { day:28, title:'Penultimate Hard Ride',        desc:'One last hard session. Intervals + hill climb combo.', duration:'60 min', distance:'18–25 km', drills:['3 hill repeats + 4 intervals','Push yourself — finish strong','One more day after this!'], premium:true },
   { day:29, title:'Rest & Reflect',              desc:'Tomorrow is your graduation ride. Rest today. You\'ve worked incredibly hard.', duration:'Rest',   distance:'Rest',    drills:['Full rest','Plan your graduation route for Day 30','Share your progress online!'], premium:true },
-  { day:30, title:'🏆 Graduation Ride!',          desc:'You did it! Ride your favorite route and celebrate completing 30 days. You are a cyclist now.', duration:'60+ min', distance:'Your choice!', drills:['Ride your favorite route','Take photos and share','Tag #BikeGuidePH and inspire others!'], premium:true },
+  { day:30, title:'🏆 Graduation Ride!',          desc:'You did it! Ride your favorite route and celebrate completing 30 days. You are a cyclist now.', duration:'60+ min', distance:'Your choice!', drills:['Ride your favorite route','Take photos and share','Tag #RidePH and inspire others!'], premium:true },
 ];
 
 export { CHALLENGE_PLAN };

@@ -192,7 +192,7 @@ function setupInstallPrompt() {
     bar.className = 'install-bar';
     bar.innerHTML = `
       <i class="fa-solid fa-bicycle"></i>
-      <div class="install-text"><strong>Install Bike Guide PH</strong><span>Add to your home screen for the full app experience</span></div>
+      <div class="install-text"><strong>Install RidePH</strong><span>Add to your home screen for the full app experience</span></div>
       <button class="install-yes">Install</button>
       <button class="install-no" aria-label="Dismiss">&times;</button>`;
     document.body.appendChild(bar);

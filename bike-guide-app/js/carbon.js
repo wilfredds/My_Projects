@@ -18,9 +18,9 @@ export function treesEquivalent(co2Kg) {
 }
 
 export async function shareCarbonBadge(co2Kg, km) {
-  const text = `🚴 I saved ${co2Kg} kg of CO₂ by cycling ${km} km instead of driving! Join me on Bike Guide PH. #BikeGuidePH #GreenCycling #EcoRider`;
+  const text = `🚴 I saved ${co2Kg} kg of CO₂ by cycling ${km} km instead of driving! Join me on RidePH. #RidePH #GreenCycling #EcoRider`;
   if (navigator.share) {
-    await navigator.share({ title: 'My Carbon Save — Bike Guide PH', text });
+    await navigator.share({ title: 'My Carbon Save — RidePH', text });
   } else {
     await navigator.clipboard.writeText(text);
     alert('Copied to clipboard! Paste it anywhere to share.');
