@@ -215,60 +215,89 @@ function gpsBadge(text) {
   b.classList.add('show');
 }
 
-// ── Start / stop ──
-$('go-btn').addEventListener('click', async () => {
-  if (!running) {
-    gpsBadge('Getting GPS…');
-    copilot = new CoPilot({
-      onUpdate: u => {
-        setMe(u.lat, u.lng, u.heading);
-        if (follow && map) map.easeTo({ center: [u.lng, u.lat], duration: 700 });
-        $('s-dist').textContent  = u.distanceKm.toFixed(1);
-        $('s-time').textContent  = fmtTime(u.durationMin);
-        $('s-speed').textContent = Math.round(u.speedKmh);
-        $('s-ahead').textContent = u.nearby.length;
-        gpsBadge(null);
+// ── Start / pause / finish ────────────────────────────────────────
+// Three states, matching what riders already know from Strava:
+//   idle    -> GO starts the ride
+//   riding  -> GO pauses it
+//   paused  -> GO resumes, FINISH ends and saves
+// Finish is deliberately only reachable from paused, so a glove on a
+// bumpy descent cannot end a ride by accident.
+function paintRideButton() {
+  const btn = $('go-btn'), icon = btn.querySelector('i'), label = $('go-label');
+  const paused = !!copilot?.paused;
+
+  btn.classList.toggle('running', running && !paused);
+  btn.classList.toggle('paused',  running && paused);
+  $('finish-btn').classList.toggle('show', running && paused);
+  $('paused-banner').classList.toggle('show', running && paused);
+
+  if (!running)      { icon.className = 'fa-solid fa-play';  label.textContent = 'START'; }
+  else if (paused)   { icon.className = 'fa-solid fa-play';  label.textContent = 'RESUME'; }
+  else               { icon.className = 'fa-solid fa-pause'; label.textContent = 'PAUSE'; }
+}
+
+async function startRide() {
+  gpsBadge('Getting GPS…');
+  copilot = new CoPilot({
+    onUpdate: u => {
+      setMe(u.lat, u.lng, u.heading);
+      if (follow && map) map.easeTo({ center: [u.lng, u.lat], duration: 700 });
+      $('s-dist').textContent  = u.distanceKm.toFixed(1);
+      $('s-time').textContent  = fmtTime(u.durationMin);
+      $('s-speed').textContent = Math.round(u.speedKmh);
+      $('s-ahead').textContent = u.nearby.length;
+      gpsBadge(null);
+      if (!u.paused) {
         live.pushPosition({ lat: u.lat, lng: u.lng, distanceKm: u.distanceKm, speedKmh: u.speedKmh });
-      },
-      onAlert: a => showAlert(a.text, a.meta.urgent, a.meta.icon),
-      onError: e => {
-        gpsBadge(e.code === 1 ? 'GPS permission denied' : 'Waiting for GPS…');
-      },
-    });
-    await copilot.start();
-    running = true;
-    $('go-btn').classList.add('running');
-    $('go-label').textContent = 'STOP';
-    $('go-btn').querySelector('i').className = 'fa-solid fa-stop';
-    follow = true;
-  } else {
-    const summary = await copilot.stop();
-    running = false;
-    gpsBadge(null);
-    $('go-btn').classList.remove('running');
-    $('go-label').textContent = 'START';
-    $('go-btn').querySelector('i').className = 'fa-solid fa-play';
-    if (live.isSharing()) {
-      await live.endShare({
-        lat: copilot?.last?.lat, lng: copilot?.last?.lng,
-        distanceKm: summary.distanceKm,
-      });
-      paintShare();
-    }
-    toast(`Ride saved · ${summary.distanceKm.toFixed(1)} km`);
-    try {
-      const { logRide } = await import('./tracker.js');
-      if (summary.distanceKm > 0.05) {
-        await logRide({
-          distanceKm: Number(summary.distanceKm.toFixed(2)),
-          durationMinutes: Math.round(summary.durationMin),
-          date: new Date().toISOString().split('T')[0],
-          routeName: 'Co-pilot ride',
-          notes: '',
-        });
       }
-    } catch (_) { /* logging is best-effort */ }
+    },
+    onAlert: a => showAlert(a.text, a.meta.urgent, a.meta.icon),
+    onError: e => gpsBadge(e.code === 1 ? 'GPS permission denied' : 'Waiting for GPS…'),
+  });
+  await copilot.start();
+  running = true;
+  follow  = true;
+  paintRideButton();
+}
+
+async function finishRide() {
+  const summary = await copilot.stop();
+  running = false;
+  gpsBadge(null);
+  paintRideButton();
+
+  if (live.isSharing()) {
+    await live.endShare({
+      lat: copilot?.last?.lat, lng: copilot?.last?.lng,
+      distanceKm: summary.distanceKm,
+    });
+    paintShare();
   }
+
+  toast(`Ride saved · ${summary.distanceKm.toFixed(1)} km`);
+  try {
+    const { logRide } = await import('./tracker.js');
+    if (summary.distanceKm > 0.05) {
+      await logRide({
+        distanceKm: Number(summary.distanceKm.toFixed(2)),
+        durationMinutes: Math.round(summary.durationMin),
+        date: new Date().toISOString().split('T')[0],
+        routeName: 'Co-pilot ride',
+        notes: '',
+      });
+    }
+  } catch (_) { /* logging is best-effort */ }
+}
+
+$('go-btn').addEventListener('click', async () => {
+  if (!running)            await startRide();
+  else if (copilot.paused) copilot.resume();
+  else                     copilot.pause();
+  paintRideButton();
+});
+
+$('finish-btn').addEventListener('click', async () => {
+  if (running) await finishRide();
 });
 
 // ── Mute ──
@@ -396,3 +425,4 @@ $('f-name').addEventListener('change',    e => live.setRiderName(e.target.value)
 $('f-contact').addEventListener('change', e => live.setSosContact(e.target.value));
 
 paintShare();
+paintRideButton();

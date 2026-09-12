@@ -22,6 +22,9 @@ export class CoPilot {
     this.watchId  = null;
     this.wakeLock = null;
     this.running  = false;
+    this.paused   = false;
+    this.pausedMs = 0;        // total time spent paused
+    this._pauseStart = null;
 
     this.track    = [];      // [{lat, lng, t}]
     this.distanceM = 0;
@@ -58,6 +61,9 @@ export class CoPilot {
     }
 
     this.running   = true;
+    this.paused    = false;
+    this.pausedMs  = 0;
+    this._pauseStart = null;
     this.startedAt = Date.now();
     this.track     = [];
     this.distanceM = 0;
@@ -77,15 +83,44 @@ export class CoPilot {
     say('Co-pilot on. Ride safe.', { key: 'start' });
   }
 
+  // Moving time, excluding pauses. Without this a 20-minute stop at a store
+  // silently wrecks the ride's average speed.
+  movingMs() {
+    if (!this.startedAt) return 0;
+    const paused = this.pausedMs + (this._pauseStart ? Date.now() - this._pauseStart : 0);
+    return Math.max(0, Date.now() - this.startedAt - paused);
+  }
+
+  pause() {
+    if (!this.running || this.paused) return;
+    this.paused = true;
+    this._pauseStart = Date.now();
+    say('Ride paused.', { key: 'pause' });
+  }
+
+  resume() {
+    if (!this.running || !this.paused) return;
+    this.paused = false;
+    if (this._pauseStart) {
+      this.pausedMs += Date.now() - this._pauseStart;
+      this._pauseStart = null;
+    }
+    // Drop the stale fix so the distance covered while paused (or the GPS
+    // drift of a stationary phone) is not counted as riding.
+    this.last = null;
+    say('Resuming.', { key: 'resume' });
+  }
+
   async stop() {
     this.running = false;
+    this.paused  = false;
     if (this.watchId != null) { navigator.geolocation.clearWatch(this.watchId); this.watchId = null; }
     document.removeEventListener('visibilitychange', this._onVisibility);
     if (this.wakeLock) { try { await this.wakeLock.release(); } catch (_) {} this.wakeLock = null; }
 
     return {
       distanceKm: this.distanceM / 1000,
-      durationMin: this.startedAt ? (Date.now() - this.startedAt) / 60000 : 0,
+      durationMin: this.movingMs() / 60000,
       track: this.track,
     };
   }
@@ -98,6 +133,20 @@ export class CoPilot {
     if (accuracy != null && accuracy > 100) return;
 
     const now = Date.now();
+
+    // While paused, keep the dot on the map but stop counting distance and
+    // stop speaking — a rider stopped at a junction does not want the
+    // hazard 40 m away announced on a loop.
+    if (this.paused) {
+      this.last = { lat, lng, t: now };
+      this.onUpdate({
+        lat, lng, heading: this.heading, speedKmh: 0,
+        distanceKm: this.distanceM / 1000,
+        durationMin: this.movingMs() / 60000,
+        accuracy, nearby: [], paused: true,
+      });
+      return;
+    }
 
     if (this.last) {
       const step = distanceM(this.last.lat, this.last.lng, lat, lng);
@@ -126,9 +175,10 @@ export class CoPilot {
       heading: this.heading,
       speedKmh: this.speedMps * 3.6,
       distanceKm: this.distanceM / 1000,
-      durationMin: this.startedAt ? (now - this.startedAt) / 60000 : 0,
+      durationMin: this.movingMs() / 60000,
       accuracy,
       nearby,
+      paused: false,
     });
   }
 

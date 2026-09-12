@@ -1,18 +1,26 @@
 {
   "id": "./",
-  "name": "Bike Guide PH - Cycling for Filipinos",
-  "short_name": "BikeGuidePH",
-  "description": "The ultimate cycling companion for Filipino beginners to intermediate riders. Learn gear shifting, find Philippines routes, track your rides, and complete the 30-Day Cycling Challenge.",
+  "name": "RidePH — Know what's ahead",
+  "short_name": "RidePH",
+  "description": "Voice hazard warnings for Philippine roads. Know about potholes, traffic and theft spots before you reach them, share your ride live with family, and check a serial before buying a used bike.",
   "start_url": "index.html",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui", "browser"],
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
   "orientation": "portrait",
   "background_color": "#2d6a4f",
   "theme_color": "#2d6a4f",
   "lang": "en-PH",
   "dir": "ltr",
-  "categories": ["health", "sports", "lifestyle"],
+  "categories": [
+    "health",
+    "sports",
+    "lifestyle"
+  ],
   "icons": [
     {
       "src": "assets/icons/icon-192.png",
@@ -45,14 +53,14 @@
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Bike Guide PH Dashboard"
+      "label": "RidePH Dashboard"
     },
     {
       "src": "assets/screenshots/dashboard-wide.png",
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Bike Guide PH Dashboard"
+      "label": "RidePH Dashboard"
     }
   ],
   "related_applications": [],
