@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Check — Kasama</title>
+  <link rel="icon" href="assets/icons/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: #f4f6f8; color: #2c3e50;
+           padding: 20px; max-width: 620px; margin: 0 auto; }
+    h1 { font-size: 1.25rem; font-weight: 800; color: #1a1a2e; margin-bottom: 4px; }
+    .sub { font-size: 0.82rem; color: #8a929a; margin-bottom: 20px; }
+
+    .run-btn {
+      width: 100%; padding: 15px; border: none; border-radius: 50px;
+      background: linear-gradient(135deg, #2d6a4f, #52b788); color: #fff;
+      font-family: 'Poppins', sans-serif; font-size: 0.98rem; font-weight: 700;
+      cursor: pointer; box-shadow: 0 8px 24px rgba(45,106,79,0.35);
+      margin-bottom: 20px;
+    }
+    .run-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .test {
+      background: #fff; border-radius: 15px; padding: 14px 16px; margin-bottom: 10px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+      display: flex; gap: 13px; align-items: flex-start;
+    }
+    .badge {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; color: #fff; background: #ccd3d8;
+    }
+    .badge.pass { background: #2ecc71; }
+    .badge.fail { background: #e74c3c; }
+    .badge.warn { background: #f39c12; }
+    .badge.run  { background: #3498db; }
+    .t-body { flex: 1; min-width: 0; }
+    .t-name { font-size: 0.88rem; font-weight: 700; color: #1a1a2e; }
+    .t-msg  { font-size: 0.76rem; color: #7a848d; margin-top: 3px; line-height: 1.5;
+              word-break: break-word; }
+    .t-msg code { background: #f0f3f5; padding: 1px 5px; border-radius: 4px;
+                  font-size: 0.72rem; color: #c0392b; }
+
+    .verdict { border-radius: 15px; padding: 16px 18px; margin-top: 18px; display: none; }
+    .verdict.ok   { background: #e8f8f0; border-left: 4px solid #2ecc71; display: block; }
+    .verdict.bad  { background: #fdecea; border-left: 4px solid #e74c3c; display: block; }
+    .verdict h3 { font-size: 0.95rem; margin-bottom: 6px; }
+    .verdict p  { font-size: 0.8rem; line-height: 1.6; color: #555; }
+    .verdict ol { margin: 8px 0 0 18px; font-size: 0.8rem; line-height: 1.7; color: #555; }
+    .back { display: inline-block; margin-top: 20px; font-size: 0.82rem;
+            color: #2d6a4f; font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>Firebase Check</h1>
+  <p class="sub">Verifies your Firestore setup and security rules actually work.</p>
+
+  <button class="run-btn" id="run">Run the checks</button>
+  <div id="tests"></div>
+  <div class="verdict" id="verdict"></div>
+
+  <a class="back" href="dashboard.html">&larr; Back to app</a>
+
+<script type="module">
+import { db } from './js/firebase-config.js';
+import { collection, getDocs, limit, query, doc, setDoc, updateDoc, getDoc, addDoc, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const $ = id => document.getElementById(id);
+const testsEl = $('tests');
+let results = [];
+
+function esc(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
+
+function addTest(name) {
+  const el = document.createElement('div');
+  el.className = 'test';
+  el.innerHTML = `<div class="badge run"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                  <div class="t-body"><div class="t-name">${esc(name)}</div>
+                  <div class="t-msg">Running…</div></div>`;
+  testsEl.appendChild(el);
+  return {
+    pass: msg => { el.querySelector('.badge').className = 'badge pass';
+                   el.querySelector('.badge').innerHTML = '<i class="fa-solid fa-check"></i>';
+                   el.querySelector('.t-msg').innerHTML = msg; results.push(true); },
+    fail: msg => { el.querySelector('.badge').className = 'badge fail';
+                   el.querySelector('.badge').innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                   el.querySelector('.t-msg').innerHTML = msg; results.push(false); },
+    warn: msg => { el.querySelector('.badge').className = 'badge warn';
+                   el.querySelector('.badge').innerHTML = '<i class="fa-solid fa-exclamation"></i>';
+                   el.querySelector('.t-msg').innerHTML = msg; results.push(true); },
+  };
+}
+
+function errText(e) {
+  const code = e?.code ? `<code>${esc(e.code)}</code> ` : '';
+  return code + esc(e?.message || String(e));
+}
+
+$('run').addEventListener('click', async () => {
+  $('run').disabled = true;
+  testsEl.innerHTML = '';
+  $('verdict').className = 'verdict';
+  results = [];
+
+  // 1 — SDK initialised
+  const t1 = addTest('1. Firebase connects');
+  if (db) t1.pass('Firestore SDK initialised.');
+  else { t1.fail('Firestore did not initialise. Check <code>js/firebase-config.js</code>.'); return finish(); }
+
+  // 2 — Read the hazards collection
+  const t2 = addTest('2. Can read hazards');
+  try {
+    const snap = await getDocs(query(collection(db, 'hazards'), limit(5)));
+    t2.pass(`Read OK — ${snap.size} community hazard(s) in the cloud so far.`);
+  } catch (e) {
+    t2.fail(`Read blocked: ${errText(e)}<br>If this says <code>permission-denied</code>, the rules did not publish.`);
+  }
+
+  // 3 — Rules are actually enforcing (a bad write MUST be rejected)
+  const t3 = addTest('3. Security rules are enforcing');
+  try {
+    // Antarctica — far outside the Philippines bounding box, so correct
+    // rules must refuse this.
+    await addDoc(collection(db, 'hazards'), {
+      lat: -80.0, lng: 0.0, type: 'pothole', note: 'rules test',
+      reporter: 'firebase-check', createdAt: serverTimestamp(), confirms: 0,
+    });
+    t3.fail('A hazard outside the Philippines was ACCEPTED. Your rules are not active — ' +
+            'you may still be in test mode. Re-publish the rules.');
+  } catch (e) {
+    if (e?.code === 'permission-denied')
+      t3.pass('Out-of-bounds write correctly rejected. Rules are live and working.');
+    else
+      t3.warn(`Rejected, but with an unexpected error: ${errText(e)}`);
+  }
+
+  // 4 — Live share: create
+  const shareId = 'CHECK' + Math.random().toString(36).slice(2, 6).toUpperCase();
+  const t4 = addTest('4. Can start a live ride');
+  let created = false;
+  try {
+    await setDoc(doc(db, 'liveRides', shareId), {
+      riderName: 'Firebase Check', active: true,
+      startedAt: serverTimestamp(), updatedAt: serverTimestamp(),
+      lat: null, lng: null, distanceKm: 0, speedKmh: 0,
+    });
+    created = true;
+    t4.pass(`Created test ride <code>${esc(shareId)}</code>.`);
+  } catch (e) {
+    t4.fail(`Could not create: ${errText(e)}<br>Check the <code>liveRides</code> block in your rules.`);
+  }
+
+  // 5 — Live share: position update
+  const t5 = addTest('5. Can send position updates');
+  if (!created) t5.fail('Skipped — the ride was never created.');
+  else {
+    try {
+      await updateDoc(doc(db, 'liveRides', shareId), {
+        lat: 14.5507, lng: 121.0470, distanceKm: 1.2, speedKmh: 18,
+        updatedAt: serverTimestamp(),
+      });
+      t5.pass('Position update accepted.');
+    } catch (e) {
+      t5.fail(`Update blocked: ${errText(e)}`);
+    }
+  }
+
+  // 6 — Follower can read it
+  const t6 = addTest('6. Family can follow the ride');
+  if (!created) t6.fail('Skipped — the ride was never created.');
+  else {
+    try {
+      const snap = await getDoc(doc(db, 'liveRides', shareId));
+      if (snap.exists() && snap.data().lat === 14.5507)
+        t6.pass('Follower read works — the live share page will see your dot.');
+      else t6.fail('Document read back empty or wrong.');
+    } catch (e) {
+      t6.fail(`Read blocked: ${errText(e)}`);
+    }
+  }
+
+  // 7 — Close the test ride so it isn't left "active"
+  const t7 = addTest('7. Can end a ride');
+  if (!created) t7.fail('Skipped.');
+  else {
+    try {
+      await updateDoc(doc(db, 'liveRides', shareId), {
+        active: false, endedAt: serverTimestamp(), updatedAt: serverTimestamp(),
+      });
+      t7.pass('Ride closed cleanly. (Delete <code>liveRides/' + esc(shareId) + '</code> in the console if you like.)');
+    } catch (e) {
+      t7.fail(`Could not end: ${errText(e)}`);
+    }
+  }
+
+  finish();
+});
+
+function finish() {
+  $('run').disabled = false;
+  $('run').textContent = 'Run the checks again';
+  const failed = results.filter(r => !r).length;
+  const v = $('verdict');
+  if (failed === 0) {
+    v.className = 'verdict ok';
+    v.innerHTML = `<h3>✅ Firebase is set up correctly</h3>
+      <p>Hazard reporting and live ride sharing will both work. You're clear to test on a real ride.</p>`;
+  } else {
+    v.className = 'verdict bad';
+    v.innerHTML = `<h3>⚠️ ${failed} check${failed === 1 ? '' : 's'} failed</h3>
+      <p>Most likely causes, in order:</p>
+      <ol>
+        <li><b>Rules not published</b> — Firebase Console → Firestore → Rules → Publish.</li>
+        <li><b>Still in test mode</b> — if check 3 failed, your rules allow everything. Re-paste them.</li>
+        <li><b>Database not created</b> — Firestore → Create database → production mode.</li>
+        <li><b>Wrong project</b> — confirm <code>projectId</code> in <code>js/firebase-config.js</code>.</li>
+      </ol>`;
+  }
+}
+</script>
+</body>
+</html>
