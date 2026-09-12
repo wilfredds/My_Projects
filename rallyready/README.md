@@ -117,6 +117,14 @@ npm run dev
 That is genuinely all you need. With no Supabase configured the app stores
 everything in local storage and every Phase 1 feature works.
 
+**What that costs a player, stated plainly.** With no Supabase connected, a
+player's training lives in one browser on one device. Clearing browser data
+erases it, and a new phone starts from zero. Nothing is lost silently — the
+Profile screen says so, and **Back up your training** there writes everything
+to a single file you can load back — but a tester should be told before they
+put in a month of sessions. Connecting Supabase (below) is what removes this,
+and it takes about fifteen minutes.
+
 ### Put it on a phone
 
 The app is a root-scoped PWA (`start_url: '/'`), so it needs its own domain
@@ -156,6 +164,15 @@ signed-out is uploaded to the account the first time you sign in.
    **Run**. It is idempotent — re-running it is safe and will not drop data.
    It creates every table, turns on Row-Level Security with per-user policies,
    and seeds the drill catalogue and badge definitions.
+
+   Verified against a real PostgreSQL 16: applied twice from empty, it creates
+   **12 tables, all with RLS, 41 policies, 11 enum types and 30 seeded
+   drills**, with no errors on either run. That check matters, because for a
+   while the file did not run at all — two `alter type ... add value`
+   statements had been pasted into the middle of its enum block, splitting the
+   block and leaving Postgres rejecting the very first statement. `npm test`
+   now guards the structure and checks that every value the app uses is
+   declared.
 
    Or, with the CLI:
 

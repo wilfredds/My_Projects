@@ -346,8 +346,7 @@ export function TrainPage() {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">Workouts</p>
               <p className="text-muted-foreground text-xs leading-relaxed">
-                Every session off the court in one place — filtered by the room you have and whether
-                you can make noise.
+                Every workout you can do off the court. Filter by your space, and by noise.
               </p>
             </div>
             <Button asChild size="sm" variant="outline" className="shrink-0">

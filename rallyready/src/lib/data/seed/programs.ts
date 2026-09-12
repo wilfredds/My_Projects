@@ -22,7 +22,7 @@ const SEEDS: ProgramSeed[] = [
     slug: 'return-to-court',
     name: 'Return to Court',
     description:
-      'Eight weeks for a player coming back after a long break. Three sessions a week, heavy on movement quality, with a deload built in before you feel like you need one. Assumes court access.',
+      'Eight weeks for a player coming back after a long break. Three sessions a week, focused on moving well. It includes an easy week before you feel you need one. Assumes court access.',
     totalWeeks: 8,
     level: 'beginner',
     location: 'court',
@@ -46,7 +46,7 @@ const SEEDS: ProgramSeed[] = [
     slug: 'no-court-comeback',
     name: 'No-Court Comeback',
     description:
-      'Ten weeks that need nothing but floor space. Shadow intervals, ladder work and bodyweight circuits, for anyone whose hall is shut or whose club night is once a fortnight.',
+      'Ten weeks that need nothing but floor space. Shadow intervals, ladder work and bodyweight circuits. For anyone whose hall is shut, or who only plays once a fortnight.',
     totalWeeks: 10,
     level: 'intermediate',
     location: 'anywhere',

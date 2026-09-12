@@ -121,8 +121,8 @@ export function WelcomePage() {
                   A badminton coach for training on your own.
                 </h1>
                 <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
-                  No partner. No feeder. No court needed. The app calls the corners out loud and you
-                  move to them — the same drill a coach would put you through, run by your phone.
+                  You do not need a partner or a court. The app calls out a corner. You move to it.
+                  That is the drill.
                 </p>
                 <ul className="mt-6 space-y-3">
                   {[
@@ -156,8 +156,8 @@ export function WelcomePage() {
                   You never look at the screen.
                 </h1>
                 <p className="text-muted-foreground mt-3 mb-6 leading-relaxed">
-                  Press the button. That is a real call — spoken, with its own tone, and a buzz you
-                  can feel with the phone in your pocket.
+                  Press the button and listen. Every call is spoken out loud. It also beeps and
+                  buzzes, so you can feel it with the phone in your pocket.
                 </p>
                 <CallDemo />
               </section>
@@ -170,20 +170,20 @@ export function WelcomePage() {
                   It will tell you when to stop.
                 </h1>
                 <p className="text-muted-foreground mt-3 leading-relaxed">
-                  Training alone means nobody is watching for the warning signs. So the app does it
-                  — and none of that is ever behind a paywall.
+                  When you train alone, nobody tells you to slow down. The app does. That part is
+                  always free.
                 </p>
                 <ul className="mt-6 space-y-3">
                   {[
                     {
                       icon: HeartPulse,
                       title: 'A five-second check-in',
-                      body: 'Sleep, legs, energy. The session gets lighter on a bad day instead of ignoring you.',
+                      body: 'Three taps: sleep, legs, energy. On a bad day the session gets easier.',
                     },
                     {
                       icon: TrendingUp,
                       title: 'Training load, not minutes',
-                      body: 'A brutal ten minutes and an easy half hour stop looking the same.',
+                      body: 'Ten hard minutes count for more than thirty easy ones.',
                     },
                     {
                       icon: ShieldCheck,

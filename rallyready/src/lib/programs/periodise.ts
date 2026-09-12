@@ -35,18 +35,23 @@ export interface PlannedDay {
   notes: string | null
 }
 
+/**
+ * Names a player will recognise without being told what they mean. "Deload" is
+ * what a coach calls the fourth one, and it is on every program card and on
+ * the Today card — a word nobody outside a gym has met.
+ */
 export const PHASE_LABEL: Record<ProgramPhase, string> = {
-  base: 'Base',
-  build: 'Build',
+  base: 'Build a base',
+  build: 'Build up',
   sharpen: 'Sharpen',
-  deload: 'Deload',
+  deload: 'Easy week',
 }
 
 export const PHASE_BLURB: Record<ProgramPhase, string> = {
-  base: 'Movement quality and volume. Nothing here should feel desperate.',
-  build: 'Work capacity. The blocks get longer and the recovery gets shorter.',
-  sharpen: 'Speed and reaction. Short, fast, and fully recovered between efforts.',
-  deload: 'Back off on purpose. This is where the previous weeks turn into fitness.',
+  base: 'Move well, and move often. Nothing this week should feel desperate.',
+  build: 'Last longer. The work blocks get longer and the rests get shorter.',
+  sharpen: 'Get quicker. Short and fast, with a full rest in between.',
+  deload: 'Take it easy on purpose. This is the week your hard work turns into fitness.',
 }
 
 const MIN_WEEKS = 4

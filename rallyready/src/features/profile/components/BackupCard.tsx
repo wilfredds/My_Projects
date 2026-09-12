@@ -118,8 +118,8 @@ export function BackupCard() {
           Back up your training
         </CardTitle>
         <CardDescription>
-          A single file with every session, effort rating, check-in and benchmark. Keep it somewhere
-          safe and you can move to a new phone, or recover from clearing your browser.
+          Save everything you have done to one file. Keep it somewhere safe. If you get a new phone,
+          or clear your browser, you can load it back.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -168,8 +168,8 @@ export function BackupCard() {
         )}
 
         <p className="text-muted-foreground text-xs leading-relaxed">
-          Importing merges — sessions already on this device are kept, and anything the file
-          duplicates is skipped, so importing the same backup twice is safe.
+          Loading a file adds to what is already here. Nothing gets overwritten, and nothing gets
+          counted twice. Loading the same file again is safe.
         </p>
       </CardContent>
     </Card>

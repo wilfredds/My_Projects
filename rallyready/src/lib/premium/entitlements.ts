@@ -33,7 +33,7 @@ export const PREMIUM_FEATURES: Feature[] = [
     id: 'coach',
     name: 'Your daily session, decided',
     blurb:
-      'The app reads your check-in, your workload and what you have neglected, then tells you exactly what to do today and why — instead of handing you a catalogue.',
+      'It reads your check-in, how much you have done lately, and what you have been skipping. Then it names one session for today, and says why.',
   },
   {
     id: 'all-programs',
@@ -88,15 +88,15 @@ export const ALWAYS_FREE: string[] = [
 export const GUARANTEES: { title: string; body: string }[] = [
   {
     title: 'You get the weeks you paid for',
-    body: 'A bundle is a training block with weeks in it, not a switch. Any week inside it that we fail to cover is added back to the end date automatically — you do not have to notice it or ask for it.',
+    body: 'A bundle is a block of training weeks, not a switch. If a week goes uncovered, we add it back to your end date. You do not have to notice, or ask.',
   },
   {
     title: 'Nothing you have done is ever taken away',
-    body: 'Your sessions, your history, the drills, the warm-up and every safety feature stay free and stay yours when a block ends. Premium is the coaching on top; it is not the door.',
+    body: 'Your sessions, your history, the drills and the warm-up are free, and stay yours when a block ends. Premium is the coaching on top. It is not the door.',
   },
   {
     title: 'The account is shown to you, both sides',
-    body: 'Week by week, what the block asked of you and what you did — and every promise checked against whether it is actually switched on. If we are not delivering, the same screen says so.',
+    body: 'Week by week: what you paid for, and what you actually did. Every promise above is checked against the real numbers. If we are falling short, that screen says so.',
   },
 ]
 

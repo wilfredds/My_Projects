@@ -34,23 +34,15 @@ begin
   end if;
   if not exists (select 1 from pg_type where typname = 'drill_category') then
     create type drill_category as enum
-      ('footwork', 'net', 'rear-court', 'conditioning', 'agility', 'plyometric',
-       'warmup', 'cooldown');
+      ('footwork', 'net', 'rear-court', 'conditioning', 'strength', 'agility',
+       'plyometric', 'warmup', 'cooldown');
   end if;
   if not exists (select 1 from pg_type where typname = 'drill_style') then
     create type drill_style as enum ('shadow', 'ghosting', 'ladder', 'hiit', 'custom');
   end if;
   if not exists (select 1 from pg_type where typname = 'call_mode') then
-    create type call_mode as enum ('sequential', 'random', 'deception', 'number', 'weighted');
-  end if;
-end $$;
-
--- Added later: Strokes mode names the shot as well as the corner, and Pattern
--- mode calls a whole rally. Enum values can only be appended, never inserted.
-do $$
-begin
-  alter type call_mode add value if not exists 'stroke';
-  alter type call_mode add value if not exists 'pattern';
+    create type call_mode as enum
+      ('sequential', 'random', 'deception', 'number', 'weighted', 'stroke', 'pattern');
   end if;
   if not exists (select 1 from pg_type where typname = 'session_source') then
     create type session_source as enum ('timer', 'conditioning', 'benchmark');
@@ -73,15 +65,27 @@ begin
 end
 $$;
 
--- `warmup` and `cooldown` arrived after the first release. A fresh database
--- gets them from the create above and these two lines do nothing.
+-- Values that arrived after the first release. A fresh database gets them from
+-- the creates above, so these four lines do nothing; they exist for a database
+-- that was created before the value did.
 --
--- UPGRADING AN EXISTING DATABASE: Postgres refuses to *use* a new enum value in
--- the same transaction that adds it, so if your client wraps this whole file in
--- one transaction the warm-up rows further down will fail with "unsafe use of
--- new value". Run these two statements on their own first, then run the file.
+-- They are top-level statements on purpose. `alter type ... add value` cannot
+-- run inside a `do $$ ... $$` block — that is a transaction, and Postgres
+-- refuses to add an enum value inside one. Two of these were moved into the
+-- enum block at some point, which split it in half, orphaned an `end if;` and
+-- left the whole file failing to parse on its first statement. The schema had
+-- not applied to anything since.
+--
+-- UPGRADING AN EXISTING DATABASE: Postgres also refuses to *use* a new enum
+-- value in the same transaction that adds it, so if your client wraps this
+-- whole file in one transaction the rows further down will fail with "unsafe
+-- use of new value". Run these four statements on their own first, then run
+-- the file.
 alter type drill_category add value if not exists 'warmup';
 alter type drill_category add value if not exists 'cooldown';
+alter type drill_category add value if not exists 'strength';
+alter type call_mode add value if not exists 'stroke';
+alter type call_mode add value if not exists 'pattern';
 
 -- ================================================================== profiles
 create table if not exists public.profiles (

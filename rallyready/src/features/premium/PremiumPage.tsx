@@ -56,7 +56,7 @@ export function PremiumPage() {
 
       <PageHeader
         title="RallyReady Premium"
-        description="The free app is a very good training tool. Premium is the coach on top of it — the part that decides what you do today, and why."
+        description="The free app is a very good training tool. Premium adds the coach: the part that picks your session for today, and tells you why."
       />
 
       <CommitmentCard />
@@ -88,10 +88,9 @@ export function PremiumPage() {
           <Info className="text-muted-foreground mt-0.5 size-4 shrink-0" aria-hidden />
           <p className="text-muted-foreground text-xs leading-relaxed">
             <span className="text-foreground font-medium">No payments are connected yet.</span>{' '}
-            Nothing on this page charges you, and the button below simply switches Premium on
-            locally so you can try it. Taking real money needs a payment provider — GCash, Maya or a
-            card processor — and a server that checks the receipt, because an unlock stored in a
-            browser can be switched on by anyone who knows how.
+            Nothing here charges you. The button below just switches Premium on, on this phone, so
+            you can try it. Real payments need GCash, Maya or a card, plus a server to check them.
+            Until then, an unlock kept on a phone can be turned on by anyone who knows how.
           </p>
         </CardContent>
       </Card>

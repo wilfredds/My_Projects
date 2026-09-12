@@ -52,10 +52,9 @@ export function BenchmarkPage() {
 
       <h1 className="text-3xl font-bold tracking-tight">Fitness benchmark</h1>
       <p className="text-muted-foreground mt-2 max-w-prose text-sm leading-relaxed">
-        A repeatable test of badminton-specific endurance, modelled on the B-ENDURANCE protocol.
-        Twelve levels of four-corner movement: work steps up from 18 to 30 seconds while the
-        recovery stays at ten. You go until you cannot hold the pace, and how far you got is your
-        score.
+        A fitness test you can repeat and compare. You move between four corners in twelve levels.
+        Each level is a little longer than the last, and the rest stays at ten seconds. Stop when
+        you cannot keep up. How far you got is your score.
       </p>
 
       {/*

@@ -342,7 +342,7 @@ export const TECHNIQUE_TOPICS: TechniqueTopic[] = [
     slug: 'how-to-hold-the-racket',
     title: 'How to hold the racket',
     summary:
-      'The basic forehand grip. Everything else in badminton is built on this one, and holding it wrong puts a ceiling on every shot you will ever hit.',
+      'The basic forehand grip. Everything else is built on it. Hold it wrong and every shot you ever hit has a ceiling.',
     category: 'net',
     level: 'beginner',
     practiceMode: 'solo',
@@ -403,7 +403,7 @@ export const TECHNIQUE_TOPICS: TechniqueTopic[] = [
     slug: 'the-backhand-grip',
     title: 'The backhand grip',
     summary:
-      'Thumb flat on the wide bevel. This is the one change that turns a hopeless backhand into a usable one, and most players never make it.',
+      'Thumb flat on the wide bevel. This one change turns a hopeless backhand into a usable one. Most players never make it.',
     category: 'net',
     level: 'beginner',
     practiceMode: 'solo',
@@ -800,7 +800,7 @@ export const TECHNIQUE_TOPICS: TechniqueTopic[] = [
     slug: 'the-net-lunge',
     title: 'The net lunge',
     summary:
-      'The longest step you will take, taken under control. Done well it is fast and safe; done badly it is the most common way club players hurt a knee.',
+      'The longest step you will take, taken under control. Done well, it is fast and safe. Done badly, it is how club players hurt a knee.',
     category: 'net',
     level: 'beginner',
     practiceMode: 'solo',
@@ -896,7 +896,7 @@ export const TECHNIQUE_TOPICS: TechniqueTopic[] = [
     slug: 'grips',
     title: 'Changing grips mid-rally',
     summary:
-      'Four grips cover almost every shot. Holding them is the easy part — swapping between them in the time a rally gives you is the skill.',
+      'Four grips cover almost every shot. Holding them is the easy part. Swapping between them mid-rally is the skill.',
     category: 'net',
     // The two grips themselves are separate beginner topics with diagrams. This
     // one is about the changeover, which is a rally-speed problem and only
@@ -1102,8 +1102,7 @@ export const TECHNIQUE_TOPICS: TechniqueTopic[] = [
   {
     slug: 'how-to-train-solo',
     title: 'How to train solo without wasting the time',
-    summary:
-      'What to do, how often, and how hard — plus the honest limits of what shadow work can teach you.',
+    summary: 'What to do, how often, and how hard. Plus what shadow work cannot teach you.',
     category: 'conditioning',
     level: 'beginner',
     practiceMode: 'solo',

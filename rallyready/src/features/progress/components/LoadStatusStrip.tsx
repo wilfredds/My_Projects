@@ -47,7 +47,7 @@ export function LoadStatusStrip({ load }: { load: LoadSummary }) {
         <Figure label="Last 7 days" value={String(load.last7)} />
         <Figure label="Previous 7" value={String(load.previous7)} />
         <Figure
-          label={load.ratio === null ? 'Ratio' : 'vs 4-wk avg'}
+          label={load.ratio === null ? 'Compared' : 'vs your usual'}
           value={load.ratio === null ? '—' : `${load.ratio.toFixed(2)}×`}
         />
       </dl>
@@ -55,8 +55,8 @@ export function LoadStatusStrip({ load }: { load: LoadSummary }) {
       {headroom !== null && load.status !== 'spiking' && (
         <p className="text-muted-foreground mt-2.5 text-xs leading-relaxed">
           {headroom > 0
-            ? `Room for about ${headroom} more load over the next seven days before it counts as a big step up — roughly ${Math.round(headroom / 7)} minutes at a hard effort.`
-            : 'You have used up this week’s comfortable headroom. Anything more is a step up rather than a repeat.'}
+            ? `You have room for about ${Math.round(headroom / 7)} more hard minutes a day this week. After that it counts as a big jump.`
+            : 'You have done enough for this week. Anything more is a jump, not a repeat.'}
         </p>
       )}
     </div>

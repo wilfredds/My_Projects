@@ -337,8 +337,8 @@ export function ReflexRushPage() {
               />
             </div>
             <p className="text-muted-foreground mt-4 text-xs leading-relaxed">
-              Rest your eyes on the middle of the court rather than hunting the target — that is how
-              you read a smash too. Wrong taps cost you; missed targets just move on.
+              Keep your eyes on the middle of the court. Do not hunt for the target — that is how
+              you read a smash. A wrong tap costs you points. A missed target does not.
             </p>
           </motion.div>
         )}

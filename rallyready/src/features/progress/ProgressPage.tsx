@@ -60,7 +60,7 @@ export function ProgressPage() {
     <>
       <PageHeader
         title="Progress"
-        description="Everything here is derived from the sessions you have actually logged."
+        description="All of this comes from sessions you actually finished. Nothing is typed in by hand."
       />
 
       {/* The dashboard's own shape, so nothing below it moves when the
@@ -108,7 +108,7 @@ export function ProgressPage() {
                 {
                   icon: <Timer className="size-4" aria-hidden />,
                   title: 'Training load',
-                  body: 'Effort × minutes, week by week, with a warning when you ramp faster than your body has been prepared for.',
+                  body: 'How hard you trained, not just how long. It warns you when you speed up too fast.',
                 },
                 {
                   icon: <TrendingUp className="size-4" aria-hidden />,
@@ -203,7 +203,7 @@ export function ProgressPage() {
             <CardHeader>
               <CardTitle className="text-base">Last 12 weeks</CardTitle>
               <CardDescription>
-                A week counts if you trained in it at all. Rest days cost you nothing.
+                One session is enough to make a week count. Rest days do not break it.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -215,8 +215,8 @@ export function ProgressPage() {
             <CardHeader>
               <CardTitle className="text-base">Training load</CardTitle>
               <CardDescription>
-                Effort × minutes, per week. Twelve brutal minutes and twelve easy ones are the same
-                number of minutes and nothing like the same session.
+                How hard you trained each week, not just how long. Ten hard minutes cost you more
+                than thirty easy ones.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

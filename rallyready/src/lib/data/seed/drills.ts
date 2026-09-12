@@ -60,7 +60,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'footwork',
     style: 'ghosting',
     description:
-      'The classic four-corner pattern: two net corners, two rear corners. Fewer targets means longer travel and a harder recovery — the best place to start if six feels frantic.',
+      'The classic four-corner pattern: two net corners, two rear corners. Fewer targets, but longer runs and a harder recovery. Start here if six corners feels too fast.',
     coachingCues: [
       'Two-step chassé to the rear, lunge to the front. Economy beats effort.',
       'Push off the outside foot to change direction rather than shuffling round.',
@@ -100,7 +100,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'net',
     style: 'shadow',
     description:
-      'Net corners only, at a deliberate pace. This is a technique drill disguised as a fitness drill — every rep is a full lunge and a full push back to base.',
+      'Net corners only, at a deliberate pace. It looks like a fitness drill. It is really a technique drill. Every rep is a full lunge, then a full push back to the middle.',
     coachingCues: [
       'The racket leg leads every lunge — right leg for right-handers.',
       'Drive out of the lunge with the front leg. The back leg is a brake, not an engine.',
@@ -178,7 +178,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'footwork',
     style: 'ghosting',
     description:
-      'A fake call, then the real one. Trains the second split-step — the thing that separates players who get wrong-footed from players who do not.',
+      'A fake call, then the real one. It trains your second split-step. That is what stops you getting wrong-footed.',
     coachingCues: [
       'Split-step on the first call and again on the second. That is the whole drill.',
       'Tall in the hips, low in the knees — you cannot redirect out of a deep squat.',
@@ -217,7 +217,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'conditioning',
     style: 'ghosting',
     description:
-      'Built on measured singles match data — roughly 5–6 second rallies against 11–12 seconds between them. Short, sharp work blocks at a true 1:2 ratio, so the session trains the energy system a match actually uses.',
+      'Built on measured singles match data — roughly 5–6 second rallies against 11–12 seconds between them. Short, hard blocks with twice as long to recover. That is the rhythm of a real match.',
     coachingCues: [
       'Treat every work block as a rally: full intensity, then genuinely recover.',
       'Use the rest. Walk, breathe through the nose, let the heart rate drop.',
@@ -254,7 +254,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'conditioning',
     style: 'hiit',
     description:
-      'Twenty seconds on, ten seconds off, eight times. Four minutes that will tell you exactly how much base you have — and nothing to hide behind.',
+      'Twenty seconds on, ten seconds off, eight times. Four minutes. It will tell you exactly how fit you are, with nowhere to hide.',
     coachingCues: [
       'Twenty seconds is short. Go from the first call, not the third.',
       'When you tire, shorten the recovery step — never the split-step.',
@@ -292,7 +292,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'conditioning',
     style: 'ghosting',
     description:
-      'Ten seconds flat out, thirty to recover, over and over. Short efforts are the point: multifeed falls apart as a training tool the moment your movement gets sloppy, so the block ends before it can.',
+      'Ten seconds flat out, thirty to recover, over and over. The efforts are short on purpose. This drill stops teaching you anything once your movement gets sloppy, so each block ends before that happens.',
     coachingCues: [
       'Ten seconds is a sprint, not a pace. Empty the tank each block.',
       'The moment your footwork turns into running, the block has done its job.',
@@ -330,7 +330,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'conditioning',
     style: 'hiit',
     description:
-      'Longer rallies than a match usually gives you, with match-length recovery. Fifteen seconds on, fifteen off — a 1:1 ratio that is deliberately harder than real play, so real play feels easy.',
+      'Longer rallies than a match usually gives you, with match-length recovery. Fifteen seconds on, fifteen off. That is harder than a real rally, which is the point.',
     coachingCues: [
       'Fifteen seconds is roughly three long rallies back to back. Pace accordingly.',
       'Breathe through the nose in the rest; it settles the heart rate faster.',
@@ -367,7 +367,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'agility',
     style: 'ladder',
     description:
-      'Four ladder patterns, three times through. Trains foot speed and coordination rather than lungs — go for clean feet at high cadence, not for exhaustion.',
+      'Four ladder patterns, three times through. This is for foot speed, not for your lungs. Go for quick, clean feet rather than exhaustion.',
     coachingCues: [
       'Cadence over stride. The ladder rewards how often your feet land, not how far they travel.',
       'Stay on the balls of the feet the whole way through.',
@@ -410,7 +410,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'plyometric',
     style: 'custom',
     description:
-      'Five explosive movements, three rounds. This is the drive behind a jump smash and the push out of a deep lunge — power work, so quality matters far more than the count.',
+      'Five explosive movements, three rounds. This is the power behind a jump smash and the push out of a deep lunge. Do fewer reps, properly.',
     coachingCues: [
       'Every landing is a rep too. Land soft, absorb, then go again.',
       'Quality drops before your legs do. Stop the block when the jumps get scrappy.',
@@ -605,7 +605,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'strength',
     style: 'custom',
     description:
-      'Push, squat, hinge and brace — the four things a body does, in the versions a badminton player needs. No equipment, twelve minutes, anywhere.',
+      'Push, squat, bend and brace. The four basic movements, in the versions a badminton player needs. No equipment, twelve minutes, anywhere.',
     coachingCues: [
       'Quality over count. When the form goes, the set is over, whatever the clock says.',
       'Every exercise has an easier version in its own notes. Using it is not a step down.',
@@ -745,7 +745,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'warmup',
     style: 'custom',
     description:
-      'Six and a half minutes, RAMP structure: raise the heart rate, mobilise every joint badminton punishes, then two minutes of sharp, court-specific movement. Do this before anything hard.',
+      'Six and a half minutes, in three parts. Get your heart rate up. Loosen every joint badminton punishes. Then two minutes of sharp court movement. Do this before anything hard.',
     coachingCues: [
       'Nothing here should be hard. If you are out of breath, you are going too fast.',
       'The joints get warm in the order they get loaded: ankles, hips, shoulders.',
@@ -900,7 +900,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'footwork',
     style: 'shadow',
     description:
-      'The caller says a point, not a corner. Singles sequences taken from how rallies are actually built — move them to the corners, take the reply early, finish at the net. The patterns you get open up as your level does.',
+      'The caller says a point, not a corner. Real singles rallies, shot by shot. Move them to the corners, take the reply early, finish at the net. The patterns you get open up as your level does.',
     coachingCues: [
       'Play the shot you were told, not the shot the corner suggests. A drop and a clear from the same corner are different movements.',
       'Recover to the base the next shot needs, not to the middle by reflex.',
@@ -939,7 +939,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'footwork',
     style: 'shadow',
     description:
-      'Doubles is a different sport on the same court: flat, fast, and decided in the front two thirds. These sequences drill the two shapes it is played in — front-and-back when you attack, level when you defend — and the rotation between them.',
+      'Doubles is almost a different sport. It is flat, fast, and won in the front two thirds of the court. You play doubles in two shapes. Front-and-back when you attack, side by side when you defend. These rallies drill both, and the switch between them.',
     coachingCues: [
       'Attacking is front-and-back. Smash and then get in behind it; the pair that rotates faster keeps the attack.',
       'The moment you lift, you are defending. Get level with your partner before the smash arrives, not after.',
@@ -978,7 +978,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'footwork',
     style: 'shadow',
     description:
-      'The half of the game nobody trains alone. Survive the smash, then turn the rally around: block, follow it in, take the lift in the air. Champions are not the players who defend well, they are the players who stop defending soonest.',
+      'The half of the game nobody trains alone. Survive the smash, then turn the rally around. Block it, follow it in, take the lift in the air. Champions are not the players who defend well, they are the players who stop defending soonest.',
     coachingCues: [
       'Low base, wide feet, racket in front. Defence is a position before it is a shot.',
       'Block with the hand, not the arm. A swing at a smash goes out the back.',
@@ -1017,7 +1017,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'rear-court',
     style: 'shadow',
     description:
-      'Every shot from the same preparation. Get to the shuttle early enough to wait, show one thing and play another — the hold, the slice, the tumble, the flick. This is the layer above hitting it cleanly, and it is why a good smash gets blocked and a held drop does not.',
+      'Every shot from the same preparation. Get there early enough to wait. Show one shot and play another: the hold, the slice, the tumble, the flick. This comes after hitting cleanly. It is why a good smash gets blocked and a held drop does not.',
     coachingCues: [
       'Arrive early. You cannot hold a shot you only just reached — the pause is bought with your feet.',
       'Same swing to the same point every time. The disguise is everything before contact, not after.',
@@ -1108,7 +1108,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'conditioning',
     style: 'hiit',
     description:
-      'The whole body in about twenty minutes, in the space of a towel. Jacks, climbers, push-ups, burpees — the circuit every badminton programme is built from, in the order that lets you finish it.',
+      'The whole body in about twenty minutes, in the space of a towel. Jacks, climbers, push-ups, burpees. The standard circuit, ordered so you can actually finish it.',
     coachingCues: [
       'Alternate hard and easy on purpose: the plank after the burpees is the rest.',
       'Full range beats fast. Ten honest repetitions are worth more than twenty rushed ones.',
@@ -1200,7 +1200,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'strength',
     style: 'custom',
     description:
-      'The back of the shoulder, the shoulder blade and the mid-back — the three things a smashing shoulder needs and nobody trains. Ten quiet minutes, twice a week, for the injury that ends badminton careers.',
+      'The back of the shoulder, the shoulder blade and the mid-back. A smashing shoulder needs all three, and almost nobody trains them. Ten quiet minutes, twice a week, for the injury that ends badminton careers.',
     coachingCues: [
       'Slow. Everything here is two seconds up and two seconds down; there is nothing to rush towards.',
       'Light and often beats heavy and rarely. This is maintenance, not a workout.',
@@ -1246,7 +1246,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'strength',
     style: 'custom',
     description:
-      'Nothing that jumps, nothing the flat below can hear, nothing that needs more room than a towel. For late nights, thin floors and small rooms — the session that actually happens instead of the one you skip.',
+      'Nothing that jumps, nothing the flat below can hear, nothing that needs more room than a towel. For late nights, thin floors and small rooms. The session you will actually do.',
     coachingCues: [
       'Slow is the point here, not a compromise. Time under tension replaces the jumping.',
       'Bare feet or socks, and place each foot rather than dropping it.',
@@ -1292,7 +1292,7 @@ export const SEED_DRILLS: Drill[] = [
     category: 'conditioning',
     style: 'hiit',
     description:
-      'The oldest badminton conditioning there is, run as intervals. Calf endurance and ankle stiffness are what let you push off the twentieth lunge as hard as the first.',
+      'The oldest badminton conditioning there is, run as intervals. Strong calves and stiff ankles are what let you push off the twentieth lunge as hard as the first.',
     coachingCues: [
       'Tiny hops on the balls of the feet. Heels never touch down.',
       'Wrists turn the rope, not the shoulders.',

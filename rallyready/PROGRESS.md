@@ -27,10 +27,11 @@ the way.
 | 15 — Choosing the voice that calls | ✅ Done |
 | 16 — Training where the browser fights you | ✅ Done |
 | 17 — Playing the app as a player | ✅ Done |
-| **18 — Playing it as a player ten weeks in** | ✅ **Done — ready for review** |
+| 18 — Playing it as a player ten weeks in | ✅ Done |
+| **19 — What a QA engineer found** | ✅ **Done — ready for review** |
 
-All eighteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 641 unit tests passing, production build clean.
+All nineteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
+errors/warnings, 648 unit tests passing, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -42,6 +43,85 @@ Earlier phases, one line each — the detail is in the git history:
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
 
+
+---
+
+## Phase 19 — what a QA engineer found
+
+The app went out to club players, one of whom works in QA. Two findings, both
+fair, and the first turned out to be worse than he could see from outside.
+
+### "It only saves in the browser"
+
+His point: clear your cache or change phone and a month of training is gone, so
+it needs real accounts on a real database.
+
+The accounts layer was already built — Supabase auth, a full repository
+implementation, local-to-account migration, and a 2,900-line schema with
+row-level security. It was simply switched off, because the two environment
+variables are blank.
+
+Except it was not only switched off. **`supabase/schema.sql` did not run at
+all.** Two `alter type ... add value` statements had been pasted into the middle
+of its enum block at some point, which split the block in half, left an
+orphaned `end if;`, and had Postgres rejecting the file on its very first
+statement. Anybody following the file's own instructions — paste into the SQL
+editor, Run — would have got an error and no tables. So the feature he asked
+for could not have been switched on even with the keys in place.
+
+A broken schema also hides its own drift, and there was some: `drill_category`
+had lost track of `strength`, a category added two phases later, and `call_mode`
+never gained `stroke` or `pattern`.
+
+Applied to a real PostgreSQL 16 after the repair, twice from empty:
+**12 tables, all with RLS, 41 policies, 11 enum types, 30 seeded drills, no
+errors on either run.** `lib/data/schema.test.ts` now checks the structure and
+that every enum value the app actually uses is declared — verified by putting
+the original defect back and watching it fail.
+
+What is left is genuinely the owner's: create a Supabase project, paste two
+keys, run the schema. The README says so, and now also says plainly what
+local-only costs a player, so a tester can be warned before they invest a month.
+
+### "Too info-heavy and technical for non-tech players"
+
+His point: there is a gap between what the app assumes you know and what you
+actually understand. Shorter sentences, simpler words, one idea at a time.
+
+Measured on the text the browser actually rendered, across fifteen screens, the
+average sentence was ten words — fine — but the tail was not. Twenty-five
+sentences ran over twenty words and the longest was thirty-eight, with three
+ideas chained behind em-dashes. That is "explaining everything at once", exactly
+as he described it.
+
+| | before | after |
+|---|---|---|
+| sentences over 20 words | 25 | **0** |
+| longest sentence | 38 words | **19 words** |
+| words per sentence | 10.5 | 9.2 |
+| total words to read | 4,501 | 3,867 |
+| reading grade | 4.2 | 3.6 |
+
+Fourteen per cent fewer words for the same information. The coach and developer
+vocabulary went too: *Deload* is now **Easy week**, *Effort × minutes* is **how
+hard you trained, not just how long**, *vs 4-wk avg* is **vs your usual**,
+*Importing merges* is **loading a file adds to what is already here**, and the
+*RAMP structure* warm-up simply says what it does in three short sentences.
+
+What did **not** change is the specificity. "No payments are connected yet" is
+still there, still blunt; it is only shorter. Simpler was not allowed to mean
+vaguer.
+
+`seed/copy.test.ts` holds the line: every drill, program and exercise string
+capped at twenty words a sentence, with the average held under thirteen. It sits
+at nine.
+
+### Verified
+
+`npm run verify`: 648 tests across 41 files, no type or lint errors, clean
+build. Ten new across the two guards. Then all fifteen screens re-captured from
+the running app with no console errors, and re-measured with the same code that
+produced the "before" column above.
 
 ---
 

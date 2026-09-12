@@ -181,10 +181,9 @@ export function CommitmentCard() {
         </div>
 
         <p className="text-muted-foreground type-meta border-border mt-4 border-t pt-4 leading-relaxed">
-          Every figure here comes from sessions you actually logged and from the same switches the
-          app itself checks — this card cannot claim something the app is refusing you. Your
-          history, the drills, the warm-up and the safety features never expire, whatever happens to
-          this block.
+          Every number here comes from sessions you actually finished. It is read from the same
+          switches the app uses, so this card cannot promise you something the app is refusing. Your
+          history, the drills, the warm-up and the safety checks never expire.
         </p>
       </CardContent>
     </Card>

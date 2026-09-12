@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **641 tests across 39 files, all passing** — if you
+individually. Baseline is **648 tests across 41 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -85,6 +85,26 @@ see fewer, something is being skipped.
   `lib/audio`) is latency-sensitive; changes there need tests.
 - **The app is the random caller.** No partner, no feeder, no court. Features
   that assume a second person are out of scope.
+- **One idea per sentence.** A QA engineer testing the app said the
+  instructions were info-heavy and technical, and that there was a gap between
+  what the app assumed a reader knew and what they actually understood. He was
+  right: the average sentence was fine at ten words, but the tail ran to
+  thirty-eight, with three ideas chained behind em-dashes. `seed/copy.test.ts`
+  caps seed copy at twenty words a sentence and holds the average under
+  thirteen. The cap is not the target — the average is nine. Write short, and
+  keep the app's specificity: simpler must never mean vaguer, and the honest
+  lines ("No payments are connected yet") stay exactly as blunt as they are.
+  Coach and developer words are the other half — "deload" is *Easy week*,
+  "Effort × minutes" is *how hard, not just how long*, "importing merges" is
+  *loading a file adds to what is already here*.
+- **`supabase/schema.sql` is load-bearing and was broken for months.** Two
+  `alter type ... add value` statements had been pasted inside its enum block,
+  splitting it and leaving Postgres rejecting the first statement — so nothing
+  had ever applied, which also hid `drill_category` losing `strength`.
+  `alter type ... add value` cannot run inside `do $$ ... $$`: that is a
+  transaction. `lib/data/schema.test.ts` checks the structure and that every
+  enum value the app uses is declared; it was verified against a deliberately
+  re-broken copy of the file.
 - **One screen, one answer to "what do I do today?".** The hero on Train is a
   *fallback*, for a player nothing else is deciding for. It is withheld when
   Premium's coach is on and when a program is running — a plan that says rest

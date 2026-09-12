@@ -164,7 +164,7 @@ export function ProgramBuilderPage() {
           <CardHeader>
             <CardTitle>Shape</CardTitle>
             <CardDescription>
-              The plan is periodised from these. Change one and the whole thing rebuilds.
+              The whole plan is built from these. Change one and it rebuilds itself.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -201,7 +201,7 @@ export function ProgramBuilderPage() {
                 aria-label="Sessions per week"
               />
               <p className="text-muted-foreground mt-2 text-xs">
-                Deload weeks automatically train one session fewer.
+                Easy weeks have one session fewer.
               </p>
             </div>
 
