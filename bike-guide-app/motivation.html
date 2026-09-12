@@ -146,6 +146,6 @@
   window.goQuote = function(i) { currentQuote = i; showQuote(i); };
   setInterval(() => { currentQuote = (currentQuote + 1) % QUOTES.length; showQuote(currentQuote); }, 6000);
 </script>
-<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+<script src="js/sw-register.js"></script>
 </body>
 </html>
