@@ -4,6 +4,7 @@
 import { CoPilot } from './copilot.js';
 import { loadHazards, reportHazard, getHazards, HAZARD_TYPES, hazardMeta, flushQueue } from './hazards.js';
 import { isMuted, toggleMuted, confirm as speakConfirm } from './voice.js';
+import * as live from './livesafe.js';
 
 const DEFAULT_CENTER = [121.0470, 14.5507];   // BGC, Metro Manila
 const $ = id => document.getElementById(id);
@@ -227,6 +228,7 @@ $('go-btn').addEventListener('click', async () => {
         $('s-speed').textContent = Math.round(u.speedKmh);
         $('s-ahead').textContent = u.nearby.length;
         gpsBadge(null);
+        live.pushPosition({ lat: u.lat, lng: u.lng, distanceKm: u.distanceKm, speedKmh: u.speedKmh });
       },
       onAlert: a => showAlert(a.text, a.meta.urgent, a.meta.icon),
       onError: e => {
@@ -246,6 +248,13 @@ $('go-btn').addEventListener('click', async () => {
     $('go-btn').classList.remove('running');
     $('go-label').textContent = 'START';
     $('go-btn').querySelector('i').className = 'fa-solid fa-play';
+    if (live.isSharing()) {
+      await live.endShare({
+        lat: copilot?.last?.lat, lng: copilot?.last?.lng,
+        distanceKm: summary.distanceKm,
+      });
+      paintShare();
+    }
     toast(`Ride saved · ${summary.distanceKm.toFixed(1)} km`);
     try {
       const { logRide } = await import('./tracker.js');
@@ -323,3 +332,67 @@ function currentPosition() {
 window.addEventListener('beforeunload', e => {
   if (running) { e.preventDefault(); e.returnValue = ''; }
 });
+
+
+// ── Safety sheet ──────────────────────────────────────────────────
+function openSafe(open) {
+  $('safe-sheet').classList.toggle('open', open);
+  $('safe-overlay').classList.toggle('open', open);
+}
+$('safety-btn').addEventListener('click', () => { paintShare(); openSafe(true); });
+$('safe-overlay').addEventListener('click', () => openSafe(false));
+
+function paintShare() {
+  const on = live.isSharing();
+  $('share-toggle').classList.toggle('on', on);
+  $('share-sub').textContent = on
+    ? 'Live — anyone with your link can see you'
+    : 'Family can watch your dot move';
+  $('link-box').style.display    = on ? 'block' : 'none';
+  $('sendlink-row').style.display = on ? 'flex'  : 'none';
+  if (on) $('link-box').textContent = live.shareUrl();
+}
+
+$('share-row').addEventListener('click', async () => {
+  if (live.isSharing()) {
+    await live.endShare({
+      lat: copilot?.last?.lat, lng: copilot?.last?.lng,
+      distanceKm: copilot ? copilot.distanceM / 1000 : 0,
+    });
+    toast('Live share stopped');
+  } else {
+    const res = await live.startShare();
+    if (!res.ok) { toast(res.msg || 'Could not start'); return; }
+    // Seed an immediate position so followers aren't staring at nothing.
+    const p = await currentPosition();
+    if (p) await live.pushPosition({ ...p, force: true });
+    toast('Live share on — send the link');
+  }
+  paintShare();
+});
+
+$('sendlink-row').addEventListener('click', async () => {
+  const r = await live.shareRideLink();
+  if (r === 'copied') toast('Link copied');
+});
+
+$('sos-row').addEventListener('click', async () => {
+  const p = await currentPosition();
+  if (!p) { toast('Need your location first'); return; }
+
+  // Prefer the native share sheet (reaches Messenger/Viber). Fall back to
+  // an SMS draft, then to the clipboard — always leave the rider with
+  // something they can actually send.
+  const r = await live.shareSos(p);
+  if (r === true)     { openSafe(false); return; }
+  if (r === 'copied') { toast('Message copied — paste and send'); return; }
+  window.location.href = live.sosSmsHref(p);
+});
+
+// Name + emergency contact persist locally.
+$('f-name').value    = live.getRiderName() === 'Rider' ? '' : live.getRiderName();
+$('f-contact').value = live.getSosContact();
+$('f-name').addEventListener('change',    e => live.setRiderName(e.target.value));
+$('f-contact').addEventListener('change', e => live.setSosContact(e.target.value));
+
+paintShare();
