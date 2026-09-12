@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1b4332">
+  <title>My Garage — Kasama</title>
+  <link rel="icon" href="assets/icons/favicon.ico">
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .why {
+      margin: 16px 20px; padding: 15px 17px; border-radius: 16px;
+      background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+      border-left: 4px solid #2d6a4f;
+    }
+    .why h4 { font-size: 0.88rem; font-weight: 800; color: #1b4332; margin-bottom: 5px; }
+    .why p  { font-size: 0.79rem; color: #40605a; line-height: 1.6; margin: 0; }
+
+    .bike-card {
+      background: #fff; border-radius: 18px; margin: 0 20px 13px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08); overflow: hidden;
+    }
+    .bike-card.stolen { border: 2px solid #e74c3c; }
+    .bike-photo { width: 100%; height: 160px; object-fit: cover; background: #eef1f3; display: block; }
+    .bike-body { padding: 14px 16px; }
+    .bike-title { font-size: 0.97rem; font-weight: 800; color: #1a1a2e; }
+    .bike-sub { font-size: 0.75rem; color: #8a929a; margin-top: 2px; }
+    .status-tag {
+      display: inline-block; font-size: 0.64rem; font-weight: 800; padding: 4px 11px;
+      border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 9px;
+    }
+    .status-tag.owned  { background: #e8f8f0; color: #1e8449; }
+    .status-tag.stolen { background: #fdecea; color: #a93226; }
+    .card-actions { display: flex; gap: 8px; margin-top: 13px; }
+    .card-btn {
+      flex: 1; padding: 10px; border-radius: 12px; border: none; cursor: pointer;
+      font-family: 'Poppins', sans-serif; font-size: 0.77rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .card-btn.danger  { background: #fdecea; color: #c0392b; }
+    .card-btn.neutral { background: #f0f3f5; color: #5a666f; }
+    .card-btn.good    { background: #e8f8f0; color: #1e8449; }
+    .card-btn:active { transform: scale(0.97); }
+
+    .add-btn {
+      margin: 4px 20px 20px; width: calc(100% - 40px); padding: 15px;
+      border: 2px dashed #b9c6cd; border-radius: 18px; background: transparent;
+      color: #5a666f; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px;
+    }
+    .add-btn:active { background: #f4f6f8; }
+
+    .form-wrap { margin: 0 20px 20px; background: #fff; border-radius: 20px;
+                 box-shadow: 0 8px 26px rgba(0,0,0,0.1); padding: 19px; display: none; }
+    .form-wrap.open { display: block; }
+    .form-wrap h3 { font-size: 1rem; margin-bottom: 3px; }
+    .form-wrap > p { font-size: 0.76rem; color: #8a929a; margin-bottom: 15px; }
+    .fg { margin-bottom: 13px; }
+    .fg label { font-size: 0.73rem; font-weight: 700; color: #5a666f; display: block; margin-bottom: 5px; }
+    .fg label .req { color: #c0392b; }
+    .fg input, .fg textarea {
+      width: 100%; padding: 11px 14px; border: 1.5px solid #e2e7ea; border-radius: 12px;
+      font-family: 'Poppins', sans-serif; font-size: 0.86rem; outline: none; background: #fafbfc;
+    }
+    .fg input:focus, .fg textarea:focus { border-color: #2d6a4f; background: #fff; }
+    .fg .hint { font-size: 0.69rem; color: #9aa4ac; margin-top: 4px; line-height: 1.5; }
+    .fg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    #serial-input { text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+
+    .photo-pick {
+      border: 2px dashed #cdd6dc; border-radius: 14px; padding: 20px; text-align: center;
+      cursor: pointer; color: #8a929a; font-size: 0.8rem;
+    }
+    .photo-pick i { font-size: 1.5rem; display: block; margin-bottom: 7px; }
+    .photo-preview { width: 100%; border-radius: 14px; margin-top: 9px; display: none; }
+
+    .submit-btn {
+      width: 100%; padding: 14px; border: none; border-radius: 50px;
+      background: linear-gradient(135deg, #2d6a4f, #52b788); color: #fff;
+      font-family: 'Poppins', sans-serif; font-size: 0.93rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(45,106,79,0.35); margin-top: 4px;
+    }
+    .submit-btn:disabled { opacity: 0.55; }
+    .cancel-btn { width: 100%; padding: 11px; border: none; background: transparent;
+                  color: #8a929a; font-family: 'Poppins', sans-serif; font-size: 0.82rem;
+                  font-weight: 600; cursor: pointer; margin-top: 6px; }
+    .err { font-size: 0.78rem; color: #c0392b; margin-top: 9px; display: none; }
+
+    .empty { text-align: center; padding: 34px 24px; color: #9aa4ac; }
+    .empty i { font-size: 2.3rem; display: block; margin-bottom: 11px; opacity: 0.45; }
+    .empty p { font-size: 0.83rem; line-height: 1.6; }
+
+    .toast { position: fixed; left: 50%; bottom: 92px; transform: translateX(-50%) translateY(18px);
+             background: #1a1a2e; color: #fff; padding: 11px 20px; border-radius: 50px;
+             font-size: 0.83rem; font-weight: 700; opacity: 0; pointer-events: none;
+             transition: all 0.3s; z-index: 900; box-shadow: 0 8px 26px rgba(0,0,0,0.35); }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="top-bar">
+    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name"><i class="fa-solid fa-warehouse" style="color:#f4722b;margin-right:6px;"></i>My Garage</span>
+    <div class="top-actions">
+      <a href="stolen.html" class="icon-btn" title="Check a serial" style="text-decoration:none;">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="why">
+    <h4>Register before anything happens</h4>
+    <p>You can only report a bike stolen if you registered it first. That is what stops fake reports —
+       and it means the five minutes you spend now is what makes a report credible later.</p>
+  </div>
+
+  <div id="list"></div>
+
+  <button class="add-btn" id="add-btn"><i class="fa-solid fa-plus"></i> Register a bike</button>
+
+  <div class="form-wrap" id="form">
+    <h3>Register your bike</h3>
+    <p>Stored on your device and your private cloud space. The serial is never shown publicly.</p>
+
+    <div class="fg">
+      <label>Serial number <span class="req">*</span></label>
+      <input id="serial-input" placeholder="WTU123K4567" autocomplete="off" spellcheck="false">
+      <div class="hint">Flip the bike over — it is stamped into the frame where the pedals attach (the bottom bracket). Some are under the chainstay or near the head tube.</div>
+    </div>
+
+    <div class="fg-row">
+      <div class="fg"><label>Brand</label><input id="brand-input" placeholder="Trek"></div>
+      <div class="fg"><label>Model</label><input id="model-input" placeholder="Marlin 5"></div>
+    </div>
+    <div class="fg-row">
+      <div class="fg"><label>Colour</label><input id="color-input" placeholder="Matte black"></div>
+      <div class="fg"><label>Year</label><input id="year-input" placeholder="2024" inputmode="numeric" maxlength="4"></div>
+    </div>
+
+    <div class="fg">
+      <label>Distinguishing marks</label>
+      <textarea id="marks-input" rows="2" placeholder="Scratch on the top tube, blue grips, sticker on the seat post"></textarea>
+      <div class="hint">This is what actually identifies your bike in a crowd. Be specific.</div>
+    </div>
+
+    <div class="fg">
+      <label>Photo</label>
+      <div class="photo-pick" id="photo-pick">
+        <i class="fa-solid fa-camera"></i>
+        Take or choose a photo
+      </div>
+      <input type="file" id="photo-input" accept="image/*" capture="environment" hidden>
+      <img class="photo-preview" id="photo-preview" alt="">
+      <div class="hint">Shot from the side, whole bike in frame. Compressed on your phone before saving.</div>
+    </div>
+
+    <div class="err" id="form-err"></div>
+    <button class="submit-btn" id="save-btn"><i class="fa-solid fa-shield-halved"></i> Register bike</button>
+    <button class="cancel-btn" id="cancel-btn">Cancel</button>
+  </div>
+
+  <div style="height:20px;"></div>
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initPage } from './js/app.js';
+  import { getBikes, registerBike, reportStolen, markRecovered, deleteBike, compressImage }
+    from './js/bikes.js';
+  initPage('home');
+
+  const $ = id => document.getElementById(id);
+  const esc = s => { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; };
+  let photoData = null;
+
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  function render() {
+    const bikes = getBikes();
+    const el = $('list');
+    if (!bikes.length) {
+      el.innerHTML = `<div class="empty"><i class="fa-solid fa-bicycle"></i>
+        <p>No bikes registered yet.<br>Register yours so it is protected if it is ever taken.</p></div>`;
+      return;
+    }
+    el.innerHTML = bikes.map(b => {
+      const name = [b.brand, b.model].filter(Boolean).join(' ') || 'My bike';
+      const stolen = b.status === 'stolen';
+      return `
+        <div class="bike-card ${stolen ? 'stolen' : ''}">
+          ${b.photo ? `<img class="bike-photo" src="${esc(b.photo)}" alt="">` : ''}
+          <div class="bike-body">
+            <div class="bike-title">${esc(name)}</div>
+            <div class="bike-sub">${esc([b.color, b.year].filter(Boolean).join(' · '))} · Serial ${esc(b.serialTail || '')}</div>
+            <span class="status-tag ${stolen ? 'stolen' : 'owned'}">${stolen ? 'Reported stolen' : 'Registered'}</span>
+            <div class="card-actions">
+              ${stolen
+                ? `<button class="card-btn good" data-recover="${esc(b.id)}"><i class="fa-solid fa-check"></i> I got it back</button>`
+                : `<button class="card-btn danger" data-steal="${esc(b.id)}"><i class="fa-solid fa-triangle-exclamation"></i> Report stolen</button>`}
+              <button class="card-btn neutral" data-del="${esc(b.id)}"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Form ──
+  $('add-btn').addEventListener('click', () => {
+    $('form').classList.add('open');
+    $('add-btn').style.display = 'none';
+    $('serial-input').focus();
+  });
+  $('cancel-btn').addEventListener('click', closeForm);
+  function closeForm() {
+    $('form').classList.remove('open');
+    $('add-btn').style.display = 'flex';
+    $('form-err').style.display = 'none';
+    ['serial','brand','model','color','year','marks'].forEach(k => {
+      const e = $(k + '-input'); if (e) e.value = '';
+    });
+    photoData = null;
+    $('photo-preview').style.display = 'none';
+  }
+
+  $('photo-pick').addEventListener('click', () => $('photo-input').click());
+  $('photo-input').addEventListener('change', async e => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    try {
+      photoData = await compressImage(f);
+      $('photo-preview').src = photoData;
+      $('photo-preview').style.display = 'block';
+    } catch (err) {
+      toast('Could not read that photo');
+    }
+  });
+
+  $('save-btn').addEventListener('click', async () => {
+    const err = $('form-err');
+    err.style.display = 'none';
+    $('save-btn').disabled = true;
+    try {
+      await registerBike({
+        serial: $('serial-input').value,
+        brand:  $('brand-input').value,
+        model:  $('model-input').value,
+        color:  $('color-input').value,
+        year:   $('year-input').value,
+        marks:  $('marks-input').value,
+        photo:  photoData,
+      });
+      closeForm();
+      render();
+      toast('Bike registered ✓');
+    } catch (e) {
+      err.textContent = e.message || 'Could not register.';
+      err.style.display = 'block';
+    } finally {
+      $('save-btn').disabled = false;
+    }
+  });
+
+  // ── Card actions ──
+  $('list').addEventListener('click', async e => {
+    const steal = e.target.closest('[data-steal]');
+    const rec   = e.target.closest('[data-recover]');
+    const del   = e.target.closest('[data-del]');
+
+    if (del) {
+      if (!confirm('Remove this bike from your garage?')) return;
+      await deleteBike(del.dataset.del);
+      render(); toast('Removed');
+      return;
+    }
+
+    if (rec) {
+      await markRecovered(rec.dataset.recover);
+      render();
+      toast('Marked recovered — message us to clear the public post');
+      return;
+    }
+
+    if (steal) {
+      const area = prompt('Where was it taken? (e.g. "Quezon City, near SM North")');
+      if (area === null) return;
+      const contact = prompt('Contact number or Facebook name so people can reach you:');
+      if (contact === null) return;
+      const note = prompt('Anything else? (optional)') || '';
+
+      let lat = null, lng = null;
+      try {
+        const p = await new Promise(res => navigator.geolocation.getCurrentPosition(
+          x => res(x), () => res(null), { timeout: 6000 }));
+        if (p) { lat = p.coords.latitude; lng = p.coords.longitude; }
+      } catch (_) {}
+
+      try {
+        await reportStolen(steal.dataset.steal, { area, contact, note, lat, lng });
+        render();
+        toast('Posted to the stolen board');
+      } catch (e2) {
+        toast(e2.message || 'Could not report');
+      }
+    }
+  });
+
+  render();
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>
