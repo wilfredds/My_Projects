@@ -1,5 +1,5 @@
-const CACHE_NAME = 'bikeguide-v8';
-const RUNTIME_CACHE = 'bikeguide-runtime-v8';
+const CACHE_NAME = 'bikeguide-v9';
+const RUNTIME_CACHE = 'bikeguide-runtime-v9';
 const TILE_CACHE = 'bikeguide-tiles-v2';
 const MAX_TILES = 1200; // cap cached map tiles so storage stays bounded
 
@@ -30,6 +30,7 @@ const STATIC_ASSETS = [
   'css/style.css',
   'css/animations.css',
   'js/app.js',
+  'js/sw-register.js',
   'js/ui.js',
   'js/firebase-config.js',
   'js/challenge.js',
