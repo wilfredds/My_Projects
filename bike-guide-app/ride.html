@@ -66,7 +66,7 @@
       position: absolute; left: 0; right: 0; bottom: 0; z-index: 15;
       padding: 20px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
       background: linear-gradient(to top, rgba(10,20,16,0.94), rgba(10,20,16,0));
-      display: flex; align-items: center; justify-content: center; gap: 16px;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
     }
     .round-btn {
       width: 56px; height: 56px; border-radius: 50%;
@@ -125,6 +125,50 @@
     .haz-opt:active { transform: scale(0.93); }
     .haz-opt i { font-size: 1.28rem; }
     .haz-opt span { font-size: 0.6rem; font-weight: 700; color: #4a5560; text-align: center; line-height: 1.2; }
+
+    .safety-btn { background: linear-gradient(135deg, #1565c0, #42a5f5); border-color: rgba(255,255,255,0.3); }
+
+    .safe-row {
+      display: flex; align-items: center; gap: 13px;
+      padding: 13px 10px; border-radius: 15px;
+      cursor: pointer; text-decoration: none;
+      transition: background 0.18s;
+      border: none; background: transparent; width: 100%;
+      font-family: 'Poppins', sans-serif; text-align: left;
+    }
+    .safe-row:active { background: #f0f3f5; }
+    .safe-icon {
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.05rem;
+    }
+    .safe-text { flex: 1; min-width: 0; }
+    .safe-text b { display: block; font-size: 0.87rem; font-weight: 700; color: #1a1a2e; }
+    .safe-text small { font-size: 0.71rem; color: #93a0aa; }
+    .safe-toggle {
+      width: 46px; height: 27px; border-radius: 50px; flex-shrink: 0;
+      background: #d8dee3; position: relative; transition: background 0.22s;
+    }
+    .safe-toggle.on { background: #2ecc71; }
+    .safe-toggle::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 21px; height: 21px; border-radius: 50%; background: #fff;
+      transition: transform 0.22s; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .safe-toggle.on::after { transform: translateX(19px); }
+    .safe-field {
+      width: 100%; padding: 11px 14px; margin-top: 4px;
+      border: 1.5px solid #e2e7ea; border-radius: 12px;
+      font-family: 'Poppins', sans-serif; font-size: 0.85rem; outline: none;
+    }
+    .safe-field:focus { border-color: #2d6a4f; }
+    .safe-label { font-size: 0.68rem; font-weight: 700; color: #93a0aa;
+                  text-transform: uppercase; letter-spacing: 0.6px; margin-top: 12px; }
+    .link-box {
+      background: #f0f7f4; border: 1px dashed #a8ccbb; border-radius: 12px;
+      padding: 10px 13px; margin-top: 9px;
+      font-size: 0.72rem; color: #2d6a4f; word-break: break-all; font-weight: 600;
+    }
 
     .toast {
       position: fixed; left: 50%; bottom: 130px; transform: translateX(-50%) translateY(20px);
@@ -196,6 +240,7 @@
   <button class="round-btn" id="mute-btn" title="Mute voice"><i class="fa-solid fa-volume-high"></i></button>
   <button class="go-btn" id="go-btn"><i class="fa-solid fa-play"></i><span id="go-label">START</span></button>
   <button class="round-btn report-btn" id="report-btn" title="Report hazard"><i class="fa-solid fa-plus"></i></button>
+  <button class="round-btn safety-btn" id="safety-btn" title="Safety"><i class="fa-solid fa-shield-heart"></i></button>
 </div>
 
 <div class="sheet-overlay" id="sheet-overlay"></div>
@@ -204,6 +249,53 @@
   <h3>What did you see?</h3>
   <p>One tap warns every rider behind you.</p>
   <div class="haz-grid" id="haz-grid"></div>
+</div>
+
+<div class="sheet-overlay" id="safe-overlay"></div>
+<div class="sheet" id="safe-sheet">
+  <div class="sheet-handle"></div>
+  <h3>Safety</h3>
+  <p>Let someone know where you are.</p>
+
+  <button class="safe-row" id="share-row">
+    <div class="safe-icon" style="background:linear-gradient(135deg,#2d6a4f,#52b788)">
+      <i class="fa-solid fa-satellite-dish"></i>
+    </div>
+    <div class="safe-text">
+      <b>Share my ride live</b>
+      <small id="share-sub">Family can watch your dot move</small>
+    </div>
+    <div class="safe-toggle" id="share-toggle"></div>
+  </button>
+
+  <div class="link-box" id="link-box" style="display:none;"></div>
+
+  <button class="safe-row" id="sendlink-row" style="display:none;">
+    <div class="safe-icon" style="background:linear-gradient(135deg,#1565c0,#42a5f5)">
+      <i class="fa-solid fa-paper-plane"></i>
+    </div>
+    <div class="safe-text">
+      <b>Send the link</b>
+      <small>Messenger, SMS, anywhere</small>
+    </div>
+    <i class="fa-solid fa-chevron-right" style="color:#ccd3d8;font-size:0.8rem;"></i>
+  </button>
+
+  <button class="safe-row" id="sos-row">
+    <div class="safe-icon" style="background:linear-gradient(135deg,#c0392b,#e74c3c)">
+      <i class="fa-solid fa-tower-broadcast"></i>
+    </div>
+    <div class="safe-text">
+      <b>I need help</b>
+      <small>Send my exact location right now</small>
+    </div>
+    <i class="fa-solid fa-chevron-right" style="color:#ccd3d8;font-size:0.8rem;"></i>
+  </button>
+
+  <div class="safe-label">Your name</div>
+  <input class="safe-field" id="f-name" placeholder="Juan" maxlength="40">
+  <div class="safe-label">Emergency contact number</div>
+  <input class="safe-field" id="f-contact" placeholder="09XX XXX XXXX" inputmode="tel" maxlength="20">
 </div>
 
 <div class="toast" id="toast"></div>

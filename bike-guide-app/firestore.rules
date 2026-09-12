@@ -44,6 +44,38 @@ service cloud.firestore {
       allow read, write: if deviceId is string && deviceId.size() >= 16;
     }
 
+    // ── Live ride sharing ──
+    // The share ID *is* the secret: 8 chars from a 30-char alphabet is
+    // ~6.5e11 combinations, so it is not guessable in practice. Anyone
+    // holding the link can watch — that is the whole point, and it is the
+    // same model as Strava Beacon. Riders can rotate their code in-app if
+    // a link spreads further than intended.
+    //
+    // Note the privacy trade-off honestly: this document holds a person's
+    // live position, readable by anyone with the URL. Do not add anything
+    // to it that the rider would not want a stranger to see.
+    match /liveRides/{shareId} {
+      allow read: if true;
+
+      allow create: if shareId.size() >= 6 && shareId.size() <= 32
+                    && request.resource.data.riderName is string
+                    && request.resource.data.riderName.size() <= 40
+                    && request.resource.data.active == true;
+
+      // Only the moving parts may change, and only within sane bounds —
+      // so a stray client cannot rewrite the document into something else.
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+                        .hasOnly(['lat','lng','distanceKm','speedKmh','updatedAt','active','endedAt'])
+                    && (request.resource.data.lat == null || (
+                         request.resource.data.lat is number
+                         && request.resource.data.lat >= 4.0 && request.resource.data.lat <= 21.5))
+                    && (request.resource.data.lng == null || (
+                         request.resource.data.lng is number
+                         && request.resource.data.lng >= 116.0 && request.resource.data.lng <= 127.0));
+
+      allow delete: if false;
+    }
+
     // ── Premium payment requests ──
     // Users may submit one; only the console may read or change them.
     match /premiumRequests/{requestId} {
