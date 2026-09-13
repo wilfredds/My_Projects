@@ -197,14 +197,14 @@ rather than snap, then removes it.
 
   ```bash
   (cd autocare && npm test && npm run test:db)   # 11 + 34
-  (cd rallyready && npm test)                    # 641
+  (cd rallyready && npm test)                    # 648
   (cd hiroshi-grill && npm test)                 # 132
   (cd hiroshi-grill && npm run db:test)          # 43 RLS policies
   (cd flare && npm test)                         # 97
   (cd firestore-tests && npm test)               # 25 + 35 + 63 + 21 = 144
   ```
 
-  They have drifted three times already. The total is the sum of all of them.
+  They have drifted four times already. The total is the sum of all of them.
   Note that each rules suite belongs to one project: Corruption Watch's own
   figure is 25, not the 144 total, and the site says 25 on that card.
 - **The favicon is an inline SVG, so it cannot use Fraunces.** A data-URI SVG

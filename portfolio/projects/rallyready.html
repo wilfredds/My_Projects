@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RallyReady | Francis Wilfred Antiporda</title>
-<meta name="description" content="An audio-first badminton training PWA for solo players: spoken corner calls, periodised programs, 641 tests.">
+<meta name="description" content="An audio-first badminton training PWA for solo players: spoken corner calls, periodised programs, 648 tests.">
 <meta name="theme-color" content="#0C1110" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#E9EDE8" media="(prefers-color-scheme: light)">
 <meta name="color-scheme" content="dark light">
 <meta property="og:url" content="https://wilfred-website.vercel.app/projects/rallyready">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RallyReady | Francis Wilfred Antiporda">
-<meta property="og:description" content="An audio-first badminton training PWA for solo players: spoken corner calls, periodised programs, 641 tests.">
+<meta property="og:description" content="An audio-first badminton training PWA for solo players: spoken corner calls, periodised programs, 648 tests.">
 <meta property="og:image" content="https://wilfred-website.vercel.app/assets/img/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://wilfred-website.vercel.app/projects/rallyready">
@@ -91,11 +91,38 @@
   </figure>
 
   <div class="detail-head">
-    <span class="eyebrow">Engineering</span>
-    <h2>641 tests, and the parts that decide how hard you train</h2>
+    <span class="eyebrow">The call</span>
+    <h2>A coach in Manila does not shout in English</h2>
   </div>
   <p>
-    There are <strong>641 tests</strong> under Vitest, and <code>npm run verify</code>
+    Most of the players this is for are Filipino, and it called every corner in
+    English. On a court in Manila a coach shouts <strong>likod kaliwa</strong>, and
+    then, in the same breath, <strong>smash</strong>. Taglish is not a translation of
+    the call. It is the call.
+  </p>
+  <p>
+    So the vocabulary is split where players split it. Corners, zone numbers and
+    phase words are Filipino. Shot names and exercises stay English, because nobody
+    has ever shouted a Tagalog word for a smash, and <em>push up</em> is what is said
+    in a Filipino gym. The interface stays English too: it is read sitting down, with
+    time to think, which is the opposite of a call.
+  </p>
+  <p>
+    Every phrase is written twice. Android usually ships a <code>fil-PH</code> voice
+    and can say the real word; where there is none, the call is respelled so an
+    English voice still produces something a player can move to. Which voice reads
+    <em>kah-lee-wah</em> is the difference between an instruction and a noise, so the
+    voice is now a per-language setting. It had been stored since launch and never
+    read: the function that would have applied it had no callers, so every session
+    the app ever spoke used whatever the browser picked.
+  </p>
+
+  <div class="detail-head">
+    <span class="eyebrow">Engineering</span>
+    <h2>648 tests, and the parts that decide how hard you train</h2>
+  </div>
+  <p>
+    There are <strong>648 tests</strong> under Vitest, and <code>npm run verify</code>
     (typecheck, lint, tests, build) is what CI runs on every push. The drill engine,
     the load model, the program generator and the benchmark scoring are all pure
     functions with tests behind them, because those are the parts deciding how hard
@@ -103,9 +130,11 @@
   </p>
   <p>
     It installs as a PWA. The timer, the drills and the coaching notes work with no
-    connection at all, sessions still log, and everything syncs to Supabase once the
-    network comes back. Auth, progress and published programs live in Postgres behind
-    row-level security.
+    connection at all, and sessions still log. The accounts layer behind that is
+    built and tested rather than live: Supabase auth, a full repository
+    implementation and local-to-account migration all exist, and the app ships
+    local-only until the owner adds two keys. The README says so plainly, because a
+    tester deserves to know that before investing a month in it.
   </p>
 
   <div class="callout">
@@ -167,6 +196,68 @@
     suite tells you the code does what you wrote down, not that the app works in
     a hand.
   </div>
+
+  <div class="detail-head">
+    <span class="eyebrow">What a QA engineer found</span>
+    <h2>Two findings, and the first was worse than he could see</h2>
+  </div>
+  <p>
+    The app went out to club players, one of whom works in QA. His first point was
+    that it only saves in the browser: clear your cache or change phone and a month
+    of training is gone. The accounts layer was already written and merely switched
+    off, so the answer looked like pasting in two keys.
+  </p>
+  <p>
+    It was not. <code>supabase/schema.sql</code> did not run at all. Two
+    <code>alter type ... add value</code> statements had been pasted into the middle
+    of its enum block, splitting the block and orphaning an <code>end if;</code>, so
+    Postgres rejected the file on its first statement. Anybody following the file's
+    own instructions would have got an error and no tables. The feature he asked for
+    could not have been switched on even with the keys in place.
+  </p>
+  <p>
+    A broken schema also hides its own drift, and there was some: one enum had lost
+    track of a value added two phases earlier, and another never gained two more.
+    Applied to a real PostgreSQL 16 after the repair, twice from empty: 12 tables,
+    every one with row-level security, 41 policies, 11 enum types, 30 seeded drills,
+    no errors on either run. A test now checks the structure and that every enum
+    value the app uses is declared, and it was verified by putting the original
+    defect back and watching it fail.
+  </p>
+
+  <p>
+    His second point was that the app read as too technical for players who are not
+    developers. That is an opinion until it is measured, so it was measured, on the
+    text the browser actually rendered, across fifteen screens.
+  </p>
+
+  <div class="ledger">
+    <div class="ledger-row">
+      <p>Sentences longer than twenty words</p>
+      <b>25 <i>to</i> 0</b>
+    </div>
+    <div class="ledger-row">
+      <p>Longest sentence in the app</p>
+      <b>38 <i>to</i> 19 <i>words</i></b>
+    </div>
+    <div class="ledger-row">
+      <p>Total words a player has to read</p>
+      <b>4,501 <i>to</i> 3,867</b>
+    </div>
+    <div class="ledger-row">
+      <p>Reading grade, same information</p>
+      <b>4.2 <i>to</i> 3.6</b>
+    </div>
+  </div>
+
+  <p>
+    Fourteen per cent fewer words for the same content. <em>Deload</em> is now
+    <em>Easy week</em>; <em>Effort &times; minutes</em> is <em>how hard you trained,
+    not just how long</em>. What did not change is the specificity: <em>no payments
+    are connected yet</em> is still there and still blunt, only shorter. Simpler was
+    not allowed to mean vaguer, and a test holds that line, capping every drill and
+    program string at twenty words a sentence.
+  </p>
 
   <div class="detail-head">
     <span class="eyebrow">Why it matters</span>

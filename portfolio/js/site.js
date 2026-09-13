@@ -141,7 +141,7 @@
     },
     rallyready: {
       path: 'projects/rallyready.html',
-      line: 'React and TypeScript. Badminton drills, 641 tests.'
+      line: 'React and TypeScript. Badminton drills, 648 tests.'
     },
     'badminton-ph': {
       href: 'https://badminton-ph.web.app',
