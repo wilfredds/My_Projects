@@ -132,6 +132,16 @@ rather than snap, then removes it.
   onto a `#0C0E0B` canvas at that size. That value is measured off the existing
   files, not guessed; the README used to say `#0b0e0b`, which is close but not
   what is actually in them.
+- **The project card screenshots carry `alt=""` on purpose.** Each sits inside
+  an `aria-hidden="true"` wrapper with `tabindex="-1"`, because the link is a
+  duplicate of the Case study button and the card's own heading and paragraph
+  already say what the project is. A screen reader that met both would hear
+  the same project twice. Describing the image there does not help either:
+  text inside `aria-hidden` is never announced, so a long `alt` on those is
+  dead weight that only looks conscientious. The real description belongs on
+  the `<figure>` in the case study, which is not hidden. One of these drifted
+  out of line once, so the rule is written down here rather than left to be
+  noticed.
 - **`cyclemind_ai` is screenshotted from its own published build.** There is no
   Flutter SDK here, so the app cannot be built locally, but the `gh-pages`
   branch already holds the web build its workflow published. Serving that branch
