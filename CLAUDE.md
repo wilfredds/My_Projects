@@ -57,9 +57,10 @@ CLAUDE_CODE_REMOTE=true ./.claude/hooks/session-start.sh
 
 ## Skills
 
-`.claude/skills/` contains 23 vendored skills (UI/UX Pro Max, Anthropic's
-`frontend-design` and `webapp-testing`, and obra/superpowers). See
-`.claude/skills/README.md` for provenance, licenses and runtime requirements.
+`.claude/skills/` contains 24 vendored skills (UI/UX Pro Max, `impeccable`,
+Anthropic's `frontend-design` and `webapp-testing`, and obra/superpowers), plus
+4 `impeccable` subagents in `.claude/agents/`. See `.claude/skills/README.md`
+for provenance, licenses and runtime requirements.
 
 For UI work, the design database is queryable directly:
 
@@ -69,6 +70,21 @@ python3 .claude/skills/ui-ux-pro-max/scripts/search.py "dashboard" --stack shadc
 
 Useful stacks for this repo: `shadcn`, `nextjs`, `react`, `html-tailwind`.
 Flutter coverage is sparse and often returns no match.
+
+`impeccable` is the design-review counterpart: `/impeccable critique`,
+`audit`, `polish` and 20 other verbs, plus a mechanical anti-pattern detector.
+Its engine is a self-contained binary the launcher downloads and checksums on
+first run; nothing else to install.
+
+```bash
+.claude/skills/impeccable/scripts/impeccable detect --json portfolio
+```
+
+`detect` exits 2 when it finds anti-patterns and 0 when clean — a non-zero exit
+is a result, not a failure. Its upstream `Edit|Write` and `Stop` hooks are
+deliberately not wired up here, since most of this monorepo is not frontend
+work; run `detect` by hand instead. `.claude/skills/README.md` explains how to
+opt in.
 
 ## CI
 

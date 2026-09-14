@@ -1,0 +1,3 @@
+# The launcher downloads the platform engine binary on first run (~16 MB).
+# It normally caches in ~/.impeccable, but never commit it if it lands here.
+scripts/bin/
