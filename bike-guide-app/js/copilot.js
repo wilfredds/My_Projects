@@ -32,6 +32,9 @@ export class CoPilot {
     this.last = null;        // last fix
     this.heading = null;     // degrees, from GPS or derived from movement
     this.speedMps = 0;
+    this.maxSpeedMps = 0;
+    this.elevGainM   = 0;
+    this._lastAlt    = null;
 
     this._onVisibility = this._onVisibility.bind(this);
   }
@@ -68,6 +71,9 @@ export class CoPilot {
     this.track     = [];
     this.distanceM = 0;
     this.last      = null;
+    this.maxSpeedMps = 0;
+    this.elevGainM   = 0;
+    this._lastAlt    = null;
 
     resetSpoken();
     warmUp();                       // unlock audio from the user gesture
@@ -118,9 +124,15 @@ export class CoPilot {
     document.removeEventListener('visibilitychange', this._onVisibility);
     if (this.wakeLock) { try { await this.wakeLock.release(); } catch (_) {} this.wakeLock = null; }
 
+    const km = this.distanceM / 1000;
+    const hours = this.movingMs() / 3600000;
     return {
-      distanceKm: this.distanceM / 1000,
+      distanceKm: km,
       durationMin: this.movingMs() / 60000,
+      avgSpeedKmh: hours > 0 ? km / hours : 0,
+      maxSpeedKmh: this.maxSpeedMps * 3.6,
+      elevGainM: Math.round(this.elevGainM),
+      calories: this.calories(),
       track: this.track,
     };
   }
@@ -165,6 +177,28 @@ export class CoPilot {
     if (heading != null && !Number.isNaN(heading)) this.heading = heading;
     if (speed != null && !Number.isNaN(speed) && speed >= 0) this.speedMps = speed;
 
+    // Max speed: GPS occasionally reports absurd spikes when a fix jumps.
+    // 90 km/h is well above anything reachable on a bike in PH traffic, so
+    // anything past it is noise, not a personal record.
+    if (this.speedMps > this.maxSpeedMps && this.speedMps < 25) {
+      this.maxSpeedMps = this.speedMps;
+    }
+
+    // Elevation: phone barometers/GPS altitude drift by 10-20 m at rest, so
+    // counting every rise would invent hundreds of metres on a flat ride.
+    // Only accumulate climbs above a 3 m step, and ignore low-confidence fixes.
+    const alt = pos.coords.altitude;
+    const altAcc = pos.coords.altitudeAccuracy;
+    if (alt != null && !Number.isNaN(alt) && (altAcc == null || altAcc <= 15)) {
+      if (this._lastAlt != null) {
+        const rise = alt - this._lastAlt;
+        if (rise > 3) { this.elevGainM += rise; this._lastAlt = alt; }
+        else if (rise < -3) { this._lastAlt = alt; }
+      } else {
+        this._lastAlt = alt;
+      }
+    }
+
     this.last = { lat, lng, t: now };
     this.track.push({ lat, lng, t: now });
 
@@ -180,6 +214,24 @@ export class CoPilot {
       nearby,
       paused: false,
     });
+  }
+
+  // Calories burned, via METs (metabolic equivalent) — the standard
+  // approach: kcal = MET x weight(kg) x hours. The MET for cycling rises
+  // with speed, so we bracket by average pace rather than assuming one
+  // effort level. Defaults to 65 kg if the rider hasn't set a weight.
+  calories() {
+    const kg = Number(localStorage.getItem('riderWeightKg')) || 65;
+    const hours = this.movingMs() / 3600000;
+    if (hours <= 0) return 0;
+    const avgKmh = (this.distanceM / 1000) / hours;
+    let met;
+    if      (avgKmh < 16) met = 4;
+    else if (avgKmh < 19) met = 6;
+    else if (avgKmh < 22) met = 8;
+    else if (avgKmh < 25) met = 10;
+    else                  met = 12;
+    return Math.round(met * kg * hours);
   }
 
   // Look ahead and speak anything worth knowing about.
