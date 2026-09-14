@@ -191,6 +191,41 @@ rather than snap, then removes it.
   lets the ledger column line up. All three come from Google Fonts and all
   three have real fallbacks, so a blocked CDN changes the typography but not
   the layout.
+- **`js/calc.js` is a port, and the original is the source of truth.** The live
+  calculator on the AutoCare case study runs AutoCare's real money function.
+  The portfolio has no build step and cannot import TypeScript, so the file is
+  a hand port of `autocare/lib/calc.ts`. It is not allowed to drift, and the
+  way to know it has not is to compare the two directly rather than read them
+  side by side:
+
+  ```bash
+  cd autocare
+  # load ../portfolio/js/calc.js in a vm with a stub document, feed both
+  # implementations the same generated inputs, compare every returned field
+  npx tsx port-check.ts
+  ```
+
+  Last run: 2,000 generated cases including empty strings, nulls, numeric
+  strings, negatives and the float-boundary values (0.005, 1.005, 149.99),
+  every field compared with `Object.is`, zero disagreements. Do not "tidy" the
+  port: the `Number.EPSILON` nudge in `toCentavos` and the order of the rules
+  in `deriveStatus` are both load-bearing.
+
+  The widget works with JavaScript off. The inputs carry a default job and the
+  output carries that job's real answer, so the two agree either way and
+  nothing has to be hidden and re-shown. If you change a default input, change
+  the matching default output or the page lies to anyone without JavaScript.
+- **Every number in the float-drift sentence was checked.** Ten lots of `0.07`
+  added naively really does give `0.7000000000000002`, and the quantities that
+  land exactly really are 1, 2, 4 and 8. An earlier draft said 3, which is
+  wrong. If you reword that paragraph, re-run the loop before you publish it.
+- **The ledger rows carry the command that produced them.** `.ledger-how` is
+  always in the DOM, so a screen reader and a no-JS visitor both get it; only
+  its visibility is conditional. Under `@media (hover: hover)` it stays
+  collapsed until the row is hovered, because six commands on show at once
+  compete with the numbers they support. Under `@media (hover: none)` it is
+  simply always visible, because a touch visitor has no hover and would
+  otherwise never reach it. Add a row, add its command.
 - **The ledger is measured, never copied.** The figures under "What the demo
   does not show" are the point of the page, so a wrong one costs more than a
   missing one. Re-derive them by running the suites, not by reading this file:

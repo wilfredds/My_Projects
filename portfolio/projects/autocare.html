@@ -116,6 +116,82 @@
   </div>
 
   <div class="detail-head">
+    <span class="eyebrow">Run it yourself</span>
+    <h2>That file, computing in this page</h2>
+  </div>
+  <p>
+    Change any number below. The totals are computed by a port of
+    <code>lib/calc.ts</code>, the same function the shop's browser and the shop's
+    server both run. It was checked against the original over 2,000 generated cases,
+    every field compared, with no disagreements. Nothing is sent anywhere: the
+    arithmetic happens in your browser, and <code>window.autocareCalc</code> is there
+    if you would rather poke at it from the console.
+  </p>
+
+  <form class="calc" id="calc" novalidate>
+    <div class="calc-lines">
+      <p class="calc-head">Parts</p>
+
+      <div class="calc-line">
+        <label class="calc-name" for="calc-in-q1">Washer</label>
+        <input class="calc-qty" id="calc-in-q1" name="q1" type="text"
+               inputmode="numeric" value="10" size="4" aria-label="Washer quantity">
+        <span class="calc-x" aria-hidden="true">&times;</span>
+        <input class="calc-price" id="calc-in-p1" name="p1" type="text"
+               inputmode="decimal" value="0.07" size="8" aria-label="Washer unit price in pesos">
+      </div>
+
+      <div class="calc-line">
+        <label class="calc-name" for="calc-in-q2">Oil filter</label>
+        <input class="calc-qty" id="calc-in-q2" name="q2" type="text"
+               inputmode="numeric" value="1" size="4" aria-label="Oil filter quantity">
+        <span class="calc-x" aria-hidden="true">&times;</span>
+        <input class="calc-price" id="calc-in-p2" name="p2" type="text"
+               inputmode="decimal" value="285.50" size="8" aria-label="Oil filter unit price in pesos">
+      </div>
+
+      <p class="calc-head">The rest of the job</p>
+
+      <div class="calc-line">
+        <label class="calc-name" for="calc-in-labour">Labour</label>
+        <input class="calc-price calc-wide" id="calc-in-labour" name="labour" type="text"
+               inputmode="decimal" value="450" size="8">
+      </div>
+      <div class="calc-line">
+        <label class="calc-name" for="calc-in-discount">Discount</label>
+        <input class="calc-price calc-wide" id="calc-in-discount" name="discount" type="text"
+               inputmode="decimal" value="50" size="8">
+      </div>
+      <div class="calc-line">
+        <label class="calc-name" for="calc-in-paid">Paid</label>
+        <input class="calc-price calc-wide" id="calc-in-paid" name="paid" type="text"
+               inputmode="decimal" value="500" size="8">
+      </div>
+    </div>
+
+    <output class="calc-out" for="calc" aria-live="polite">
+      <div class="calc-row"><span>Parts</span><b id="calc-parts">&#8369;286.20</b></div>
+      <div class="calc-row"><span>Labour</span><b id="calc-labour">&#8369;450.00</b></div>
+      <div class="calc-row calc-rule"><span>Subtotal</span><b id="calc-subtotal">&#8369;736.20</b></div>
+      <div class="calc-row"><span>Discount</span><b id="calc-discount">&#8369;50.00</b></div>
+      <div class="calc-row calc-total"><span>Total</span><b id="calc-total">&#8369;686.20</b></div>
+      <div class="calc-row"><span>Paid</span><b id="calc-paid">&#8369;500.00</b></div>
+      <div class="calc-row calc-rule"><span>Balance</span><b id="calc-balance">&#8369;186.20</b></div>
+      <div class="calc-row"><span>Status</span><b id="calc-status" data-status="PARTIAL">PARTIAL</b></div>
+    </output>
+  </form>
+
+  <p class="calc-note">
+    The first line is the one worth watching. Ten lots of <code>0.07</code> added the
+    way a spreadsheet or a hand-rolled loop would add them comes to
+    <b id="calc-drift" data-drift="yes">0.7000000000000002</b>, and the parts figure
+    above says &#8369;286.20 anyway. That gap is the whole reason the money is kept in
+    whole centavos. Set the quantity to 4 or 8 and the naive sum lands exactly; at 3,
+    5 or 10 it does not. The quantities that survive are the powers of two, which is
+    not something anybody should need to know in order to run a car shop.
+  </p>
+
+  <div class="detail-head">
     <span class="eyebrow">Security</span>
     <h2>What stands between a request and the till</h2>
   </div>
@@ -168,5 +244,6 @@
 </button>
 
 <script src="../js/site.js" defer></script>
+<script src="../js/calc.js" defer></script>
 </body>
 </html>

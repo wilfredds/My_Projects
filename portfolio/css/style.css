@@ -571,6 +571,49 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   color: var(--amber);
 }
 
+/* ------------------------------------------------- how it was measured --
+   Each row carries the command that produced its number. It is always in the
+   DOM, so a screen reader and a no-JS visitor both get it; only its
+   visibility is conditional.
+
+   On a pointer device it stays out of the way until the row is hovered,
+   because six commands on show at once would compete with the numbers they
+   support. On touch there is no hover to wait for, so it is simply always
+   visible rather than unreachable. */
+.ledger-how {
+  grid-column: 1 / -1;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--faint);
+  /* These are the one place on the page where a long unbroken string can
+     appear, so let them wrap rather than push the row wide. */
+  overflow-wrap: anywhere;
+}
+.ledger-how::before { content: "$ "; color: var(--green); }
+
+@media (hover: hover) {
+  .ledger-how {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    overflow: hidden;
+    transition: max-height 0.28s ease, opacity 0.28s ease, margin-top 0.28s ease;
+  }
+  .ledger-row:hover .ledger-how {
+    max-height: 4rem;
+    opacity: 1;
+    margin-top: 0.35rem;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: reduce) {
+  .ledger-how { transition: none; }
+}
+
+@media (hover: none) {
+  .ledger-how { margin-top: 0.35rem; }
+}
+
 .ledger-note {
   margin-top: 1rem;
   font-family: var(--mono);
@@ -866,6 +909,114 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
    that already has one. */
 .callout p { color: inherit; max-width: none; }
 .callout p + p { margin-top: 0.8rem; }
+
+/* ---------------------------------------------- the live calculator ----
+   AutoCare's own money function, running on the page. Built to work with
+   JavaScript off: the inputs carry the default job and the output carries
+   that job's real answer, so the two agree either way and nothing needs to
+   be hidden and re-shown. */
+.calc {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  margin-block: 1.5rem;
+  max-width: 68ch;
+}
+@media (max-width: 640px) {
+  .calc { grid-template-columns: minmax(0, 1fr); }
+}
+
+.calc-head {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 0.6rem;
+}
+.calc-head + .calc-line { margin-top: 0; }
+.calc-lines .calc-head:not(:first-child) { margin-top: 1.25rem; }
+
+.calc-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.calc-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.9rem;
+  color: var(--dim);
+}
+.calc-x { color: var(--faint); font-family: var(--mono); }
+
+.calc input {
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0.35rem 0.5rem;
+  text-align: right;
+  min-width: 0;
+  /* A number that changes under the caret should not also change width. */
+  font-variant-numeric: tabular-nums;
+}
+.calc .calc-qty { width: 3.6rem; }
+.calc .calc-price { width: 6rem; }
+.calc .calc-wide { width: 6rem; }
+.calc input:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 1px;
+  border-color: var(--green);
+}
+
+.calc-out {
+  display: block;
+  border-top: 1px solid var(--text);
+  font-family: var(--mono);
+  font-size: 0.86rem;
+}
+.calc-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.42rem 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.calc-row span { color: var(--dim); font-family: var(--sans); font-size: 0.86rem; }
+.calc-row b {
+  color: var(--green);
+  font-weight: 500;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.calc-rule { border-bottom-color: var(--line); }
+.calc-total b { color: var(--text); font-weight: 700; }
+
+/* The status is the one output that is a word rather than a number, so it is
+   the one that earns a colour. */
+.calc-row b[data-status="PAID"]    { color: var(--green); }
+.calc-row b[data-status="PARTIAL"] { color: var(--amber); }
+.calc-row b[data-status="UNPAID"]  { color: var(--red); }
+
+.calc-note { color: var(--dim); max-width: 68ch; }
+.calc-note b {
+  font-family: var(--mono);
+  color: var(--text);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.calc-note b[data-drift="yes"] { color: var(--red); }
+.calc-note b[data-drift="no"]  { color: var(--green); }
 
 .pager {
   display: flex;
