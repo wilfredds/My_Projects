@@ -54,6 +54,7 @@ let meMarker = null;
 let follow = true;
 let copilot = null;
 let running = false;
+let reportedThisRide = 0;
 
 // ── Hazards → GeoJSON ──
 function hazardsGeoJSON() {
@@ -257,6 +258,7 @@ async function startRide() {
   await copilot.start();
   running = true;
   follow  = true;
+  reportedThisRide = 0;
   paintRideButton();
 }
 
@@ -274,7 +276,8 @@ async function finishRide() {
     paintShare();
   }
 
-  toast(`Ride saved · ${summary.distanceKm.toFixed(1)} km`);
+  showSummary(summary);
+
   try {
     const { logRide } = await import('./tracker.js');
     if (summary.distanceKm > 0.05) {
@@ -284,10 +287,51 @@ async function finishRide() {
         date: new Date().toISOString().split('T')[0],
         routeName: 'Co-pilot ride',
         notes: '',
+        avgSpeedKmh: Number(summary.avgSpeedKmh.toFixed(1)),
+        maxSpeedKmh: Number(summary.maxSpeedKmh.toFixed(1)),
+        elevGainM: summary.elevGainM,
+        calories: summary.calories,
       });
     }
   } catch (_) { /* logging is best-effort */ }
 }
+
+// End-of-ride summary. Leads with the contribution rather than the stats:
+// Strava already gives status for being fast, and this app's whole premise
+// is that protecting other riders is the thing worth rewarding.
+function showSummary(sum) {
+  $('sum-km').textContent   = sum.distanceKm.toFixed(1);
+  $('sum-time').textContent = fmtTime(sum.durationMin);
+  $('sum-avg').textContent  = Math.round(sum.avgSpeedKmh);
+  $('sum-max').textContent  = Math.round(sum.maxSpeedKmh);
+  $('sum-elev').textContent = sum.elevGainM;
+  $('sum-cal').textContent  = sum.calories;
+  $('sum-haz').textContent  = reportedThisRide;
+
+  const contrib = $('sum-contrib');
+  if (reportedThisRide > 0) {
+    contrib.innerHTML =
+      `You reported <b>${reportedThisRide} hazard${reportedThisRide === 1 ? '' : 's'}</b> today. ` +
+      `Every rider who comes this way will be warned. Salamat. 🙏`;
+  } else {
+    contrib.innerHTML =
+      'Spot a pothole or a bad junction next time? One tap warns every rider behind you.';
+  }
+
+  if (sum.distanceKm < 0.05) {
+    $('sum-title').textContent = 'Ride ended';
+    $('sum-sub').textContent   = 'Too short to save.';
+  } else {
+    $('sum-title').textContent = 'Ride complete';
+    $('sum-sub').textContent   = 'Nice work out there.';
+  }
+
+  $('summary-overlay').classList.add('show');
+}
+
+$('sum-done').addEventListener('click', () => {
+  $('summary-overlay').classList.remove('show');
+});
 
 $('go-btn').addEventListener('click', async () => {
   if (!running)            await startRide();
@@ -337,6 +381,7 @@ grid.addEventListener('click', async e => {
   await reportHazard({ lat: place.lat, lng: place.lng, type });
   refreshHazardLayer();
   const meta = hazardMeta(type);
+  reportedThisRide++;
   toast(`${meta.label} reported — salamat!`);
   speakConfirm(`${meta.label} reported. Thank you.`);
   if (navigator.vibrate) navigator.vibrate([40, 50, 40]);
@@ -423,6 +468,13 @@ $('f-name').value    = live.getRiderName() === 'Rider' ? '' : live.getRiderName(
 $('f-contact').value = live.getSosContact();
 $('f-name').addEventListener('change',    e => live.setRiderName(e.target.value));
 $('f-contact').addEventListener('change', e => live.setSosContact(e.target.value));
+
+$('f-weight').value = localStorage.getItem('riderWeightKg') || '';
+$('f-weight').addEventListener('change', e => {
+  const kg = parseInt(e.target.value, 10);
+  if (kg >= 25 && kg <= 250) localStorage.setItem('riderWeightKg', String(kg));
+  else e.target.value = localStorage.getItem('riderWeightKg') || '';
+});
 
 paintShare();
 paintRideButton();

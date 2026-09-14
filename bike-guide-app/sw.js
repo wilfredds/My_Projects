@@ -1,5 +1,5 @@
-const CACHE_NAME = 'bikeguide-v10';
-const RUNTIME_CACHE = 'bikeguide-runtime-v10';
+const CACHE_NAME = 'bikeguide-v11';
+const RUNTIME_CACHE = 'bikeguide-runtime-v11';
 const TILE_CACHE = 'bikeguide-tiles-v2';
 const MAX_TILES = 1200; // cap cached map tiles so storage stays bounded
 
@@ -17,7 +17,6 @@ const STATIC_ASSETS = [
   'challenge.html',
   'routes.html',
   'tracker.html',
-  'record.html',
   'ride.html',
   'follow.html',
   'firebase-check.html',
@@ -35,7 +34,6 @@ const STATIC_ASSETS = [
   'js/firebase-config.js',
   'js/challenge.js',
   'js/tracker.js',
-  'js/recorder.js',
   'js/geo.js',
   'js/voice.js',
   'js/hazards.js',
@@ -81,18 +79,19 @@ self.addEventListener('activate', event => {
 function isCacheableThirdParty(url) {
   return url.hostname.includes('fonts.googleapis.com') ||
          url.hostname.includes('fonts.gstatic.com') ||
-         url.hostname.includes('cdnjs.cloudflare.com') ||
-         url.hostname.includes('unpkg.com');         // Leaflet JS/CSS
+         url.hostname.includes('cdnjs.cloudflare.com');
 }
 
-// OpenStreetMap raster tiles — cache-first with an LRU-ish cap so a ride's
-// route stays viewable offline without unbounded storage growth.
+// Map tiles — cache-first with an LRU-ish cap, so a route you have already
+// ridden stays viewable with no signal without storage growing forever.
+//
+// Only OpenFreeMap and its VersaTiles fallback: both are keyless and have no
+// request cap. We deliberately do NOT touch tile.openstreetmap.org — OSM's
+// usage policy forbids production apps using it, and they block offenders
+// without notice.
 function isMapTile(url) {
-  // OpenFreeMap vector tiles + glyphs/sprites — no API key, no request cap.
-  if (/(^|\.)openfreemap\.org$/.test(url.hostname)) return true;
-  // Legacy raster tiles used by record.html. OSM's usage policy forbids
-  // production use of this endpoint; migrate record.html to MapLibre.
-  return /(^|\.)tile\.openstreetmap\.org$/.test(url.hostname);
+  return /(^|\.)openfreemap\.org$/.test(url.hostname) ||
+         /(^|\.)versatiles\.org$/.test(url.hostname);
 }
 async function cacheTile(request) {
   const cache = await caches.open(TILE_CACHE);
@@ -146,7 +145,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Fonts / icon CSS / Leaflet: stale-while-revalidate from the runtime cache.
+  // Fonts / icon CSS / MapLibre: stale-while-revalidate from the runtime cache.
   if (isCacheableThirdParty(url)) {
     event.respondWith(staleWhileRevalidate(event.request, RUNTIME_CACHE));
     return;
