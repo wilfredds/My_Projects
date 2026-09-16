@@ -400,19 +400,27 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   margin-top: 1.6rem;
 }
 
-/* Portrait: framed, slightly desaturated, tinted to sit inside the palette. */
+/* Portrait: framed, and left in its own colours.
+
+   It used to sit at grayscale(0.9) and warm up on hover. That was a nice
+   effect on a decorative image and the wrong one on a photograph of the
+   person being hired: it greyed out the only face on the page, and the hover
+   reveal is invisible on a phone, where there is no hover at all.
+
+   The cap matters more than it looks. Below 860px the hero collapses to one
+   column, and without a max-width the portrait stretched to the full 820px
+   measure, which is what made it feel oversized. */
 .portrait {
   position: relative;
+  max-width: 320px;
+  margin-inline: auto;
 }
 .portrait img {
   width: 100%;
   display: block;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  filter: grayscale(0.9) contrast(1.04);
-  transition: filter 0.5s ease;
 }
-.portrait:hover img { filter: grayscale(0.25) contrast(1.02); }
 .portrait figcaption {
   display: flex;
   justify-content: space-between;

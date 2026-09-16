@@ -80,9 +80,8 @@ Three rules, all enforced in `style.css` under the Motion heading.
    shorthand: setting `transition-delay` in a separate, less specific rule
    loses the cascade and the stagger silently does nothing.
 
-The portrait parallax runs only on a fine pointer, so it never fights a touch
-scroll. The theme toggle adds `.theme-switching` for 320ms so colours fade
-rather than snap, then removes it.
+The theme toggle adds `.theme-switching` for 320ms so colours fade rather than
+snap, then removes it.
 
 ## Things worth knowing before editing
 
@@ -247,10 +246,20 @@ rather than snap, then removes it.
   letters reads as a bright blob. Bold sans on the ink ground survives. If you
   change it, render it at 16 against both a light and a dark browser chrome
   before deciding.
-- **The portrait does not move.** It used to drift and scale on scroll. The
-  scale escaped its container once the caption moved out from over the
-  photograph, and a moving portrait fought the stillness the rest of the page
-  depends on, so the parallax was removed rather than patched.
+- **The portrait does not move, and it is not greyed.** It used to drift and
+  scale on scroll; the scale escaped its container once the caption moved out
+  from over the photograph, so the parallax was removed rather than patched.
+  It also used to sit at `grayscale(0.9)` and warm up on hover. That is a nice
+  effect on a decorative image and the wrong one on a photograph of the person
+  being hired: it greyed out the only face on the page, and the reveal is
+  invisible on a phone, where there is no hover at all.
+- **The portrait is capped at 320px, and the cap is load-bearing.** Below 860px
+  the hero collapses to one column, and without a `max-width` the photograph
+  stretched to the full 820px measure, which is what made it feel oversized.
+  Check both sides of that breakpoint after any change to it. The file is
+  served at 720x960, which is still 2.25x at the capped size, so it stays sharp
+  on a retina screen; keep the `width` and `height` attributes in step with the
+  file or the page will shift as it loads.
 - **The timeline is still first-commit-per-project**, it just stopped showing
   the hashes. Its subtitle says so, so every project directory in the repo
   belongs on it: leaving one off makes the list lie by omission, which it did
