@@ -97,6 +97,34 @@ snap, then removes it.
 - **No em dashes in the prose.** House style for this site. Use commas, colons
   or a full stop. Check with `grep -rn "—\|–" portfolio/`, which should print
   nothing.
+- **44 CSS pixels is the floor for anything tappable.** WCAG 2.5.8 sets the AA
+  minimum at 24x24, but a phone needs 44. Nav links, the brand, the back link,
+  the résumé contact links, the stack chips and the calculator inputs all carry
+  a `min-height` to reach it; the chips and inputs get theirs only inside
+  `@media (pointer: coarse)`, so the desktop layout keeps its density. Two
+  things look like violations in an automated sweep and are not:
+  - The theme toggle measures 30x30. Its hit area is a transparent 44x44
+    `::after` centred on it, which was checked by clicking 20px outside the
+    drawn box (the theme flipped) and 40px outside (it did not).
+  - The seven project-card title links measure 20px on a phone. They are
+    covered by 2.5.8's **Equivalent** exception, because each one has a
+    same-`href` button on the same card ("Case study", or "Live site" for
+    badminton-ph) that is exactly 44px tall. That exception is the only thing
+    holding them up, so **if `.btn` ever gets shorter than 44px, those seven
+    links become real failures.** Measure both together.
+- **`text-wrap` is set deliberately, and not everywhere.** `p` gets `pretty`,
+  which keeps a lone short word off the last line; across seven widths that cut
+  the page's orphaned last lines from 38 to 18. `.section-head h2`, `.cert h3`
+  and `.cert-issuer` get `balance`, which evens every line of a short label.
+  The `.eyebrow` deliberately gets neither: balancing it broke `full-stack`
+  after the hyphen. That compound is now wrapped in `<span class="nb">`, which
+  is `white-space: nowrap`, so no wrap mode can split it again.
+- **`.skills` cards are `align-items: start`, not stretched.** The groups hold
+  different numbers of chips; the grid default left up to 67px of empty box
+  under the short ones, which reads as a missing item. A CSS multi-column
+  layout packs the odd fifth group out of a row of its own, but Chrome's
+  balancer leaves an entire empty column at around 1024px wide, so the grid
+  stays. Both were measured before choosing.
 - **External URLs are not checked by CI.** The source of truth for a Vercel
   domain is the project's own domain list. One trap when reading it: while a
   deployment is `QUEUED` or `BUILDING`, that list shows only the long
