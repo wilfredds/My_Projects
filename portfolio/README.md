@@ -20,7 +20,8 @@ A plain static server is enough. Nothing here needs Node.
 
 ```
 portfolio/
-├── index.html              # hero, about, skills, projects, timeline, contact
+├── index.html              # hero, projects, stack, education, certs, skills,
+│                           #   timeline, shell, contact
 ├── resume.html             # printable résumé (Print, then Save as PDF)
 ├── 404.html                # served by Vercel on a bad path
 ├── projects/               # one case-study page per project
@@ -79,9 +80,8 @@ Three rules, all enforced in `style.css` under the Motion heading.
    shorthand: setting `transition-delay` in a separate, less specific rule
    loses the cascade and the stagger silently does nothing.
 
-The portrait parallax runs only on a fine pointer, so it never fights a touch
-scroll. The theme toggle adds `.theme-switching` for 320ms so colours fade
-rather than snap, then removes it.
+The theme toggle adds `.theme-switching` for 320ms so colours fade rather than
+snap, then removes it.
 
 ## Things worth knowing before editing
 
@@ -219,16 +219,12 @@ rather than snap, then removes it.
   added naively really does give `0.7000000000000002`, and the quantities that
   land exactly really are 1, 2, 4 and 8. An earlier draft said 3, which is
   wrong. If you reword that paragraph, re-run the loop before you publish it.
-- **The ledger rows carry the command that produced them.** `.ledger-how` is
-  always in the DOM, so a screen reader and a no-JS visitor both get it; only
-  its visibility is conditional. Under `@media (hover: hover)` it stays
-  collapsed until the row is hovered, because six commands on show at once
-  compete with the numbers they support. Under `@media (hover: none)` it is
-  simply always visible, because a touch visitor has no hover and would
-  otherwise never reach it. Add a row, add its command.
-- **The ledger is measured, never copied.** The figures under "What the demo
-  does not show" are the point of the page, so a wrong one costs more than a
-  missing one. Re-derive them by running the suites, not by reading this file:
+- **Every figure is measured, never copied.** The home page used to gather
+  them under "What the demo does not show". That section is gone, but the
+  numbers did not go with it: they are scattered through the case studies, the
+  timeline and the resume, which makes them easier to miss and no less wrong
+  when they drift. Re-derive them by running the suites, not by reading this
+  file:
 
   ```bash
   (cd autocare && npm test && npm run test:db)   # 11 + 34
@@ -250,13 +246,33 @@ rather than snap, then removes it.
   letters reads as a bright blob. Bold sans on the ink ground survives. If you
   change it, render it at 16 against both a light and a dark browser chrome
   before deciding.
-- **The portrait does not move.** It used to drift and scale on scroll. The
-  scale escaped its container once the caption moved out from over the
-  photograph, and a moving portrait fought the stillness the rest of the page
-  depends on, so the parallax was removed rather than patched.
-- **The timeline hashes are real.** They are the first commit touching each
-  project directory. If you rewrite history, regenerate them with
-  `git log --reverse --format='%h %as' -- <dir> | head -1`.
+- **The portrait does not move, and it is not greyed.** It used to drift and
+  scale on scroll; the scale escaped its container once the caption moved out
+  from over the photograph, so the parallax was removed rather than patched.
+  It also used to sit at `grayscale(0.9)` and warm up on hover. That is a nice
+  effect on a decorative image and the wrong one on a photograph of the person
+  being hired: it greyed out the only face on the page, and the reveal is
+  invisible on a phone, where there is no hover at all.
+- **The portrait is capped at 320px, and the cap is load-bearing.** Below 860px
+  the hero collapses to one column, and without a `max-width` the photograph
+  stretched to the full 820px measure, which is what made it feel oversized.
+  Check both sides of that breakpoint after any change to it. The file is
+  served at 720x960, which is still 2.25x at the capped size, so it stays sharp
+  on a retina screen; keep the `width` and `height` attributes in step with the
+  file or the page will shift as it loads.
+- **The timeline is still first-commit-per-project**, it just stopped showing
+  the hashes. Its subtitle says so, so every project directory in the repo
+  belongs on it: leaving one off makes the list lie by omission, which it did
+  for hiroshi-grill and flare until it was caught. Regenerate the dates with
+  `git log --reverse --format='%h %as' -- <dir> | head -1`, and only badge a
+  row `live` if the project actually has a working public URL.
+- **The certificates drift, and the way they do it matters.** `cert-drift`
+  animates the `translate` property rather than `transform`, so the existing
+  hover lift composes with it instead of fighting it. The durations are long
+  and mutually prime so the cards never fall into step, the amplitude is 8px so
+  it never pulls the eye off the text, and it is compositor-only so seven
+  moving cards cost no layout. It sits behind `.js` and switches off entirely
+  under `prefers-reduced-motion`.
 
 ## The résumé PDF
 

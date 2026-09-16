@@ -37,12 +37,11 @@
   <div class="wrap nav-inner">
     <a class="nav-brand" href="#top">Francis W. Antiporda</a>
     <ul class="nav-links">
-      <li><a href="#about">about</a></li>
-      <li><a href="#skills">skills</a></li>
-      <li><a href="#certs">certs</a></li>
-      <li><a href="#security">security</a></li>
       <li><a href="#projects">projects</a></li>
-      <li><a href="#timeline">timeline</a></li>
+      <li><a href="#stack">stack</a></li>
+      <li><a href="#education">education</a></li>
+      <li><a href="#certs">certs</a></li>
+      <li><a href="#skills">skills</a></li>
       <li><a href="#contact">contact</a></li>
     </ul>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme">
@@ -73,445 +72,18 @@
           View projects
         </a>
         <a class="btn" href="resume.html">Résumé</a>
-        <button class="btn" type="button" data-copy="frncishub@gmail.com">Copy email</button>
       </div>
     </div>
 
     <figure class="portrait reveal">
       <img src="assets/img/portrait.jpg" width="720" height="960"
            alt="Francis Wilfred Antiporda" fetchpriority="high">
-      <figcaption><span>General Trias, Cavite</span> <b>open to OJT</b></figcaption>
+      <figcaption><span>General Trias, Cavite</span></figcaption>
     </figure>
   </div>
 </header>
 
 <!-- ============================================================ ledger -- -->
-<section class="section" aria-labelledby="ledger-h">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Measured, not claimed</span>
-      <h2 id="ledger-h">What the demo does not show</h2>
-      <p>~/evidence</p>
-    </div>
-
-    <div class="ledger reveal">
-      <div class="ledger-row">
-        <p>Row Level Security policies standing between a customer and every reservation</p>
-        <b><span data-count="43">43</span> of 43 <i>pass</i></b>
-        <code class="ledger-how">cd hiroshi-grill &amp;&amp; npm run db:test</code>
-      </div>
-      <div class="ledger-row">
-        <p>Firestore and Storage rules, loosened on purpose to prove the suite fails</p>
-        <b><span data-count="144">144</span> <i>assertions</i></b>
-        <code class="ledger-how">cd firestore-tests &amp;&amp; npm test</code>
-      </div>
-      <div class="ledger-row">
-        <p>Automated tests across every project in the repository</p>
-        <b><span data-count="1109">1109</span></b>
-        <code class="ledger-how">11 + 34 + 648 + 132 + 43 + 97 + 144</code>
-      </div>
-      <div class="ledger-row">
-        <p>Pipelines that gate every push, one per project</p>
-        <b><span data-count="8">8</span></b>
-        <code class="ledger-how">ls .github/workflows/*.yml</code>
-      </div>
-      <div class="ledger-row">
-        <p>Rate limiter, proved with 30 concurrent callers against a cap of ten</p>
-        <b><span data-count="10">10</span> <i>got through</i></b>
-        <code class="ledger-how">cd hiroshi-grill &amp;&amp; npm run db:test</code>
-      </div>
-      <div class="ledger-row">
-        <p>Projects, six of them running somewhere you can open right now</p>
-        <b><span data-count="9">9</span></b>
-        <code class="ledger-how">grep -c '&lt;article class="card' index.html</code>
-      </div>
-    </div>
-
-    <p class="ledger-note">
-      Every figure above was read off a suite that was run, not counted by hand.
-    </p>
-  </div>
-</section>
-
-
-<!-- ============================================================= about -- -->
-<section class="section" id="about">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Background</span>
-      <h2>Why any of this exists</h2>
-      <p>~/about</p>
-    </div>
-
-    <div class="about-grid">
-      <div class="prose reveal">
-        <p>
-          I am a fourth-year <strong>BS Information Technology</strong> student at
-          <strong>Lyceum of the Philippines University, Cavite</strong>, graduating in
-          2027. I lead the team behind our capstone, <strong>FloodGuard</strong>. Most
-          of what I know came from building things that had to work for somebody other
-          than me.
-        </p>
-        <p>
-          <strong>AutoCare</strong> exists because a car care shop was writing every
-          job in a notebook and losing money to arithmetic done at the counter.
-          <strong>RallyReady</strong> exists because training badminton alone means
-          nobody is there to call the corners. <strong>Bike Guide PH</strong> exists
-          because beginner riders here have nowhere local to learn gearing.
-        </p>
-        <p>
-          I work across the stack: Next.js and Prisma on Postgres, React and
-          TypeScript on Supabase, Flutter and Riverpod on Firebase. The parts I care
-          most about are the ones that never demo well. Database constraints that make
-          bad data impossible. Security rules with assertions behind them. A pipeline
-          that goes red before a user finds the bug.
-        </p>
-        <p>
-          Six of the nine projects below sit in one repository, each with its own
-          pipeline. The rest live elsewhere: BadmintonPH on Firebase, the capstone
-          with my team, the game on my own machine. None of it is a tutorial clone.
-        </p>
-      </div>
-
-      <aside class="facts reveal">
-        <dl>
-          <dt>location</dt><dd>General Trias, Cavite</dd>
-          <dt>studies</dt><dd>BSIT, LPU Cavite</dd>
-          <dt>year</dt><dd>4th, grad 2027</dd>
-          <dt>focus</dt><dd>Full-stack</dd>
-          <dt>languages</dt><dd>TypeScript, Dart</dd>
-          <dt>writes</dt><dd>English, Filipino</dd>
-          <dt>capstone</dt><dd>FloodGuard</dd>
-          <dt>status</dt><dd><span class="ok">open to OJT</span></dd>
-        </dl>
-      </aside>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ skills -- -->
-<section class="section" id="skills">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Toolkit</span>
-      <h2>What I work with</h2>
-      <p>~/skills</p>
-    </div>
-
-    <div class="skills">
-      <div class="skill-group reveal">
-        <h3>languages</h3>
-        <ul class="tags">
-          <li>TypeScript</li><li>JavaScript</li><li>Dart</li><li>C#</li>
-          <li>Python</li><li>SQL</li><li>HTML</li><li>CSS</li>
-        </ul>
-      </div>
-      <div class="skill-group reveal">
-        <h3>frontend</h3>
-        <ul class="tags">
-          <li>React</li><li>Next.js (App Router)</li><li>Flutter</li><li>Vite</li>
-          <li>Tailwind CSS</li><li>Framer Motion</li><li>shadcn/ui</li>
-          <li>Radix UI</li><li>PWA / Service Workers</li>
-        </ul>
-      </div>
-      <div class="skill-group reveal">
-        <h3>backend &amp; data</h3>
-        <ul class="tags">
-          <li>Prisma</li><li>PostgreSQL</li><li>Firebase / Firestore</li><li>Supabase</li>
-          <li>Node.js</li><li>Cloud Functions</li><li>next-auth</li><li>REST</li>
-        </ul>
-      </div>
-      <div class="skill-group reveal">
-        <h3>testing &amp; tooling</h3>
-        <ul class="tags">
-          <li>Vitest</li><li>node:test</li><li>Playwright</li><li>Firestore emulator</li>
-          <li>GitHub Actions</li><li>ESLint</li><li>Git</li>
-        </ul>
-      </div>
-      <div class="skill-group reveal">
-        <h3>architecture</h3>
-        <ul class="tags">
-          <li>Clean Architecture</li><li>Repository pattern</li><li>Riverpod</li>
-          <li>Server Actions</li><li>Role-based access control</li><li>i18n</li>
-        </ul>
-      </div>
-      <div class="skill-group reveal">
-        <h3>networking &amp; security</h3>
-        <ul class="tags">
-          <li>Cisco CCNA (ITN)</li><li>Networking Basics</li><li>Ethical Hacker</li>
-          <li>MITRE ATT&amp;CK mapping</li><li>Linux log analysis</li><li>SOC toolkit</li>
-        </ul>
-      </div>
-      <div class="skill-group reveal">
-        <h3>data &amp; analytics</h3>
-        <ul class="tags">
-          <li>SQL</li><li>Python</li><li>pandas</li><li>Exploratory analysis</li>
-          <li>Data cleaning</li><li>Data visualisation</li><li>Reporting</li>
-        </ul>
-      </div>
-      <div class="skill-group reveal">
-        <h3>game development</h3>
-        <ul class="tags">
-          <li>Unity 6</li><li>C#</li><li>QA reporting</li>
-        </ul>
-      </div>
-      <div class="skill-group reveal">
-        <h3>deploy</h3>
-        <ul class="tags">
-          <li>Vercel</li><li>Firebase Hosting</li><li>Neon</li>
-          <li>GitHub Pages</li><li>AWS (Educate)</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================= certs -- -->
-<section class="section" id="certs">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Credentials</span>
-      <h2>Certifications</h2>
-      <p>~/certs</p>
-    </div>
-
-    <p class="certs-lead reveal">
-      Seven certifications, six of them scanned from the certificate itself.
-      Click any one to read it full size.
-    </p>
-
-    <ul class="certs">
-      <li class="cert reveal">
-        <button class="cert-shot" type="button"
-                data-cert-src="assets/img/certs/cert-datacamp.jpg"
-                data-cert-title="Associate Data Analyst, DataCamp"
-                data-cert-note="Certified 9 September 2026 &middot; credential DAA0010897337178">
-          <img src="assets/img/certs/cert-datacamp.jpg" width="1800" height="1034" loading="lazy"
-               alt="DataCamp certificate naming Francis Antiporda as a certified Associate Data Analyst, dated 9 September 2026.">
-          <span class="cert-zoom" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
-          </span>
-        </button>
-        <div class="cert-body">
-          <span class="cert-issuer">DataCamp</span>
-          <h3>Associate Data Analyst</h3>
-          <p class="cert-meta">Certified 9 September 2026 &middot; credential DAA0010897337178</p>
-        </div>
-      </li>
-
-      <li class="cert reveal">
-        <button class="cert-shot" type="button"
-                data-cert-src="assets/img/certs/cert-ethicalhacker.jpg"
-                data-cert-title="Ethical Hacker, Cisco Networking Academy"
-                data-cert-note="Issued 19 July 2026 &middot; student level credential">
-          <img src="assets/img/certs/cert-ethicalhacker.jpg" width="1800" height="1391" loading="lazy"
-               alt="Cisco Networking Academy certificate of course completion for the Ethical Hacker course, issued to Francis Wilfred Antiporda on 19 July 2026.">
-          <span class="cert-zoom" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
-          </span>
-        </button>
-        <div class="cert-body">
-          <span class="cert-issuer">Cisco Networking Academy</span>
-          <h3>Ethical Hacker</h3>
-          <p class="cert-meta">Issued 19 July 2026 &middot; penetration testing, exploitation, reporting</p>
-        </div>
-      </li>
-
-      <li class="cert reveal">
-        <button class="cert-shot" type="button"
-                data-cert-src="assets/img/certs/cert-networking.jpg"
-                data-cert-title="Networking Basics, Cisco Networking Academy"
-                data-cert-note="Completed 4 February 2026 &middot; through LPU Cavite">
-          <img src="assets/img/certs/cert-networking.jpg" width="1800" height="1219" loading="lazy"
-               alt="Cisco Networking Academy certificate awarded to Francis Wilfred Antiporda for completing Networking Basics on 4 February 2026.">
-          <span class="cert-zoom" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
-          </span>
-        </button>
-        <div class="cert-body">
-          <span class="cert-issuer">Cisco Networking Academy</span>
-          <h3>Networking Basics</h3>
-          <p class="cert-meta">Completed 4 February 2026 &middot; through LPU Cavite</p>
-        </div>
-      </li>
-
-      <li class="cert reveal">
-        <button class="cert-shot" type="button"
-                data-cert-src="assets/img/certs/cert-ccna.jpg"
-                data-cert-title="CCNA: Introduction to Networks, Cisco Networking Academy"
-                data-cert-note="Completed 26 January 2026 &middot; through LPU Cavite">
-          <img src="assets/img/certs/cert-ccna.jpg" width="1800" height="1219" loading="lazy"
-               alt="Cisco Networking Academy certificate awarded to Francis Wilfred Antiporda for completing CCNA: Introduction to Networks on 26 January 2026.">
-          <span class="cert-zoom" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
-          </span>
-        </button>
-        <div class="cert-body">
-          <span class="cert-issuer">Cisco Networking Academy</span>
-          <h3>CCNA: Introduction to Networks</h3>
-          <p class="cert-meta">Completed 26 January 2026 &middot; through LPU Cavite</p>
-        </div>
-      </li>
-
-      <li class="cert reveal">
-        <button class="cert-shot" type="button"
-                data-cert-src="assets/img/certs/cert-sap.jpg"
-                data-cert-title="SAP Business One Student Courseware"
-                data-cert-note="Given 24 May 2025 &middot; TB1000 Logistics and TB1100 Financials">
-          <img src="assets/img/certs/cert-sap.jpg" width="1391" height="1800" loading="lazy"
-               alt="Certificate of completion awarded to Francis Wilfred S. Antiporda for the SAP Business One Student Courseware, dated 24 May 2025.">
-          <span class="cert-zoom" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
-          </span>
-        </button>
-        <div class="cert-body">
-          <span class="cert-issuer">SAP, through Erudite Academy and LPU Cavite</span>
-          <h3>SAP Business One Student Courseware</h3>
-          <p class="cert-meta">Given 24 May 2025 &middot; TB1000 Logistics, TB1100 Financials</p>
-        </div>
-      </li>
-
-      <li class="cert reveal">
-        <button class="cert-shot" type="button"
-                data-cert-src="assets/img/certs/cert-python.jpg"
-                data-cert-title="Python Essentials 2, Cisco Networking Academy"
-                data-cert-note="Completed 19 May 2024 &middot; through LPU Cavite">
-          <img src="assets/img/certs/cert-python.jpg" width="1800" height="1219" loading="lazy"
-               alt="Cisco Networking Academy certificate awarded to Francis Wilfred Antiporda for completing Python Essentials 2 through Lyceum of the Philippines University Cavite, dated 19 May 2024.">
-          <span class="cert-zoom" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
-          </span>
-        </button>
-        <div class="cert-body">
-          <span class="cert-issuer">Cisco Networking Academy with OpenEDG Python Institute</span>
-          <h3>Python Essentials 2</h3>
-          <p class="cert-meta">Completed 19 May 2024 &middot; multi-module Python 3, OOP, PCAP track</p>
-        </div>
-      </li>
-
-      <li class="cert reveal">
-        <button class="cert-shot" type="button"
-                data-cert-src="assets/img/certs/cert-aws.png"
-                data-cert-title="Getting Started with Compute, AWS Educate"
-                data-cert-note="Trained level &middot; the badge itself carries no date">
-          <img class="is-badge" src="assets/img/certs/cert-aws.png" width="601" height="601" loading="lazy"
-               alt="AWS Educate badge reading Getting Started with Compute, at Trained level.">
-          <span class="cert-zoom" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
-          </span>
-        </button>
-        <div class="cert-body">
-          <span class="cert-issuer">AWS Educate</span>
-          <h3>Getting Started with Compute</h3>
-          <p class="cert-meta">Trained level &middot; badge carries no date</p>
-        </div>
-      </li>
-    </ul>
-
-    <p class="certs-note">
-      Coursework behind them: SOC toolkit assembly, Linux server log analysis and
-      MITRE ATT&amp;CK mapping, from Information Assurance and Security.
-    </p>
-  </div>
-</section>
-
-<!-- ========================================================== security -- -->
-<section class="section" id="security">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">The part that never demos</span>
-      <h2>Security</h2>
-      <p>~/security</p>
-    </div>
-
-    <p class="prose reveal">
-      The part of this work I care about most, and the part that never shows up in a
-      screenshot. Each line below is something in one of the projects above, not a
-      list of things I have read about.
-    </p>
-
-    <div class="secgrid">
-      <div class="seccard reveal">
-        <h3>The database refuses first</h3>
-        <p>
-          Hiroshi's tables deny by default under Row Level Security, so a customer
-          holding the public key with dev tools open cannot read one reservation. The
-          Firestore rules behind Corruption Watch PH do the same for anonymous
-          reports. Neither depends on the interface behaving.
-        </p>
-        <p class="secmeta">43 policy tests &middot; 25 rules assertions &middot; both in CI</p>
-      </div>
-
-      <div class="seccard reveal">
-        <h3>Rules that were made to fail</h3>
-        <p>
-          A test suite that cannot go red guards nothing. The Firestore rules were
-          loosened on purpose to <code>allow read: if true</code>, five denial
-          assertions turned red, and only then was the suite trusted. The Postgres
-          rate limiter was proved with 30 concurrent connections against a limit of
-          10, and exactly 10 got through.
-        </p>
-        <p class="secmeta">Verified by breaking it, not by reading it</p>
-      </div>
-
-      <div class="seccard reveal">
-        <h3>The server never trusts the client</h3>
-        <p>
-          AutoCare's validation schema will not even accept a total, so a client that
-          posts one has it dropped and the server recomputes from the line items.
-          Hiroshi runs one Zod schema in the browser for friendly errors and again on
-          the server, then stores the schema's output rather than the body it was
-          sent.
-        </p>
-        <p class="secmeta">Enforced by tests, not by convention</p>
-      </div>
-
-      <div class="seccard reveal">
-        <h3>Secrets stay server-side</h3>
-        <p>
-          CycleMind's model API keys live in Cloud Functions, so no key ships inside
-          the mobile binary. Bike Guide PH used to identify riders by a UUID in
-          localStorage, which rules cannot verify; it signs in with Firebase Anonymous
-          Auth now, and ownership is checked against <code>request.auth.uid</code>.
-        </p>
-        <p class="secmeta">A binary is not a place to keep a secret</p>
-      </div>
-
-      <div class="seccard reveal">
-        <h3>Sessions that can actually be revoked</h3>
-        <p>
-          AutoCare hashes with bcrypt at cost 12, locks out after five failed logins,
-          rate-limits the login route, and re-checks every request against the
-          database, so disabling an account logs it out immediately rather than
-          whenever the token expires. Role checks run in middleware and again inside
-          each server action.
-        </p>
-        <p class="secmeta">Plus an audit log of every change</p>
-      </div>
-
-      <div class="seccard reveal">
-        <h3>A CSP with nothing switched off</h3>
-        <p>
-          A flat <code>script-src 'self'</code> breaks the Next.js App Router, and
-          <code>unsafe-inline</code> would throw away the point of having a policy.
-          Both AutoCare and Hiroshi stamp a fresh nonce per response instead. This
-          site carries no inline script or style at all, which is why its own policy
-          can forbid both outright.
-        </p>
-        <p class="secmeta">Rate limiting lives in Postgres, because serverless memory does not</p>
-      </div>
-    </div>
-
-    <p class="certs-note reveal">
-      Studied alongside it: Cisco's Ethical Hacker course, and Information Assurance
-      and Security coursework covering SOC toolkit assembly, Linux server log analysis
-      and MITRE ATT&amp;CK mapping. Found a problem with this site or any project on
-      it? <a href="/.well-known/security.txt">There is a security contact</a>.
-    </p>
-  </div>
-</section>
-
-<!-- ========================================================== projects -- -->
 <section class="section" id="projects">
   <div class="wrap">
     <div class="section-head">
@@ -789,7 +361,292 @@
   </div>
 </section>
 
-<!-- ========================================================== timeline -- -->
+<section class="section" id="stack">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Toolkit</span>
+      <h2>The stack I build on</h2>
+      <p>~/stack</p>
+    </div>
+
+    <p class="prose reveal">What the projects above are actually made of.</p>
+
+    <div class="skills">
+        <div class="skill-group reveal">
+          <h3>languages</h3>
+          <ul class="tags">
+            <li>TypeScript</li><li>JavaScript</li><li>Dart</li><li>C#</li>
+            <li>Python</li><li>SQL</li><li>HTML</li><li>CSS</li>
+          </ul>
+        </div>
+
+        <div class="skill-group reveal">
+          <h3>frontend</h3>
+          <ul class="tags">
+            <li>React</li><li>Next.js (App Router)</li><li>Flutter</li><li>Vite</li>
+            <li>Tailwind CSS</li><li>Framer Motion</li><li>shadcn/ui</li>
+            <li>Radix UI</li><li>PWA / Service Workers</li>
+          </ul>
+        </div>
+
+        <div class="skill-group reveal">
+          <h3>backend &amp; data</h3>
+          <ul class="tags">
+            <li>Prisma</li><li>PostgreSQL</li><li>Firebase / Firestore</li><li>Supabase</li>
+            <li>Node.js</li><li>Cloud Functions</li><li>next-auth</li><li>REST</li>
+          </ul>
+        </div>
+
+        <div class="skill-group reveal">
+          <h3>deploy</h3>
+          <ul class="tags">
+            <li>Vercel</li><li>Firebase Hosting</li><li>Neon</li>
+            <li>GitHub Pages</li><li>AWS (Educate)</li>
+          </ul>
+        </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="education">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Education</span>
+      <h2>Where I study</h2>
+      <p>~/education</p>
+    </div>
+
+    <div class="about-grid">
+      <div class="prose reveal">
+        <p>
+          Fourth year <strong>BS Information Technology</strong> at
+          <strong>Lyceum of the Philippines University, Cavite</strong>, graduating
+          2027. I lead the team behind our capstone, <strong>FloodGuard</strong>, an
+          IoT and AI flood early-warning system for Noveleta.
+        </p>
+        <p>
+          Everything above was built alongside the coursework rather than for it,
+          and each one had to work for somebody other than me.
+        </p>
+      </div>
+
+      <aside class="facts reveal">
+        <dl>
+          <dt>location</dt><dd>General Trias, Cavite</dd>
+          <dt>studies</dt><dd>BSIT, LPU Cavite</dd>
+          <dt>year</dt><dd>4th, grad 2027</dd>
+          <dt>focus</dt><dd>Full-stack</dd>
+          <dt>languages</dt><dd>TypeScript, Dart</dd>
+          <dt>writes</dt><dd>English, Filipino</dd>
+          <dt>capstone</dt><dd>FloodGuard</dd>
+          <dt>status</dt><dd><span class="ok">open to OJT</span></dd>
+        </dl>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="certs">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Credentials</span>
+      <h2>Certifications</h2>
+      <p>~/certs</p>
+    </div>
+
+    <p class="certs-lead reveal">
+      Seven certifications, six of them scanned from the certificate itself.
+      Click any one to read it full size.
+    </p>
+
+    <ul class="certs">
+      <li class="cert reveal">
+        <button class="cert-shot" type="button"
+                data-cert-src="assets/img/certs/cert-datacamp.jpg"
+                data-cert-title="Associate Data Analyst, DataCamp"
+                data-cert-note="Certified 9 September 2026 &middot; credential DAA0010897337178">
+          <img src="assets/img/certs/cert-datacamp.jpg" width="1800" height="1034" loading="lazy"
+               alt="DataCamp certificate naming Francis Antiporda as a certified Associate Data Analyst, dated 9 September 2026.">
+          <span class="cert-zoom" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
+          </span>
+        </button>
+        <div class="cert-body">
+          <span class="cert-issuer">DataCamp</span>
+          <h3>Associate Data Analyst</h3>
+          <p class="cert-meta">Certified 9 September 2026 &middot; credential DAA0010897337178</p>
+        </div>
+      </li>
+
+      <li class="cert reveal">
+        <button class="cert-shot" type="button"
+                data-cert-src="assets/img/certs/cert-ethicalhacker.jpg"
+                data-cert-title="Ethical Hacker, Cisco Networking Academy"
+                data-cert-note="Issued 19 July 2026 &middot; student level credential">
+          <img src="assets/img/certs/cert-ethicalhacker.jpg" width="1800" height="1391" loading="lazy"
+               alt="Cisco Networking Academy certificate of course completion for the Ethical Hacker course, issued to Francis Wilfred Antiporda on 19 July 2026.">
+          <span class="cert-zoom" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
+          </span>
+        </button>
+        <div class="cert-body">
+          <span class="cert-issuer">Cisco Networking Academy</span>
+          <h3>Ethical Hacker</h3>
+          <p class="cert-meta">Issued 19 July 2026 &middot; penetration testing, exploitation, reporting</p>
+        </div>
+      </li>
+
+      <li class="cert reveal">
+        <button class="cert-shot" type="button"
+                data-cert-src="assets/img/certs/cert-networking.jpg"
+                data-cert-title="Networking Basics, Cisco Networking Academy"
+                data-cert-note="Completed 4 February 2026 &middot; through LPU Cavite">
+          <img src="assets/img/certs/cert-networking.jpg" width="1800" height="1219" loading="lazy"
+               alt="Cisco Networking Academy certificate awarded to Francis Wilfred Antiporda for completing Networking Basics on 4 February 2026.">
+          <span class="cert-zoom" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
+          </span>
+        </button>
+        <div class="cert-body">
+          <span class="cert-issuer">Cisco Networking Academy</span>
+          <h3>Networking Basics</h3>
+          <p class="cert-meta">Completed 4 February 2026 &middot; through LPU Cavite</p>
+        </div>
+      </li>
+
+      <li class="cert reveal">
+        <button class="cert-shot" type="button"
+                data-cert-src="assets/img/certs/cert-ccna.jpg"
+                data-cert-title="CCNA: Introduction to Networks, Cisco Networking Academy"
+                data-cert-note="Completed 26 January 2026 &middot; through LPU Cavite">
+          <img src="assets/img/certs/cert-ccna.jpg" width="1800" height="1219" loading="lazy"
+               alt="Cisco Networking Academy certificate awarded to Francis Wilfred Antiporda for completing CCNA: Introduction to Networks on 26 January 2026.">
+          <span class="cert-zoom" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
+          </span>
+        </button>
+        <div class="cert-body">
+          <span class="cert-issuer">Cisco Networking Academy</span>
+          <h3>CCNA: Introduction to Networks</h3>
+          <p class="cert-meta">Completed 26 January 2026 &middot; through LPU Cavite</p>
+        </div>
+      </li>
+
+      <li class="cert reveal">
+        <button class="cert-shot" type="button"
+                data-cert-src="assets/img/certs/cert-sap.jpg"
+                data-cert-title="SAP Business One Student Courseware"
+                data-cert-note="Given 24 May 2025 &middot; TB1000 Logistics and TB1100 Financials">
+          <img src="assets/img/certs/cert-sap.jpg" width="1391" height="1800" loading="lazy"
+               alt="Certificate of completion awarded to Francis Wilfred S. Antiporda for the SAP Business One Student Courseware, dated 24 May 2025.">
+          <span class="cert-zoom" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
+          </span>
+        </button>
+        <div class="cert-body">
+          <span class="cert-issuer">SAP, through Erudite Academy and LPU Cavite</span>
+          <h3>SAP Business One Student Courseware</h3>
+          <p class="cert-meta">Given 24 May 2025 &middot; TB1000 Logistics, TB1100 Financials</p>
+        </div>
+      </li>
+
+      <li class="cert reveal">
+        <button class="cert-shot" type="button"
+                data-cert-src="assets/img/certs/cert-python.jpg"
+                data-cert-title="Python Essentials 2, Cisco Networking Academy"
+                data-cert-note="Completed 19 May 2024 &middot; through LPU Cavite">
+          <img src="assets/img/certs/cert-python.jpg" width="1800" height="1219" loading="lazy"
+               alt="Cisco Networking Academy certificate awarded to Francis Wilfred Antiporda for completing Python Essentials 2 through Lyceum of the Philippines University Cavite, dated 19 May 2024.">
+          <span class="cert-zoom" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
+          </span>
+        </button>
+        <div class="cert-body">
+          <span class="cert-issuer">Cisco Networking Academy with OpenEDG Python Institute</span>
+          <h3>Python Essentials 2</h3>
+          <p class="cert-meta">Completed 19 May 2024 &middot; multi-module Python 3, OOP, PCAP track</p>
+        </div>
+      </li>
+
+      <li class="cert reveal">
+        <button class="cert-shot" type="button"
+                data-cert-src="assets/img/certs/cert-aws.png"
+                data-cert-title="Getting Started with Compute, AWS Educate"
+                data-cert-note="Trained level &middot; the badge itself carries no date">
+          <img class="is-badge" src="assets/img/certs/cert-aws.png" width="601" height="601" loading="lazy"
+               alt="AWS Educate badge reading Getting Started with Compute, at Trained level.">
+          <span class="cert-zoom" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
+          </span>
+        </button>
+        <div class="cert-body">
+          <span class="cert-issuer">AWS Educate</span>
+          <h3>Getting Started with Compute</h3>
+          <p class="cert-meta">Trained level &middot; badge carries no date</p>
+        </div>
+      </li>
+    </ul>
+
+    <p class="certs-note">
+      Coursework behind them: SOC toolkit assembly, Linux server log analysis and
+      MITRE ATT&amp;CK mapping, from Information Assurance and Security.
+    </p>
+  </div>
+</section>
+
+<section class="section" id="skills">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Beyond the stack</span>
+      <h2>Technical skills</h2>
+      <p>~/skills</p>
+    </div>
+
+    <p class="prose reveal">The parts that decide whether any of it holds up.</p>
+
+    <div class="skills">
+        <div class="skill-group reveal">
+          <h3>testing &amp; tooling</h3>
+          <ul class="tags">
+            <li>Vitest</li><li>node:test</li><li>Playwright</li><li>Firestore emulator</li>
+            <li>GitHub Actions</li><li>ESLint</li><li>Git</li>
+          </ul>
+        </div>
+
+        <div class="skill-group reveal">
+          <h3>architecture</h3>
+          <ul class="tags">
+            <li>Clean Architecture</li><li>Repository pattern</li><li>Riverpod</li>
+            <li>Server Actions</li><li>Role-based access control</li><li>i18n</li>
+          </ul>
+        </div>
+
+        <div class="skill-group reveal">
+          <h3>networking &amp; security</h3>
+          <ul class="tags">
+            <li>Cisco CCNA (ITN)</li><li>Networking Basics</li><li>Ethical Hacker</li>
+            <li>MITRE ATT&amp;CK mapping</li><li>Linux log analysis</li><li>SOC toolkit</li>
+          </ul>
+        </div>
+
+        <div class="skill-group reveal">
+          <h3>data &amp; analytics</h3>
+          <ul class="tags">
+            <li>SQL</li><li>Python</li><li>pandas</li><li>Exploratory analysis</li>
+            <li>Data cleaning</li><li>Data visualisation</li><li>Reporting</li>
+          </ul>
+        </div>
+
+        <div class="skill-group reveal">
+          <h3>game development</h3>
+          <ul class="tags">
+            <li>Unity 6</li><li>C#</li><li>QA reporting</li>
+          </ul>
+        </div>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="timeline">
   <div class="wrap">
     <div class="section-head">
@@ -798,54 +655,37 @@
       <p>first commit per project</p>
     </div>
 
-    <ol class="timeline reveal">
-      <li>
-        <span class="hash">0000000</span>
-        <span class="when">init</span>
-        <span class="what">BS Information Technology, Lyceum of the Philippines University, Cavite</span>
-        <span class="note">Fourth year, graduating 2027. Everything below it was built next to coursework rather than for it.</span>
-      </li>
-      <li>
-        <span class="hash">a7eb1a1</span>
-        <span class="when">2025-11</span>
-        <span class="what">Corruption Watch PH, the first project in the repo</span>
-        <span class="note">Learning Firebase in public. A report form, an admin console, and the first time security rules mattered more to me than the interface did.</span>
-      </li>
-      <li>
-        <span class="hash">ffe92d3</span>
-        <span class="when">2026-05</span>
-        <span class="what">Bike Guide PH, sixteen pages and no framework</span>
-        <span class="note">Built the hard way to find out what a framework actually does for you. Service worker caching, an offline fallback, and a gear-ratio simulator written by hand.</span>
-      </li>
-      <li>
-        <span class="hash">6e2b4b0</span>
-        <span class="when">2026-06</span>
-        <span class="what">CycleMind AI, first Flutter app and first AI backend</span>
-        <span class="note">Clean Architecture with every dependency behind an interface. This is where I moved the API key out of the app and into Cloud Functions, where it belongs.</span>
-      </li>
-      <li>
-        <span class="hash">9696193</span>
-        <span class="when">2026-08</span>
-        <span class="what">AutoCare, a real client and a real shop</span>
-        <span class="note">Next.js, Prisma and PostgreSQL for HI-OCTEN CAR CARE SERVICES. Money maths in one file, printable receipts, staff roles, an audit log, and a Filipino translation for the people at the counter.</span>
-      </li>
-      <li>
-        <span class="hash">46fa322</span>
-        <span class="when">2026-08</span>
-        <span class="what">RallyReady, nineteen phases and 648 tests</span>
-        <span class="note">The most complete thing I have built. Audio drills, a benchmark, conditioning, periodised programs and progress tracking, all gated by <code>npm run verify</code>.</span>
-      </li>
-      <li>
-        <span class="hash">ea41577</span>
-        <span class="when">2026-08</span>
-        <span class="what">CI for every project, then this site</span>
-        <span class="note">Every project in this repo has a path-filtered pipeline covering lint, typecheck, tests, migrations and security rules, so nothing ships on trust alone. The newest one runs Hiroshi's Row Level Security policies against a real Postgres on every push.</span>
-      </li>
+    <ol class="timeline">
+      <li><span class="tl-when">2025</span>
+          <span class="tl-what">Corruption Watch PH</span>
+          <span class="tl-note">Firebase, and the first time security rules mattered more than the interface</span></li>
+      <li><span class="tl-when">2026</span>
+          <span class="tl-what">Bike Guide PH</span>
+          <span class="tl-live">live</span>
+          <span class="tl-note">Sixteen pages, no framework, installs as an app and works offline</span></li>
+      <li><span class="tl-when">2026</span>
+          <span class="tl-what">CycleMind AI</span>
+          <span class="tl-live">live</span>
+          <span class="tl-note">First Flutter app. Clean Architecture, and the API key moved server-side</span></li>
+      <li><span class="tl-when">2026</span>
+          <span class="tl-what">AutoCare</span>
+          <span class="tl-live">live</span>
+          <span class="tl-note">A car shop's paper notebook, replaced. Next.js, Prisma, Postgres</span></li>
+      <li><span class="tl-when">2026</span>
+          <span class="tl-what">RallyReady</span>
+          <span class="tl-live">live</span>
+          <span class="tl-note">Nineteen phases, 648 tests, and corner calls in Taglish</span></li>
+      <li><span class="tl-when">2026</span>
+          <span class="tl-what">Hiroshi Master Grill</span>
+          <span class="tl-live">live</span>
+          <span class="tl-note">Client work. Security at the start rather than the end, 43 policies proved</span></li>
+      <li><span class="tl-when">2026</span>
+          <span class="tl-what">Flare</span>
+          <span class="tl-note">Client work, mid-build. The backend is real, the learner screens are not yet</span></li>
     </ol>
   </div>
 </section>
 
-<!-- ========================================================== terminal -- -->
 <section class="section" id="shell" aria-labelledby="shell-h">
   <div class="wrap">
     <div class="section-head">
@@ -888,7 +728,6 @@
   </div>
 </section>
 
-<!-- =========================================================== contact -- -->
 <section class="section" id="contact">
   <div class="wrap">
     <div class="contact-box reveal">

@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Corruption Watch PH | Francis Wilfred Antiporda</title>
-<meta name="description" content="A public corruption reporting site backed by Firestore security rules with 25 assertions tested against the real emulator in CI.">
+<meta name="description" content="A public corruption reporting site backed by Firestore security rules, with 25 assertions run against the real emulator in CI.">
 <meta name="theme-color" content="#0C1110" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#E9EDE8" media="(prefers-color-scheme: light)">
 <meta name="color-scheme" content="dark light">
 <meta property="og:url" content="https://wilfred-website.vercel.app/projects/corruption-watch-ph">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Corruption Watch PH | Francis Wilfred Antiporda">
-<meta property="og:description" content="A public corruption reporting site backed by Firestore security rules with 25 assertions tested against the real emulator in CI.">
+<meta property="og:description" content="A public corruption reporting site backed by Firestore security rules, with 25 assertions run against the real emulator in CI.">
 <meta property="og:image" content="https://wilfred-website.vercel.app/assets/img/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://wilfred-website.vercel.app/projects/corruption-watch-ph">
@@ -29,9 +29,10 @@
   <div class="wrap nav-inner">
     <a class="nav-brand" href="../index.html">Francis W. Antiporda</a>
     <ul class="nav-links">
-      <li><a href="../index.html#about">about</a></li>
-      <li><a href="../index.html#skills">skills</a></li>
       <li><a href="../index.html#projects">projects</a></li>
+      <li><a href="../index.html#stack">stack</a></li>
+      <li><a href="../index.html#education">education</a></li>
+      <li><a href="../index.html#certs">certs</a></li>
       <li><a href="../index.html#contact">contact</a></li>
     </ul>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme">
@@ -90,9 +91,10 @@
   <p>
     The rules are the product. They get exercised by a test suite that boots the real
     Firestore emulator and runs assertions as an anonymous visitor, a signed-in
-    non-admin and an admin. That is <strong>25 assertions</strong> across this project
-    and Bike Guide PH, on every push and every pull request touching either rules
-    file.
+    non-admin and an admin. That is <strong>25 assertions</strong> on this project's
+    rules alone, run on every push and every pull request that touches them. The same
+    workflow runs the repository's other three rules suites in the same way, 144
+    assertions in total, each against the real emulator rather than a mock.
   </p>
   <div class="callout">
     The suite was verified to fail, not only to pass. Loosening one collection to
