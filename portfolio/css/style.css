@@ -571,56 +571,6 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   color: var(--amber);
 }
 
-/* ------------------------------------------------- how it was measured --
-   Each row carries the command that produced its number. It is always in the
-   DOM, so a screen reader and a no-JS visitor both get it; only its
-   visibility is conditional.
-
-   On a pointer device it stays out of the way until the row is hovered,
-   because six commands on show at once would compete with the numbers they
-   support. On touch there is no hover to wait for, so it is simply always
-   visible rather than unreachable. */
-.ledger-how {
-  grid-column: 1 / -1;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--faint);
-  /* These are the one place on the page where a long unbroken string can
-     appear, so let them wrap rather than push the row wide. */
-  overflow-wrap: anywhere;
-}
-.ledger-how::before { content: "$ "; color: var(--green); }
-
-@media (hover: hover) {
-  .ledger-how {
-    max-height: 0;
-    opacity: 0;
-    margin-top: 0;
-    overflow: hidden;
-    transition: max-height 0.28s ease, opacity 0.28s ease, margin-top 0.28s ease;
-  }
-  .ledger-row:hover .ledger-how {
-    max-height: 4rem;
-    opacity: 1;
-    margin-top: 0.35rem;
-  }
-}
-
-@media (hover: hover) and (prefers-reduced-motion: reduce) {
-  .ledger-how { transition: none; }
-}
-
-@media (hover: none) {
-  .ledger-how { margin-top: 0.35rem; }
-}
-
-.ledger-note {
-  margin-top: 1rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--faint);
-  letter-spacing: 0.02em;
-}
 
 @media (max-width: 560px) {
   .ledger-row { grid-template-columns: 1fr; gap: 0.2rem; }
@@ -768,10 +718,29 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   background: var(--bg);
   border: 1.5px solid var(--green);
 }
-.timeline .hash { color: var(--amber); }
-.timeline .when { color: var(--faint); }
-.timeline .what { color: var(--text); font-weight: 500; }
-.timeline .note { display: block; color: var(--dim); font-family: var(--sans); font-size: 0.9rem; margin-top: 0.2rem; }
+.tl-when { color: var(--amber); }
+.tl-what { color: var(--text); font-weight: 500; margin-left: 0.6rem; }
+
+/* A deployed project is the thing an employer is scanning for, so it gets the
+   one badge on this list rather than being buried in the sentence. */
+.tl-live {
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green);
+  vertical-align: 0.1em;
+}
+.tl-note {
+  display: block;
+  color: var(--dim);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
 
 /* ------------------------------------------------------------- contact -- */
 .contact-box {
@@ -1653,6 +1622,45 @@ body.is-locked { overflow: hidden; }
 /* Certificates pick up the same treatment as cards. */
 .cert { transition: border-color 0.2s ease, transform 0.2s ease; }
 .cert:hover { border-color: var(--edge); transform: translateY(-2px); }
+
+/* ------------------------------------------------ the certificate drift --
+   The certificates are the one section asked to feel like a showcase, so the
+   cards drift rather than sit still.
+
+   Three things keep it from being a nuisance. It animates `translate`, not
+   `transform`, so the hover lift above still composes instead of fighting it.
+   The amplitude is small and the periods are long and mutually prime, so the
+   cards never fall into step and never draw the eye away from the text beside
+   them. And it is a compositor-only property, so seven cards drifting costs no
+   layout and no paint.
+
+   It is behind .js because a visitor without JavaScript gets the static grid,
+   which is the honest fallback rather than a degraded one. */
+@keyframes cert-drift {
+  50% { translate: 0 -8px; }
+}
+
+.js .cert {
+  animation: cert-drift 9s ease-in-out infinite;
+  will-change: translate;
+}
+.js .cert:nth-child(7n + 2) { animation-duration: 11s;   animation-delay: -1.7s; }
+.js .cert:nth-child(7n + 3) { animation-duration: 13s;   animation-delay: -4.1s; }
+.js .cert:nth-child(7n + 4) { animation-duration: 10s;   animation-delay: -6.3s; }
+.js .cert:nth-child(7n + 5) { animation-duration: 12.5s; animation-delay: -2.9s; }
+.js .cert:nth-child(7n + 6) { animation-duration: 9.5s;  animation-delay: -7.5s; }
+.js .cert:nth-child(7n + 7) { animation-duration: 14s;   animation-delay: -5.2s; }
+
+/* Hovering one should let you read it, so that card settles while its
+   neighbours carry on. */
+.js .cert:hover,
+.js .cert:focus-within {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .cert { animation: none; will-change: auto; }
+}
 
 /* Switching theme should look like a dimmer, not a strobe. The class is added
    for the length of the fade and then removed, so the transition never

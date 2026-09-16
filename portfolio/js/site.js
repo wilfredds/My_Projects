@@ -758,7 +758,7 @@
   }
 
   /* --- highlight the section being read --------------------------------
-     Sub-pages link back with "../index.html#about", which is not a
+     Sub-pages link back with "../index.html#projects", which is not a
      selector, so only same-page hashes are considered.                    */
   var navLinks = Array.prototype.slice.call(
     document.querySelectorAll('.nav-links a[href^="#"]')

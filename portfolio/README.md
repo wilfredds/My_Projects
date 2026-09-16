@@ -20,7 +20,8 @@ A plain static server is enough. Nothing here needs Node.
 
 ```
 portfolio/
-├── index.html              # hero, about, skills, projects, timeline, contact
+├── index.html              # hero, projects, stack, education, certs, skills,
+│                           #   timeline, shell, contact
 ├── resume.html             # printable résumé (Print, then Save as PDF)
 ├── 404.html                # served by Vercel on a bad path
 ├── projects/               # one case-study page per project
@@ -219,16 +220,12 @@ rather than snap, then removes it.
   added naively really does give `0.7000000000000002`, and the quantities that
   land exactly really are 1, 2, 4 and 8. An earlier draft said 3, which is
   wrong. If you reword that paragraph, re-run the loop before you publish it.
-- **The ledger rows carry the command that produced them.** `.ledger-how` is
-  always in the DOM, so a screen reader and a no-JS visitor both get it; only
-  its visibility is conditional. Under `@media (hover: hover)` it stays
-  collapsed until the row is hovered, because six commands on show at once
-  compete with the numbers they support. Under `@media (hover: none)` it is
-  simply always visible, because a touch visitor has no hover and would
-  otherwise never reach it. Add a row, add its command.
-- **The ledger is measured, never copied.** The figures under "What the demo
-  does not show" are the point of the page, so a wrong one costs more than a
-  missing one. Re-derive them by running the suites, not by reading this file:
+- **Every figure is measured, never copied.** The home page used to gather
+  them under "What the demo does not show". That section is gone, but the
+  numbers did not go with it: they are scattered through the case studies, the
+  timeline and the resume, which makes them easier to miss and no less wrong
+  when they drift. Re-derive them by running the suites, not by reading this
+  file:
 
   ```bash
   (cd autocare && npm test && npm run test:db)   # 11 + 34
@@ -254,9 +251,19 @@ rather than snap, then removes it.
   scale escaped its container once the caption moved out from over the
   photograph, and a moving portrait fought the stillness the rest of the page
   depends on, so the parallax was removed rather than patched.
-- **The timeline hashes are real.** They are the first commit touching each
-  project directory. If you rewrite history, regenerate them with
-  `git log --reverse --format='%h %as' -- <dir> | head -1`.
+- **The timeline is still first-commit-per-project**, it just stopped showing
+  the hashes. Its subtitle says so, so every project directory in the repo
+  belongs on it: leaving one off makes the list lie by omission, which it did
+  for hiroshi-grill and flare until it was caught. Regenerate the dates with
+  `git log --reverse --format='%h %as' -- <dir> | head -1`, and only badge a
+  row `live` if the project actually has a working public URL.
+- **The certificates drift, and the way they do it matters.** `cert-drift`
+  animates the `translate` property rather than `transform`, so the existing
+  hover lift composes with it instead of fighting it. The durations are long
+  and mutually prime so the cards never fall into step, the amplitude is 8px so
+  it never pulls the eye off the text, and it is compositor-only so seven
+  moving cards cost no layout. It sits behind `.js` and switches off entirely
+  under `prefers-reduced-motion`.
 
 ## The résumé PDF
 
