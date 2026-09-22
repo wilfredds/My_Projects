@@ -640,6 +640,158 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .facts dt { color: var(--faint); }
 .facts dd { margin: 0; color: var(--text); text-align: right; }
 
+/* ------------------------------------------------- the contact sheet --
+   Seven photographs off one event, laid out the way a photographer lays out
+   a roll: a single uniform-height strip on a mat, each frame numbered and
+   captioned in the edge type. It is the only horizontal thing on a wholly
+   vertical page, which is the point; it is also the only place on the site
+   where a person appears at work rather than a screenshot of the work.
+
+   The ground is dark in both themes, which is the one bold move on the page.
+   Two reasons it is not an import: a contact sheet is a print where the film
+   base between the frames comes out black, so the dark ground is what the
+   object actually looks like; and this site already puts a full-bleed dark
+   block in a light page, in the terminal section below. The band is scoped
+   its own tokens rather than reading the theme, because its foreground has to
+   stay legible on that ground whichever theme is on. */
+.sheet {
+  --sheet-ground: #131A18;
+  --sheet-edge: #2C3A36;
+  --sheet-ink: #9DACA7;
+  --sheet-ink-bright: #EEF3F0;
+
+  margin-top: clamp(2rem, 5vw, 3rem);
+  padding-block: clamp(1.4rem, 3.5vw, 2.25rem);
+  background: var(--sheet-ground);
+  border-block: 1px solid var(--edge);
+}
+
+/* Native horizontal scrolling is the baseline: it works with no JavaScript,
+   with a trackpad, with a touch swipe and with the keyboard. The scroll-linked
+   pan below is added on top of it, and only where it suits the input. */
+.sheet-rail {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  /* Line the first frame up with the page gutter instead of the viewport
+     edge, so the strip starts where every other section starts. */
+  padding-inline: max(1.25rem, calc((100vw - var(--page)) / 2));
+  scrollbar-width: thin;
+}
+
+.sheet-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.frame {
+  flex: none;
+  scroll-snap-align: center;
+  transition: transform 0.25s ease;
+}
+.frame img {
+  display: block;
+  /* Uniform height, natural width. The source frames are different shapes
+     and cropping them to one ratio would cut people out of the group shots. */
+  height: clamp(118px, 17vw, 176px);
+  width: auto;
+  border: 1px solid var(--sheet-edge);
+  background: var(--sheet-ground);
+  filter: saturate(0.94);
+  transition: border-color 0.25s ease, filter 0.25s ease;
+}
+.frame figcaption {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 26ch;
+  margin-top: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  line-height: 1.5;
+  color: var(--sheet-ink);
+  transition: color 0.25s ease;
+}
+.frame-no {
+  flex: none;
+  color: #E3A268;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.frame:hover { transform: translateY(-4px); }
+.frame:hover img { border-color: #7FC9BC; filter: saturate(1); }
+.frame:hover figcaption { color: var(--sheet-ink-bright); }
+
+/* The deal-in. Frames arrive from the right with a degree of rotation, one
+   after another, the way a set of prints lands on a desk. --i comes off the
+   markup so the order is the sheet's order, not the order they intersect. */
+.js .sheet .frame {
+  opacity: 0;
+  translate: 26px 0;
+  rotate: -1.4deg;
+}
+.js .sheet.in .frame {
+  opacity: 1;
+  translate: none;
+  rotate: none;
+  transition: opacity 0.5s ease calc(var(--i) * 80ms),
+              translate 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) calc(var(--i) * 80ms),
+              rotate 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) calc(var(--i) * 80ms);
+}
+
+/* While the scroll-linked pan is driving the strip, the rail stops being a
+   scroller: the page's own scrolling is what moves it. Everything in the
+   strip still passes the viewport, so nothing is hidden by this. */
+.sheet-rail.is-panning {
+  overflow-x: hidden;
+  scroll-snap-type: none;
+}
+.sheet-rail.is-panning .sheet-strip { will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .sheet .frame,
+  .js .sheet.in .frame {
+    opacity: 1;
+    translate: none;
+    rotate: none;
+    transition: none;
+  }
+  .frame { transition: none; }
+  .frame:hover { transform: none; }
+}
+
+/* The credit belongs to whoever took the photographs, and it also gives the
+   band somewhere to land rather than ending into the section's bottom air. */
+.sheet-credit {
+  max-width: 52ch;
+  margin-top: 1rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  color: var(--faint);
+}
+
+/* ---------------------------------------------------------- card award --
+   One line, in the type the rest of the card metadata uses. A result belongs
+   next to the thing that earned it, not in a trophy cabinet of its own. */
+.card-award {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--amber);
+}
+.card-award svg { width: 14px; height: 14px; flex: none; }
+
 /* -------------------------------------------------------------- skills -- */
 /* align-items: start, not the grid default of stretch. These groups hold
    different numbers of chips, so stretching every card to the tallest in its

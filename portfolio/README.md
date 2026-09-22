@@ -20,8 +20,9 @@ A plain static server is enough. Nothing here needs Node.
 
 ```
 portfolio/
-├── index.html              # hero, projects, stack, education, certs, skills,
-│                           #   timeline, shell, contact
+├── index.html              # hero, projects, the contact sheet, stack,
+│                           #   education, certs, skills, timeline, shell,
+│                           #   contact
 ├── resume.html             # printable résumé (Print, then Save as PDF)
 ├── 404.html                # served by Vercel on a bad path
 ├── projects/               # one case-study page per project
@@ -37,6 +38,7 @@ portfolio/
 │   ├── site.js             # terminal, filters, copy, counters, reveal, progress
 │   └── notfound.js         # shows the path that 404'd
 ├── assets/img/             # portrait, avatar, OG image, project screenshots
+│   └── pcc/                # the seven bootcamp frames, 01 to 07
 ├── robots.txt
 ├── sitemap.xml
 └── vercel.json             # clean URLs, cache headers, CSP
@@ -97,6 +99,48 @@ snap, then removes it.
 - **No em dashes in the prose.** House style for this site. Use commas, colons
   or a full stop. Check with `grep -rn "—\|–" portfolio/`, which should print
   nothing.
+- **The contact sheet is the one bold thing on the page; keep it that way.**
+  `#room` is a full-bleed strip of seven photographs from the Philippine
+  Coding Camp bootcamp, on a ground that is dark in **both** themes. That is
+  deliberate: a contact sheet is a print where the film base between frames
+  comes out black, and this site already puts a full-bleed dark block in a
+  light page, in the terminal. The band carries its own `--sheet-*` tokens
+  rather than reading the theme, because its text has to stay legible on that
+  ground whichever theme is on. Do not add a second element that competes
+  with it.
+- **The strip has two modes, and the copy has to match whichever is on.**
+  The baseline is a native horizontal scroller, which works with a swipe, a
+  trackpad, the keyboard and no JavaScript at all. On top of that, and only
+  at `min-width: 900px` with `pointer: fine` and motion allowed, `site.js`
+  maps the section's travel through the viewport onto the strip so the roll
+  advances as the page is read. In that mode the rail is `overflow: hidden`
+  and **you cannot swipe it**, so the same code rewrites `#sheet-hint` from
+  "Swipe the strip" to "The strip advances as you scroll". Change one and
+  change the other, or the page tells a visitor to do something it will not
+  let them do.
+- **Measure the pan against the rail's content box, not `clientWidth`.** The
+  rail is padded by a full page gutter on each side so the first frame lines
+  up with every other section. `clientWidth` includes that padding, and using
+  it left the strip 160px short at 1280px wide, so frame 07 never finished
+  arriving. `measurePan` subtracts the computed padding. If you change the
+  rail's padding, re-check that the last frame lands.
+- **Images are WebP, with two deliberate exceptions.** Everything the pages
+  load is WebP: the screenshots and portrait at quality 82, the certificates
+  at 86. Measured on the densest certificate, quality 80 and 90 differ by
+  0.27 in mean absolute error against the JPEG source, so most of what is
+  left is the original's own artefacts and there is nothing to buy above 86.
+  That conversion took the image payload from 1,558 KB to 822 KB. The two
+  files that stay as JPEG are `og.jpg`, because social scrapers are the one
+  place WebP still is not safe, and `avatar-sm.jpg`, because it is the
+  `apple-touch-icon` and PNG or JPEG is what that expects.
+  **`cert-aws` has a transparent background.** It was a PNG; converting it
+  through `Image.convert('RGB')` flattens the transparency to black and puts
+  a black box behind the badge. Save it as RGBA WebP. If you ever re-encode
+  the certificates in bulk, exclude that one or check it afterwards.
+- **The bootcamp photographs are not mine.** They were taken and published by
+  the LPU Cavite CCS Student Government, who ran the event, and the credit
+  under the strip says so. They also show a lot of other people's faces.
+  Keep the credit if the photographs stay.
 - **44 CSS pixels is the floor for anything tappable.** WCAG 2.5.8 sets the AA
   minimum at 24x24, but a phone needs 44. Nav links, the brand, the back link,
   the résumé contact links, the stack chips and the calculator inputs all carry

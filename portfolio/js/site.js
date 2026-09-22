@@ -677,6 +677,94 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
+  /* --- the contact sheet's scroll-linked pan ----------------------------
+     The strip of bootcamp frames is wider than the page. Its baseline is a
+     plain horizontal scroller, which already works with a swipe, a trackpad
+     and the keyboard; this maps the section's own travel through the viewport
+     onto that strip, so the roll advances as the page is read.
+
+     It is deliberately narrow in scope. On a touch screen a scroll-linked pan
+     fights momentum scrolling and takes the swipe away from the visitor, so
+     there it stays a native scroller. The same goes for anyone who asked for
+     less motion, and for a window too narrow for the pan to have anywhere to
+     go.                                                                    */
+  var rail = document.getElementById('sheet-rail');
+  var strip = document.getElementById('sheet-strip');
+
+  if (rail && strip && !reduceMotion &&
+      window.matchMedia('(min-width: 900px) and (pointer: fine)').matches) {
+
+    var panMax = 0;
+    var panTicking = false;
+
+    function measurePan() {
+      // Measure against the rail's content box, not its border box. The rail
+      // is padded by a full page gutter on each side so the first frame lines
+      // up with every other section, and clientWidth includes that padding:
+      // using it left the strip 160px short at 1280px wide and the last frame
+      // never finished arriving.
+      var style = window.getComputedStyle(rail);
+      var inner = rail.clientWidth -
+        parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      panMax = Math.max(0, strip.scrollWidth - inner);
+      if (panMax === 0) {
+        rail.classList.remove('is-panning');
+        strip.style.transform = '';
+      } else {
+        rail.classList.add('is-panning');
+      }
+
+      /* The markup tells a visitor to swipe, which is true of the scroller
+         underneath and false the moment this pan takes over. Keep the hint
+         describing what is actually on. */
+      var hint = document.getElementById('sheet-hint');
+      if (hint) {
+        hint.textContent = panMax
+          ? 'The strip advances as you scroll.'
+          : 'Swipe the strip to move through it.';
+      }
+    }
+
+    function drawPan() {
+      panTicking = false;
+      if (!panMax) return;
+
+      var box = rail.getBoundingClientRect();
+      var view = window.innerHeight || document.documentElement.clientHeight;
+
+      // 0 as the rail's top reaches the bottom of the viewport, 1 as its
+      // bottom leaves the top.
+      var travel = view + box.height;
+      var raw = (view - box.top) / travel;
+
+      // Hold still at both ends. Without this the strip is already half way
+      // along before the section is properly on screen, and the last frame
+      // never sits still long enough to be read.
+      var eased = (raw - 0.18) / 0.54;
+      eased = Math.max(0, Math.min(1, eased));
+
+      strip.style.transform = 'translate3d(' + (-eased * panMax).toFixed(1) + 'px, 0, 0)';
+    }
+
+    function onPanScroll() {
+      if (panTicking) return;
+      panTicking = true;
+      window.requestAnimationFrame(drawPan);
+    }
+
+    measurePan();
+    drawPan();
+    window.addEventListener('scroll', onPanScroll, { passive: true });
+    window.addEventListener('resize', function () { measurePan(); drawPan(); });
+
+    // The frames are lazy-loaded, so the strip is narrower than its final
+    // width until they arrive. Re-measure as each one lands.
+    strip.querySelectorAll('img').forEach(function (img) {
+      if (img.complete) return;
+      img.addEventListener('load', function () { measurePan(); drawPan(); });
+    });
+  }
+
   /* --- certificate lightbox --------------------------------------------
      Every .cert-shot button carries its own image and caption in data
      attributes, so one overlay serves all of them and adding a certificate
