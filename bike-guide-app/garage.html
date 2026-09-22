@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/system.css" rel="stylesheet">
   <style>
     .why {
       margin: 16px 20px; padding: 15px 17px; border-radius: 16px;
@@ -53,25 +54,26 @@
     }
     .add-btn:active { background: #f4f6f8; }
 
-    .form-wrap { margin: 0 20px 20px; background: #fff; border-radius: 20px;
-                 box-shadow: 0 8px 26px rgba(0,0,0,0.1); padding: 19px; display: none; }
+    .form-wrap { margin: 0 20px 20px; background: var(--raised, #fff); border-radius: 20px;
+                 border: 1px solid var(--hairline, transparent);
+                 box-shadow: var(--e3, 0 8px 26px rgba(0,0,0,0.1)); padding: 19px; display: none; }
     .form-wrap.open { display: block; }
     .form-wrap h3 { font-size: 1rem; margin-bottom: 3px; }
-    .form-wrap > p { font-size: 0.76rem; color: #8a929a; margin-bottom: 15px; }
+    .form-wrap > p { font-size: 0.76rem; color: var(--ink-3, #8a929a); margin-bottom: 15px; }
     .fg { margin-bottom: 13px; }
-    .fg label { font-size: 0.73rem; font-weight: 700; color: #5a666f; display: block; margin-bottom: 5px; }
+    .fg label { font-size: 0.73rem; font-weight: 700; color: var(--ink-3, #5a666f); display: block; margin-bottom: 5px; }
     .fg label .req { color: #c0392b; }
     .fg input, .fg textarea {
       width: 100%; padding: 11px 14px; border: 1.5px solid #e2e7ea; border-radius: 12px;
       font-family: 'Poppins', sans-serif; font-size: 0.86rem; outline: none; background: #fafbfc;
     }
     .fg input:focus, .fg textarea:focus { border-color: #2d6a4f; background: #fff; }
-    .fg .hint { font-size: 0.69rem; color: #9aa4ac; margin-top: 4px; line-height: 1.5; }
+    .fg .hint { font-size: 0.69rem; color: var(--ink-4, #9aa4ac); margin-top: 4px; line-height: 1.5; }
     .fg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     #serial-input { text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
 
     .photo-pick {
-      border: 2px dashed #cdd6dc; border-radius: 14px; padding: 20px; text-align: center;
+      border: 2px dashed var(--hairline, #cdd6dc); border-radius: 14px; padding: 20px; text-align: center;
       cursor: pointer; color: #8a929a; font-size: 0.8rem;
     }
     .photo-pick i { font-size: 1.5rem; display: block; margin-bottom: 7px; }

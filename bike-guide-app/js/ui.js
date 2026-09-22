@@ -114,6 +114,91 @@ export function countUp(el, to, { duration = 900, decimals = 0, suffix = '' } = 
   requestAnimationFrame(frame);
 }
 
+
+// ── Skeleton loading ──────────────────────────────────────────────
+// An empty box tells the user nothing; a shimmer tells them data is
+// coming. Applied to the element's own text so layout never jumps
+// when the real value lands.
+export function skeleton(el, chars = 3) {
+  if (!el) return;
+  el.dataset.skelRestore = el.textContent;
+  el.textContent = '\u2007'.repeat(chars);   // figure space: holds width
+  el.classList.add('skel');
+}
+export function unskeleton(el) {
+  if (!el) return;
+  el.classList.remove('skel');
+  if (el.dataset.skelRestore !== undefined) delete el.dataset.skelRestore;
+}
+
+// ── Pull to refresh ───────────────────────────────────────────────
+// The gesture people already expect from every native app. Only arms
+// at the very top of the page so it never fights normal scrolling.
+export function pullToRefresh(onRefresh, { threshold = 72 } = {}) {
+  if (typeof onRefresh !== 'function') return;
+
+  const ind = document.createElement('div');
+  ind.className = 'ptr-indicator';
+  ind.innerHTML = '<i class="fa-solid fa-arrow-rotate-right"></i>';
+  document.body.appendChild(ind);
+
+  let startY = 0, pulling = false, busy = false;
+
+  window.addEventListener('touchstart', e => {
+    if (busy || window.scrollY > 2) return;
+    startY = e.touches[0].clientY;
+    pulling = true;
+  }, { passive: true });
+
+  window.addEventListener('touchmove', e => {
+    if (!pulling || busy) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy <= 0) { pulling = false; ind.style.transform = ''; return; }
+    const pull = Math.min(dy * 0.5, threshold + 24);
+    ind.style.transform = `translateX(-50%) translateY(${pull}px) rotate(${pull * 4}deg)`;
+    ind.style.opacity = String(Math.min(pull / threshold, 1));
+  }, { passive: true });
+
+  window.addEventListener('touchend', async e => {
+    if (!pulling || busy) return;
+    pulling = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy * 0.5 >= threshold) {
+      busy = true;
+      haptic([12, 40, 12]);
+      ind.classList.add('spinning');
+      ind.style.transform = `translateX(-50%) translateY(${threshold}px)`;
+      try { await onRefresh(); } catch (_) {}
+      // Brief hold so the refresh reads as deliberate rather than a flicker.
+      setTimeout(() => {
+        ind.classList.remove('spinning');
+        ind.style.transform = '';
+        ind.style.opacity = '0';
+        busy = false;
+      }, 420);
+    } else {
+      ind.style.transform = '';
+      ind.style.opacity = '0';
+    }
+  }, { passive: true });
+}
+
+// ── Long press ────────────────────────────────────────────────────
+export function longPress(el, fn, ms = 480) {
+  if (!el) return;
+  let timer = null;
+  const start = () => {
+    timer = setTimeout(() => { haptic([18, 30, 18]); fn(); }, ms);
+  };
+  const cancel = () => { clearTimeout(timer); timer = null; };
+  el.addEventListener('touchstart', start, { passive: true });
+  el.addEventListener('touchend', cancel);
+  el.addEventListener('touchmove', cancel, { passive: true });
+  el.addEventListener('mousedown', start);
+  el.addEventListener('mouseup', cancel);
+  el.addEventListener('mouseleave', cancel);
+}
+
 // ── Ripple on tap ──
 function attachRipple(root = document) {
   root.addEventListener('pointerdown', e => {
