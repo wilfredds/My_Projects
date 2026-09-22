@@ -13,6 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/system.css" rel="stylesheet">
   <style>
     .hero-banner { padding: 20px 20px 28px; border-radius: 0 0 30px 30px; }
     .greeting    { font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
@@ -115,7 +116,7 @@
   <div class="section-title">
     <h2><i class="fa-solid fa-shield-halved" style="color:#c0392b;font-size:1rem;"></i> Protect</h2>
   </div>
-  <div class="modules-grid">
+  <div class="modules-grid stagger">
     <a class="module-card" href="garage.html">
       <div class="icon-wrap" style="background:linear-gradient(135deg,#1b4332,#40916c)"><i class="fa-solid fa-warehouse"></i></div>
       <span class="card-label">My Garage</span>
@@ -130,7 +131,7 @@
   <div class="section-title">
     <h2><i class="fa-solid fa-book-open" style="color:#2d6a4f;font-size:1rem;"></i> Learn</h2>
   </div>
-  <div class="modules-grid">
+  <div class="modules-grid stagger">
     <a class="module-card" href="knowledge.html">
       <div class="icon-wrap color-green"><i class="fa-solid fa-bicycle"></i></div>
       <span class="card-label">Bike Knowledge</span>
@@ -153,7 +154,7 @@
   <div class="section-title">
     <h2><i class="fa-solid fa-dumbbell" style="color:#f4722b;font-size:1rem;"></i> Train</h2>
   </div>
-  <div class="modules-grid">
+  <div class="modules-grid stagger">
     <a class="module-card" href="warmup.html">
       <div class="icon-wrap color-teal"><i class="fa-solid fa-person-running"></i></div>
       <span class="card-label">Warm-Up</span>
@@ -176,7 +177,7 @@
   <div class="section-title">
     <h2><i class="fa-solid fa-compass" style="color:#2980b9;font-size:1rem;"></i> Explore</h2>
   </div>
-  <div class="modules-grid" style="margin-bottom:28px;">
+  <div class="modules-grid stagger" style="margin-bottom:28px;">
     <a class="module-card" href="routes.html">
       <div class="icon-wrap color-orange"><i class="fa-solid fa-map-location-dot"></i></div>
       <span class="card-label">PH Routes</span>
@@ -192,7 +193,8 @@
 </div>
 
 <script type="module">
-  import { initPage, getDailyTip, getRiderLevel, countUp } from './js/app.js';
+  import { initPage, getDailyTip, getRiderLevel, countUp,
+           skeleton, unskeleton, pullToRefresh, toast, haptic } from './js/app.js';
   import { db } from './js/firebase-config.js';
   import { collection, query, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
@@ -204,7 +206,9 @@
 
   // Daily tip
   const tipEl = document.getElementById('tip-text');
+  skeleton(tipEl, 46);
   getDailyTip().then(tip => {
+    unskeleton(tipEl);
     tipEl.textContent = tip?.tip ?? '';
   });
 
@@ -223,9 +227,20 @@
     if (cached.day > 0) document.getElementById('challenge-sub').textContent = `Day ${cached.day} complete! Keep going 🔥`;
   }
 
-  // 2) Refresh from Firestore in the background, then animate to live values
-  const userId = localStorage.getItem('bikeUserId');
-  if (userId && db) {
+  // Pull down at the top of the page to re-pull stats — the gesture
+  // every native app already trained people to try.
+  pullToRefresh(async () => {
+    const tip = await getDailyTip();
+    if (tip?.tip) tipEl.textContent = tip.tip;
+    await loadStats();
+    toast('Up to date', { type: 'success', icon: 'fa-check' });
+  });
+
+  // 2) Refresh from Firestore in the background, then animate to live values.
+  // Named so pull-to-refresh can re-run exactly the same path.
+  async function loadStats() {
+    const userId = localStorage.getItem('bikeUserId');
+    if (!userId || !db) return;
     try {
       const [snap, cSnap] = await Promise.all([
         getDocs(collection(db, 'users', userId, 'rides')),
@@ -243,6 +258,8 @@
       localStorage.setItem('dashStats', JSON.stringify({ rides: snap.size, km: +totalKm.toFixed(1), day: done }));
     } catch (_) { /* offline — cached values already shown */ }
   }
+
+  await loadStats();
 </script>
 <script src="js/sw-register.js"></script>
 </body>

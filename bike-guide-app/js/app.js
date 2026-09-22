@@ -1,7 +1,9 @@
-import { initUI, toast, countUp, haptic, confetti, setTheme, getTheme, toggleTheme } from './ui.js';
+import { initUI, toast, countUp, haptic, confetti, setTheme, getTheme, toggleTheme,
+         skeleton, unskeleton, pullToRefresh, longPress } from './ui.js';
 
 // Re-export shared UX helpers so any page importing from app.js can use them.
-export { toast, countUp, haptic, confetti, setTheme, getTheme, toggleTheme };
+export { toast, countUp, haptic, confetti, setTheme, getTheme, toggleTheme,
+         skeleton, unskeleton, pullToRefresh, longPress };
 
 // ── User identity (device-based, no login required) ──
 export function getUserId() {
