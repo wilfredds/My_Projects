@@ -185,6 +185,17 @@ body {
   overflow-x: hidden;
 }
 
+/* Paragraph rag. pretty asks the browser to avoid leaving one short word
+   alone on the last line. It costs nothing where it is unsupported: those
+   browsers wrap exactly as they did before. Headings are handled separately
+   with balance, which is a different thing: it evens every line rather than
+   only fixing the last one. */
+p { text-wrap: pretty; }
+
+/* A hyphenated compound a line break must not split. Without this, "full-stack"
+   wraps after the hyphen on a narrow phone and reads as two words. */
+.nb { white-space: nowrap; }
+
 /* A faint scanline wash + a green glow behind the fold. Purely decorative. */
 body::before {
   content: "";
@@ -259,7 +270,15 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   min-height: 52px;
 }
 
+/* Padding rather than a bigger font. .nav-inner is 52px tall and centres its
+   children, so a 44px tap target fits inside it without moving a pixel of what
+   you can see. Measured before this: the brand was 20px tall and the section
+   links 17px, both under the 24px floor a pointer target needs, and well under
+   the 44px a thumb wants. */
 .nav-brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: var(--text);
   font-family: var(--mono);
   font-size: 0.74rem;
@@ -279,14 +298,22 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   padding: 0;
   flex-wrap: wrap;
 }
-.nav-links a { color: var(--dim); }
+.nav-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--dim);
+}
 .nav-links a::before { content: "#"; color: var(--faint); margin-right: 1px; }
 .nav-links a:hover,
 .nav-links a[aria-current="true"] { color: var(--green); text-decoration: none; }
 
 @media (max-width: 640px) {
   .nav-links { gap: 0.75rem; font-size: 0.75rem; }
-  .nav-inner { padding-block: 0.5rem; }
+  /* 44px of tap target plus 0.5rem either side would make the bar 60px, where
+     it has always been 52. The padding gives back exactly what the taller
+     targets take, so the nav is the height it was designed to be. */
+  .nav-inner { padding-block: 0.25rem; }
 }
 
 /* On the narrowest phones the full name, the section links and the theme
@@ -512,6 +539,9 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 
 .section-head h2 {
+  /* Short headings look wrong broken 4-words-then-1. balance evens the lines;
+     browsers without it simply wrap as before. */
+  text-wrap: balance;
   font-family: var(--display);
   font-optical-sizing: auto;
   font-size: clamp(1.5rem, 3.2vw, 2.05rem);
@@ -610,10 +640,171 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .facts dt { color: var(--faint); }
 .facts dd { margin: 0; color: var(--text); text-align: right; }
 
+/* ------------------------------------------------- the contact sheet --
+   Seven photographs off one event, laid out the way a photographer lays out
+   a roll: a single uniform-height strip on a mat, each frame numbered and
+   captioned in the edge type. It is the only horizontal thing on a wholly
+   vertical page, which is the point; it is also the only place on the site
+   where a person appears at work rather than a screenshot of the work.
+
+   The ground is dark in both themes, which is the one bold move on the page.
+   Two reasons it is not an import: a contact sheet is a print where the film
+   base between the frames comes out black, so the dark ground is what the
+   object actually looks like; and this site already puts a full-bleed dark
+   block in a light page, in the terminal section below. The band is scoped
+   its own tokens rather than reading the theme, because its foreground has to
+   stay legible on that ground whichever theme is on. */
+.sheet {
+  --sheet-ground: #131A18;
+  --sheet-edge: #2C3A36;
+  --sheet-ink: #9DACA7;
+  --sheet-ink-bright: #EEF3F0;
+
+  margin-top: clamp(2rem, 5vw, 3rem);
+  padding-block: clamp(1.4rem, 3.5vw, 2.25rem);
+  background: var(--sheet-ground);
+  border-block: 1px solid var(--edge);
+}
+
+/* Native horizontal scrolling is the baseline: it works with no JavaScript,
+   with a trackpad, with a touch swipe and with the keyboard. The scroll-linked
+   pan below is added on top of it, and only where it suits the input. */
+.sheet-rail {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  /* Line the first frame up with the page gutter instead of the viewport
+     edge, so the strip starts where every other section starts. */
+  padding-inline: max(1.25rem, calc((100vw - var(--page)) / 2));
+  scrollbar-width: thin;
+}
+
+.sheet-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.frame {
+  flex: none;
+  scroll-snap-align: center;
+  transition: transform 0.25s ease;
+}
+.frame img {
+  display: block;
+  /* Uniform height, natural width. The source frames are different shapes
+     and cropping them to one ratio would cut people out of the group shots. */
+  height: clamp(118px, 17vw, 176px);
+  width: auto;
+  border: 1px solid var(--sheet-edge);
+  background: var(--sheet-ground);
+  filter: saturate(0.94);
+  transition: border-color 0.25s ease, filter 0.25s ease;
+}
+.frame figcaption {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 26ch;
+  margin-top: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  line-height: 1.5;
+  color: var(--sheet-ink);
+  transition: color 0.25s ease;
+}
+.frame-no {
+  flex: none;
+  color: #E3A268;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.frame:hover { transform: translateY(-4px); }
+.frame:hover img { border-color: #7FC9BC; filter: saturate(1); }
+.frame:hover figcaption { color: var(--sheet-ink-bright); }
+
+/* The deal-in. Frames arrive from the right with a degree of rotation, one
+   after another, the way a set of prints lands on a desk. --i comes off the
+   markup so the order is the sheet's order, not the order they intersect. */
+.js .sheet .frame {
+  opacity: 0;
+  translate: 26px 0;
+  rotate: -1.4deg;
+}
+.js .sheet.in .frame {
+  opacity: 1;
+  translate: none;
+  rotate: none;
+  transition: opacity 0.5s ease calc(var(--i) * 80ms),
+              translate 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) calc(var(--i) * 80ms),
+              rotate 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) calc(var(--i) * 80ms);
+}
+
+/* While the scroll-linked pan is driving the strip, the rail stops being a
+   scroller: the page's own scrolling is what moves it. Everything in the
+   strip still passes the viewport, so nothing is hidden by this. */
+.sheet-rail.is-panning {
+  overflow-x: hidden;
+  scroll-snap-type: none;
+}
+.sheet-rail.is-panning .sheet-strip { will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .sheet .frame,
+  .js .sheet.in .frame {
+    opacity: 1;
+    translate: none;
+    rotate: none;
+    transition: none;
+  }
+  .frame { transition: none; }
+  .frame:hover { transform: none; }
+}
+
+/* The credit belongs to whoever took the photographs, and it also gives the
+   band somewhere to land rather than ending into the section's bottom air. */
+.sheet-credit {
+  max-width: 52ch;
+  margin-top: 1rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  color: var(--faint);
+}
+
+/* ---------------------------------------------------------- card award --
+   One line, in the type the rest of the card metadata uses. A result belongs
+   next to the thing that earned it, not in a trophy cabinet of its own. */
+.card-award {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--amber);
+}
+.card-award svg { width: 14px; height: 14px; flex: none; }
+
 /* -------------------------------------------------------------- skills -- */
+/* align-items: start, not the grid default of stretch. These groups hold
+   different numbers of chips, so stretching every card to the tallest in its
+   row left up to 67px of empty box under the short ones, which reads as a
+   missing item rather than as breathing room. Each card is now its own height.
+
+   A CSS multi-column layout would pack the odd group out of a row of its own,
+   but Chrome's column balancer leaves a whole empty column at around 1024px
+   wide, which is a worse hole than the one it fixes. Measured, not assumed. */
 .skills {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  align-items: start;
   gap: 1rem;
 }
 .skill-group {
@@ -792,12 +983,15 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 
 /* --------------------------------------------------- project sub-pages -- */
+/* Measured at 22px tall, under the 24px a pointer target needs. */
 .back {
   font-family: var(--mono);
   font-size: 0.8rem;
   color: var(--dim);
-  display: inline-block;
-  margin-bottom: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 1rem;
 }
 .page-head { padding-block: clamp(2rem, 6vw, 3.5rem) clamp(1.5rem, 4vw, 2.5rem); }
 .page-head h1 {
@@ -1001,10 +1195,20 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   gap: 1rem;
   flex-wrap: wrap;
   margin-top: clamp(2.5rem, 6vw, 4rem);
-  padding-top: 1.5rem;
+  padding-top: 0.75rem;
   border-top: 1px solid var(--line-soft);
   font-family: var(--mono);
   font-size: 0.8rem;
+}
+
+/* The two links measured 22px tall, under the 24px a pointer target needs.
+   Half of the 22px they gain is taken back off the container's padding above
+   (1.5rem down to 0.75rem), which keeps the rule close to the links without
+   pretending the compensation is exact: the page ends up 21px taller. */
+.pager a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 /* --------------------------------------------------- reveal on scroll --- */
@@ -1291,7 +1495,11 @@ code {
 .term-form { gap: 0.55ch; }
 
 /* -------------------------------------------------------- theme toggle -- */
+/* The visible button stays 30px so the nav keeps its proportions. The pseudo
+   element carries the tap target out to 44px without drawing anything, which
+   is the one place where growing the box itself would have been felt. */
 .theme-toggle {
+  position: relative;
   display: grid;
   place-items: center;
   width: 30px;
@@ -1305,6 +1513,16 @@ code {
   cursor: pointer;
   transition: color 0.18s ease, border-color 0.18s ease;
 }
+.theme-toggle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
 .theme-toggle:hover { color: var(--green); border-color: var(--green); }
 .theme-toggle svg { width: 15px; height: 15px; }
 
@@ -1442,6 +1660,7 @@ code {
 }
 
 .cert-issuer {
+  text-wrap: balance;
   display: block;
   font-family: var(--mono);
   font-size: 0.7rem;
@@ -1452,6 +1671,7 @@ code {
 }
 
 .cert h3 {
+  text-wrap: balance;
   font-family: var(--mono);
   font-size: 0.95rem;
   font-weight: 700;
@@ -1802,3 +2022,33 @@ body.is-locked { overflow: hidden; }
   font-size: 0.83rem;
   max-width: 34ch;
 }
+
+/* ------------------------------------------------- touch target sizes --
+   Controls that read correctly at their drawn size under a mouse, where the
+   floor is 24px and they clear it, but that a thumb would struggle with.
+   They grow only where the pointer is coarse, so the desktop density the rest
+   of this page depends on is untouched.
+
+   Measured on a 390px phone before this: filter chips 26px tall, the
+   calculator inputs 29px, the resume contact links 15px. */
+@media (pointer: coarse) {
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .calc input {
+    min-height: 44px;
+  }
+  .cv-contact a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
+/* A printed resume has no pointer at all, so none of that applies to it. */
+@media print {
+  .cv-contact a { display: inline; min-height: 0; }
+}
+

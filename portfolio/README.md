@@ -20,8 +20,9 @@ A plain static server is enough. Nothing here needs Node.
 
 ```
 portfolio/
-├── index.html              # hero, projects, stack, education, certs, skills,
-│                           #   timeline, shell, contact
+├── index.html              # hero, projects, the contact sheet, stack,
+│                           #   education, certs, skills, timeline, shell,
+│                           #   contact
 ├── resume.html             # printable résumé (Print, then Save as PDF)
 ├── 404.html                # served by Vercel on a bad path
 ├── projects/               # one case-study page per project
@@ -37,6 +38,7 @@ portfolio/
 │   ├── site.js             # terminal, filters, copy, counters, reveal, progress
 │   └── notfound.js         # shows the path that 404'd
 ├── assets/img/             # portrait, avatar, OG image, project screenshots
+│   └── pcc/                # the seven bootcamp frames, 01 to 07
 ├── robots.txt
 ├── sitemap.xml
 └── vercel.json             # clean URLs, cache headers, CSP
@@ -97,6 +99,76 @@ snap, then removes it.
 - **No em dashes in the prose.** House style for this site. Use commas, colons
   or a full stop. Check with `grep -rn "—\|–" portfolio/`, which should print
   nothing.
+- **The contact sheet is the one bold thing on the page; keep it that way.**
+  `#room` is a full-bleed strip of seven photographs from the Philippine
+  Coding Camp bootcamp, on a ground that is dark in **both** themes. That is
+  deliberate: a contact sheet is a print where the film base between frames
+  comes out black, and this site already puts a full-bleed dark block in a
+  light page, in the terminal. The band carries its own `--sheet-*` tokens
+  rather than reading the theme, because its text has to stay legible on that
+  ground whichever theme is on. Do not add a second element that competes
+  with it.
+- **The strip has two modes, and the copy has to match whichever is on.**
+  The baseline is a native horizontal scroller, which works with a swipe, a
+  trackpad, the keyboard and no JavaScript at all. On top of that, and only
+  at `min-width: 900px` with `pointer: fine` and motion allowed, `site.js`
+  maps the section's travel through the viewport onto the strip so the roll
+  advances as the page is read. In that mode the rail is `overflow: hidden`
+  and **you cannot swipe it**, so the same code rewrites `#sheet-hint` from
+  "Swipe the strip" to "The strip advances as you scroll". Change one and
+  change the other, or the page tells a visitor to do something it will not
+  let them do.
+- **Measure the pan against the rail's content box, not `clientWidth`.** The
+  rail is padded by a full page gutter on each side so the first frame lines
+  up with every other section. `clientWidth` includes that padding, and using
+  it left the strip 160px short at 1280px wide, so frame 07 never finished
+  arriving. `measurePan` subtracts the computed padding. If you change the
+  rail's padding, re-check that the last frame lands.
+- **Images are WebP, with two deliberate exceptions.** Everything the pages
+  load is WebP: the screenshots and portrait at quality 82, the certificates
+  at 86. Measured on the densest certificate, quality 80 and 90 differ by
+  0.27 in mean absolute error against the JPEG source, so most of what is
+  left is the original's own artefacts and there is nothing to buy above 86.
+  That conversion took the image payload from 1,558 KB to 822 KB. The two
+  files that stay as JPEG are `og.jpg`, because social scrapers are the one
+  place WebP still is not safe, and `avatar-sm.jpg`, because it is the
+  `apple-touch-icon` and PNG or JPEG is what that expects.
+  **`cert-aws` has a transparent background.** It was a PNG; converting it
+  through `Image.convert('RGB')` flattens the transparency to black and puts
+  a black box behind the badge. Save it as RGBA WebP. If you ever re-encode
+  the certificates in bulk, exclude that one or check it afterwards.
+- **The bootcamp photographs are not mine.** They were taken and published by
+  the LPU Cavite CCS Student Government, who ran the event, and the credit
+  under the strip says so. They also show a lot of other people's faces.
+  Keep the credit if the photographs stay.
+- **44 CSS pixels is the floor for anything tappable.** WCAG 2.5.8 sets the AA
+  minimum at 24x24, but a phone needs 44. Nav links, the brand, the back link,
+  the résumé contact links, the stack chips and the calculator inputs all carry
+  a `min-height` to reach it; the chips and inputs get theirs only inside
+  `@media (pointer: coarse)`, so the desktop layout keeps its density. Two
+  things look like violations in an automated sweep and are not:
+  - The theme toggle measures 30x30. Its hit area is a transparent 44x44
+    `::after` centred on it, which was checked by clicking 20px outside the
+    drawn box (the theme flipped) and 40px outside (it did not).
+  - The seven project-card title links measure 20px on a phone. They are
+    covered by 2.5.8's **Equivalent** exception, because each one has a
+    same-`href` button on the same card ("Case study", or "Live site" for
+    badminton-ph) that is exactly 44px tall. That exception is the only thing
+    holding them up, so **if `.btn` ever gets shorter than 44px, those seven
+    links become real failures.** Measure both together.
+- **`text-wrap` is set deliberately, and not everywhere.** `p` gets `pretty`,
+  which keeps a lone short word off the last line; across seven widths that cut
+  the page's orphaned last lines from 38 to 18. `.section-head h2`, `.cert h3`
+  and `.cert-issuer` get `balance`, which evens every line of a short label.
+  The `.eyebrow` deliberately gets neither: balancing it broke `full-stack`
+  after the hyphen. That compound is now wrapped in `<span class="nb">`, which
+  is `white-space: nowrap`, so no wrap mode can split it again.
+- **`.skills` cards are `align-items: start`, not stretched.** The groups hold
+  different numbers of chips; the grid default left up to 67px of empty box
+  under the short ones, which reads as a missing item. A CSS multi-column
+  layout packs the odd fifth group out of a row of its own, but Chrome's
+  balancer leaves an entire empty column at around 1024px wide, so the grid
+  stays. Both were measured before choosing.
 - **External URLs are not checked by CI.** The source of truth for a Vercel
   domain is the project's own domain list. One trap when reading it: while a
   deployment is `QUEUED` or `BUILDING`, that list shows only the long
