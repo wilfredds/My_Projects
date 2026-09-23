@@ -99,6 +99,18 @@ snap, then removes it.
 - **No em dashes in the prose.** House style for this site. Use commas, colons
   or a full stop. Check with `grep -rn "—\|–" portfolio/`, which should print
   nothing.
+- **Images are cached for a day, not a year, and never `immutable`.**
+  `/assets/` used to be served `max-age=31536000, immutable`. `immutable`
+  is only correct for a URL whose content can never change, which in
+  practice means a filename with a content hash in it, and this site has no
+  build step to put one there. Commit `2ec350b` replaced the portrait at the
+  same filename, so any returning visitor who had loaded it before kept
+  seeing the old photo, and nothing short of clearing their cache would have
+  changed that. A day is long enough that moving between the home page and a
+  case study never downloads an image twice, and short enough that a
+  replaced image reaches everyone within 24 hours. CSS and JavaScript sit
+  outside `/assets/` and get Vercel's default, which revalidates on every
+  visit, so style changes were never caught by this.
 - **The contact sheet is the one bold thing on the page; keep it that way.**
   `#room` is a full-bleed strip of seven photographs from the Philippine
   Coding Camp bootcamp, on a ground that is dark in **both** themes. That is
@@ -381,9 +393,73 @@ The project is linked to this repository. **Root Directory** must be
 directory. Vercel serves the folder as-is and reads `vercel.json` for headers
 and clean URLs.
 
-The canonical URL, `robots.txt` and `sitemap.xml` all reference
-`https://wilfred-website.vercel.app`. If the Vercel project gets renamed,
-update those three places to match.
+The canonical URLs, the Open Graph and Twitter tags, `sitemap.xml`,
+`robots.txt`, `.well-known/security.txt` and the website line on the résumé
+all name the host outright, because a crawler or a link preview needs an
+absolute URL. That was 38 references in 11 text files when this was
+written, plus one inside the résumé PDF. It is a count rather than an
+estimate, so count again before trusting it.
+
+### Moving to your own domain
+
+Three stages, and only the first lives in this repository.
+
+**1. The repository: one command, then prove it.** From the repository
+root, with the new host in place of `example.com`:
+
+```sh
+grep -rlI --exclude=README.md 'wilfred-website\.vercel\.app' portfolio \
+  | xargs sed -i 's#wilfred-website\.vercel\.app#example.com#g'
+grep -rnI --exclude=README.md 'wilfred-website\.vercel\.app' portfolio   # must print nothing
+```
+
+**The `-I` is load-bearing.** It makes `grep` skip binary files, and the
+résumé PDF is one: it carries the old host inside it. Without `-I` the PDF
+is handed to `sed`, which shortens a 26-byte host to a shorter one and
+shifts every byte after it. A PDF ends with the byte offset of its own
+index, so that offset now points into the middle of the index instead of at
+its start. That was tested, not supposed: the file came back 15 bytes
+shorter with its index pointer landing on `00000 6553` rather than `xref`.
+Lenient viewers repair that silently; strict ones refuse the file.
+
+So the PDF is never edited, it is **regenerated** from the updated
+`resume.html`, as the section on the résumé PDF above describes. Do that as
+the second half of this stage, then check the result is still two A4 pages.
+The website line on the résumé is the reference that matters most to a
+person rather than a crawler, because it is printed on every copy.
+
+`sed -i` is GNU sed; on macOS it is `sed -i ''`. This README is excluded on
+purpose, so that this section still names the old host afterwards.
+
+**2. The Vercel dashboard.** Add the domain under the project's Settings,
+Domains, and create the DNS records it asks for. Then edit
+`wilfred-website.vercel.app` in the same list to redirect to the new domain
+with **308**. Without that redirect both addresses serve the same site,
+search engines split between them, and every link already out there
+(LinkedIn, résumés already sent) keeps landing on the old one. With it,
+they all arrive at the new domain.
+
+The project already has one redirect, and it shows both ways to get this
+wrong. `my-projects-kappa-two.vercel.app`, the project's old name,
+redirects to `wilfred-website.vercel.app` with **307**. A 307 is temporary,
+which tells a search engine to keep indexing the old address rather than
+move its standing across. And once `wilfred-website.vercel.app` itself
+redirects onwards, the old name becomes a two-hop chain. Point it straight
+at the new domain, with 308, in the same sitting.
+
+**3. After it is live.**
+
+- Add the domain to Google Search Console and submit `/sitemap.xml`.
+- LinkedIn caches link previews for days. Paste the new URL into
+  LinkedIn's Post Inspector to refresh the title and image.
+- Know what the security headers now commit the domain to.
+  `Strict-Transport-Security` is sent with `includeSubDomains`, so for two
+  years every subdomain of the new domain must serve HTTPS or browsers will
+  refuse to load it. Vercel serves HTTPS on everything it hosts, so this
+  only bites a subdomain hosted somewhere else. The header also carries
+  `preload`, which does nothing until someone submits the domain to
+  hstspreload.org. Do not submit it casually: getting a domain back off
+  that list takes months.
 
 ### The project only builds when this folder changes
 
