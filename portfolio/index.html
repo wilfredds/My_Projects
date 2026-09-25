@@ -61,7 +61,7 @@
       <p class="hero-kicker reveal">Francis Wilfred Antiporda &middot; <span class="nb">full-stack</span> developer</p>
       <h1 class="reveal">Web, mobile, and <em>the parts that never make it into a demo.</em></h1>
       <p class="hero-blurb reveal">
-        I build things people actually use. One replaced a car shop's paper notebook.
+        I build software for real people. One is built to replace a car shop's paper notebook.
         Another calls out badminton drills in Taglish, so you can train with nobody
         else in the room. Nine projects, six of them running somewhere you can open
         right now.
@@ -117,14 +117,12 @@
 
       <!-- --------------------------------------------------- floodguard -- -->
       <article class="card reveal" data-tech="iot capstone">
-        <span class="card-shot is-empty" aria-hidden="true">
-          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l4.5-4.5a2 2 0 0 1 2.8 0L15 15"/><circle cx="15.5" cy="8.5" r="1.5"/></svg>
-          <b>Still being built</b>
-          <span>Capstone, due 2027. Sensors, prediction and an SMS gateway.</span>
-        </span>
+        <a class="card-shot" href="projects/floodguard.html" tabindex="-1" aria-hidden="true">
+          <img src="assets/img/shot-floodguard.webp" width="1200" height="750" loading="lazy" alt="">
+        </a>
         <div class="card-body">
           <p class="card-kicker">Capstone &middot; IoT &middot; AI</p>
-          <h3>floodguard<span class="slash">/</span></h3>
+          <h3><a href="projects/floodguard.html">floodguard<span class="slash">/</span></a></h3>
           <p>
             <strong>FloodGuard: A Predictive IoT and Artificial Intelligence Flood
             Monitoring and Early Warning System with Automated SMS Notification for the
@@ -136,6 +134,9 @@
             <li>IoT sensors</li><li>Prediction</li><li>Automated SMS</li>
             <li>Team leader</li><li>LPU Cavite</li>
           </ul>
+          <div class="card-links">
+            <a class="btn btn-primary" href="projects/floodguard.html">Case study</a>
+          </div>
         </div>
       </article>
 
@@ -153,7 +154,12 @@
             each. The running total is computed by the server and there is no field to
             type it into. Every finished job prints a receipt. The whole interface
             works in English or Filipino, and every change is written to an activity log.
+            It is live, but the shop has not switched over from the notebook yet.
           </p>
+          <blockquote class="card-quote">
+            <p>&ldquo;This is a good system for my <i lang="fil">talyer</i>.&rdquo;</p>
+            <footer>The shop owner, who is also my grandfather</footer>
+          </blockquote>
           <ul class="tags">
             <li>Next.js 15</li><li>Prisma</li><li>PostgreSQL</li><li>next-auth</li>
             <li>next-intl</li><li>Tailwind</li>
@@ -236,7 +242,12 @@
             a login showing each night's bookings with only the controls that role is
             allowed. One Zod schema validates in the browser and again on the server.
             Row Level Security denies by default, so a customer with dev tools open
-            still cannot read a single reservation.
+            still cannot read a single reservation. The site is live; the restaurant
+            has not started taking bookings through it yet.
+          </p>
+          <p class="card-quote card-quote-reported">
+            What the owner singled out: the staff portal, where the staff and the owner
+            each sign in to their own account.
           </p>
           <ul class="tags">
             <li>Next.js 16</li><li>TypeScript</li><li>Supabase</li>
@@ -743,7 +754,7 @@
       <li><span class="tl-when">2026</span>
           <span class="tl-what">AutoCare</span>
           <span class="tl-live">live</span>
-          <span class="tl-note">A car shop's paper notebook, replaced. Next.js, Prisma, Postgres</span></li>
+          <span class="tl-note">Built to replace a car shop's paper notebook. Next.js, Prisma, Postgres</span></li>
       <li><span class="tl-when">2026</span>
           <span class="tl-what">RallyReady</span>
           <span class="tl-live">live</span>

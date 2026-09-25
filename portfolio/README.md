@@ -153,6 +153,25 @@ snap, then removes it.
   the LPU Cavite CCS Student Government, who ran the event, and the credit
   under the strip says so. They also show a lot of other people's faces.
   Keep the credit if the photographs stay.
+- **The FloodGuard photos are edited on purpose; do not swap in the originals.**
+  The bench photo was cropped because the laptop screen beside the rig shows a
+  full phone number in the serial monitor. The SMS screenshot keeps only the
+  date, time and first notification, because the lock-screen wallpaper below it
+  shows a person. The LDRRMO photo has three ID cards blurred, one of them a
+  staff member's with her full name and job title. The FloodGuard page also
+  says in so many words that this is a bench-tested prototype and makes no
+  claim about the prediction half, because nothing shown demonstrates it.
+- **Client words are quoted only when they are the client's words.** The
+  AutoCare quote is the owner's own sentence and carries quotation marks and
+  a speaker. The Hiroshi line is the owner's reaction as reported to me, so it
+  has neither (`.card-quote-reported`). Both cards also say the system is live
+  but not yet in use, which is the truth as of writing; update them when that
+  changes rather than before.
+- **The RallyReady recording is silent, and says so.** It was made with
+  Playwright against the dev server, and a headless browser has no speech
+  voice, so the spoken calls are missing. It is WebM (VP8), the only encoder
+  available where it was made; a recording taken on a phone, with sound, would
+  be better, and would also cover older iPhones that do not play WebM.
 - **44 CSS pixels is the floor for anything tappable.** WCAG 2.5.8 sets the AA
   minimum at 24x24, but a phone needs 44. Nav links, the brand, the back link,
   the résumé contact links, the stack chips and the calculator inputs all carry
@@ -396,7 +415,7 @@ and clean URLs.
 The canonical URLs, the Open Graph and Twitter tags, `sitemap.xml`,
 `robots.txt`, `.well-known/security.txt` and the website line on the résumé
 all name the host outright, because a crawler or a link preview needs an
-absolute URL. That was 38 references in 11 text files when this was
+absolute URL. That was 42 references in 12 text files when this was
 written, plus one inside the résumé PDF. It is a count rather than an
 estimate, so count again before trusting it.
 
