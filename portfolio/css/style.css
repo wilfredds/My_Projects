@@ -792,6 +792,36 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .card-award svg { width: 14px; height: 14px; flex: none; }
 
+/* ---------------------------------------------------------- card quote --
+   A client's own words, or a reaction reported in mine. The two look alike on
+   purpose but are marked differently: a quotation carries quotation marks and
+   a named speaker, a reported reaction carries neither, because putting quote
+   marks around wording the client may not have used would invent a quote. */
+.card-quote {
+  margin: 1rem 0 1.1rem;
+  padding: 0.2rem 0 0.2rem 0.9rem;
+  border-left: 2px solid var(--amber);
+}
+.card-quote p {
+  font-family: var(--display);
+  font-size: 1.12rem;
+  line-height: 1.4;
+  color: var(--text);
+}
+.card-quote footer {
+  margin-top: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: var(--dim);
+}
+.card-quote-reported {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--dim);
+}
+.page-quote { margin-block: 2rem 2.5rem; max-width: 60ch; }
+
 /* -------------------------------------------------------------- skills -- */
 /* align-items: start, not the grid default of stretch. These groups hold
    different numbers of chips, so stretching every card to the tallest in its
@@ -1029,6 +1059,61 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   font-family: var(--mono);
   font-size: 0.73rem;
   color: var(--faint);
+}
+
+/* Two screenshots of different shapes side by side: a wide phone notification
+   and a tall phone screen. Each keeps its own proportions; stacked on phones. */
+.shot-pair {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  align-items: start;
+  gap: 1rem;
+  margin-block: clamp(1.5rem, 4vw, 2.25rem);
+}
+.shot-pair figure {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.shot-pair img { display: block; width: 100%; height: auto; }
+.shot-pair figcaption {
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 0.73rem;
+  color: var(--faint);
+}
+@media (max-width: 640px) { .shot-pair { grid-template-columns: 1fr; } }
+
+/* A phone screen recording. Narrow and centred, with the caption beside it on
+   wide screens so a 390px-wide video does not leave a column of empty page. */
+.shot-video {
+  display: grid;
+  grid-template-columns: minmax(0, 300px) 1fr;
+  align-items: center;
+  gap: 1.25rem;
+  margin-block: clamp(1.5rem, 4vw, 2.25rem);
+}
+.shot-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.shot-video figcaption {
+  font-family: var(--mono);
+  font-size: 0.73rem;
+  line-height: 1.6;
+  color: var(--faint);
+  max-width: 44ch;
+}
+@media (max-width: 640px) {
+  .shot-video { grid-template-columns: 1fr; justify-items: center; }
+  .shot-video video { max-width: 300px; }
 }
 
 .detail-head {

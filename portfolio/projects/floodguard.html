@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FloodGuard | Francis Wilfred Antiporda</title>
+<meta name="description" content="FloodGuard, an IoT flood early-warning capstone for Noveleta, Cavite: a NodeMCU and SIM800L prototype that has sent its first SMS alerts over a live cellular network.">
+<meta name="theme-color" content="#0C1110" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#E9EDE8" media="(prefers-color-scheme: light)">
+<meta name="color-scheme" content="dark light">
+<meta property="og:url" content="https://wilfred-website.vercel.app/projects/floodguard">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FloodGuard | Francis Wilfred Antiporda">
+<meta property="og:description" content="FloodGuard, an IoT flood early-warning capstone for Noveleta, Cavite: a NodeMCU and SIM800L prototype that has sent its first SMS alerts over a live cellular network.">
+<meta property="og:image" content="https://wilfred-website.vercel.app/assets/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://wilfred-website.vercel.app/projects/floodguard">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230C1110'/><text x='50' y='73' font-size='60' font-family='Arial,Helvetica,sans-serif' font-weight='700' fill='%237FC9BC' text-anchor='middle' letter-spacing='-3'>FA</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;450;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script src="../js/boot.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="wrap nav-inner">
+    <a class="nav-brand" href="../index.html">Francis W. Antiporda</a>
+    <ul class="nav-links">
+      <li><a href="../index.html#projects">projects</a></li>
+      <li><a href="../index.html#stack">stack</a></li>
+      <li><a href="../index.html#education">education</a></li>
+      <li><a href="../index.html#certs">certs</a></li>
+      <li><a href="../index.html#contact">contact</a></li>
+    </ul>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+  </div>
+</nav>
+
+<div class="progress" id="progress" hidden><span id="progress-bar"></span></div>
+
+<main id="main" class="wrap detail">
+  <header class="page-head">
+    <a class="back" href="../index.html#projects">&larr; All projects</a>
+    <h1>floodguard<span class='slash'>/</span></h1>
+    <p class="lede">Our capstone: a flood early-warning system for the Municipality of Noveleta, Cavite. A sensor watches the water level, and when it rises past a threshold the warning goes out by SMS, because a text message reaches people who are not watching a dashboard. I lead the team.</p>
+  </header>
+
+  <dl class="meta">
+    <div><dt>role</dt><dd>Team leader</dd></div>
+    <div><dt>hardware</dt><dd>NodeMCU (ESP8266) &middot; SIM800L GSM module &middot; 16x2 LCD</dd></div>
+    <div><dt>for</dt><dd>Municipality of Noveleta, Cavite</dd></div>
+    <div><dt>status</dt><dd>Prototype, bench-tested. Capstone due 2027</dd></div>
+  </dl>
+
+  <figure class="shot-full reveal">
+    <img src="../assets/img/floodguard/bench.webp" width="1200" height="750" loading="lazy"
+         alt="The FloodGuard prototype on a tiled floor: a NodeMCU board and a breadboard wired to a water-level sensor, a GSM module with its antenna, and a green LCD reading FloodGuard v3.1, Water: 135 cm.">
+    <figcaption>Version 3.1 on the bench. The LCD shows the reading the text message below was sent with.</figcaption>
+  </figure>
+
+  <div class="detail-head">
+    <span class="eyebrow">The problem</span>
+    <h2>A warning nobody sees is not a warning</h2>
+  </div>
+  <p>
+    Noveleta floods. A monitoring dashboard is useful to the office that watches it,
+    but the people who most need to know the water is rising are the ones asleep, out,
+    or without data. So the output of this system is not a chart. It is a text
+    message, sent over the ordinary cellular network, to a phone that does not need an
+    app or an internet connection to receive it.
+  </p>
+
+  <div class="detail-head">
+    <span class="eyebrow">What works today</span>
+    <h2>Sensor to LCD to a real phone</h2>
+  </div>
+  <ul>
+    <li>A NodeMCU board reads the water level and shows it on a 16x2 LCD.</li>
+    <li>A SIM800L GSM module sends the alert as an SMS over the Smart cellular network. On 13 July 2026 the bench test delivered to a real phone, then sent again five minutes later to show the pipeline holds up on repeat.</li>
+    <li>A web dashboard shows the live reading against a critical threshold, turns red when the level crosses it with an instruction to evacuate, and plots the recent trend. It sits behind a login, with a barangay administrator role.</li>
+  </ul>
+
+  <div class="shot-pair reveal">
+    <figure>
+      <img src="../assets/img/floodguard/sms.webp" width="924" height="820" loading="lazy"
+           alt="A phone lock screen on Monday 13 July at 4:28 showing a text message: FloodGuard v3.1 bench test, SMS pipeline verified, water level 135 cm, sent via SIM800L over Smart cellular network, alert system operational.">
+      <figcaption>The first alert, received on an ordinary phone.</figcaption>
+    </figure>
+    <figure>
+      <img src="../assets/img/floodguard/dashboard.webp" width="900" height="1520" loading="lazy"
+           alt="The FloodGuard monitoring dashboard on a phone, signed in as a barangay admin with the sensor online. Current status RED: 18.2 cm, 114 percent of critical, with the message evacuate now and follow barangay evacuation routes,">
+      <figcaption>The dashboard in its red state. Thresholds set for a bench test, not a river.</figcaption>
+    </figure>
+  </div>
+
+  <div class="detail-head">
+    <span class="eyebrow">Honest notes</span>
+    <h2>Where it actually stands</h2>
+  </div>
+  <p>
+    This is a prototype on a bench, not a deployed system. The readings in these
+    pictures are test values, the dashboard is running on a local network rather than
+    the internet, and nothing is installed at a river yet. The prediction half of the
+    capstone is part of the plan and is not shown here, so this page makes no claim
+    about it. What has been shown is the part that has to work before anything else
+    matters: a reading becomes a text message on a real phone, over a real network.
+  </p>
+
+  <figure class="shot-full reveal">
+    <img src="../assets/img/floodguard/ldrrmo.webp" width="1400" height="788" loading="lazy"
+         alt="Two LPU students standing with two staff of the Noveleta local disaster risk reduction and management office in their office, a portrait of the municipal mayor on the wall behind them. The ID cards are blurred.">
+    <figcaption>At the Noveleta local disaster risk reduction and management office (LDRRMO), the office a warning system for the town has to work with. ID cards blurred.</figcaption>
+  </figure>
+
+  <nav class="pager" aria-label="Project navigation">
+    <a href="corruption-watch-ph.html">&larr; Corruption Watch PH</a>
+    <a href="autocare.html">AutoCare &rarr;</a>
+  </nav>
+</main>
+
+<footer class="footer wrap">
+  <span>&copy; <span id="year">2026</span> Francis Wilfred Antiporda</span>
+  <span>Built by hand. No framework, no build step.</span>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="../js/site.js" defer></script>
+</body>
+</html>

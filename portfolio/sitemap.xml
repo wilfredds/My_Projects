@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://wilfred-website.vercel.app/</loc><priority>1.0</priority></url>
   <url><loc>https://wilfred-website.vercel.app/resume</loc><priority>0.8</priority></url>
+  <url><loc>https://wilfred-website.vercel.app/projects/floodguard</loc><priority>0.7</priority></url>
   <url><loc>https://wilfred-website.vercel.app/projects/autocare</loc><priority>0.7</priority></url>
   <url><loc>https://wilfred-website.vercel.app/projects/rallyready</loc><priority>0.7</priority></url>
   <url><loc>https://wilfred-website.vercel.app/projects/hiroshi-master-grill</loc><priority>0.7</priority></url>
