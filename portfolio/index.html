@@ -24,9 +24,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230C1110'/><text x='50' y='73' font-size='60' font-family='Arial,Helvetica,sans-serif' font-weight='700' fill='%237FC9BC' text-anchor='middle' letter-spacing='-3'>FA</text></svg>">
 <link rel="apple-touch-icon" href="assets/img/avatar-sm.jpg">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;450;600&display=swap" rel="stylesheet">
+<link rel="preload" href="assets/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
 <script src="js/boot.js"></script>
 </head>
@@ -39,7 +37,7 @@
     <ul class="nav-links">
       <li><a href="#projects">projects</a></li>
       <li><a href="#stack">stack</a></li>
-      <li><a href="#education">education</a></li>
+      <li><a href="#education">experience</a></li>
       <li><a href="#certs">certs</a></li>
       <li><a href="#skills">skills</a></li>
       <li><a href="#contact">contact</a></li>
@@ -58,7 +56,7 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div>
-      <p class="hero-kicker reveal">Francis Wilfred Antiporda &middot; <span class="nb">full-stack</span> developer</p>
+      <p class="hero-kicker reveal">Front-end developer intern at Certicode</p>
       <h1 class="reveal">Web, mobile, and <em>the parts that never make it into a demo.</em></h1>
       <p class="hero-blurb reveal">
         I build software for real people. One is built to replace a car shop's paper notebook.
@@ -72,7 +70,14 @@
           View projects
         </a>
         <a class="btn" href="resume.html">Résumé</a>
+        <button class="bp-toggle" id="bp-toggle" type="button" aria-pressed="false"
+                aria-describedby="bp-hint" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 1.5v5M12 17.5v5M1.5 12h5M17.5 12h5"/></svg>
+          <span class="bp-toggle-label">Show the blueprint</span>
+        </button>
       </div>
+      <p class="bp-hint" id="bp-hint" hidden>The measurements under this section, taken in your browser.</p>
+      <p class="sr-only" id="bp-summary" aria-live="polite"></p>
     </div>
 
     <figure class="portrait reveal">
@@ -86,7 +91,7 @@
 <!-- ========================================================== projects -- -->
 <section class="section" id="projects">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal-head">
       <span class="eyebrow">Selected work</span>
       <h2>Nine projects</h2>
       <p id="project-count">9 projects</p>
@@ -379,10 +384,9 @@
 <!-- ====================================================== the bootcamp -- -->
 <section class="section" id="room" aria-labelledby="room-h">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal-head">
       <span class="eyebrow">In the room</span>
       <h2 id="room-h">Two days at the coding camp</h2>
-      <p>~/pcc</p>
     </div>
 
     <p class="prose reveal">
@@ -397,37 +401,37 @@
   <div class="sheet reveal">
     <div class="sheet-rail" id="sheet-rail">
       <ol class="sheet-strip" id="sheet-strip">
-        <li class="frame" style="--i: 0">
+        <li class="frame">
           <img src="assets/img/pcc/01.webp" width="566" height="194" loading="lazy" decoding="async"
                alt="The whole bootcamp cohort standing together at the front of a classroom, several dozen students in rows.">
           <figcaption><span class="frame-no">01</span> The cohort, in one classroom</figcaption>
         </li>
-        <li class="frame" style="--i: 1">
+        <li class="frame">
           <img src="assets/img/pcc/02.webp" width="259" height="194" loading="lazy" decoding="async"
                alt="A student standing beside a wall-mounted screen, one hand raised to a dark-themed web app, talking to the room.">
           <figcaption><span class="frame-no">02</span> Presenting on the wall screen</figcaption>
         </li>
-        <li class="frame" style="--i: 2">
+        <li class="frame">
           <img src="assets/img/pcc/03.webp" width="255" height="194" loading="lazy" decoding="async"
                alt="A student pointing at a list view on a wall screen while presenting to the room.">
           <figcaption><span class="frame-no">03</span> Walking the room through a build</figcaption>
         </li>
-        <li class="frame" style="--i: 3">
+        <li class="frame">
           <img src="assets/img/pcc/04.webp" width="538" height="184" loading="lazy" decoding="async"
                alt="A group photo of bootcamp participants standing between classroom desks.">
           <figcaption><span class="frame-no">04</span> The room from the other side</figcaption>
         </li>
-        <li class="frame" style="--i: 4">
+        <li class="frame">
           <img src="assets/img/pcc/05.webp" width="542" height="184" loading="lazy" decoding="async"
                alt="A second group photo, with one row of participants crouched in front and the rest standing behind.">
           <figcaption><span class="frame-no">05</span> The rest of the cohort</figcaption>
         </li>
-        <li class="frame" style="--i: 5">
+        <li class="frame">
           <img src="assets/img/pcc/06.webp" width="584" height="234" loading="lazy" decoding="async"
                alt="Nine people standing in a line at the front of a classroom, faculty among them.">
           <figcaption><span class="frame-no">06</span> Nine at the front of the room</figcaption>
         </li>
-        <li class="frame" style="--i: 6">
+        <li class="frame">
           <img src="assets/img/pcc/07.webp" width="496" height="234" loading="lazy" decoding="async"
                alt="Another nine people standing in a line at the front of the same classroom.">
           <figcaption><span class="frame-no">07</span> And the next nine</figcaption>
@@ -447,10 +451,9 @@
 
 <section class="section" id="stack">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal-head">
       <span class="eyebrow">Toolkit</span>
       <h2>The stack I build on</h2>
-      <p>~/stack</p>
     </div>
 
     <p class="prose reveal">What the projects above are actually made of.</p>
@@ -494,20 +497,26 @@
 
 <section class="section" id="education">
   <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Education</span>
-      <h2>Where I study</h2>
-      <p>~/education</p>
+    <div class="section-head reveal-head">
+      <span class="eyebrow">Experience and education</span>
+      <h2>Where I work and study</h2>
     </div>
+
+    <ol class="roles reveal">
+      <li>
+        <span class="role-when">September 2026 to now</span>
+        <h3 class="role-what">Front-End Developer Intern, <span class="nb">Certicode</span></h3>
+        <p class="role-note">A voluntary internship, taken for real work experience. It is separate from the school OJT placement I am still looking for.</p>
+      </li>
+      <li>
+        <span class="role-when">Graduating 2027</span>
+        <h3 class="role-what">BS Information Technology, Lyceum of the Philippines University, Cavite</h3>
+        <p class="role-note">Fourth year. Team leader of our capstone, FloodGuard.</p>
+      </li>
+    </ol>
 
     <div class="about-grid">
       <div class="prose reveal">
-        <p>
-          Fourth year <strong>BS Information Technology</strong> at
-          <strong>Lyceum of the Philippines University, Cavite</strong>, graduating
-          2027. I lead the team behind our capstone, <strong>FloodGuard</strong>, an
-          IoT and AI flood early-warning system for Noveleta.
-        </p>
         <p>
           Everything above was built alongside the coursework rather than for it,
           and each one had to work for somebody other than me.
@@ -519,6 +528,7 @@
           <dt>location</dt><dd>General Trias, Cavite</dd>
           <dt>studies</dt><dd>BSIT, LPU Cavite</dd>
           <dt>year</dt><dd>4th, grad 2027</dd>
+          <dt>interning</dt><dd>Certicode, front-end</dd>
           <dt>focus</dt><dd>Full-stack</dd>
           <dt>languages</dt><dd>TypeScript, Dart</dd>
           <dt>writes</dt><dd>English, Filipino</dd>
@@ -532,10 +542,9 @@
 
 <section class="section" id="certs">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal-head">
       <span class="eyebrow">Credentials</span>
       <h2>Certifications</h2>
-      <p>~/certs</p>
     </div>
 
     <p class="certs-lead reveal">
@@ -698,10 +707,9 @@
 
 <section class="section" id="skills">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal-head">
       <span class="eyebrow">Beyond the stack</span>
       <h2>Technical skills</h2>
-      <p>~/skills</p>
     </div>
 
     <p class="prose reveal">The parts that decide whether any of it holds up.</p>
@@ -751,7 +759,7 @@
 
 <section class="section" id="timeline">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal-head">
       <span class="eyebrow">In order</span>
       <h2>How I got here</h2>
       <p>first commit per project</p>
@@ -790,10 +798,9 @@
 
 <section class="section" id="shell" aria-labelledby="shell-h">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal-head">
       <span class="eyebrow">Optional</span>
       <h2 id="shell-h">Or poke around yourself</h2>
-      <p>~/shell</p>
     </div>
     <p class="shell-lead reveal">
       Everything on this page is already above. This is here because it was fun to
@@ -812,7 +819,7 @@
           <span class="line"><span class="prompt">$</span><span class="cmdtext">ls ~/projects</span></span>
           <span class="line out">autocare/  rallyready/  cyclemind_ai/  bike-guide-app/  corruption-watch/</span>
           <span class="line"><span class="prompt">$</span><span class="cmdtext">cat status.txt</span></span>
-          <span class="line out">4th-year BSIT at LPU Cavite, looking for OJT and freelance work</span>
+          <span class="line out">4th-year BSIT at LPU Cavite, front-end intern at Certicode, looking for OJT and freelance work</span>
           <span class="line"><span class="prompt">$</span><span class="cmdtext">cat capstone.txt</span></span>
           <span class="line out">FloodGuard, IoT and AI flood early-warning for Noveleta, Cavite. Team leader.</span>
         </div>
@@ -836,8 +843,8 @@
       <span class="eyebrow">Contact</span>
       <h2>Say hello</h2>
       <p>
-        I am looking for an <strong>OJT placement</strong> and open to
-        <strong>freelance work</strong>. Email reaches me fastest and I answer
+        I am interning at Certicode, still looking for an
+        <strong>OJT placement</strong>, and open to <strong>freelance work</strong>. Email reaches me fastest and I answer
         everything.
       </p>
       <div class="contact-actions">
@@ -887,6 +894,7 @@
   "@type": "Person",
   "name": "Francis Wilfred Antiporda",
   "jobTitle": "Full-stack Developer",
+  "worksFor": { "@type": "Organization", "name": "Certicode" },
   "email": "mailto:frncishub@gmail.com",
   "address": { "@type": "PostalAddress", "addressLocality": "General Trias", "addressRegion": "Cavite", "addressCountry": "PH" },
   "alumniOf": { "@type": "CollegeOrUniversity", "name": "Lyceum of the Philippines University, Cavite" },
