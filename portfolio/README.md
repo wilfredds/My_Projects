@@ -74,7 +74,13 @@ portfolio/
   - `.hero-actions` sits above the clone with `z-index: 5`, and the clone's own
     copy of the buttons is hidden. A `z-index` on the toggle itself does not
     work: it is trapped inside its parent's stacking context, and the lens
-    covered the real Hide button until this was fixed.
+    covered the real Hide button until this was fixed. The same trap sat one
+    level higher too: `.wrap` carries `z-index: 1`, so the hero grid is reset
+    to `z-index: auto`. Check this by screenshot, not `elementFromPoint`:
+    `.bp` has `pointer-events: none`, so hit-testing looks straight through
+    it and reports a button as on top while the drawing is painted over it.
+    While pinned, the toggle takes the blueprint's ink (`--bp-line`), because
+    its theme colour is unreadable on the navy in the light theme.
   - `.hero` uses `overflow: clip`, not `hidden`. A pinned lens is larger than
     the hero, and `clip` stops it widening the page without turning the hero
     into a scroll container.
