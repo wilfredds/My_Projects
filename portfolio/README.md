@@ -31,12 +31,16 @@ portfolio/
 │   ├── hiroshi-master-grill.html
 │   ├── cyclemind-ai.html
 │   ├── bike-guide-ph.html
-│   └── corruption-watch-ph.html
+│   ├── corruption-watch-ph.html
+│   └── floodguard.html
 ├── css/style.css           # every style, one file, custom properties at the top
 ├── js/
 │   ├── boot.js             # adds .js to <html> before paint (see the CSP note)
-│   ├── site.js             # terminal, filters, copy, counters, reveal, progress
+│   ├── site.js             # terminal, filters, copy, counters, reveal, progress,
+│   │                       #   the blueprint lens
 │   └── notfound.js         # shows the path that 404'd
+├── assets/fonts/           # Fraunces, IBM Plex Sans and Mono, self-hosted, with
+│                           #   their OFL licence files
 ├── assets/img/             # portrait, avatar, OG image, project screenshots
 │   └── pcc/                # the seven bootcamp frames, 01 to 07
 ├── robots.txt
@@ -46,6 +50,43 @@ portfolio/
 
 ## Interactive bits
 
+- **The blueprint lens.** The signature feature, in the hero. On a desktop,
+  moving the pointer over the hero opens a circular lens that shows the same
+  section as a technical drawing: the grid, the type baselines, font sizes and
+  tracking, button sizes, the portrait's real file size, and the headline's
+  contrast ratio. The **Show the blueprint** button pins it open on any device,
+  and Escape closes it. Nothing in it is typed in by hand. Every figure is
+  measured live in the visitor's browser: font metrics from canvas
+  `measureText`, line boxes from `Range.getClientRects`, contrast computed from
+  the rendered colours, and the strip along the bottom (page ready, largest
+  paint, layout shift, bytes so far) from the Performance API. That is the
+  point of it: it proves the front-end craft instead of claiming it. How it
+  works:
+  - `bpBuild` clones the hero grid into `.bp`, strips ids, reveal classes and
+    `aria-live` from the clone so nothing is announced or animated twice, and
+    `bpDraw` lays the annotations over it. Notes are written with
+    `textContent` only, never `innerHTML`.
+  - The lens is `clip-path: circle()` on that clone, driven by `--bp-r`,
+    `--bp-x` and `--bp-y` set through `style.setProperty` (the CSP forbids
+    inline styles, see below). The pointer is followed with a lerp, not
+    snapped, and it steps aside over links and buttons so it never hides what
+    you are about to click.
+  - `.hero-actions` sits above the clone with `z-index: 5`, and the clone's own
+    copy of the buttons is hidden. A `z-index` on the toggle itself does not
+    work: it is trapped inside its parent's stacking context, and the lens
+    covered the real Hide button until this was fixed. The same trap sat one
+    level higher too: `.wrap` carries `z-index: 1`, so the hero grid is reset
+    to `z-index: auto`. Check this by screenshot, not `elementFromPoint`:
+    `.bp` has `pointer-events: none`, so hit-testing looks straight through
+    it and reports a button as on top while the drawing is painted over it.
+    While pinned, the toggle takes the blueprint's ink (`--bp-line`), because
+    its theme colour is unreadable on the navy in the light theme.
+  - `.hero` uses `overflow: clip`, not `hidden`. A pinned lens is larger than
+    the hero, and `clip` stops it widening the page without turning the hero
+    into a scroll container.
+  - It demos itself once per session (`sessionStorage` key `bp-demo`). Screen
+    readers get a one-line summary in `#bp-summary` instead of the drawing,
+    and print hides it entirely.
 - **The hero terminal actually works.** After the intro types itself out the
   prompt becomes a real input. It understands `help`, `whoami`, `ls`,
   `open <project>`, `skills`, `education`, `contact`, `resume`, `github`,
@@ -70,17 +111,37 @@ portfolio/
 
 ## Motion
 
-Three rules, all enforced in `style.css` under the Motion heading.
+Five rules, all enforced in `style.css` under the Motion heading.
 
 1. Nothing animated is load-bearing. Every element is readable in its finished
    state, and `prefers-reduced-motion` turns all of it off.
-2. Only `transform` and `opacity` animate, so nothing triggers layout.
+2. Movement uses only `transform`, `opacity` and `clip-path`; hover states fade
+   colours. None of it triggers layout.
 3. Reveals stagger **by arrival, not by position**. A row of cards scrolled
    into view together cascades; a single card arriving alone appears with no
    delay. `site.js` sets `--d` on each element in the observer batch, and the
    `.reveal.in` shorthand reads it. That delay has to live inside the
    shorthand: setting `transition-delay` in a separate, less specific rule
    loses the cascade and the stagger silently does nothing.
+
+4. Big entrances use `clip-path`, and they do not wait for the observer. The
+   hero headline and portrait wipe in from a fully clipped `inset()`. Chromium
+   reports an element that is fully clip-pathed as **not intersecting**, so
+   an IntersectionObserver never fires for it and the hero stayed invisible.
+   Hero reveals are started on a double `requestAnimationFrame` instead, and
+   the observer skips them (`.reveal:not(.hero .reveal)`).
+5. Moving from a project card to its case study is a cross-document View
+   Transition (`@view-transition { navigation: auto }`). The card's
+   screenshot and title morph into the case study's first image and heading.
+   Each pair shares a `view-transition-name`, matched on the card side by
+   `href` and on the case-study side by `data-project` on `<main>`. Names must
+   be unique on a page, so a new project needs its own pair of rules and its
+   own `data-project` value. Firefox does not support cross-document
+   transitions yet and simply navigates normally.
+
+The ease for the large movements is `--ease-majestic`
+(`cubic-bezier(0.16, 1, 0.3, 1)`): fast to start, long to settle. Everything in
+this section, the lens included, is off under `prefers-reduced-motion`.
 
 The theme toggle adds `.theme-switching` for 320ms so colours fade rather than
 snap, then removes it.
@@ -95,7 +156,11 @@ snap, then removes it.
   Content-Security-Policy in `vercel.json` forbids both, which is why the
   one-line `boot.js` exists instead of an inline script in `<head>`. Add an
   inline script or a `style="..."` attribute and it will be blocked in
-  production. Put it in `site.js` or `style.css` instead.
+  production. Put it in `site.js` or `style.css` instead. That includes custom
+  properties: `style="--i: 3"` is an inline style too. One release shipped
+  exactly that for the contact-sheet stagger, and production silently dropped
+  every one, so the stagger never ran. Set them from JavaScript with
+  `el.style.setProperty('--i', n)`, which the CSP allows.
 - **No em dashes in the prose.** House style for this site. Use commas, colons
   or a full stop. Check with `grep -rn "—\|–" portfolio/`, which should print
   nothing.
@@ -215,8 +280,8 @@ snap, then removes it.
   demo loaded to a blank page. The workflow now reads the name off the event,
   but the two hrefs here are still plain text. Check them after any rename.
 - **Section headings are an eyebrow and a sentence, not a shell command.**
-  Every section on every page opens the same way: a small uppercase mono
-  eyebrow in `--amber` naming the section, then a Fraunces heading in
+  Every section on every page opens the same way: a small uppercase, tracked
+  sans eyebrow in `--amber` (brass, despite the token's name) naming the section, then a Fraunces heading in
   `--green` that says something. On the home page that pairing is
   `.section-head`; on the case-study pages it is `.detail-head`. Both draw the
   eyebrow from the same standalone `.eyebrow` rule. The earlier design wrote
@@ -291,9 +356,18 @@ snap, then removes it.
 - **Three faces, three jobs.** Fraunces carries the voice (the headline and
   every section heading), IBM Plex Sans the prose, IBM Plex Mono every
   measurement, label and directory name. Keeping numbers in one face is what
-  lets the ledger column line up. All three come from Google Fonts and all
-  three have real fallbacks, so a blocked CDN changes the typography but not
-  the layout.
+  lets the ledger column line up.
+- **The fonts are self-hosted.** They live in `assets/fonts/` as WOFF2, split
+  into latin and latin-ext by `unicode-range`: 180 KB across the five files a
+  page actually fetches. That lets the CSP say `font-src 'self'` and
+  `style-src 'self'` with no third-party origin, and the site no longer tells
+  Google about every visitor. Fraunces is a variable font, so one file serves
+  every weight; the hero's file is preloaded on each page.
+- **Never ask for a weight that is not there.** The browser fakes a missing
+  bold by smearing the regular, and it looks cheap. `b, strong` are set to 600
+  (the default `bolder` resolves to 700), and the 500 Plex Mono file is
+  declared as `font-weight: 500 700` so heavier mono uses real glyphs. If you
+  add a weight to a rule, check the face has it.
 - **`js/calc.js` is a port, and the original is the source of truth.** The live
   calculator on the AutoCare case study runs AutoCare's real money function.
   The portfolio has no build step and cannot import TypeScript, so the file is
@@ -399,11 +473,19 @@ Or simply open `/resume` and use the browser's Print, then Save as PDF. The
 print stylesheet at the bottom of `style.css` is tuned so the result lands on
 two A4 pages; if you add a project or a certification, check it still does.
 
-Two things in that block exist only to hold those two pages, so do not "tidy"
+Generate it only after `document.fonts.ready`. The copy published before this
+was printed before the fonts arrived, so it embedded LiberationSerif and
+DejaVu instead of Fraunces and Plex. Check the embedded `/FontName` entries in
+the PDF after regenerating.
+
+Three things in that block exist only to hold those two pages, so do not "tidy"
 them away: the certifications list is set in two columns (`.cv-certs`), and
 `.cv-skills` is deliberately allowed to break across pages. Held together it is
 one block too tall for whatever is left of page two, so it gets pushed whole
-onto a third page. Its rows keep `break-inside: avoid` individually.
+onto a third page. Its rows keep `break-inside: avoid` individually. The same
+goes for project entries: they may break between bullets, with the heading,
+date and first paragraph kept together and no bullet split. Holding each entry
+whole pushed one over from page one and spilled the skills onto page three.
 
 ## Deploying to Vercel
 

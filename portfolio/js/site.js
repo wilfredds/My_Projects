@@ -65,7 +65,18 @@
   if (year) year.textContent = String(new Date().getFullYear());
 
   /* ----------------------------------------------------- reveal on scroll */
-  var revealables = document.querySelectorAll('.reveal');
+  /* The hero is always the first screen, so it does not wait for the
+     observer: its headline and portrait start fully masked, and Chromium
+     reports a fully clip-pathed element as not intersecting at all, so an
+     observer would wait for them forever. They start on the next frame
+     instead, after the masked state has painted, so the transition runs. */
+  var heroReveals = document.querySelectorAll('.hero .reveal');
+  window.requestAnimationFrame(function () {
+    window.requestAnimationFrame(function () {
+      heroReveals.forEach(function (el) { el.classList.add('in'); });
+    });
+  });
+  var revealables = document.querySelectorAll('.reveal:not(.hero .reveal), .reveal-head');
 
   if (reduceMotion || !('IntersectionObserver' in window)) {
     revealables.forEach(function (el) { el.classList.add('in'); });
@@ -262,7 +273,7 @@
           line('Francis Wilfred Antiporda', 'out-strong');
           line('Fourth-year BSIT at Lyceum of the Philippines University, Cavite.');
           line('Full-stack developer in General Trias, Cavite.');
-          line('Looking for an OJT placement and open to freelance work.');
+          line('Front-end developer intern at Certicode since September 2026. Still looking for an OJT placement, and open to freelance work.');
           break;
 
         case 'ls':
@@ -688,6 +699,14 @@
      there it stays a native scroller. The same goes for anyone who asked for
      less motion, and for a window too narrow for the pan to have anywhere to
      go.                                                                    */
+  /* The deal-in staggers by each frame's place in the sheet. The index used to
+     sit in a style="--i: n" attribute, which the Content-Security-Policy
+     blocks, so in production the stagger never applied. Setting it through
+     the CSSOM is allowed. */
+  document.querySelectorAll('.sheet .frame').forEach(function (frame, i) {
+    frame.style.setProperty('--i', i);
+  });
+
   var rail = document.getElementById('sheet-rail');
   var strip = document.getElementById('sheet-strip');
 
@@ -843,6 +862,514 @@
   var printBtn = document.getElementById('print-cv');
   if (printBtn) {
     printBtn.addEventListener('click', function () { window.print(); });
+  }
+
+  /* --- the blueprint lens ----------------------------------------------
+     The hero promises "the parts that never make it into a demo". This shows
+     them. A clone of the hero is redrawn as a cyanotype working drawing and
+     laid exactly over the original; a circle that follows the pointer cuts a
+     window through to it. Every number on the drawing is measured here, in the
+     visitor's browser, when the drawing is drawn. Nothing is typed in.
+
+     Paint and layout-shift entries are buffered by the browser, but only for
+     an observer that exists, so these start now and are read later. */
+  var vitals = { lcp: null, cls: 0, hasCls: false };
+  if ('PerformanceObserver' in window && PerformanceObserver.supportedEntryTypes) {
+    var entryTypes = PerformanceObserver.supportedEntryTypes;
+    try {
+      if (entryTypes.indexOf('largest-contentful-paint') !== -1) {
+        new PerformanceObserver(function (list) {
+          var all = list.getEntries();
+          vitals.lcp = all[all.length - 1].startTime;
+        }).observe({ type: 'largest-contentful-paint', buffered: true });
+      }
+      if (entryTypes.indexOf('layout-shift') !== -1) {
+        vitals.hasCls = true;
+        new PerformanceObserver(function (list) {
+          list.getEntries().forEach(function (e) {
+            if (!e.hadRecentInput) vitals.cls += e.value;
+          });
+        }).observe({ type: 'layout-shift', buffered: true });
+      }
+    } catch (e) {
+      // An older engine that lists a type but rejects the options: go without.
+    }
+  }
+
+  var bpHero = document.querySelector('.hero');
+  var bpToggle = document.getElementById('bp-toggle');
+  var bpHint = document.getElementById('bp-hint');
+  var bpSummary = document.getElementById('bp-summary');
+
+  if (bpHero && bpToggle && window.CSS && CSS.supports &&
+      CSS.supports('clip-path', 'circle(1px at 1px 1px)')) {
+
+    var SVGNS = 'http://www.w3.org/2000/svg';
+    var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    var bpOriginal = {
+      grid: bpHero.querySelector('.hero-grid'),
+      kicker: bpHero.querySelector('.hero-kicker'),
+      h1: bpHero.querySelector('h1'),
+      blurb: bpHero.querySelector('.hero-blurb'),
+      buttons: bpHero.querySelectorAll('.hero-actions .btn'),
+      img: bpHero.querySelector('.portrait img')
+    };
+    var bp = { x: 0, y: 0, tx: 0, ty: 0, r: 0, tr: 0, raf: 0, pinned: false, touched: false };
+    var bpLayer = null;
+    var bpInk = null;
+    var bpNotes = null;
+    var bpPlate = null;
+    var bpRing = null;
+    var bpMeasure = document.createElement('canvas').getContext('2d');
+
+    var heroRect = function () { return bpHero.getBoundingClientRect(); };
+
+    var relRect = function (el, h) {
+      var r = el.getBoundingClientRect();
+      return { l: r.left - h.left, t: r.top - h.top, r: r.right - h.left,
+               b: r.bottom - h.top, w: r.width, h: r.height };
+    };
+
+    var parseRgb = function (s) {
+      var m = s.match(/[\d.]+/g);
+      return m ? [ +m[0], +m[1], +m[2], m[3] === undefined ? 1 : +m[3] ] : [0, 0, 0, 0];
+    };
+    var luminance = function (c) {
+      var f = function (v) {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      };
+      return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+    };
+    // Contrast against the first opaque background up the tree, which is how
+    // the colour actually composites.
+    var contrastOf = function (el) {
+      var fg = parseRgb(getComputedStyle(el).color);
+      var bg = null;
+      for (var n = el; n && !bg; n = n.parentElement) {
+        var c = parseRgb(getComputedStyle(n).backgroundColor);
+        if (c[3] > 0.95) bg = c;
+      }
+      bg = bg || parseRgb(getComputedStyle(document.body).backgroundColor);
+      var a = luminance(fg), b = luminance(bg);
+      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    };
+
+    var fontOf = function (el) {
+      var cs = getComputedStyle(el);
+      bpMeasure.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+      var probe = bpMeasure.measureText('Hxgp');
+      var size = parseFloat(cs.fontSize);
+      return {
+        family: cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(),
+        weight: cs.fontWeight,
+        size: size,
+        lead: cs.lineHeight === 'normal' ? size * 1.2 : parseFloat(cs.lineHeight),
+        asc: probe.fontBoundingBoxAscent || size * 0.82,
+        cap: bpMeasure.measureText('H').actualBoundingBoxAscent || size * 0.7,
+        xh: bpMeasure.measureText('x').actualBoundingBoxAscent || size * 0.48
+      };
+    };
+
+    // One rectangle per rendered line, merged across the inline boxes the
+    // italic <em> splits a line into.
+    var linesOf = function (el, h) {
+      var range = document.createRange();
+      range.selectNodeContents(el);
+      var rects = Array.prototype.slice.call(range.getClientRects())
+        .filter(function (r) { return r.width > 1 && r.height > 1; })
+        .sort(function (a, b) { return a.top - b.top; });
+      var lines = [];
+      rects.forEach(function (r) {
+        var mid = (r.top + r.bottom) / 2;
+        var line = lines.filter(function (l) { return Math.abs(l.mid - mid) < r.height * 0.4; })[0];
+        if (line) {
+          line.left = Math.min(line.left, r.left);
+          line.right = Math.max(line.right, r.right);
+          line.top = Math.min(line.top, r.top);
+        } else {
+          lines.push({ mid: mid, left: r.left, right: r.right, top: r.top });
+        }
+      });
+      return lines.map(function (l) {
+        return { l: l.left - h.left, r: l.right - h.left, t: l.top - h.top };
+      });
+    };
+
+    var px = function (n) { return Math.round(n) + ' px'; };
+    var ratio = function (n) { return (Math.floor(n * 10) / 10).toFixed(1) + ' : 1'; };
+
+    var addLine = function (cls, x1, y1, x2, y2) {
+      var l = document.createElementNS(SVGNS, 'line');
+      l.setAttribute('class', cls);
+      l.setAttribute('x1', x1.toFixed(1)); l.setAttribute('y1', y1.toFixed(1));
+      l.setAttribute('x2', x2.toFixed(1)); l.setAttribute('y2', y2.toFixed(1));
+      bpInk.appendChild(l);
+    };
+    // A dimension line with its two end ticks, the way a drawing gives a size.
+    var addDim = function (x1, y, x2) {
+      addLine('dim', x1, y, x2, y);
+      addLine('dim', x1, y - 4, x1, y + 4);
+      addLine('dim', x2, y - 4, x2, y + 4);
+    };
+    // Notes are built from text nodes, never markup: parts alternate plain and
+    // bold, so a measured value can never be read as HTML.
+    var addNote = function (parts, x, y, align) {
+      var d = document.createElement('div');
+      d.className = 'bp-note' + (align ? ' is-' + align : '');
+      parts.forEach(function (part, i) {
+        if (i % 2) {
+          var b = document.createElement('b');
+          b.textContent = part;
+          d.appendChild(b);
+        } else {
+          d.appendChild(document.createTextNode(part));
+        }
+      });
+      d.style.left = x.toFixed(1) + 'px';
+      d.style.top = y.toFixed(1) + 'px';
+      bpNotes.appendChild(d);
+      return d;
+    };
+
+    var bpDraw = function () {
+      if (!bpLayer) return;
+      var h = heroRect();
+      bpInk.setAttribute('viewBox', '0 0 ' + h.width.toFixed(1) + ' ' + h.height.toFixed(1));
+      while (bpInk.firstChild) bpInk.removeChild(bpInk.firstChild);
+      bpNotes.textContent = '';
+
+      // The grid: its real columns and gap, read from the computed style.
+      var grid = bpOriginal.grid;
+      var gcs = getComputedStyle(grid);
+      var g = relRect(grid, h);
+      var cols = gcs.gridTemplateColumns.split(' ').map(parseFloat).filter(isFinite);
+      var gap = parseFloat(gcs.columnGap) || 0;
+      var x = g.l + parseFloat(gcs.paddingLeft);
+      var dimY = Math.max(16, g.t - 26);
+      cols.forEach(function (w, i) {
+        addLine('guide', x, 8, x, h.height - 8);
+        addLine('guide', x + w, 8, x + w, h.height - 8);
+        addDim(x, dimY, x + w);
+        addNote([i === 0 ? 'text column ' : 'portrait column ', px(w)], x + w / 2, dimY - 17, 'centre');
+        if (i < cols.length - 1 && gap) addNote(['gap ', px(gap)], x + w + gap / 2, dimY + 6, 'centre');
+        x += w + gap;
+      });
+      var colEnd = g.l + parseFloat(gcs.paddingLeft) + cols[0];
+
+      // The kicker.
+      var k = bpOriginal.kicker;
+      if (k) {
+        var kf = fontOf(k), kr = relRect(k, h);
+        var track = parseFloat(getComputedStyle(k).letterSpacing) / kf.size;
+        addNote([kf.family + ' ', kf.weight, ' · ' + kf.size.toFixed(1) + ' px · tracked ' +
+                 (Math.round(track * 100) / 100) + ' em'], kr.l, kr.t - 18);
+      }
+
+      // The headline: baseline, x-height and cap height of every line,
+      // from the font's own metrics at its rendered size.
+      var h1 = bpOriginal.h1;
+      var f = fontOf(h1);
+      var lines = linesOf(h1, h);
+      lines.forEach(function (ln, i) {
+        var base = ln.t + f.asc;
+        addLine('base', ln.l - 10, base, ln.r + 10, base);
+        addLine('metric', ln.l - 10, base - f.xh, ln.r + 10, base - f.xh);
+        addLine('metric', ln.l - 10, base - f.cap, ln.r + 10, base - f.cap);
+        if (i === 0 && ln.r + 96 < h.width) {
+          addNote(['cap height'], ln.r + 16, base - f.cap - 7);
+          addNote(['x-height'], ln.r + 16, base - f.xh - 7);
+          addNote(['baseline'], ln.r + 16, base - 7);
+        }
+      });
+      var last = lines[lines.length - 1];
+      if (last) {
+        addNote([f.family + ' ', f.weight, ' · ' + px(f.size) + ' on ' + px(f.lead) + ' · contrast ',
+                 ratio(contrastOf(h1))], colEnd, last.t + f.asc + 12, 'end');
+      }
+
+      // The paragraph: size, leading, measure, contrast.
+      var p = bpOriginal.blurb;
+      if (p) {
+        var pf = fontOf(p), pr = relRect(p, h);
+        bpMeasure.font = getComputedStyle(p).fontWeight + ' ' + getComputedStyle(p).fontSize + ' ' + getComputedStyle(p).fontFamily;
+        var avg = bpMeasure.measureText('abcdefghijklmnopqrstuvwxyz').width / 26;
+        var room = colEnd - pr.r;
+        var chars = Math.round(pr.w / avg) + ' characters';
+        addLine('guide', pr.l, pr.t - 4, pr.l, pr.b + 4);
+        if (room > 170) {
+          var ny = pr.t + pr.h / 2 - 22;
+          addNote([px(pf.size) + ' on ' + px(pf.lead)], pr.r + 18, ny);
+          addNote(['about ', chars, ' a line'], pr.r + 18, ny + 15);
+          addNote(['contrast ', ratio(contrastOf(p))], pr.r + 18, ny + 30);
+        } else {
+          addNote([px(pf.size) + ' on ' + px(pf.lead) + ' · ', chars, ' · contrast ' + ratio(contrastOf(p))],
+                  pr.l, pr.b + 4);
+        }
+      }
+
+      // The buttons, against the 44 px a thumb needs.
+      var btn = bpOriginal.buttons[0];
+      if (btn) {
+        var br = relRect(btn, h);
+        var row = relRect(btn.parentElement, h);
+        var under = row.b - br.b > 8 ? row.b : br.b;
+        addDim(br.l, under + 9, br.r);
+        addNote([Math.round(br.w) + ' × ' + Math.round(br.h) + ' px · ',
+                 br.h >= 44 ? 'meets the 44 px touch target' : 'under the 44 px touch target'],
+                br.l, under + 15);
+      }
+
+      // The portrait: the box it holds, and what it cost to fetch.
+      var img = bpOriginal.img;
+      if (img) {
+        var ir = relRect(img, h);
+        var box = document.createElementNS(SVGNS, 'rect');
+        box.setAttribute('class', 'box');
+        box.setAttribute('x', ir.l.toFixed(1)); box.setAttribute('y', ir.t.toFixed(1));
+        box.setAttribute('width', ir.w.toFixed(1)); box.setAttribute('height', ir.h.toFixed(1));
+        bpInk.appendChild(box);
+        addLine('cross', ir.l, ir.t, ir.r, ir.b);
+        addLine('cross', ir.r, ir.t, ir.l, ir.b);
+        addDim(ir.l, ir.t - 12, ir.r);
+        addNote([px(ir.w)], ir.l + ir.w / 2, ir.t - 29, 'centre');
+        var src = img.currentSrc || img.src;
+        var entry = (performance.getEntriesByName && performance.getEntriesByName(src)[0]) || null;
+        var bytes = entry ? (entry.encodedBodySize || entry.transferSize || 0) : 0;
+        var ext = (src.split('?')[0].split('.').pop() || '').toUpperCase();
+        var spec = [img.naturalWidth + ' × ' + img.naturalHeight + ' ' + ext];
+        if (bytes) spec.push(' · ' + Math.round(bytes / 1024) + ' KB');
+        if (img.getAttribute('fetchpriority') === 'high') spec.push(' · fetched first');
+        addNote([spec.join('')], ir.l + ir.w / 2, ir.t + ir.h / 2 - 7, 'centre');
+      }
+    };
+
+    // The title block: this visit, measured.
+    var bpFillPlate = function () {
+      if (!bpPlate) return;
+      bpPlate.textContent = '';
+      var rows = [];
+      var nav = performance.getEntriesByType ? performance.getEntriesByType('navigation')[0] : null;
+      if (nav && nav.domContentLoadedEventEnd) rows.push(['page ready', Math.round(nav.domContentLoadedEventEnd) + ' ms']);
+      if (vitals.lcp !== null) rows.push(['largest paint', Math.round(vitals.lcp) + ' ms']);
+      if (vitals.hasCls) rows.push(['layout shift', vitals.cls.toFixed(2)]);
+      if (performance.getEntriesByType) {
+        var all = performance.getEntriesByType('resource');
+        var bytes = (nav && nav.encodedBodySize) || 0;
+        all.forEach(function (e) { bytes += e.encodedBodySize || 0; });
+        if (bytes) rows.push(['weight so far', Math.round(bytes / 1024) + ' KB in ' + (all.length + 1) + ' files']);
+      }
+      var head = document.createElement('span');
+      head.className = 'bp-plate-head';
+      head.textContent = 'This visit, measured in your browser';
+      bpPlate.appendChild(head);
+      rows.forEach(function (row) {
+        var item = document.createElement('span');
+        var label = document.createElement('span');
+        label.className = 'bp-plate-label';
+        label.textContent = row[0] + ' ';
+        var value = document.createElement('b');
+        value.textContent = row[1];
+        item.appendChild(label);
+        item.appendChild(value);
+        bpPlate.appendChild(item);
+      });
+      return rows;
+    };
+
+    var bpBuild = function () {
+      bpLayer = document.createElement('div');
+      bpLayer.className = 'bp';
+      bpLayer.setAttribute('aria-hidden', 'true');
+      bpLayer.inert = true;
+
+      var clone = bpOriginal.grid.cloneNode(true);
+      clone.removeAttribute('id');
+      Array.prototype.forEach.call(clone.querySelectorAll('[id]'), function (el) {
+        el.removeAttribute('id');
+      });
+      Array.prototype.forEach.call(clone.querySelectorAll('.reveal'), function (el) {
+        el.classList.remove('reveal', 'in');
+      });
+      Array.prototype.forEach.call(clone.querySelectorAll('[aria-describedby],[aria-live]'), function (el) {
+        el.removeAttribute('aria-describedby');
+        el.removeAttribute('aria-live');
+      });
+      bpLayer.appendChild(clone);
+
+      bpInk = document.createElementNS(SVGNS, 'svg');
+      bpInk.setAttribute('class', 'bp-ink');
+      bpInk.setAttribute('aria-hidden', 'true');
+      bpInk.setAttribute('preserveAspectRatio', 'none');
+      bpLayer.appendChild(bpInk);
+
+      bpNotes = document.createElement('div');
+      bpLayer.appendChild(bpNotes);
+
+      bpPlate = document.createElement('p');
+      bpPlate.className = 'bp-plate';
+      bpLayer.appendChild(bpPlate);
+
+      bpRing = document.createElement('div');
+      bpRing.className = 'bp-ring';
+      bpRing.setAttribute('aria-hidden', 'true');
+
+      bpHero.appendChild(bpLayer);
+      bpHero.appendChild(bpRing);
+      bpDraw();
+      bpFillPlate();
+    };
+
+    var bpSet = function () {
+      bpHero.style.setProperty('--bp-x', bp.x.toFixed(1) + 'px');
+      bpHero.style.setProperty('--bp-y', bp.y.toFixed(1) + 'px');
+      bpHero.style.setProperty('--bp-r', Math.max(0, bp.r).toFixed(1) + 'px');
+      var ringOn = !bp.pinned && bp.r > 4;
+      bpHero.style.setProperty('--bp-ring', ringOn ? '1' : '0');
+      bpHero.style.setProperty('--bp-ring-vis', ringOn ? 'visible' : 'hidden');
+    };
+
+    var bpLoop = function () {
+      // A pinned wipe opens slowly, on purpose; the hover lens keeps up.
+      var kr = reduceMotion ? 1 : (bp.pinned ? 0.075 : 0.16);
+      var kp = reduceMotion ? 1 : 0.2;
+      bp.x += (bp.tx - bp.x) * kp;
+      bp.y += (bp.ty - bp.y) * kp;
+      bp.r += (bp.tr - bp.r) * kr;
+      var settled = Math.abs(bp.tx - bp.x) < 0.3 && Math.abs(bp.ty - bp.y) < 0.3 &&
+                    Math.abs(bp.tr - bp.r) < 0.3;
+      if (settled) { bp.x = bp.tx; bp.y = bp.ty; bp.r = bp.tr; }
+      bpSet();
+      bp.raf = settled ? 0 : window.requestAnimationFrame(bpLoop);
+    };
+    var bpKick = function () {
+      if (!bp.raf) bp.raf = window.requestAnimationFrame(bpLoop);
+    };
+
+    var lensRadius = function () {
+      return Math.max(96, Math.min(150, bpHero.clientWidth * 0.12));
+    };
+
+    var bpPin = function (on) {
+      bp.pinned = on;
+      bpToggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+      bpToggle.querySelector('.bp-toggle-label').textContent = on ? 'Hide the blueprint' : 'Show the blueprint';
+      var h = heroRect();
+      var b = bpToggle.getBoundingClientRect();
+      var ox = b.left + b.width / 2 - h.left;
+      var oy = b.top + b.height / 2 - h.top;
+      if (on || bp.r < 1) { bp.x = bp.tx = ox; bp.y = bp.ty = oy; }
+      if (on) {
+        bpDraw();
+        var rows = bpFillPlate() || [];
+        bp.tr = Math.hypot(Math.max(ox, h.width - ox), Math.max(oy, h.height - oy)) + 24;
+        if (bpSummary) {
+          var f = fontOf(bpOriginal.h1);
+          bpSummary.textContent = 'Blueprint shown. Headline set in ' + f.family + ' at ' +
+            Math.round(f.size) + ' pixels, contrast ' + ratio(contrastOf(bpOriginal.h1)) + '. ' +
+            rows.map(function (r) { return r[0] + ' ' + r[1]; }).join(', ') + '.';
+        }
+      } else {
+        bp.tr = 0;
+        if (bpSummary) bpSummary.textContent = 'Blueprint hidden.';
+      }
+      bpKick();
+    };
+
+    bpToggle.addEventListener('click', function () {
+      bp.touched = true;
+      bpPin(!bp.pinned);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && bp.pinned) { bpPin(false); bpToggle.focus(); }
+    });
+
+    if (finePointer) {
+      bpHero.addEventListener('pointermove', function (e) {
+        if (!bpLayer || bp.pinned || e.pointerType === 'touch') return;
+        bp.touched = true;
+        var h = heroRect();
+        var tx = e.clientX - h.left;
+        var ty = e.clientY - h.top;
+        // Step aside for anything clickable, so a link never turns into a
+        // drawing of a link just as somebody reaches for it.
+        var overControl = e.target.closest && e.target.closest('a, button, input');
+        if (bp.r < 1 && !overControl) {
+          bp.x = tx; bp.y = ty;
+          bpFillPlate();
+        }
+        bp.tx = tx; bp.ty = ty;
+        bp.tr = overControl ? 0 : lensRadius();
+        bpKick();
+      });
+      bpHero.addEventListener('pointerleave', function () {
+        if (bp.pinned) return;
+        bp.tr = 0;
+        bpKick();
+      });
+    }
+
+    var bpResizeTimer = 0;
+    window.addEventListener('resize', function () {
+      window.clearTimeout(bpResizeTimer);
+      bpResizeTimer = window.setTimeout(function () {
+        bpDraw();
+        if (bp.pinned) bpPin(true);
+      }, 150);
+    });
+
+    // Once per visit, the lens shows itself: it opens over the start of the
+    // headline, travels it, and closes. Skipped for anyone who asked for less
+    // motion, on touch screens, and as soon as the visitor moves first.
+    var bpDemo = function () {
+      if (reduceMotion || !finePointer || bp.touched) return;
+      try {
+        if (window.sessionStorage.getItem('bp-demo')) return;
+        window.sessionStorage.setItem('bp-demo', '1');
+      } catch (e) { /* storage blocked: show it anyway */ }
+      var h = heroRect();
+      if (h.top > window.innerHeight * 0.5 || h.bottom < 0) return;
+      var lines = linesOf(bpOriginal.h1, h);
+      if (!lines.length) return;
+      var f = fontOf(bpOriginal.h1);
+      var stops = lines.map(function (ln, i) {
+        var y = ln.t + f.asc - f.xh / 2;
+        return { x: i % 2 ? ln.r - 70 : ln.l + 70, y: y };
+      });
+      var step = function (i) {
+        if (bp.touched || bp.pinned) { if (!bp.pinned) { bp.tr = 0; bpKick(); } return; }
+        if (i >= stops.length) { bp.tr = 0; bpKick(); return; }
+        bp.tx = stops[i].x; bp.ty = stops[i].y;
+        if (i === 0) { bp.x = bp.tx; bp.y = bp.ty; bpFillPlate(); }
+        bp.tr = lensRadius() * 0.85;
+        bpKick();
+        window.setTimeout(function () { step(i + 1); }, 900);
+      };
+      step(0);
+    };
+
+    // Build once the fonts and the portrait are in, so the drawing measures
+    // the page as it finally stands rather than as it first painted.
+    var bpStart = function () {
+      bpToggle.hidden = false;
+      if (bpHint) {
+        if (finePointer) bpHint.textContent = 'Or move your pointer across this section to look underneath.';
+        bpHint.hidden = false;
+      }
+      var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+      ready.then(function () {
+        window.setTimeout(function () {
+          bpBuild();
+          window.setTimeout(bpDemo, 500);
+        }, reduceMotion ? 0 : 900);
+      });
+      if (document.fonts && document.fonts.addEventListener) {
+        document.fonts.addEventListener('loadingdone', function () { bpDraw(); });
+      }
+    };
+    if (document.readyState === 'complete') bpStart();
+    else window.addEventListener('load', bpStart);
   }
 
   /* --- highlight the section being read --------------------------------

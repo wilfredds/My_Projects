@@ -9,6 +9,99 @@
    No build step. Plain CSS, custom properties, no framework.
    ========================================================================== */
 
+/* ---------------------------------------------------------------- fonts --
+   Self-hosted, so no visitor's browser contacts Google to draw this page, and
+   the Content-Security-Policy can refuse every outside origin. These are the
+   same faces the page used from Google Fonts, split the same way: a latin file
+   and a latin-ext file per face, picked by unicode-range, so a page that never
+   prints a peso sign never downloads the latin-ext half. Fraunces 300 and 400
+   share one file, as do Plex Sans 400 to 600. Licences sit beside the files.
+
+   Plex Mono's 500 file is declared as 500 to 700. Several rules ask for bold
+   mono, and no bold mono file is loaded, so the browser used to fake one by
+   smearing the 500 outlines. Declaring the range makes it use the real medium
+   face instead, at no extra download. */
+@font-face {
+  font-family: "Fraunces";
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../assets/fonts/fraunces-italic-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../assets/fonts/fraunces-italic-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 300 400;
+  font-display: swap;
+  src: url("../assets/fonts/fraunces-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 300 400;
+  font-display: swap;
+  src: url("../assets/fonts/fraunces-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/plex-mono-400-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url("../assets/fonts/plex-mono-500-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/plex-mono-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url("../assets/fonts/plex-mono-500-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("../assets/fonts/plex-sans-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("../assets/fonts/plex-sans-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   /* --- surface -------------------------------------------------------
      Ink with a teal cast rather than a neutral black, so the deep teal
@@ -28,7 +121,7 @@
      --green is the structural accent, kept under its old name so every
      rule in this file and the sub-pages follows without edits. */
   --green: #7FC9BC;
-  --amber: #E3A268;
+  --amber: #D9B36C;
   --cyan:  #7FB6C7;
   --red:   #E38B7F;
 
@@ -43,6 +136,7 @@
   --overlay:  rgb(8 12 11 / 90%);
   --scan:     rgb(255 255 255 / 1.4%);
   --glow:     rgb(127 201 188 / 7%);
+  --glow-2:   rgb(217 179 108 / 4%);
   --shadow:   0 24px 60px -30px rgb(0 0 0 / 88%);
   --stripe-a: #0E1413;
   --stripe-b: #0B100F;
@@ -89,7 +183,7 @@
   --faint: #5F6B65;
 
   --green: #17423E;
-  --amber: #8F4413;
+  --amber: #755214;
   --cyan:  #1A5163;
   --red:   #9C2A1C;
 
@@ -103,6 +197,7 @@
   --overlay:  rgb(13 19 16 / 78%);
   --scan:     rgb(13 19 16 / 2.2%);
   --glow:     rgb(23 66 62 / 6%);
+  --glow-2:   rgb(117 82 20 / 5%);
   --shadow:   0 20px 45px -28px rgb(13 19 16 / 38%);
   --cert-mat: #E2E8E0;
 }
@@ -120,7 +215,7 @@
     --faint: #5F6B65;
   
     --green: #17423E;
-    --amber: #8F4413;
+    --amber: #755214;
     --cyan:  #1A5163;
     --red:   #9C2A1C;
   
@@ -134,6 +229,7 @@
     --overlay:  rgb(13 19 16 / 78%);
     --scan:     rgb(13 19 16 / 2.2%);
     --glow:     rgb(23 66 62 / 6%);
+  --glow-2:   rgb(117 82 20 / 5%);
     --shadow:   0 20px 45px -28px rgb(13 19 16 / 38%);
     --cert-mat: #E2E8E0;
   }
@@ -197,23 +293,30 @@ p { text-wrap: pretty; }
 .nb { white-space: nowrap; }
 
 /* A faint scanline wash + a green glow behind the fold. Purely decorative. */
+/* Two pools of light behind the fold instead of the old scanline wash, which
+   belonged to a terminal rather than to a portfolio. They drift on a
+   minute-long loop, slow enough to read as daylight moving, not as motion. */
 body::before {
   content: "";
   position: fixed;
-  inset: 0;
+  inset: -10%;
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(60rem 40rem at 78% -10%, var(--glow), transparent 60%),
-    repeating-linear-gradient(
-      to bottom,
-      var(--scan) 0 1px,
-      transparent 1px 3px
-    );
+    radial-gradient(55rem 38rem at 80% -6%, var(--glow), transparent 62%),
+    radial-gradient(40rem 30rem at 6% 18%, var(--glow-2), transparent 64%);
+  animation: daylight 60s ease-in-out infinite alternate;
 }
-@media (prefers-reduced-motion: reduce) { body::before { background: none; } }
+@keyframes daylight {
+  to { transform: translate3d(-3%, 2%, 0) scale(1.04); }
+}
+@media (prefers-reduced-motion: reduce) { body::before { animation: none; } }
 
 img { max-width: 100%; display: block; height: auto; }
+
+/* "bolder" resolves to 700, and the heaviest Plex Sans loaded is 600, so every
+   <strong> used to be a bold the browser faked. Ask for the weight that exists. */
+b, strong { font-weight: 600; }
 
 a { color: var(--green); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
@@ -259,8 +362,8 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   background: var(--nav-bg);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line-soft);
-  font-family: var(--mono);
-  font-size: 0.82rem;
+  font-family: var(--sans);
+  font-size: 0.88rem;
 }
 
 .nav-inner {
@@ -280,11 +383,10 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   align-items: center;
   min-height: 44px;
   color: var(--text);
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-family: var(--display);
+  font-size: 1.08rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 .nav-brand:hover { text-decoration: none; color: var(--green); }
@@ -304,12 +406,11 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   min-height: 44px;
   color: var(--dim);
 }
-.nav-links a::before { content: "#"; color: var(--faint); margin-right: 1px; }
 .nav-links a:hover,
 .nav-links a[aria-current="true"] { color: var(--green); text-decoration: none; }
 
 @media (max-width: 640px) {
-  .nav-links { gap: 0.75rem; font-size: 0.75rem; }
+  .nav-links { gap: 0.8rem; font-size: 0.8rem; }
   /* 44px of tap target plus 0.5rem either side would make the bar 60px, where
      it has always been 52. The padding gives back exactly what the taller
      targets take, so the nav is the height it was designed to be. */
@@ -399,7 +500,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .hero h1 {
   font-family: var(--display);
   font-optical-sizing: auto;
-  font-size: clamp(2.3rem, 6.4vw, 4.4rem);
+  font-size: clamp(2.6rem, 7vw, 5rem);
   line-height: 0.99;
   letter-spacing: -0.022em;
   font-weight: 300;
@@ -408,11 +509,9 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   text-wrap: balance;
 }
 /* The second clause is the claim the rest of the page answers, so it gets the
-   italic and the wonk axis rather than a colour change. */
-.hero h1 em {
-  font-style: italic;
-  font-variation-settings: "SOFT" 40, "WONK" 1;
-}
+   italic rather than a colour change. (It once also asked for Fraunces's SOFT
+   and WONK axes; those were never loaded, so the request did nothing.) */
+.hero h1 em { font-style: italic; }
 
 .hero-blurb {
   color: var(--dim);
@@ -443,16 +542,28 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   margin-inline: auto;
 }
 .portrait img {
+  position: relative;
   width: 100%;
   display: block;
-  border: 1px solid var(--line);
   border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+/* An offset hairline frame, the construction line a drawing keeps after the
+   object is inked in. It is the portrait's only border. */
+.portrait::before {
+  content: "";
+  position: absolute;
+  inset: 0.85rem -0.85rem auto 0.85rem;
+  aspect-ratio: 720 / 960;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  pointer-events: none;
 }
 .portrait figcaption {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  margin-top: 0.7rem;
+  margin-top: 1.6rem;
   font-family: var(--mono);
   font-size: 0.68rem;
   letter-spacing: 0.1em;
@@ -464,12 +575,23 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 /* The name sits above the headline rather than being it: a recruiter already
    knows whose site this is from the tab, and the sentence is the argument. */
 .hero-kicker {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--amber);
+}
+/* A short drafting rule before the kicker: the one ornament in the hero. */
+.hero-kicker::before {
+  content: "";
+  width: 2.25rem;
+  height: 1px;
+  background: currentColor;
+  flex: none;
 }
 
 .shell-lead {
@@ -497,10 +619,10 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: var(--mono);
-  font-size: 0.82rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 1.15rem;
   border-radius: 7px;
   border: 1px solid var(--line);
   background: var(--surface-2);
@@ -518,7 +640,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   background: var(--green);
   border-color: var(--green);
   color: var(--on-green);
-  font-weight: 700;
+  font-weight: 600;
 }
 .btn-primary:hover { background: var(--green-bright); border-color: var(--green-bright); }
 .btn svg { width: 15px; height: 15px; flex: none; }
@@ -544,18 +666,18 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   text-wrap: balance;
   font-family: var(--display);
   font-optical-sizing: auto;
-  font-size: clamp(1.5rem, 3.2vw, 2.05rem);
-  font-weight: 400;
-  letter-spacing: -0.018em;
-  line-height: 1.1;
+  font-size: clamp(2rem, 4.6vw, 3.2rem);
+  font-weight: 300;
+  letter-spacing: -0.026em;
+  line-height: 1.04;
   color: var(--green);
 }
 .eyebrow {
   display: block;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--amber);
   margin-bottom: 0.55rem;
@@ -640,6 +762,43 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .facts dt { color: var(--faint); }
 .facts dd { margin: 0; color: var(--text); text-align: right; }
 
+/* ------------------------------------------------------------- roles --
+   Work and study as two dated lines. The date column is mono because it is
+   data; the role is the display face because it is the point. */
+.roles {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 clamp(2rem, 5vw, 3rem);
+}
+.roles li:first-child { padding-top: 0; }
+.roles li {
+  display: grid;
+  grid-template-columns: minmax(9rem, 13rem) 1fr;
+  column-gap: clamp(1rem, 4vw, 2.5rem);
+  padding-block: 1.15rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+.role-when {
+  grid-row: span 2;
+  padding-top: 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--amber);
+}
+.role-what {
+  font-family: var(--display);
+  font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--text);
+  text-wrap: balance;
+}
+.role-note { margin-top: 0.3rem; color: var(--dim); max-width: 62ch; }
+@media (max-width: 640px) {
+  .roles li { grid-template-columns: 1fr; }
+  .role-when { grid-row: auto; padding-top: 0; margin-bottom: 0.2rem; }
+}
+
 /* ------------------------------------------------- the contact sheet --
    Seven photographs off one event, laid out the way a photographer lays out
    a roll: a single uniform-height strip on a mat, each frame numbered and
@@ -719,7 +878,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .frame-no {
   flex: none;
-  color: #E3A268;
+  color: #D9B36C;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -908,22 +1067,26 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 
 .card h3 {
-  font-family: var(--mono);
-  font-size: clamp(1.1rem, 2.6vw, 1.4rem);
-  font-weight: 700;
+  /* The display face, not mono at a weight that was never loaded and so was
+     faked by the browser. The trailing slash stays: it is the folder name. */
+  font-family: var(--display);
+  font-size: clamp(1.5rem, 3vw, 1.95rem);
+  font-weight: 400;
   letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 .card h3 a { color: var(--text); }
 .card h3 a:hover { color: var(--green); text-decoration: none; }
 .card h3 .slash { color: var(--faint); font-weight: 400; }
 
 .card-kicker {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--amber);
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--dim);
   text-transform: uppercase;
-  letter-spacing: 0.09em;
-  margin-bottom: 0.4rem;
+  letter-spacing: 0.14em;
+  margin-bottom: 0.5rem;
 }
 .card p { color: var(--dim); margin-block: 0.6rem 0.9rem; font-size: 0.95rem; }
 .card-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
@@ -1025,10 +1188,11 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .page-head { padding-block: clamp(2rem, 6vw, 3.5rem) clamp(1.5rem, 4vw, 2.5rem); }
 .page-head h1 {
-  font-family: var(--mono);
-  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-family: var(--display);
+  font-size: clamp(2.6rem, 7vw, 4.4rem);
+  font-weight: 300;
   letter-spacing: -0.03em;
-  line-height: 1.15;
+  line-height: 1.02;
 }
 .page-head .lede { color: var(--dim); max-width: 60ch; margin-top: 0.9rem; font-size: 1.02rem; }
 
@@ -1351,10 +1515,9 @@ code {
   .cv-head { border-color: #ccc; }
   .cv-head h1, .cv-entry h3 { color: #111; }
   .cv-head .role { color: #17423E; }
-  .cv h2 { color: #8F4413; margin-top: 1.3rem; }
+  .cv h2 { color: #755214; margin-top: 1.3rem; }
   .cv-contact, .cv-entry p, .cv-entry ul, .cv-skills, .cv-entry .when { color: #333; }
   a { color: #111; text-decoration: none; }
-  .cv-entry { page-break-inside: avoid; }
 }
 
 /* ----------------------------------------------------------- utilities -- */
@@ -1757,11 +1920,11 @@ code {
 
 .cert h3 {
   text-wrap: balance;
-  font-family: var(--mono);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 400;
   letter-spacing: -0.01em;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
 .cert-meta {
@@ -2002,7 +2165,7 @@ body.is-locked { overflow: hidden; }
 
   /* Denser than the screen version. A résumé that runs to three pages because
      of leading is a résumé nobody finishes. */
-  body { font-size: 9.5pt; line-height: 1.3; }
+  body { font-size: 9.3pt; line-height: 1.28; }
 
   /* Name on the left, contact details on the right, on one line. */
   .cv-head { flex-wrap: nowrap; align-items: flex-start; gap: 2rem; }
@@ -2013,7 +2176,13 @@ body.is-locked { overflow: hidden; }
      links have to say where they go. */
   .cv-head { padding-bottom: 0.55rem; }
   .cv h2 { margin-top: 0.5rem; margin-bottom: 0.22rem; font-size: 8pt; letter-spacing: 0.12em; }
-  .cv-entry { margin-bottom: 0.32rem; break-inside: avoid; page-break-inside: avoid; }
+  /* A project entry may break between its bullets. Held whole, one entry that
+     crossed the foot of page 1 was pushed over entirely and the skills section
+     spilled onto a third page. The heading, date and first lines stay together,
+     and no single bullet is split. */
+  .cv-entry { margin-bottom: 0.32rem; }
+  .cv-entry > .when, .cv-entry > p { break-after: avoid; page-break-after: avoid; }
+  .cv-entry li { break-inside: avoid; page-break-inside: avoid; }
   .cv-entry h3 { font-size: 10pt; }
   .cv-entry .when { font-size: 8pt; }
   .cv-entry p, .cv-entry ul { font-size: 9pt; margin-top: 0.15rem; }
@@ -2137,3 +2306,322 @@ body.is-locked { overflow: hidden; }
   .cv-contact a { display: inline; min-height: 0; }
 }
 
+
+/* =========================================================================
+   The blueprint lens.
+
+   The hero's headline promises the parts that never make it into a demo. The
+   lens shows them: under the finished section sits a cyanotype working
+   drawing of the same section, and a circle that follows the pointer cuts a
+   window through to it. site.js builds the drawing by cloning the hero, so
+   the two layers share one layout and every line of the drawing lands exactly
+   on the thing it measures. Every number on it is measured in the visitor's
+   own browser when the drawing opens. Nothing is typed in.
+
+   The ground is cyanotype in both themes, because that is what a blueprint
+   is: the printing process came out Prussian blue with the lines left pale.
+   It is the only place the colour appears, so it never reads as a theme.
+   ========================================================================= */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  /* clip, not hidden: nothing the lens draws may widen the page, and clip
+     does that without turning the hero into a scroll container. */
+  overflow: clip;
+}
+
+/* The blueprint's own palette, the same in both themes because the drawing
+   is always navy paper. Declared on .hero so the real toggle, which sits
+   outside the drawing, can take its ink while the drawing is pinned. */
+.hero {
+  --bp-ground: #0E2A44;
+  --bp-line: #D7E6F3;
+  --bp-soft: rgb(215 230 243 / 55%);
+  --bp-faint: rgb(215 230 243 / 22%);
+  --bp-note: #D9B36C;
+}
+.bp {
+  position: absolute;
+  inset: 0;
+  padding: inherit;
+  z-index: 3;
+  pointer-events: none;
+  color: var(--bp-soft);
+  background-color: var(--bp-ground);
+  /* Drafting film: a fine 8px grid under a 64px major grid. */
+  background-image:
+    linear-gradient(rgb(215 230 243 / 9%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(215 230 243 / 9%) 1px, transparent 1px),
+    linear-gradient(rgb(215 230 243 / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(215 230 243 / 4%) 1px, transparent 1px);
+  background-size: 64px 64px, 64px 64px, 8px 8px, 8px 8px;
+  clip-path: circle(var(--bp-r, 0px) at var(--bp-x, 50%) var(--bp-y, 50%));
+}
+
+/* The cloned hero, redrawn as a drawing. Headline glyphs become hairline
+   outlines; everything else drops to pale linework. */
+.bp .hero-grid * { color: var(--bp-soft) !important; text-shadow: none; }
+.bp h1,
+.bp h1 em {
+  color: transparent !important;
+  -webkit-text-stroke: 1px var(--bp-line);
+}
+.bp .hero-kicker { color: var(--bp-note) !important; }
+.bp .btn,
+.bp .bp-toggle {
+  background: transparent !important;
+  border: 1px dashed var(--bp-soft) !important;
+  box-shadow: none !important;
+}
+.bp .portrait img { visibility: hidden; }
+.bp .portrait::before { border-color: var(--bp-faint); }
+.bp .bp-hint { visibility: hidden; }
+/* The live buttons sit above the drawing (below), so the drawing's copies of
+   them are only ever in the way. Their measurements are still drawn. */
+.bp .hero-actions { visibility: hidden; }
+
+/* The actions row, not just the toggle, rises above the drawing: the row is
+   its own stacking context once its reveal has run, so a z-index on the
+   toggle alone stays trapped beneath it. The same trap sits one level up:
+   .wrap carries z-index: 1 to clear the body glow, which made the hero grid a
+   stacking context below the drawing's 3, so the buttons stayed clickable
+   but were painted underneath it. .hero is already isolated, so its grid
+   does not need the z-index. Real controls must stay visible and focusable
+   while the drawing is open. */
+.hero > .hero-grid { z-index: auto; }
+.hero-actions { position: relative; z-index: 5; }
+
+.bp-ink {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.bp-ink line,
+.bp-ink path,
+.bp-ink rect { fill: none; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.bp-ink .guide    { stroke: var(--bp-faint); stroke-dasharray: 3 5; }
+.bp-ink .base     { stroke: var(--bp-note); }
+.bp-ink .metric   { stroke: var(--bp-soft); stroke-dasharray: 1 4; }
+.bp-ink .dim      { stroke: var(--bp-line); }
+.bp-ink .box      { stroke: var(--bp-line); }
+.bp-ink .cross    { stroke: var(--bp-faint); }
+
+.bp-note {
+  position: absolute;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: var(--bp-line);
+  white-space: nowrap;
+}
+.bp-note b { font-weight: 500; color: var(--bp-note); }
+.bp-note.is-end { transform: translateX(-100%); text-align: right; }
+.bp-note.is-centre { transform: translateX(-50%); text-align: center; }
+
+/* The title block: a single legend strip along the bottom edge, the way a
+   drawing sheet runs its notes along the border. It wraps on a phone. */
+.bp-plate {
+  position: absolute;
+  left: max(1.25rem, calc((100% - var(--page)) / 2));
+  right: max(1.25rem, calc((100% - var(--page)) / 2));
+  bottom: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.4rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--bp-soft);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--bp-soft);
+  background: rgb(14 42 68 / 92%);
+}
+.bp-plate b { font-weight: 500; color: var(--bp-line); }
+.bp-plate .bp-plate-head { color: var(--bp-note); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* The ring that rides the lens edge, with four ticks like a loupe. It sits
+   outside the clipped layer, so it is drawn rather than revealed. */
+.bp-ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  width: calc(var(--bp-r, 0px) * 2);
+  height: calc(var(--bp-r, 0px) * 2);
+  translate: calc(var(--bp-x, 0px) - var(--bp-r, 0px)) calc(var(--bp-y, 0px) - var(--bp-r, 0px));
+  border: 1px solid rgb(217 179 108 / 85%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: var(--bp-ring, 0);
+  visibility: var(--bp-ring-vis, hidden);
+  box-shadow: 0 0 0 1px rgb(14 42 68 / 35%), 0 18px 50px -20px rgb(0 0 0 / 60%);
+}
+.bp-ring::before,
+.bp-ring::after {
+  content: "";
+  position: absolute;
+  background: rgb(217 179 108 / 85%);
+}
+.bp-ring::before { left: 50%; top: -6px; width: 1px; height: calc(100% + 12px); translate: -50% 0;
+  -webkit-mask: linear-gradient(#000 0 8px, transparent 8px calc(100% - 8px), #000 0);
+          mask: linear-gradient(#000 0 8px, transparent 8px calc(100% - 8px), #000 0); }
+.bp-ring::after  { top: 50%; left: -6px; height: 1px; width: calc(100% + 12px); translate: 0 -50%;
+  -webkit-mask: linear-gradient(90deg, #000 0 8px, transparent 8px calc(100% - 8px), #000 0);
+          mask: linear-gradient(90deg, #000 0 8px, transparent 8px calc(100% - 8px), #000 0); }
+
+/* The control: a quiet text button beside the two real actions, so it never
+   competes with View projects. */
+.bp-toggle {
+  /* Above the drawing, so the control that closes it, and its focus ring,
+     stay visible while it is open. */
+  position: relative;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 0.35rem;
+  border: 0;
+  background: none;
+  color: var(--dim);
+  font: 500 0.88rem/1 var(--sans);
+  cursor: pointer;
+}
+.bp-toggle svg { width: 18px; height: 18px; flex: none; color: var(--amber); transition: rotate 0.6s cubic-bezier(.2,.8,.2,1); }
+.bp-toggle:hover { color: var(--text); }
+.bp-toggle:hover svg { rotate: 45deg; }
+.bp-toggle[aria-pressed="true"] { color: var(--bp-line); }
+.bp-toggle[aria-pressed="true"] svg { rotate: 45deg; color: var(--bp-note); }
+.bp-hint {
+  margin-top: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bp-toggle svg { transition: none; }
+}
+@media print { .bp, .bp-ring, .bp-toggle, .bp-hint { display: none !important; } }
+
+
+/* =========================================================================
+   Motion, in three places and nowhere else.
+
+   1. The hero arrives: the kicker's rule draws, the headline rises out of a
+      mask, the portrait is unveiled top to bottom.
+   2. Each section heading rises the same way as it enters, and its rule
+      draws across.
+   3. Moving into a case study, the card's screenshot and name travel to
+      their places on the new page (cross-document View Transitions). A
+      browser without them simply navigates.
+
+   Everything else on the page keeps the quiet fade it already had. All of it
+   is off for anyone who asked for less motion.
+   ========================================================================= */
+:root { --ease-majestic: cubic-bezier(0.16, 1, 0.3, 1); }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* 1. the hero */
+  .js .hero .hero-kicker.reveal { transform: none; }
+  .js .hero .hero-kicker::before {
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1.1s var(--ease-majestic) 0.15s;
+  }
+  .js .hero .hero-kicker.in::before { transform: none; }
+
+  .js .hero h1.reveal {
+    opacity: 1;
+    transform: translateY(0.32em);
+    clip-path: inset(0 -6% 100% -6%);
+  }
+  .js .hero h1.reveal.in {
+    transform: none;
+    clip-path: inset(-25% -6% -25% -6%);
+    transition: transform 1.25s var(--ease-majestic) 0.12s,
+                clip-path 1.25s var(--ease-majestic) 0.12s;
+  }
+
+  .js .hero .portrait.reveal {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 -4% 100% 0);
+  }
+  .js .hero .portrait.reveal img { scale: 1.06; transition: scale 1.8s var(--ease-majestic) 0.25s; }
+  .js .hero .portrait.reveal.in {
+    clip-path: inset(-6% -9% -9% -6%);
+    transition: clip-path 1.4s var(--ease-majestic) 0.25s;
+  }
+  .js .hero .portrait.reveal.in img { scale: 1; }
+
+  .js .hero .hero-blurb.reveal.in { transition-delay: 0.42s; transition-duration: 0.9s; }
+  .js .hero .hero-actions.reveal.in { transition-delay: 0.56s; transition-duration: 0.9s; }
+  .js .bp-hint { animation: hint-in 0.9s ease 1.2s both; }
+  @keyframes hint-in { from { opacity: 0; } }
+
+  /* 2. section headings */
+  .js .reveal-head .eyebrow { opacity: 0; transition: opacity 0.8s ease; }
+  .js .reveal-head h2 {
+    transform: translateY(0.4em);
+    clip-path: inset(0 -4% 100% -4%);
+    transition: transform 1.1s var(--ease-majestic) 0.08s, clip-path 1.1s var(--ease-majestic) 0.08s;
+  }
+  .js .reveal-head::after {
+    transform: scaleX(0);
+    transition: transform 1.4s var(--ease-majestic) 0.2s;
+  }
+  .js .reveal-head.in .eyebrow { opacity: 1; }
+  .js .reveal-head.in h2 { transform: none; clip-path: inset(-25% -4% -25% -4%); }
+  .js .reveal-head.in::after { transform: none; }
+
+  /* 3. into a case study and back */
+  @view-transition { navigation: auto; }
+  ::view-transition-group(*) {
+    animation-duration: 0.62s;
+    animation-timing-function: var(--ease-majestic);
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation-duration: 0.42s; }
+  .card-shot[href="projects/autocare.html"] img, [data-project="autocare"] .shot-full:first-of-type img { view-transition-name: shot-autocare; }
+  .card h3 a[href="projects/autocare.html"], [data-project="autocare"] .page-head h1 { view-transition-name: title-autocare; }
+  .card-shot[href="projects/rallyready.html"] img, [data-project="rallyready"] .shot-full:first-of-type img { view-transition-name: shot-rallyready; }
+  .card h3 a[href="projects/rallyready.html"], [data-project="rallyready"] .page-head h1 { view-transition-name: title-rallyready; }
+  .card-shot[href="projects/hiroshi-master-grill.html"] img, [data-project="hiroshi"] .shot-full:first-of-type img { view-transition-name: shot-hiroshi; }
+  .card h3 a[href="projects/hiroshi-master-grill.html"], [data-project="hiroshi"] .page-head h1 { view-transition-name: title-hiroshi; }
+  .card-shot[href="projects/cyclemind-ai.html"] img, [data-project="cyclemind"] .shot-full:first-of-type img { view-transition-name: shot-cyclemind; }
+  .card h3 a[href="projects/cyclemind-ai.html"], [data-project="cyclemind"] .page-head h1 { view-transition-name: title-cyclemind; }
+  .card-shot[href="projects/bike-guide-ph.html"] img, [data-project="bikeguide"] .shot-full:first-of-type img { view-transition-name: shot-bikeguide; }
+  .card h3 a[href="projects/bike-guide-ph.html"], [data-project="bikeguide"] .page-head h1 { view-transition-name: title-bikeguide; }
+  .card-shot[href="projects/corruption-watch-ph.html"] img, [data-project="crs"] .shot-full:first-of-type img { view-transition-name: shot-crs; }
+  .card h3 a[href="projects/corruption-watch-ph.html"], [data-project="crs"] .page-head h1 { view-transition-name: title-crs; }
+  .card-shot[href="projects/floodguard.html"] img, [data-project="floodguard"] .shot-full:first-of-type img { view-transition-name: shot-floodguard; }
+  .card h3 a[href="projects/floodguard.html"], [data-project="floodguard"] .page-head h1 { view-transition-name: title-floodguard; }
+}
+
+/* The heading rule is drawn by a pseudo-element so it can grow; without
+   JavaScript it is simply there. */
+.section-head { position: relative; border-bottom: 0; }
+.section-head::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line-soft);
+  transform-origin: left;
+}
