@@ -10,6 +10,13 @@
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Captured now: currentScript is only set while this file first runs. The
+  // search resolves its links against the site root, which is one level up
+  // from js/, so they work the same from a case study as from the home page.
+  var siteRoot = document.currentScript
+    ? new URL('../', document.currentScript.src)
+    : new URL('/', window.location.href);
+
   /* -------------------------------------------------------------- theme --
      boot.js has already applied any saved choice. This only handles the
      button, and keeps its label describing what pressing it will do.       */
@@ -142,39 +149,62 @@
   /*  Interactive terminal                                                */
   /* ==================================================================== */
 
+  /* The terminal and the quick-jump search both read this list, so a project
+     is added in one place. `title` and `tags` are for the search: the tags are
+     the card's data-tech values plus the plain words someone might type. */
   var PROJECTS = {
     floodguard: {
+      title: 'FloodGuard',
+      path: 'projects/floodguard.html',
+      tags: 'iot ai capstone flood warning sms noveleta',
       line: 'Capstone. IoT and AI flood warning, Noveleta.'
     },
     autocare: {
+      title: 'AutoCare',
       path: 'projects/autocare.html',
+      tags: 'nextjs next.js react typescript postgres car shop client',
       line: 'Next.js and Postgres. Job system for a car shop.'
     },
     rallyready: {
+      title: 'RallyReady',
       path: 'projects/rallyready.html',
+      tags: 'react typescript pwa supabase postgres badminton vitest',
       line: 'React and TypeScript. Badminton drills, 648 tests.'
     },
     'badminton-ph': {
+      title: 'BadmintonPH',
       href: 'https://badminton-ph.web.app',
+      tags: 'react firebase badminton tournament',
       line: 'React. Live tournament platform on Firebase.'
     },
     'hiroshi-grill': {
+      title: 'Hiroshi Master Grill',
       path: 'projects/hiroshi-master-grill.html',
+      tags: 'nextjs next.js react typescript supabase postgres restaurant booking client samgyupsal',
       line: 'Next.js 16 and Supabase. Client booking app.'
     },
     cyclemind_ai: {
+      title: 'CycleMind AI',
       path: 'projects/cyclemind-ai.html',
+      tags: 'flutter dart firebase cycling bike ai',
       line: 'Flutter and Firebase. AI coach and bike doctor.'
     },
     'bike-guide-app': {
+      title: 'Bike Guide PH',
       path: 'projects/bike-guide-ph.html',
+      tags: 'vanilla javascript pwa firebase cycling offline',
       line: 'Vanilla JS PWA. Gear guide, routes, offline.'
     },
     'corruption-watch': {
+      title: 'Corruption Watch PH',
       path: 'projects/corruption-watch-ph.html',
+      tags: 'vanilla javascript firebase reporting',
       line: 'Firebase. Anonymous reporting, tested rules.'
     },
     hiraya: {
+      title: 'Hiraya',
+      anchor: 'index.html#hiraya',
+      tags: 'unity csharp c# game mmorpg',
       line: 'Unity 6 and C#. Filipino MMORPG, in progress.'
     }
   };
@@ -864,513 +894,484 @@
     printBtn.addEventListener('click', function () { window.print(); });
   }
 
-  /* --- the blueprint lens ----------------------------------------------
-     The hero promises "the parts that never make it into a demo". This shows
-     them. A clone of the hero is redrawn as a cyanotype working drawing and
-     laid exactly over the original; a circle that follows the pointer cuts a
-     window through to it. Every number on the drawing is measured here, in the
-     visitor's browser, when the drawing is drawn. Nothing is typed in.
+  /* ==================================================================== */
+  /*  Quick-jump search (Ctrl K, Cmd K or /)                              */
+  /* ==================================================================== */
+  /* A command palette: one box that reaches every project, section and
+     page, plus a few actions. It only appears when somebody asks for it, so
+     it never sits on top of the work. Built on a native <dialog>, which gives
+     the focus trap, Escape and an inert page behind it for free. The list is
+     a listbox the input drives through aria-activedescendant, so focus never
+     leaves the text box. Every row is built with textContent. */
+  var navInner = document.querySelector('.nav-inner');
 
-     Paint and layout-shift entries are buffered by the browser, but only for
-     an observer that exists, so these start now and are read later. */
-  var vitals = { lcp: null, cls: 0, hasCls: false };
-  if ('PerformanceObserver' in window && PerformanceObserver.supportedEntryTypes) {
-    var entryTypes = PerformanceObserver.supportedEntryTypes;
-    try {
-      if (entryTypes.indexOf('largest-contentful-paint') !== -1) {
-        new PerformanceObserver(function (list) {
-          var all = list.getEntries();
-          vitals.lcp = all[all.length - 1].startTime;
-        }).observe({ type: 'largest-contentful-paint', buffered: true });
-      }
-      if (entryTypes.indexOf('layout-shift') !== -1) {
-        vitals.hasCls = true;
-        new PerformanceObserver(function (list) {
-          list.getEntries().forEach(function (e) {
-            if (!e.hadRecentInput) vitals.cls += e.value;
-          });
-        }).observe({ type: 'layout-shift', buffered: true });
-      }
-    } catch (e) {
-      // An older engine that lists a type but rejects the options: go without.
-    }
-  }
-
-  var bpHero = document.querySelector('.hero');
-  var bpToggle = document.getElementById('bp-toggle');
-  var bpHint = document.getElementById('bp-hint');
-  var bpSummary = document.getElementById('bp-summary');
-
-  if (bpHero && bpToggle && window.CSS && CSS.supports &&
-      CSS.supports('clip-path', 'circle(1px at 1px 1px)')) {
-
-    var SVGNS = 'http://www.w3.org/2000/svg';
-    var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    var bpOriginal = {
-      grid: bpHero.querySelector('.hero-grid'),
-      kicker: bpHero.querySelector('.hero-kicker'),
-      h1: bpHero.querySelector('h1'),
-      blurb: bpHero.querySelector('.hero-blurb'),
-      buttons: bpHero.querySelectorAll('.hero-actions .btn'),
-      img: bpHero.querySelector('.portrait img')
-    };
-    var bp = { x: 0, y: 0, tx: 0, ty: 0, r: 0, tr: 0, raf: 0, pinned: false, touched: false };
-    var bpLayer = null;
-    var bpInk = null;
-    var bpNotes = null;
-    var bpPlate = null;
-    var bpRing = null;
-    var bpMeasure = document.createElement('canvas').getContext('2d');
-
-    var heroRect = function () { return bpHero.getBoundingClientRect(); };
-
-    var relRect = function (el, h) {
-      var r = el.getBoundingClientRect();
-      return { l: r.left - h.left, t: r.top - h.top, r: r.right - h.left,
-               b: r.bottom - h.top, w: r.width, h: r.height };
+  // Its own scope: var hoists, and names like list and status are common.
+  if (navInner && window.HTMLDialogElement) (function () {
+    var isMac = /Mac|iPhone|iPad/.test(
+      (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || ''
+    );
+    var modKey = isMac ? '⌘' : 'Ctrl';
+    var EMAIL = 'frncishub@gmail.com';
+    var SVG = 'http://www.w3.org/2000/svg';
+    var ICONS = {
+      search: 'M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16zM21 21l-4.35-4.35',
+      project: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+      section: 'M4 9h16M4 15h16M10 3 8 21M16 3l-2 18',
+      page: 'M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 13h8M8 17h5',
+      download: 'M12 3v12M7 10l5 5 5-5M5 21h14',
+      external: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5',
+      copy: 'M9 9h10v12H9zM5 15V3h10',
+      mail: 'M3 6h18v12H3zM3 7l9 6 9-6',
+      theme: 'M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z'
     };
 
-    var parseRgb = function (s) {
-      var m = s.match(/[\d.]+/g);
-      return m ? [ +m[0], +m[1], +m[2], m[3] === undefined ? 1 : +m[3] ] : [0, 0, 0, 0];
-    };
-    var luminance = function (c) {
-      var f = function (v) {
-        v /= 255;
-        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-      };
-      return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
-    };
-    // Contrast against the first opaque background up the tree, which is how
-    // the colour actually composites.
-    var contrastOf = function (el) {
-      var fg = parseRgb(getComputedStyle(el).color);
-      var bg = null;
-      for (var n = el; n && !bg; n = n.parentElement) {
-        var c = parseRgb(getComputedStyle(n).backgroundColor);
-        if (c[3] > 0.95) bg = c;
-      }
-      bg = bg || parseRgb(getComputedStyle(document.body).backgroundColor);
-      var a = luminance(fg), b = luminance(bg);
-      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    var icon = function (name, cls) {
+      var svg = document.createElementNS(SVG, 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('stroke-width', '1.7');
+      svg.setAttribute('stroke-linecap', 'round');
+      svg.setAttribute('stroke-linejoin', 'round');
+      svg.setAttribute('aria-hidden', 'true');
+      if (cls) svg.setAttribute('class', cls);
+      var path = document.createElementNS(SVG, 'path');
+      path.setAttribute('d', ICONS[name]);
+      svg.appendChild(path);
+      return svg;
     };
 
-    var fontOf = function (el) {
-      var cs = getComputedStyle(el);
-      bpMeasure.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
-      var probe = bpMeasure.measureText('Hxgp');
-      var size = parseFloat(cs.fontSize);
-      return {
-        family: cs.fontFamily.split(',')[0].replace(/["']/g, '').trim(),
-        weight: cs.fontWeight,
-        size: size,
-        lead: cs.lineHeight === 'normal' ? size * 1.2 : parseFloat(cs.lineHeight),
-        asc: probe.fontBoundingBoxAscent || size * 0.82,
-        cap: bpMeasure.measureText('H').actualBoundingBoxAscent || size * 0.7,
-        xh: bpMeasure.measureText('x').actualBoundingBoxAscent || size * 0.48
-      };
+    var el = function (tag, cls, text) {
+      var node = document.createElement(tag);
+      if (cls) node.className = cls;
+      if (text) node.textContent = text;
+      return node;
     };
 
-    // One rectangle per rendered line, merged across the inline boxes the
-    // italic <em> splits a line into.
-    var linesOf = function (el, h) {
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      var rects = Array.prototype.slice.call(range.getClientRects())
-        .filter(function (r) { return r.width > 1 && r.height > 1; })
-        .sort(function (a, b) { return a.top - b.top; });
-      var lines = [];
-      rects.forEach(function (r) {
-        var mid = (r.top + r.bottom) / 2;
-        var line = lines.filter(function (l) { return Math.abs(l.mid - mid) < r.height * 0.4; })[0];
-        if (line) {
-          line.left = Math.min(line.left, r.left);
-          line.right = Math.max(line.right, r.right);
-          line.top = Math.min(line.top, r.top);
-        } else {
-          lines.push({ mid: mid, left: r.left, right: r.right, top: r.top });
-        }
-      });
-      return lines.map(function (l) {
-        return { l: l.left - h.left, r: l.right - h.left, t: l.top - h.top };
-      });
+    var resolve = function (path) { return new URL(path, siteRoot).href; };
+
+    // Accents and punctuation are folded away, so "resume" finds Résumé and
+    // "next js" finds Next.js. Each character maps to one character, which
+    // keeps match positions valid for highlighting the original title.
+    var fold = function (text) {
+      return text.normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .toLowerCase().replace(/[^a-z0-9#]/g, ' ');
     };
 
-    var px = function (n) { return Math.round(n) + ' px'; };
-    var ratio = function (n) { return (Math.floor(n * 10) / 10).toFixed(1) + ' : 1'; };
+    /* --- what it can reach --------------------------------------------- */
+    var items = [];
 
-    var addLine = function (cls, x1, y1, x2, y2) {
-      var l = document.createElementNS(SVGNS, 'line');
-      l.setAttribute('class', cls);
-      l.setAttribute('x1', x1.toFixed(1)); l.setAttribute('y1', y1.toFixed(1));
-      l.setAttribute('x2', x2.toFixed(1)); l.setAttribute('y2', y2.toFixed(1));
-      bpInk.appendChild(l);
-    };
-    // A dimension line with its two end ticks, the way a drawing gives a size.
-    var addDim = function (x1, y, x2) {
-      addLine('dim', x1, y, x2, y);
-      addLine('dim', x1, y - 4, x1, y + 4);
-      addLine('dim', x2, y - 4, x2, y + 4);
-    };
-    // Notes are built from text nodes, never markup: parts alternate plain and
-    // bold, so a measured value can never be read as HTML.
-    var addNote = function (parts, x, y, align) {
-      var d = document.createElement('div');
-      d.className = 'bp-note' + (align ? ' is-' + align : '');
-      parts.forEach(function (part, i) {
-        if (i % 2) {
-          var b = document.createElement('b');
-          b.textContent = part;
-          d.appendChild(b);
-        } else {
-          d.appendChild(document.createTextNode(part));
-        }
-      });
-      d.style.left = x.toFixed(1) + 'px';
-      d.style.top = y.toFixed(1) + 'px';
-      bpNotes.appendChild(d);
-      return d;
-    };
-
-    var bpDraw = function () {
-      if (!bpLayer) return;
-      var h = heroRect();
-      bpInk.setAttribute('viewBox', '0 0 ' + h.width.toFixed(1) + ' ' + h.height.toFixed(1));
-      while (bpInk.firstChild) bpInk.removeChild(bpInk.firstChild);
-      bpNotes.textContent = '';
-
-      // The grid: its real columns and gap, read from the computed style.
-      var grid = bpOriginal.grid;
-      var gcs = getComputedStyle(grid);
-      var g = relRect(grid, h);
-      var cols = gcs.gridTemplateColumns.split(' ').map(parseFloat).filter(isFinite);
-      var gap = parseFloat(gcs.columnGap) || 0;
-      var x = g.l + parseFloat(gcs.paddingLeft);
-      var dimY = Math.max(16, g.t - 26);
-      cols.forEach(function (w, i) {
-        addLine('guide', x, 8, x, h.height - 8);
-        addLine('guide', x + w, 8, x + w, h.height - 8);
-        addDim(x, dimY, x + w);
-        addNote([i === 0 ? 'text column ' : 'portrait column ', px(w)], x + w / 2, dimY - 17, 'centre');
-        if (i < cols.length - 1 && gap) addNote(['gap ', px(gap)], x + w + gap / 2, dimY + 6, 'centre');
-        x += w + gap;
-      });
-      var colEnd = g.l + parseFloat(gcs.paddingLeft) + cols[0];
-
-      // The kicker.
-      var k = bpOriginal.kicker;
-      if (k) {
-        var kf = fontOf(k), kr = relRect(k, h);
-        var track = parseFloat(getComputedStyle(k).letterSpacing) / kf.size;
-        addNote([kf.family + ' ', kf.weight, ' · ' + kf.size.toFixed(1) + ' px · tracked ' +
-                 (Math.round(track * 100) / 100) + ' em'], kr.l, kr.t - 18);
-      }
-
-      // The headline: baseline, x-height and cap height of every line,
-      // from the font's own metrics at its rendered size.
-      var h1 = bpOriginal.h1;
-      var f = fontOf(h1);
-      var lines = linesOf(h1, h);
-      lines.forEach(function (ln, i) {
-        var base = ln.t + f.asc;
-        addLine('base', ln.l - 10, base, ln.r + 10, base);
-        addLine('metric', ln.l - 10, base - f.xh, ln.r + 10, base - f.xh);
-        addLine('metric', ln.l - 10, base - f.cap, ln.r + 10, base - f.cap);
-        if (i === 0 && ln.r + 96 < h.width) {
-          addNote(['cap height'], ln.r + 16, base - f.cap - 7);
-          addNote(['x-height'], ln.r + 16, base - f.xh - 7);
-          addNote(['baseline'], ln.r + 16, base - 7);
-        }
-      });
-      var last = lines[lines.length - 1];
-      if (last) {
-        addNote([f.family + ' ', f.weight, ' · ' + px(f.size) + ' on ' + px(f.lead) + ' · contrast ',
-                 ratio(contrastOf(h1))], colEnd, last.t + f.asc + 12, 'end');
-      }
-
-      // The paragraph: size, leading, measure, contrast.
-      var p = bpOriginal.blurb;
-      if (p) {
-        var pf = fontOf(p), pr = relRect(p, h);
-        bpMeasure.font = getComputedStyle(p).fontWeight + ' ' + getComputedStyle(p).fontSize + ' ' + getComputedStyle(p).fontFamily;
-        var avg = bpMeasure.measureText('abcdefghijklmnopqrstuvwxyz').width / 26;
-        var room = colEnd - pr.r;
-        var chars = Math.round(pr.w / avg) + ' characters';
-        addLine('guide', pr.l, pr.t - 4, pr.l, pr.b + 4);
-        if (room > 170) {
-          var ny = pr.t + pr.h / 2 - 22;
-          addNote([px(pf.size) + ' on ' + px(pf.lead)], pr.r + 18, ny);
-          addNote(['about ', chars, ' a line'], pr.r + 18, ny + 15);
-          addNote(['contrast ', ratio(contrastOf(p))], pr.r + 18, ny + 30);
-        } else {
-          addNote([px(pf.size) + ' on ' + px(pf.lead) + ' · ', chars, ' · contrast ' + ratio(contrastOf(p))],
-                  pr.l, pr.b + 4);
-        }
-      }
-
-      // The buttons, against the 44 px a thumb needs.
-      var btn = bpOriginal.buttons[0];
-      if (btn) {
-        var br = relRect(btn, h);
-        var row = relRect(btn.parentElement, h);
-        var under = row.b - br.b > 8 ? row.b : br.b;
-        addDim(br.l, under + 9, br.r);
-        addNote([Math.round(br.w) + ' × ' + Math.round(br.h) + ' px · ',
-                 br.h >= 44 ? 'meets the 44 px touch target' : 'under the 44 px touch target'],
-                br.l, under + 15);
-      }
-
-      // The portrait: the box it holds, and what it cost to fetch.
-      var img = bpOriginal.img;
-      if (img) {
-        var ir = relRect(img, h);
-        var box = document.createElementNS(SVGNS, 'rect');
-        box.setAttribute('class', 'box');
-        box.setAttribute('x', ir.l.toFixed(1)); box.setAttribute('y', ir.t.toFixed(1));
-        box.setAttribute('width', ir.w.toFixed(1)); box.setAttribute('height', ir.h.toFixed(1));
-        bpInk.appendChild(box);
-        addLine('cross', ir.l, ir.t, ir.r, ir.b);
-        addLine('cross', ir.r, ir.t, ir.l, ir.b);
-        addDim(ir.l, ir.t - 12, ir.r);
-        addNote([px(ir.w)], ir.l + ir.w / 2, ir.t - 29, 'centre');
-        var src = img.currentSrc || img.src;
-        var entry = (performance.getEntriesByName && performance.getEntriesByName(src)[0]) || null;
-        var bytes = entry ? (entry.encodedBodySize || entry.transferSize || 0) : 0;
-        var ext = (src.split('?')[0].split('.').pop() || '').toUpperCase();
-        var spec = [img.naturalWidth + ' × ' + img.naturalHeight + ' ' + ext];
-        if (bytes) spec.push(' · ' + Math.round(bytes / 1024) + ' KB');
-        if (img.getAttribute('fetchpriority') === 'high') spec.push(' · fetched first');
-        addNote([spec.join('')], ir.l + ir.w / 2, ir.t + ir.h / 2 - 7, 'centre');
-      }
-    };
-
-    // The title block: this visit, measured.
-    var bpFillPlate = function () {
-      if (!bpPlate) return;
-      bpPlate.textContent = '';
-      var rows = [];
-      var nav = performance.getEntriesByType ? performance.getEntriesByType('navigation')[0] : null;
-      if (nav && nav.domContentLoadedEventEnd) rows.push(['page ready', Math.round(nav.domContentLoadedEventEnd) + ' ms']);
-      if (vitals.lcp !== null) rows.push(['largest paint', Math.round(vitals.lcp) + ' ms']);
-      if (vitals.hasCls) rows.push(['layout shift', vitals.cls.toFixed(2)]);
-      if (performance.getEntriesByType) {
-        var all = performance.getEntriesByType('resource');
-        var bytes = (nav && nav.encodedBodySize) || 0;
-        all.forEach(function (e) { bytes += e.encodedBodySize || 0; });
-        if (bytes) rows.push(['weight so far', Math.round(bytes / 1024) + ' KB in ' + (all.length + 1) + ' files']);
-      }
-      var head = document.createElement('span');
-      head.className = 'bp-plate-head';
-      head.textContent = 'This visit, measured in your browser';
-      bpPlate.appendChild(head);
-      rows.forEach(function (row) {
-        var item = document.createElement('span');
-        var label = document.createElement('span');
-        label.className = 'bp-plate-label';
-        label.textContent = row[0] + ' ';
-        var value = document.createElement('b');
-        value.textContent = row[1];
-        item.appendChild(label);
-        item.appendChild(value);
-        bpPlate.appendChild(item);
-      });
-      return rows;
-    };
-
-    var bpBuild = function () {
-      bpLayer = document.createElement('div');
-      bpLayer.className = 'bp';
-      bpLayer.setAttribute('aria-hidden', 'true');
-      bpLayer.inert = true;
-
-      var clone = bpOriginal.grid.cloneNode(true);
-      clone.removeAttribute('id');
-      Array.prototype.forEach.call(clone.querySelectorAll('[id]'), function (el) {
-        el.removeAttribute('id');
-      });
-      Array.prototype.forEach.call(clone.querySelectorAll('.reveal'), function (el) {
-        el.classList.remove('reveal', 'in');
-      });
-      Array.prototype.forEach.call(clone.querySelectorAll('[aria-describedby],[aria-live]'), function (el) {
-        el.removeAttribute('aria-describedby');
-        el.removeAttribute('aria-live');
-      });
-      bpLayer.appendChild(clone);
-
-      bpInk = document.createElementNS(SVGNS, 'svg');
-      bpInk.setAttribute('class', 'bp-ink');
-      bpInk.setAttribute('aria-hidden', 'true');
-      bpInk.setAttribute('preserveAspectRatio', 'none');
-      bpLayer.appendChild(bpInk);
-
-      bpNotes = document.createElement('div');
-      bpLayer.appendChild(bpNotes);
-
-      bpPlate = document.createElement('p');
-      bpPlate.className = 'bp-plate';
-      bpLayer.appendChild(bpPlate);
-
-      bpRing = document.createElement('div');
-      bpRing.className = 'bp-ring';
-      bpRing.setAttribute('aria-hidden', 'true');
-
-      bpHero.appendChild(bpLayer);
-      bpHero.appendChild(bpRing);
-      bpDraw();
-      bpFillPlate();
-    };
-
-    var bpSet = function () {
-      bpHero.style.setProperty('--bp-x', bp.x.toFixed(1) + 'px');
-      bpHero.style.setProperty('--bp-y', bp.y.toFixed(1) + 'px');
-      bpHero.style.setProperty('--bp-r', Math.max(0, bp.r).toFixed(1) + 'px');
-      var ringOn = !bp.pinned && bp.r > 4;
-      bpHero.style.setProperty('--bp-ring', ringOn ? '1' : '0');
-      bpHero.style.setProperty('--bp-ring-vis', ringOn ? 'visible' : 'hidden');
-    };
-
-    var bpLoop = function () {
-      // A pinned wipe opens slowly, on purpose; the hover lens keeps up.
-      var kr = reduceMotion ? 1 : (bp.pinned ? 0.075 : 0.16);
-      var kp = reduceMotion ? 1 : 0.2;
-      bp.x += (bp.tx - bp.x) * kp;
-      bp.y += (bp.ty - bp.y) * kp;
-      bp.r += (bp.tr - bp.r) * kr;
-      var settled = Math.abs(bp.tx - bp.x) < 0.3 && Math.abs(bp.ty - bp.y) < 0.3 &&
-                    Math.abs(bp.tr - bp.r) < 0.3;
-      if (settled) { bp.x = bp.tx; bp.y = bp.ty; bp.r = bp.tr; }
-      bpSet();
-      bp.raf = settled ? 0 : window.requestAnimationFrame(bpLoop);
-    };
-    var bpKick = function () {
-      if (!bp.raf) bp.raf = window.requestAnimationFrame(bpLoop);
-    };
-
-    var lensRadius = function () {
-      return Math.max(96, Math.min(150, bpHero.clientWidth * 0.12));
-    };
-
-    var bpPin = function (on) {
-      bp.pinned = on;
-      bpToggle.setAttribute('aria-pressed', on ? 'true' : 'false');
-      bpToggle.querySelector('.bp-toggle-label').textContent = on ? 'Hide the blueprint' : 'Show the blueprint';
-      var h = heroRect();
-      var b = bpToggle.getBoundingClientRect();
-      var ox = b.left + b.width / 2 - h.left;
-      var oy = b.top + b.height / 2 - h.top;
-      if (on || bp.r < 1) { bp.x = bp.tx = ox; bp.y = bp.ty = oy; }
-      if (on) {
-        bpDraw();
-        var rows = bpFillPlate() || [];
-        bp.tr = Math.hypot(Math.max(ox, h.width - ox), Math.max(oy, h.height - oy)) + 24;
-        if (bpSummary) {
-          var f = fontOf(bpOriginal.h1);
-          bpSummary.textContent = 'Blueprint shown. Headline set in ' + f.family + ' at ' +
-            Math.round(f.size) + ' pixels, contrast ' + ratio(contrastOf(bpOriginal.h1)) + '. ' +
-            rows.map(function (r) { return r[0] + ' ' + r[1]; }).join(', ') + '.';
-        }
-      } else {
-        bp.tr = 0;
-        if (bpSummary) bpSummary.textContent = 'Blueprint hidden.';
-      }
-      bpKick();
-    };
-
-    bpToggle.addEventListener('click', function () {
-      bp.touched = true;
-      bpPin(!bp.pinned);
+    Object.keys(PROJECTS).forEach(function (key) {
+      var p = PROJECTS[key];
+      var item = { group: 'Projects', title: p.title, sub: p.line, keys: key + ' ' + p.tags + ' project' };
+      if (p.path) { item.href = resolve(p.path); item.meta = 'Case study'; item.icon = 'project'; }
+      else if (p.href) { item.href = p.href; item.external = true; item.meta = 'Live site'; item.icon = 'external'; }
+      else { item.href = resolve(p.anchor); item.meta = 'On the home page'; item.icon = 'project'; }
+      items.push(item);
     });
+
+    [
+      ['projects', 'Projects', 'All nine, filterable by stack', 'work portfolio'],
+      ['education', 'Experience and education', 'Certicode internship and LPU Cavite', 'experience work internship intern certicode school university lpu ojt'],
+      ['stack', 'Tech stack', 'The stack I build on', 'tools technologies'],
+      ['certs', 'Certifications', 'Cisco, AWS, DataCamp, SAP and more', 'certificates cisco ccna aws datacamp sap python'],
+      ['skills', 'Technical skills', 'Languages, frameworks, testing, cloud', 'skills languages'],
+      ['room', 'Coding camp photos', 'Two days at the coding camp', 'bootcamp pictures gallery'],
+      ['timeline', 'Timeline', 'How I got here', 'history journey'],
+      ['shell', 'Terminal', 'Type commands into a working shell', 'terminal shell command line cli'],
+      ['contact', 'Contact', 'Email, GitHub and where to find me', 'contact hire email message reach']
+    ].forEach(function (s) {
+      items.push({
+        group: 'Sections', title: s[1], sub: s[2], keys: s[3], icon: 'section',
+        href: resolve('index.html#' + s[0]), meta: 'Section'
+      });
+    });
+
+    items.push(
+      { group: 'Pages', title: 'Résumé', sub: 'One page, printable', keys: 'resume cv curriculum vitae',
+        href: resolve('resume.html'), meta: 'Page', icon: 'page' },
+      { group: 'Pages', title: 'Download the CV', sub: 'PDF, two A4 pages', keys: 'resume cv pdf download',
+        href: resolve('assets/francis-wilfred-antiporda-cv.pdf'), download: true, meta: 'PDF', icon: 'download' },
+      { group: 'Actions', title: 'Copy my email address', sub: EMAIL, keys: 'email copy contact clipboard',
+        run: 'copy', meta: 'Copy', icon: 'copy' },
+      { group: 'Actions', title: 'Write me an email', sub: 'Opens your mail app', keys: 'email mail contact hire',
+        href: 'mailto:' + EMAIL, meta: 'Email', icon: 'mail' },
+      { group: 'Actions', title: 'GitHub profile', sub: 'github.com/wilfredds', keys: 'github code repositories source',
+        href: 'https://github.com/wilfredds', external: true, meta: 'New tab', icon: 'external' }
+    );
+    if (themeToggle) {
+      items.push({ group: 'Actions', title: 'Switch theme', sub: '', keys: 'theme dark light mode colour color',
+        run: 'theme', meta: 'Theme', icon: 'theme' });
+    }
+
+    // A page does not offer a jump to itself.
+    var here = window.location.pathname.replace(/\.html$/, '').replace(/\/index$/, '/');
+    items = items.filter(function (it) {
+      if (!it.href || it.external || it.download || it.href.indexOf('#') !== -1) return true;
+      var path = new URL(it.href).pathname.replace(/\.html$/, '').replace(/\/index$/, '/');
+      return path !== here;
+    });
+    items.forEach(function (it) {
+      it.foldedTitle = fold(it.title);
+      it.words = (it.foldedTitle + ' ' + fold(it.keys)).split(/\s+/).filter(Boolean);
+    });
+
+    /* --- matching -------------------------------------------------------
+       Every word typed has to land somewhere. A hit at the start of the
+       title counts most, then the start of any word in the title, then
+       anywhere in it, then the tags. */
+    var score = function (it, tokens) {
+      var total = 0;
+      for (var i = 0; i < tokens.length; i++) {
+        var t = tokens[i];
+        var at = it.foldedTitle.indexOf(t);
+        if (at === 0) total += 100;
+        else if (at > 0 && it.foldedTitle.charAt(at - 1) === ' ') total += 60;
+        else if (at > 0) total += 35;
+        else if (it.words.some(function (w) { return w.indexOf(t) === 0; })) total += 25;
+        else if (it.words.some(function (w) { return w.indexOf(t) !== -1; })) total += 10;
+        else return 0;
+      }
+      return total;
+    };
+
+    /* --- the dialog ---------------------------------------------------- */
+    var dialog = el('dialog', 'cmdk');
+    dialog.setAttribute('aria-label', 'Search the site');
+
+    var bar = el('div', 'cmdk-bar');
+    bar.appendChild(icon('search', 'cmdk-bar-icon'));
+    var field = el('input', 'cmdk-input');
+    field.type = 'text';
+    field.setAttribute('role', 'combobox');
+    field.setAttribute('aria-expanded', 'true');
+    field.setAttribute('aria-controls', 'cmdk-list');
+    field.setAttribute('aria-autocomplete', 'list');
+    field.setAttribute('aria-label', 'Search projects, sections and pages');
+    field.setAttribute('placeholder', window.matchMedia('(max-width: 520px)').matches
+      ? 'Search the site' : 'Search projects, sections, pages');
+    field.setAttribute('autocomplete', 'off');
+    field.setAttribute('spellcheck', 'false');
+    field.setAttribute('enterkeyhint', 'go');
+    bar.appendChild(field);
+    var closeBtn = el('button', 'cmdk-close', 'Esc');
+    closeBtn.type = 'button';
+    closeBtn.setAttribute('aria-label', 'Close search');
+    bar.appendChild(closeBtn);
+
+    var list = el('div', 'cmdk-list');
+    list.id = 'cmdk-list';
+    list.setAttribute('role', 'listbox');
+    list.setAttribute('aria-label', 'Results');
+
+    var empty = el('p', 'cmdk-empty');
+    empty.hidden = true;
+
+    var status = el('p', 'sr-only');
+    status.setAttribute('role', 'status');
+
+    var foot = el('div', 'cmdk-foot');
+    [['↑ ↓', 'to move'], ['↵', 'to open'], ['Esc', 'to close']].forEach(function (k) {
+      var span = el('span');
+      span.appendChild(el('kbd', null, k[0]));
+      span.appendChild(document.createTextNode(' ' + k[1]));
+      foot.appendChild(span);
+    });
+
+    dialog.appendChild(bar);
+    dialog.appendChild(list);
+    dialog.appendChild(empty);
+    dialog.appendChild(foot);
+    dialog.appendChild(status);
+    document.body.appendChild(dialog);
+
+    /* --- the button in the nav ----------------------------------------- */
+    var opener = el('button', 'nav-search');
+    opener.type = 'button';
+    opener.setAttribute('aria-haspopup', 'dialog');
+    opener.setAttribute('aria-keyshortcuts', isMac ? 'Meta+K /' : 'Control+K /');
+    opener.setAttribute('aria-label', 'Search the site');
+    opener.appendChild(icon('search'));
+    opener.appendChild(el('span', 'nav-search-label', 'Search'));
+    var openerKbd = el('kbd', 'nav-search-kbd', modKey + ' K');
+    openerKbd.setAttribute('aria-hidden', 'true');
+    opener.appendChild(openerKbd);
+    navInner.insertBefore(opener, themeToggle && themeToggle.parentNode === navInner ? themeToggle : null);
+
+    // On the home page, one quiet line under the hero buttons says it exists.
+    // Only where there is a keyboard to press it with.
+    var heroActions = document.querySelector('.hero .hero-actions');
+    if (heroActions && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      var jumpHint = el('p', 'jump-hint');
+      jumpHint.appendChild(document.createTextNode('Looking for something? Press '));
+      jumpHint.appendChild(el('kbd', null, modKey));
+      jumpHint.appendChild(document.createTextNode(' '));
+      jumpHint.appendChild(el('kbd', null, 'K'));
+      jumpHint.appendChild(document.createTextNode(' to jump anywhere.'));
+      heroActions.parentNode.insertBefore(jumpHint, heroActions.nextSibling);
+    }
+
+    /* --- rendering ----------------------------------------------------- */
+    var shown = [];
+    var active = 0;
+    var GROUPS = ['Projects', 'Sections', 'Pages', 'Actions'];
+
+    var highlight = function (node, it, tokens) {
+      var ranges = [];
+      tokens.forEach(function (t) {
+        var at = it.foldedTitle.indexOf(t);
+        if (at !== -1) ranges.push([at, at + t.length]);
+      });
+      ranges.sort(function (a, b) { return a[0] - b[0]; });
+      var pos = 0;
+      ranges.forEach(function (r) {
+        if (r[0] < pos) return;
+        if (r[0] > pos) node.appendChild(document.createTextNode(it.title.slice(pos, r[0])));
+        node.appendChild(el('mark', null, it.title.slice(r[0], r[1])));
+        pos = r[1];
+      });
+      if (pos < it.title.length) node.appendChild(document.createTextNode(it.title.slice(pos)));
+    };
+
+    var setActive = function (i, scroll) {
+      if (!shown.length) { field.removeAttribute('aria-activedescendant'); return; }
+      active = (i + shown.length) % shown.length;
+      shown.forEach(function (it, n) { it.node.setAttribute('aria-selected', n === active ? 'true' : 'false'); });
+      field.setAttribute('aria-activedescendant', shown[active].node.id);
+      if (scroll) shown[active].node.scrollIntoView({ block: 'nearest' });
+    };
+
+    var statusTimer = null;
+    var render = function (fresh) {
+      var query = field.value.trim();
+      var tokens = fold(query).split(/\s+/).filter(Boolean);
+
+      if (themeToggle) {
+        items.forEach(function (it) {
+          if (it.run !== 'theme') return;
+          var next = document.documentElement.getAttribute('data-theme') === 'light' ||
+            (!document.documentElement.getAttribute('data-theme') &&
+              window.matchMedia('(prefers-color-scheme: light)').matches) ? 'dark' : 'light';
+          it.title = 'Switch to the ' + next + ' theme';
+          it.foldedTitle = fold(it.title);
+          it.sub = 'The choice is remembered on this device';
+        });
+      }
+
+      var ranked = items.map(function (it, order) {
+        return { it: it, order: order, score: tokens.length ? score(it, tokens) : 1 };
+      }).filter(function (r) { return r.score > 0; });
+
+      // Groups keep their order when browsing, and follow their best match
+      // when searching, so the likeliest answer is always the first row.
+      var best = {};
+      ranked.forEach(function (r) { best[r.it.group] = Math.max(best[r.it.group] || 0, r.score); });
+      var groups = GROUPS.filter(function (g) { return best[g]; });
+      if (tokens.length) groups.sort(function (a, b) { return best[b] - best[a]; });
+
+      list.textContent = '';
+      shown = [];
+      groups.forEach(function (g) {
+        var block = el('div', 'cmdk-group');
+        block.setAttribute('role', 'group');
+        var label = el('div', 'cmdk-group-label', g);
+        label.id = 'cmdk-g-' + g.toLowerCase();
+        label.setAttribute('aria-hidden', 'true');
+        block.setAttribute('aria-labelledby', label.id);
+        block.appendChild(label);
+
+        ranked.filter(function (r) { return r.it.group === g; })
+          .sort(function (a, b) { return (b.score - a.score) || (a.order - b.order); })
+          .forEach(function (r) {
+            var it = r.it;
+            var row = el('div', 'cmdk-item' + (it.group === 'Projects' ? ' is-project' : ''));
+            row.id = 'cmdk-o-' + shown.length;
+            row.setAttribute('role', 'option');
+            row.setAttribute('aria-selected', 'false');
+            if (fresh && !reduceMotion) row.style.setProperty('--n', Math.min(shown.length, 10));
+
+            var ico = el('span', 'cmdk-ico');
+            ico.appendChild(icon(it.icon));
+            row.appendChild(ico);
+
+            var text = el('span', 'cmdk-text');
+            var title = el('span', 'cmdk-title');
+            highlight(title, it, tokens);
+            text.appendChild(title);
+            if (it.sub) text.appendChild(el('span', 'cmdk-sub', it.sub));
+            row.appendChild(text);
+
+            var meta = el('span', 'cmdk-meta', it.meta);
+            meta.setAttribute('aria-hidden', 'true');
+            row.appendChild(meta);
+
+            it.node = row;
+            shown.push(it);
+            block.appendChild(row);
+          });
+        list.appendChild(block);
+      });
+
+      list.classList.toggle('is-fresh', !!fresh && !reduceMotion);
+      empty.hidden = shown.length > 0;
+      if (!shown.length) {
+        empty.textContent = '';
+        empty.appendChild(document.createTextNode('Nothing matches “' + query + '”. Try a stack, like '));
+        empty.appendChild(el('b', null, 'Flutter'));
+        empty.appendChild(document.createTextNode(', or a word like '));
+        empty.appendChild(el('b', null, 'contact'));
+        empty.appendChild(document.createTextNode('.'));
+      }
+      setActive(0, true);
+
+      window.clearTimeout(statusTimer);
+      statusTimer = window.setTimeout(function () {
+        status.textContent = !shown.length ? 'No results.' :
+          shown.length === 1 ? '1 result.' : shown.length + ' results.';
+      }, 350);
+    };
+
+    /* --- open, close, go ----------------------------------------------- */
+    var returnFocus = null;
+    var closing = false;
+
+    var openSearch = function (seed) {
+      if (dialog.open) return;
+      returnFocus = document.activeElement;
+      field.value = seed || '';
+      closing = false;
+      dialog.classList.remove('is-closing');
+      dialog.showModal();
+      render(true);
+      field.focus();
+      opener.setAttribute('aria-expanded', 'true');
+    };
+
+    // `then` runs once the dialog is really closed. Until then the page
+    // behind it is inert, and focusing anything there silently fails.
+    var closeSearch = function (then) {
+      if (!dialog.open || closing) return;
+      closing = true;
+      var done = function () {
+        dialog.removeEventListener('animationend', done);
+        window.clearTimeout(fallback);
+        dialog.classList.remove('is-closing');
+        dialog.close();
+        closing = false;
+        opener.setAttribute('aria-expanded', 'false');
+        if (typeof then === 'function') then();
+        else if (returnFocus && returnFocus.focus) returnFocus.focus();
+      };
+      if (reduceMotion) { done(); return; }
+      dialog.classList.add('is-closing');
+      dialog.addEventListener('animationend', done);
+      var fallback = window.setTimeout(done, 260);
+    };
+
+    var activate = function (it) {
+      if (!it) return;
+      if (it.run === 'copy') {
+        copy(EMAIL).then(function (ok) {
+          var sub = it.node && it.node.querySelector('.cmdk-sub');
+          if (sub) sub.textContent = ok ? 'Copied to your clipboard' : EMAIL;
+          status.textContent = ok ? 'Email address copied.' : 'Copy failed. The address is ' + EMAIL + '.';
+          if (ok) window.setTimeout(function () { closeSearch(); }, 700);
+        });
+        return;
+      }
+      if (it.run === 'theme') {
+        themeToggle.click();
+        closeSearch();
+        return;
+      }
+      if (it.external) {
+        window.open(it.href, '_blank', 'noopener');
+        closeSearch();
+        return;
+      }
+      if (it.download) {
+        var a = el('a');
+        a.href = it.href;
+        a.setAttribute('download', '');
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        closeSearch();
+        return;
+      }
+      var target = new URL(it.href);
+      var samePage = target.pathname.replace(/\.html$/, '').replace(/\/index$/, '/') === here;
+      var section = samePage && target.hash && document.getElementById(target.hash.slice(1));
+      if (section) {
+        window.history.pushState(null, '', target.hash);
+        section.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        // Focus follows the reader, so the next Tab starts from there.
+        closeSearch(function () {
+          if (!section.hasAttribute('tabindex')) section.setAttribute('tabindex', '-1');
+          section.focus({ preventScroll: true });
+        });
+        return;
+      }
+      closeSearch(function () { window.location.href = it.href; });
+    };
+
+    opener.addEventListener('click', function () { openSearch(); });
+    closeBtn.addEventListener('click', function () { closeSearch(); });
+
+    // Escape: let the closing animation play instead of vanishing.
+    dialog.addEventListener('cancel', function (e) { e.preventDefault(); closeSearch(); });
+
+    // A click on the dimmed page outside the panel closes it.
+    dialog.addEventListener('click', function (e) {
+      if (e.target !== dialog) return;
+      var r = dialog.getBoundingClientRect();
+      var inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      if (!inside) closeSearch();
+    });
+
+    field.addEventListener('input', function () { render(false); });
+
+    field.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(active + 1, true); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(active - 1, true); }
+      else if (e.key === 'PageDown') { e.preventDefault(); setActive(Math.min(active + 5, shown.length - 1), true); }
+      else if (e.key === 'PageUp') { e.preventDefault(); setActive(Math.max(active - 5, 0), true); }
+      else if (e.key === 'Enter') { e.preventDefault(); activate(shown[active]); }
+    });
+
+    // mousemove, not mouseover: a list scrolling under a still pointer must
+    // not steal the highlight from the keyboard.
+    list.addEventListener('mousemove', function (e) {
+      var row = e.target.closest('.cmdk-item');
+      if (!row) return;
+      var i = shown.map(function (it) { return it.node; }).indexOf(row);
+      if (i !== -1 && i !== active) setActive(i, false);
+    });
+    list.addEventListener('click', function (e) {
+      var row = e.target.closest('.cmdk-item');
+      if (!row) return;
+      var i = shown.map(function (it) { return it.node; }).indexOf(row);
+      if (i !== -1) activate(shown[i]);
+    });
+
+    var typing = function (node) {
+      return node && (node.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(node.tagName));
+    };
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && bp.pinned) { bpPin(false); bpToggle.focus(); }
-    });
-
-    if (finePointer) {
-      bpHero.addEventListener('pointermove', function (e) {
-        if (!bpLayer || bp.pinned || e.pointerType === 'touch') return;
-        bp.touched = true;
-        var h = heroRect();
-        var tx = e.clientX - h.left;
-        var ty = e.clientY - h.top;
-        // Step aside for anything clickable, so a link never turns into a
-        // drawing of a link just as somebody reaches for it.
-        var overControl = e.target.closest && e.target.closest('a, button, input');
-        if (bp.r < 1 && !overControl) {
-          bp.x = tx; bp.y = ty;
-          bpFillPlate();
-        }
-        bp.tx = tx; bp.ty = ty;
-        bp.tr = overControl ? 0 : lensRadius();
-        bpKick();
-      });
-      bpHero.addEventListener('pointerleave', function () {
-        if (bp.pinned) return;
-        bp.tr = 0;
-        bpKick();
-      });
-    }
-
-    var bpResizeTimer = 0;
-    window.addEventListener('resize', function () {
-      window.clearTimeout(bpResizeTimer);
-      bpResizeTimer = window.setTimeout(function () {
-        bpDraw();
-        if (bp.pinned) bpPin(true);
-      }, 150);
-    });
-
-    // Once per visit, the lens shows itself: it opens over the start of the
-    // headline, travels it, and closes. Skipped for anyone who asked for less
-    // motion, on touch screens, and as soon as the visitor moves first.
-    var bpDemo = function () {
-      if (reduceMotion || !finePointer || bp.touched) return;
-      try {
-        if (window.sessionStorage.getItem('bp-demo')) return;
-        window.sessionStorage.setItem('bp-demo', '1');
-      } catch (e) { /* storage blocked: show it anyway */ }
-      var h = heroRect();
-      if (h.top > window.innerHeight * 0.5 || h.bottom < 0) return;
-      var lines = linesOf(bpOriginal.h1, h);
-      if (!lines.length) return;
-      var f = fontOf(bpOriginal.h1);
-      var stops = lines.map(function (ln, i) {
-        var y = ln.t + f.asc - f.xh / 2;
-        return { x: i % 2 ? ln.r - 70 : ln.l + 70, y: y };
-      });
-      var step = function (i) {
-        if (bp.touched || bp.pinned) { if (!bp.pinned) { bp.tr = 0; bpKick(); } return; }
-        if (i >= stops.length) { bp.tr = 0; bpKick(); return; }
-        bp.tx = stops[i].x; bp.ty = stops[i].y;
-        if (i === 0) { bp.x = bp.tx; bp.y = bp.ty; bpFillPlate(); }
-        bp.tr = lensRadius() * 0.85;
-        bpKick();
-        window.setTimeout(function () { step(i + 1); }, 900);
-      };
-      step(0);
-    };
-
-    // Build once the fonts and the portrait are in, so the drawing measures
-    // the page as it finally stands rather than as it first painted.
-    var bpStart = function () {
-      bpToggle.hidden = false;
-      if (bpHint) {
-        if (finePointer) bpHint.textContent = 'Or move your pointer across this section to look underneath.';
-        bpHint.hidden = false;
+      var otherOpen = (lightbox && !lightbox.hidden) ||
+        document.querySelector('dialog[open]:not(.cmdk)');
+      if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey) {
+        if (otherOpen) return;
+        e.preventDefault();
+        if (dialog.open) closeSearch(); else openSearch();
+      } else if (e.key === '/' && !dialog.open && !otherOpen && !typing(document.activeElement) &&
+                 !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        openSearch();
       }
-      var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-      ready.then(function () {
-        window.setTimeout(function () {
-          bpBuild();
-          window.setTimeout(bpDemo, 500);
-        }, reduceMotion ? 0 : 900);
-      });
-      if (document.fonts && document.fonts.addEventListener) {
-        document.fonts.addEventListener('loadingdone', function () { bpDraw(); });
-      }
-    };
-    if (document.readyState === 'complete') bpStart();
-    else window.addEventListener('load', bpStart);
-  }
+    });
+  })();
 
   /* --- highlight the section being read --------------------------------
      Sub-pages link back with "../index.html#projects", which is not a

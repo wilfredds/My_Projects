@@ -37,7 +37,7 @@ portfolio/
 ├── js/
 │   ├── boot.js             # adds .js to <html> before paint (see the CSP note)
 │   ├── site.js             # terminal, filters, copy, counters, reveal, progress,
-│   │                       #   the blueprint lens
+│   │                       #   the quick-jump search
 │   └── notfound.js         # shows the path that 404'd
 ├── assets/fonts/           # Fraunces, IBM Plex Sans and Mono, self-hosted, with
 │                           #   their OFL licence files
@@ -50,43 +50,38 @@ portfolio/
 
 ## Interactive bits
 
-- **The blueprint lens.** The signature feature, in the hero. On a desktop,
-  moving the pointer over the hero opens a circular lens that shows the same
-  section as a technical drawing: the grid, the type baselines, font sizes and
-  tracking, button sizes, the portrait's real file size, and the headline's
-  contrast ratio. The **Show the blueprint** button pins it open on any device,
-  and Escape closes it. Nothing in it is typed in by hand. Every figure is
-  measured live in the visitor's browser: font metrics from canvas
-  `measureText`, line boxes from `Range.getClientRects`, contrast computed from
-  the rendered colours, and the strip along the bottom (page ready, largest
-  paint, layout shift, bytes so far) from the Performance API. That is the
-  point of it: it proves the front-end craft instead of claiming it. How it
-  works:
-  - `bpBuild` clones the hero grid into `.bp`, strips ids, reveal classes and
-    `aria-live` from the clone so nothing is announced or animated twice, and
-    `bpDraw` lays the annotations over it. Notes are written with
-    `textContent` only, never `innerHTML`.
-  - The lens is `clip-path: circle()` on that clone, driven by `--bp-r`,
-    `--bp-x` and `--bp-y` set through `style.setProperty` (the CSP forbids
-    inline styles, see below). The pointer is followed with a lerp, not
-    snapped, and it steps aside over links and buttons so it never hides what
-    you are about to click.
-  - `.hero-actions` sits above the clone with `z-index: 5`, and the clone's own
-    copy of the buttons is hidden. A `z-index` on the toggle itself does not
-    work: it is trapped inside its parent's stacking context, and the lens
-    covered the real Hide button until this was fixed. The same trap sat one
-    level higher too: `.wrap` carries `z-index: 1`, so the hero grid is reset
-    to `z-index: auto`. Check this by screenshot, not `elementFromPoint`:
-    `.bp` has `pointer-events: none`, so hit-testing looks straight through
-    it and reports a button as on top while the drawing is painted over it.
-    While pinned, the toggle takes the blueprint's ink (`--bp-line`), because
-    its theme colour is unreadable on the navy in the light theme.
-  - `.hero` uses `overflow: clip`, not `hidden`. A pinned lens is larger than
-    the hero, and `clip` stops it widening the page without turning the hero
-    into a scroll container.
-  - It demos itself once per session (`sessionStorage` key `bp-demo`). Screen
-    readers get a one-line summary in `#bp-summary` instead of the drawing,
-    and print hides it entirely.
+- **Quick-jump search.** A command palette on every page with a nav bar:
+  the **Search** button, Ctrl K (Cmd K on a Mac), or `/` opens one box that
+  reaches every project, section and page, plus four actions: copy the email
+  address, write an email, open GitHub, switch theme. Arrow keys move, Enter
+  opens, Escape closes. On the home page a quiet line under the hero buttons
+  says it exists, shown only where there is a keyboard to press. How it works:
+  - It reads the same `PROJECTS` object as the terminal, so a project is
+    added in one place. `title` and `tags` there are for the search; the tags
+    are the card's `data-tech` values plus the words someone might type.
+  - Matching folds accents and punctuation, so `resume` finds Résumé and
+    `next js` finds Next.js. Every word typed has to land somewhere; a hit at
+    the start of the title ranks highest, then the start of a title word,
+    then anywhere in the title, then the tags.
+  - Links resolve against the site root (taken from `site.js`'s own URL), so
+    the same list works from a case study. A page never offers a jump to
+    itself.
+  - It is a native `<dialog>` opened with `showModal()`, which gives the
+    focus trap, Escape and an inert page behind it. The input is a combobox
+    driving the list through `aria-activedescendant`, so focus never leaves
+    the text box, and a status line announces the result count.
+  - **Focus moves only after the dialog has closed.** While it is open the
+    page behind it is inert, so focusing the section you jumped to during the
+    closing animation silently does nothing. `closeSearch` takes a callback
+    for whatever must happen after.
+  - Ctrl K and `/` are ignored while the certificate viewer is open, and `/`
+    is ignored while typing anywhere, the terminal included.
+  - The button and the dialog are built by `site.js`, so with JavaScript off
+    neither exists and nothing is left pointing at them.
+  - It replaced the blueprint lens, a circle that redrew the hero as a
+    technical drawing under the pointer. In use it covered the portrait the
+    moment a pointer crossed the hero. Anything that hides content without
+    being asked to is the wrong kind of interactive.
 - **The hero terminal actually works.** After the intro types itself out the
   prompt becomes a real input. It understands `help`, `whoami`, `ls`,
   `open <project>`, `skills`, `education`, `contact`, `resume`, `github`,
@@ -141,7 +136,7 @@ Five rules, all enforced in `style.css` under the Motion heading.
 
 The ease for the large movements is `--ease-majestic`
 (`cubic-bezier(0.16, 1, 0.3, 1)`): fast to start, long to settle. Everything in
-this section, the lens included, is off under `prefers-reduced-motion`.
+this section, the search panel included, is off under `prefers-reduced-motion`.
 
 The theme toggle adds `.theme-switching` for 320ms so colours fade rather than
 snap, then removes it.
@@ -288,6 +283,12 @@ snap, then removes it.
   these as `$ cat problem.md`, which read as a command nobody could run and
   told a recruiter nothing about the section underneath. If you add a section,
   write the heading as a claim, not a filename.
+- **The nav bar must stay one row.** At 700px and below the section links
+  hide and the search button takes their place. Measured before this, the
+  home page's six links wrapped the bar to 110px tall anywhere from 521 to
+  689px, which had gone unnoticed since the links were added. If you add a
+  link, sweep the widths again: the bar should be 53px at every width from
+  320 up.
 - **Colours come from tokens, never literals.** Every colour lives in the
   custom properties at the top of `style.css`, which is what makes the light
   theme a block of overrides rather than a rewrite. A hard-coded hex in a rule
