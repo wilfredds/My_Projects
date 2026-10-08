@@ -88,10 +88,10 @@ portfolio/
   - The rows stream in like a test run, ticks drawing and the count keeping
     pace, and all of it is off under reduced motion. Without JavaScript the
     section and its hero link are hidden, since they would do nothing.
-  - Playwright is listed under Technical skills but no project in the
-    repository uses it (it only appears in lockfiles, pulled in by other
-    packages), so the check does not recognise it rather than cite evidence
-    that is not there.
+  - Playwright is deliberately not a skill on this site. It was listed once,
+    but no project in the repository uses it (it only appears in lockfiles,
+    pulled in by other packages), so it was removed from Technical skills,
+    the terminal and the résumé, and the check does not recognise it.
 - **Quick-jump search.** A command palette on every page with a nav bar:
   the **Search** button, Ctrl K (Cmd K on a Mac), or `/` opens one box that
   reaches every project, section and page, plus four actions: copy the email

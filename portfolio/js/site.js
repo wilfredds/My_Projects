@@ -464,7 +464,7 @@
           line('data        SQL, Python, pandas, cleaning, visualisation');
           line('cloud       AWS Educate, Vercel, Firebase Hosting, Neon');
           line('games       Unity 6, C#');
-          line('testing     Vitest, node:test, Playwright, Firestore emulator');
+          line('testing     Vitest, node:test, Firestore emulator');
           line('deploy      Vercel, Firebase Hosting, Neon, GitHub Pages');
           break;
 
