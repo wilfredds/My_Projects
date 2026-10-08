@@ -109,6 +109,143 @@
     revealables.forEach(function (el) { revealObserver.observe(el); });
   }
 
+  /* ----------------------------------------------------- scroll scenes --
+     ScrollTrigger's idea without the library: each [data-scene] element gets
+     its progress through the viewport, 0 to 1, as the custom property --p,
+     and the stylesheet decides what that progress draws. One value per
+     element, written through the CSSOM (which the CSP allows), read by CSS
+     that only touches transform, opacity and clip-path.
+
+       read    the statement inks in, word by word, from the moment it enters
+               until its last line is a fifth of the way up the screen
+       line    the timeline draws down to a reading line 70% of the way down
+               the screen, lighting each project as it passes
+       unveil  a project screenshot develops as it enters
+
+     Without JavaScript, or with reduced motion, nothing runs and every rule
+     falls back to var(--p, 1): the finished state. */
+  var scenes = Array.prototype.slice.call(document.querySelectorAll('[data-scene]'));
+
+  if (scenes.length && !reduceMotion && 'IntersectionObserver' in window) {
+    var RANGES = {
+      read: function (r, vh) { return (vh * 0.95 - r.top) / (vh * 0.15 + r.height); },
+      line: function (r, vh) { return (vh * 0.7 - r.top) / r.height; },
+      unveil: function (r, vh) { return (vh - r.top) / (vh * 0.5); }
+    };
+
+    // The statement is split into words so each can take its own share of
+    // the progress. Screen readers get the sentence whole, from a hidden
+    // copy, rather than sixty separate words.
+    scenes.forEach(function (el) {
+      if (el.getAttribute('data-scene') !== 'read') return;
+      var whole = el.textContent.replace(/\s+/g, ' ').trim();
+      var visual = document.createElement('span');
+      visual.setAttribute('aria-hidden', 'true');
+      var i = 0;
+      var walk = function (from, into) {
+        Array.prototype.slice.call(from.childNodes).forEach(function (node) {
+          if (node.nodeType === 3) {
+            node.textContent.split(/(\s+)/).forEach(function (part) {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { into.appendChild(document.createTextNode(' ')); return; }
+              var w = document.createElement('span');
+              w.className = 'w';
+              w.textContent = part;
+              w.style.setProperty('--i', i++);
+              into.appendChild(w);
+            });
+          } else if (node.nodeType === 1) {
+            var copy = document.createElement(node.tagName.toLowerCase());
+            walk(node, copy);
+            into.appendChild(copy);
+          }
+        });
+      };
+      walk(el, visual);
+      var spoken = document.createElement('span');
+      spoken.className = 'sr-only';
+      spoken.textContent = whole;
+      el.textContent = '';
+      el.appendChild(spoken);
+      el.appendChild(visual);
+      el.style.setProperty('--n', i);
+      el.classList.add('is-split');
+    });
+
+    // The timeline needs to know where each project sits along its line.
+    scenes.forEach(function (el) {
+      if (el.getAttribute('data-scene') !== 'line') return;
+      var place = function () {
+        var h = el.offsetHeight || 1;
+        var items = Array.prototype.slice.call(el.children);
+        items.forEach(function (li) {
+          // The line's head runs 0.8rem below the reading line, which puts
+          // it on a dot exactly when the reading line reaches the item's top.
+          li.style.setProperty('--at', (li.offsetTop / h).toFixed(4));
+        });
+        // The drawn line runs from the first dot to the last, not to the
+        // bottom of the list, so it stops where the history does.
+        var track = items.length ? items[items.length - 1].offsetTop : 0;
+        el.style.setProperty('--track', track + 'px');
+        el.style.setProperty('--ratio', (h / Math.max(track, 1)).toFixed(4));
+      };
+      place();
+      window.addEventListener('resize', place);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+    });
+
+    var live = [];
+    var ticking = false;
+    var last = new WeakMap();
+
+    var tick = function () {
+      ticking = false;
+      var vh = window.innerHeight;
+      // Read every position first, then write: one layout, not one per scene.
+      var values = live.map(function (el) {
+        var p = RANGES[el.getAttribute('data-scene')](el.getBoundingClientRect(), vh);
+        return Math.min(1, Math.max(0, p));
+      });
+      live.forEach(function (el, n) {
+        var p = values[n];
+        var before = last.get(el);
+        if (before !== undefined && Math.abs(before - p) < 0.0005) return;
+        last.set(el, p);
+        el.style.setProperty('--p', p.toFixed(4));
+      });
+    };
+    var request = function () {
+      if (!ticking) { ticking = true; window.requestAnimationFrame(tick); }
+    };
+
+    // Only scenes near the screen are measured on scroll.
+    var sceneObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var at = live.indexOf(entry.target);
+        if (entry.isIntersecting && at === -1) live.push(entry.target);
+        if (!entry.isIntersecting && at !== -1) {
+          // Leaving: settle on whichever end it left by, so nothing is left
+          // half drawn by a fast scroll.
+          live.splice(at, 1);
+          var done = entry.boundingClientRect.top < 0 ? 1 : 0;
+          last.set(entry.target, done);
+          entry.target.style.setProperty('--p', String(done));
+        }
+      });
+      request();
+    }, { rootMargin: '25% 0px 25% 0px' });
+
+    scenes.forEach(function (el) {
+      // Start every scene at its beginning, so nothing below the fold paints
+      // finished and then snaps back when it is first measured.
+      el.style.setProperty('--p', el.getBoundingClientRect().top < 0 ? '1' : '0');
+      sceneObserver.observe(el);
+    });
+    document.documentElement.classList.add('has-scenes');
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('resize', request);
+  }
+
   /* ----------------------------------------------------------- counters --
      The final number is already the element's text, so a browser without
      IntersectionObserver just shows it.                                    */
@@ -156,8 +293,8 @@
     floodguard: {
       title: 'FloodGuard',
       path: 'projects/floodguard.html',
-      tags: 'iot ai capstone flood warning sms noveleta',
-      line: 'Capstone. IoT and AI flood warning, Noveleta.'
+      tags: 'iot capstone flood warning sms gsm noveleta',
+      line: 'Capstone. IoT flood warning by SMS, Noveleta.'
     },
     autocare: {
       title: 'AutoCare',
@@ -974,6 +1111,7 @@
       ['projects', 'Projects', 'All nine, filterable by stack', 'work portfolio'],
       ['education', 'Experience and education', 'Certicode internship and LPU Cavite', 'experience work internship intern certicode school university lpu ojt'],
       ['stack', 'Tech stack', 'The stack I build on', 'tools technologies'],
+      ['fit', 'Check me against your job post', 'Paste a post, see the work behind each skill', 'hiring job post description fit match requirements recruiter'],
       ['certs', 'Certifications', 'Cisco, AWS, DataCamp, SAP and more', 'certificates cisco ccna aws datacamp sap python'],
       ['skills', 'Technical skills', 'Languages, frameworks, testing, cloud', 'skills languages'],
       ['room', 'Coding camp photos', 'Two days at the coding camp', 'bootcamp pictures gallery'],
@@ -1097,19 +1235,6 @@
     openerKbd.setAttribute('aria-hidden', 'true');
     opener.appendChild(openerKbd);
     navInner.insertBefore(opener, themeToggle && themeToggle.parentNode === navInner ? themeToggle : null);
-
-    // On the home page, one quiet line under the hero buttons says it exists.
-    // Only where there is a keyboard to press it with.
-    var heroActions = document.querySelector('.hero .hero-actions');
-    if (heroActions && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-      var jumpHint = el('p', 'jump-hint');
-      jumpHint.appendChild(document.createTextNode('Looking for something? Press '));
-      jumpHint.appendChild(el('kbd', null, modKey));
-      jumpHint.appendChild(document.createTextNode(' '));
-      jumpHint.appendChild(el('kbd', null, 'K'));
-      jumpHint.appendChild(document.createTextNode(' to jump anywhere.'));
-      heroActions.parentNode.insertBefore(jumpHint, heroActions.nextSibling);
-    }
 
     /* --- rendering ----------------------------------------------------- */
     var shown = [];

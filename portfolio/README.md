@@ -37,7 +37,8 @@ portfolio/
 ├── js/
 │   ├── boot.js             # adds .js to <html> before paint (see the CSP note)
 │   ├── site.js             # terminal, filters, copy, counters, reveal, progress,
-│   │                       #   the quick-jump search
+│   │                       #   scroll scenes, the quick-jump search
+│   ├── fit.js              # the job post check (home page only)
 │   └── notfound.js         # shows the path that 404'd
 ├── assets/fonts/           # Fraunces, IBM Plex Sans and Mono, self-hosted, with
 │                           #   their OFL licence files
@@ -50,12 +51,52 @@ portfolio/
 
 ## Interactive bits
 
+- **Check me against your job post.** The section after Technical skills,
+  linked from the hero as "Hiring? Check me against your job post". A
+  recruiter pastes a job post (pasting runs it; so do the button and
+  Ctrl Enter) and gets a sheet: every skill the post names, each next to the
+  projects on this site that show it, with a count and a bar on top. Three
+  outcomes, and the honest ones are the point:
+  - **shown**, a tick: a project here uses it, and the project names link to
+    the case studies.
+  - **related**, a wave: a certification, or a close equivalent. Jest reads
+    "Vitest, which runs Jest-style tests", MySQL reads "PostgreSQL here".
+  - **not here yet**, an open ring: Vue, Figma, Laravel and the like say
+    "Not in a project on this site yet". That is a statement about this site,
+    which is true, not about what Francis can or cannot learn.
+
+  How it works, and the rules for changing it:
+  - Everything lives in `js/fit.js`: `WORK` (what a skill can point to) and
+    `SKILLS` (each with its status, its evidence and the phrases that find
+    it). **Every entry was checked against the projects themselves**: their
+    `package.json`, `pubspec.yaml`, Prisma schema and case studies. Docker is
+    "related", not "shown", because AutoCare only uses Docker Compose for a
+    local database. Python and AWS are "related" because the evidence is a
+    certificate, not a project. If a project changes, change its entries.
+  - Matching is whole words, case-insensitive, and **order matters**: each
+    match is blanked out of the text before the next skill looks, so the
+    specific ("React Native", "Tailwind CSS", "GitHub Actions", "penetration
+    testing") are caught before the general ("React", "CSS", "Git",
+    "Testing") can claim the same words. Some phrases are excluded on
+    purpose because they are ordinary English: "react to", "the rest of",
+    "guard rails", "job security", "responsive to", "Unity of purpose". Bare
+    "AI", "API" and "security" are not matched for the same reason.
+  - It runs entirely in the page. Nothing is stored or sent; this was
+    verified by recording every network request during a check (none).
+    Its "Copy the summary" and "Email me about this role" buttons are the
+    only ways a result leaves the page, and both are the visitor's choice.
+  - The rows stream in like a test run, ticks drawing and the count keeping
+    pace, and all of it is off under reduced motion. Without JavaScript the
+    section and its hero link are hidden, since they would do nothing.
+  - Playwright is listed under Technical skills but no project in the
+    repository uses it (it only appears in lockfiles, pulled in by other
+    packages), so the check does not recognise it rather than cite evidence
+    that is not there.
 - **Quick-jump search.** A command palette on every page with a nav bar:
   the **Search** button, Ctrl K (Cmd K on a Mac), or `/` opens one box that
   reaches every project, section and page, plus four actions: copy the email
   address, write an email, open GitHub, switch theme. Arrow keys move, Enter
-  opens, Escape closes. On the home page a quiet line under the hero buttons
-  says it exists, shown only where there is a keyboard to press. How it works:
+  opens, Escape closes. How it works:
   - It reads the same `PROJECTS` object as the terminal, so a project is
     added in one place. `title` and `tags` there are for the search; the tags
     are the card's `data-tech` values plus the words someone might type.
@@ -106,7 +147,8 @@ portfolio/
 
 ## Motion
 
-Five rules, all enforced in `style.css` under the Motion heading.
+Six rules, all enforced in `style.css` under the Motion and Scroll scenes
+headings.
 
 1. Nothing animated is load-bearing. Every element is readable in its finished
    state, and `prefers-reduced-motion` turns all of it off.
@@ -133,6 +175,30 @@ Five rules, all enforced in `style.css` under the Motion heading.
    be unique on a page, so a new project needs its own pair of rules and its
    own `data-project` value. Firefox does not support cross-document
    transitions yet and simply navigates normally.
+
+6. **Scroll scenes are scrubbed, not triggered.** ScrollTrigger's idea without
+   the library: `site.js` gives each `[data-scene]` element its progress
+   through the screen, 0 to 1, as the custom property `--p`, and CSS decides
+   what that progress draws. Three scenes, deliberately few:
+   - `read`: the statement after the projects inks in word by word, a soft
+     edge six words wide, finishing while its last line is still in the
+     upper part of the screen so a reader who stops mid-page sees it whole.
+     The words are split into spans for this; screen readers get the
+     sentence whole from an `.sr-only` copy, and the split copy is
+     `aria-hidden`.
+   - `line`: the "How I got here" timeline draws down to a reading line 70%
+     of the way down the screen, and each project's dot fills as the line
+     reaches it. `--at` on each item is its place along the list.
+   - `unveil`: project screenshots develop as they arrive.
+
+   Every rule reads `var(--p, 1)`, so with JavaScript off or reduced motion
+   each scene shows its finished frame. Only scenes near the screen are
+   measured, positions are all read before any are written, and a scene
+   that leaves the screen is settled on whichever end it left by. The
+   scenes use the individual `translate` and `scale` properties, so they
+   compose with the reveals' `transform` instead of overwriting it. The
+   portrait is deliberately left out: a moving photograph fought the
+   stillness the page needs.
 
 The ease for the large movements is `--ease-majestic`
 (`cubic-bezier(0.16, 1, 0.3, 1)`): fast to start, long to settle. Everything in
