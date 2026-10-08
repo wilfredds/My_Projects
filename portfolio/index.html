@@ -70,6 +70,7 @@
           View projects
         </a>
         <a class="btn" href="resume.html">Résumé</a>
+        <a class="hero-fit" href="#fit">Hiring? Check me against your job post</a>
       </div>
     </div>
 
@@ -115,7 +116,7 @@
 
       <!-- --------------------------------------------------- floodguard -- -->
       <article class="card reveal" data-tech="iot capstone">
-        <a class="card-shot" href="projects/floodguard.html" tabindex="-1" aria-hidden="true">
+        <a class="card-shot" data-scene="unveil" href="projects/floodguard.html" tabindex="-1" aria-hidden="true">
           <img src="assets/img/shot-floodguard.webp" width="1200" height="750" loading="lazy" alt="">
         </a>
         <div class="card-body">
@@ -140,7 +141,7 @@
 
       <!-- ---------------------------------------------------- autocare -- -->
       <article class="card reveal" data-tech="nextjs react typescript postgres">
-        <a class="card-shot" href="projects/autocare.html" tabindex="-1" aria-hidden="true">
+        <a class="card-shot" data-scene="unveil" href="projects/autocare.html" tabindex="-1" aria-hidden="true">
           <img src="assets/img/shot-autocare.webp" width="1200" height="750" loading="lazy" alt="">
         </a>
         <div class="card-body">
@@ -172,7 +173,7 @@
 
       <!-- -------------------------------------------------- rallyready -- -->
       <article class="card reveal" data-tech="react typescript pwa supabase postgres">
-        <a class="card-shot" href="projects/rallyready.html" tabindex="-1" aria-hidden="true">
+        <a class="card-shot" data-scene="unveil" href="projects/rallyready.html" tabindex="-1" aria-hidden="true">
           <img src="assets/img/shot-rallyready.webp" width="1200" height="750" loading="lazy" alt="">
         </a>
         <div class="card-body">
@@ -228,7 +229,7 @@
 
       <!-- ---------------------------------------------- hiroshi samgyup -- -->
       <article class="card reveal" data-tech="nextjs react typescript supabase postgres">
-        <a class="card-shot" href="projects/hiroshi-master-grill.html" tabindex="-1" aria-hidden="true">
+        <a class="card-shot" data-scene="unveil" href="projects/hiroshi-master-grill.html" tabindex="-1" aria-hidden="true">
           <img src="assets/img/shot-hiroshi.webp" width="1200" height="750" loading="lazy" alt="">
         </a>
         <div class="card-body">
@@ -261,7 +262,7 @@
 
       <!-- ------------------------------------------------- cyclemind_ai -- -->
       <article class="card reveal" data-tech="flutter dart firebase">
-        <a class="card-shot" href="projects/cyclemind-ai.html" tabindex="-1" aria-hidden="true">
+        <a class="card-shot" data-scene="unveil" href="projects/cyclemind-ai.html" tabindex="-1" aria-hidden="true">
           <img src="assets/img/shot-cyclemind.webp" width="1200" height="750" loading="lazy" alt="">
         </a>
         <div class="card-body">
@@ -288,7 +289,7 @@
 
       <!-- ---------------------------------------------- bike-guide-app -- -->
       <article class="card reveal" data-tech="vanilla pwa firebase">
-        <a class="card-shot" href="projects/bike-guide-ph.html" tabindex="-1" aria-hidden="true">
+        <a class="card-shot" data-scene="unveil" href="projects/bike-guide-ph.html" tabindex="-1" aria-hidden="true">
           <img src="assets/img/shot-bikeguide.webp" width="1200" height="750" loading="lazy" alt="">
         </a>
         <div class="card-body">
@@ -315,7 +316,7 @@
 
       <!-- ----------------------------------------- corruption reporting -- -->
       <article class="card reveal" data-tech="vanilla firebase">
-        <a class="card-shot" href="projects/corruption-watch-ph.html" tabindex="-1" aria-hidden="true">
+        <a class="card-shot" data-scene="unveil" href="projects/corruption-watch-ph.html" tabindex="-1" aria-hidden="true">
           <img src="assets/img/shot-crs.webp" width="1200" height="750" loading="lazy" alt="">
         </a>
         <div class="card-body">
@@ -371,6 +372,15 @@
     <p class="filter-empty" id="filter-empty" hidden>
       Nothing built with that yet. <button type="button" class="linkish" data-filter-reset>Show everything</button>
     </p>
+  </div>
+</section>
+
+<!-- ========================================================= statement -- -->
+<section class="statement" aria-label="How these projects were made">
+  <div class="wrap">
+    <p class="statement-text" data-scene="read">Apart from the capstone, everything above was
+      built alongside the coursework, not for it. <em>Each one had to work for somebody
+      other than me.</em></p>
   </div>
 </section>
 
@@ -508,28 +518,19 @@
       </li>
     </ol>
 
-    <div class="about-grid">
-      <div class="prose reveal">
-        <p>
-          Everything above was built alongside the coursework rather than for it,
-          and each one had to work for somebody other than me.
-        </p>
-      </div>
-
-      <aside class="facts reveal">
-        <dl>
-          <dt>location</dt><dd>General Trias, Cavite</dd>
-          <dt>studies</dt><dd>BSIT, LPU Cavite</dd>
-          <dt>year</dt><dd>4th, grad 2027</dd>
-          <dt>interning</dt><dd>Certicode, front-end</dd>
-          <dt>focus</dt><dd>Full-stack</dd>
-          <dt>languages</dt><dd>TypeScript, Dart</dd>
-          <dt>writes</dt><dd>English, Filipino</dd>
-          <dt>capstone</dt><dd>FloodGuard</dd>
-          <dt>status</dt><dd><span class="ok">open to OJT</span></dd>
-        </dl>
-      </aside>
-    </div>
+    <aside class="facts reveal" aria-label="Quick facts">
+      <dl>
+        <div><dt>location</dt><dd>General Trias, Cavite</dd></div>
+        <div><dt>studies</dt><dd>BSIT, LPU Cavite</dd></div>
+        <div><dt>year</dt><dd>4th, grad 2027</dd></div>
+        <div><dt>interning</dt><dd>Certicode, front-end</dd></div>
+        <div><dt>focus</dt><dd>Full-stack</dd></div>
+        <div><dt>languages</dt><dd>TypeScript, Dart</dd></div>
+        <div><dt>writes</dt><dd>English, Filipino</dd></div>
+        <div><dt>capstone</dt><dd>FloodGuard</dd></div>
+        <div><dt>status</dt><dd><span class="ok">open to OJT</span></dd></div>
+      </dl>
+    </aside>
   </div>
 </section>
 
@@ -711,7 +712,7 @@
         <div class="skill-group reveal">
           <h3>testing &amp; tooling</h3>
           <ul class="tags">
-            <li>Vitest</li><li>node:test</li><li>Playwright</li><li>Firestore emulator</li>
+            <li>Vitest</li><li>node:test</li><li>Firestore emulator</li>
             <li>GitHub Actions</li><li>ESLint</li><li>Git</li>
           </ul>
         </div>
@@ -750,6 +751,43 @@
   </div>
 </section>
 
+<!-- ========================================================= fit check -- -->
+<!-- Needs JavaScript to do anything, so the stylesheet hides it without. -->
+<section class="section fit-section" id="fit" aria-labelledby="fit-h">
+  <div class="wrap">
+    <div class="section-head reveal-head">
+      <span class="eyebrow">For hiring</span>
+      <h2 id="fit-h">Check me against your job post</h2>
+      <p>runs in your browser</p>
+    </div>
+
+    <div class="fit reveal">
+      <form class="fit-post" id="fit-form" novalidate>
+        <div class="fit-post-head">
+          <label for="fit-input">Job post</label>
+          <button class="linkish" type="button" id="fit-sample">Use a sample post</button>
+        </div>
+        <textarea id="fit-input" name="post" rows="11" maxlength="20000" spellcheck="false"
+                  placeholder="Paste the job description, or just its requirements."
+                  aria-describedby="fit-privacy"></textarea>
+        <div class="fit-post-foot">
+          <p class="fit-privacy" id="fit-privacy">Checked in this page. What you paste is never stored or sent anywhere.</p>
+          <button class="btn btn-primary" type="submit">Check against my work</button>
+        </div>
+      </form>
+
+      <div class="fit-sheet">
+        <div class="fit-idle" id="fit-idle">
+          <p class="fit-idle-title">Every skill the post names, next to the project that shows it.</p>
+          <p>Skills my work here does not cover yet are listed too, so you see the whole picture, not just the good part.</p>
+        </div>
+        <div class="fit-result" id="fit-result" hidden></div>
+        <p class="sr-only" id="fit-status" role="status"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="timeline">
   <div class="wrap">
     <div class="section-head reveal-head">
@@ -758,7 +796,7 @@
       <p>first commit per project</p>
     </div>
 
-    <ol class="timeline">
+    <ol class="timeline" data-scene="line">
       <li><span class="tl-when">2025</span>
           <span class="tl-what">Corruption Watch PH</span>
           <span class="tl-note">Firebase, and the first time security rules mattered more than the interface</span></li>
@@ -900,5 +938,6 @@
 </script>
 
 <script src="js/site.js" defer></script>
+<script src="js/fit.js" defer></script>
 </body>
 </html>
