@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Résumé | Francis Wilfred Antiporda</title>
-<meta name="description" content="Résumé of Francis Wilfred Antiporda, BSIT student and full-stack developer working in Next.js, React, Flutter, Firebase and PostgreSQL.">
+<meta name="description" content="Résumé of Francis Wilfred Antiporda, front-end developer intern at Certicode and BSIT student, working in React, TypeScript, Next.js, Tailwind CSS and Flutter.">
 <meta name="theme-color" content="#0C1110" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#E9EDE8" media="(prefers-color-scheme: light)">
 <meta name="color-scheme" content="dark light">
@@ -42,7 +42,7 @@
   <header class="cv-head">
     <div>
       <h1>Francis Wilfred Antiporda</h1>
-      <p class="role">Front-end developer intern at Certicode. Full-stack developer, web and mobile. Seeking OJT.</p>
+      <p class="role">Front-end developer intern at Certicode &middot; React, TypeScript, Tailwind CSS &middot; Seeking OJT</p>
     </div>
     <div class="cv-contact">
       <a href="mailto:frncishub@gmail.com">frncishub@gmail.com</a><br>
@@ -50,144 +50,131 @@
       <a href="https://wilfred-website.vercel.app/">wilfred-website.vercel.app</a><br>
       <a href="https://github.com/wilfredds">github.com/wilfredds</a><br>
       <a href="https://www.linkedin.com/in/francis-wilfred-antiporda-530273345/">linkedin.com/in/francis-wilfred-antiporda</a><br>
-      General Trias, Cavite, Philippines
+      General Trias, Cavite &middot; open to remote work
     </div>
   </header>
 
   <h2>Summary</h2>
   <p class="lede-prose">
-    Fourth-year BS Information Technology student at Lyceum of the Philippines
-    University, Cavite, graduating in 2027, and a front-end developer intern at Certicode since September 2026. Still looking for an OJT placement. I ship
-    end to end: schema, backend, interface, and the pipeline that keeps it honest.
-    Nine shipped and in-progress projects across Next.js, React, Flutter, Unity and
-    Firebase, including a job-management system built to replace a car care shop's paper
-    records, and a training app carrying 648 automated tests. Comfortable owning the
-    security-sensitive parts: role-based access control, Firestore rules with
-    emulator-backed assertions, and money arithmetic that never trusts the client.
+    Front-end developer intern at Certicode, building interfaces in React, TypeScript
+    and Tailwind CSS, and a fourth-year BS Information Technology student at Lyceum of
+    the Philippines University, Cavite, graduating in 2027 and looking for an OJT
+    placement. Nine projects across React, Next.js and Flutter, six of them live,
+    including a booking system for a paying restaurant client and a training app with
+    648 automated tests. I care about the parts users never see: accessibility, tests
+    that run on every push, and access rules enforced in the database rather than the
+    interface.
   </p>
 
   <h2>Experience</h2>
   <div class="cv-entry">
     <h3>Front-End Developer Intern, Certicode</h3>
-    <p class="when">September 2026 to present &middot; a voluntary internship, separate from my school OJT</p>
-  </div>
-
-  <h2>Education</h2>
-  <div class="cv-entry">
-    <h3>Lyceum of the Philippines University, Cavite</h3>
-    <p class="when">BS Information Technology &middot; 4th year &middot; expected 2027</p>
+    <p class="when">September 2026 to present &middot; voluntary internship, separate from my school OJT</p>
     <ul>
-      <li><strong>Capstone, team leader:</strong> FloodGuard, a Predictive IoT and Artificial Intelligence Flood Monitoring and Early Warning System with Automated SMS Notification for the Municipality of Noveleta, Cavite.</li>
-      <li><strong>Information Assurance and Security:</strong> SOC toolkit assembly, Linux server log analysis, MITRE ATT&amp;CK mapping.</li>
+      <li>Building front-end features in React and TypeScript, styled with Tailwind CSS.</li>
     </ul>
   </div>
 
-  <h2>Certifications</h2>
   <div class="cv-entry">
-    <ul class="cv-certs">
-      <li><strong>Associate Data Analyst</strong>, DataCamp. September 2026. Credential DAA0010897337178.</li>
-      <li><strong>Ethical Hacker</strong>, Cisco Networking Academy. July 2026.</li>
-      <li><strong>Networking Basics</strong>, Cisco Networking Academy through LPU Cavite. February 2026.</li>
-      <li><strong>CCNA: Introduction to Networks</strong>, Cisco Networking Academy through LPU Cavite. January 2026.</li>
-      <li><strong>Back-End Web Development Microcourse</strong>, Philippine Coding Camp at LPU Cavite. November 2025.</li>
-      <li><strong>SAP Business One Student Courseware</strong>, SAP through Erudite Academy and LPU Cavite. May 2025. TB1000 Logistics, TB1100 Financials.</li>
-      <li><strong>Python Essentials 2</strong>, Cisco Networking Academy with OpenEDG Python Institute. May 2024.</li>
-      <li><strong>Getting Started with Compute</strong>, AWS Educate. Trained.</li>
+    <h3>Freelance Web Developer, Hiroshi Master Grill Samgyupsal</h3>
+    <p class="when">2026 &middot; first paying client, a Korean barbecue restaurant &middot; live at hiroshi-grill.vercel.app</p>
+    <ul>
+      <li>Built a public booking site and a staff portal in Next.js 16, TypeScript and Supabase, to replace bookings taken by hand.</li>
+      <li>Access for four user types (guests, crew, hosts, owner) enforced by PostgreSQL Row Level Security that denies by default, not by hiding buttons.</li>
+      <li>43 policy tests and 132 endpoint and sign-in tests run in CI against a real Postgres. Menu and tiered pricing data checked field by field against the client's own sources.</li>
     </ul>
   </div>
 
-  <h2>Selected projects</h2>
-
   <div class="cv-entry">
-    <h3>AutoCare, job-management system for a car care shop</h3>
-    <p class="when">2026 &middot; Next.js 15, Prisma, PostgreSQL, next-auth, next-intl</p>
+    <h3>Developer, AutoCare for a family car care shop</h3>
+    <p class="when">2026 &middot; Next.js, Prisma, PostgreSQL, NextAuth &middot; live at autocare-shop.vercel.app</p>
     <ul>
-      <li>Built to replace a paper notebook: a seven-step wizard, one decision per screen, totals computed rather than typed.</li>
-      <li>Money maths lives in a single module shared by client and server. The API schema refuses to accept totals, so the server always recomputes from line items. Enforced by tests.</li>
-      <li>bcrypt, login lockout and rate limiting, database-checked sessions with immediate revocation, RBAC in middleware and again server-side, per-request nonce CSP, full audit log.</li>
-      <li>Bilingual English and Filipino interface, PDF receipts, CSV and JSON backup, and CI running lint, typecheck, unit and database tests, migrations, seed and build.</li>
+      <li>Built to replace a paper notebook: a click-first, seven-step wizard with one decision per screen, designed for a non-technical older operator after a spreadsheet attempt failed on usability.</li>
+      <li>Totals are always recomputed on the server from line items; the API refuses client totals. Role-based access, login lockout, rate limiting and a full audit log.</li>
+      <li>PDF receipts, an English and Filipino interface, and CI running lint, typecheck, unit and database tests.</li>
+    </ul>
+  </div>
+
+  <h2>Projects</h2>
+  <div class="cv-entry">
+    <h3>FloodGuard, flood monitoring and SMS early warning (capstone, team leader)</h3>
+    <p class="when">2025 to 2026 &middot; five-member team &middot; for the MDRRMO and Municipality of Noveleta, Cavite</p>
+    <ul>
+      <li>Leading the team from proposal to defense. A NodeMCU (ESP8266) reads the river level and a SIM800L module sends the alert by SMS; bench-tested to a real phone on 13 July 2026.</li>
+      <li>Four-tier alert thresholds aligned to PAGASA advisory levels, feeding a monitoring dashboard with an evacuation state.</li>
+      <li>Requirements gathered in interviews with MDRRMO officials; presented to the MDRRMO and Mayor Davey R. Chua on 7 October 2026.</li>
     </ul>
   </div>
 
   <div class="cv-entry">
     <h3>RallyReady, solo badminton training PWA</h3>
-    <p class="when">2026 &middot; React 19, TypeScript, Vite, Supabase, Vitest</p>
+    <p class="when">2026 &middot; React 18, TypeScript, Vite, Tailwind CSS, Supabase &middot; live at rallyready-training.vercel.app</p>
     <ul>
-      <li>Audio-first drill engine with spoken corner calls, distinct tones, haptics and configurable split-step timing, usable without looking at the screen.</li>
-      <li>Training-load model (effort multiplied by minutes) with ramp detection, plus a readiness input that reshapes each session, and a periodised 4 to 16 week program generator.</li>
-      <li>648 tests under Vitest. <code>npm run verify</code> (typecheck, lint, test, build) gates every push.</li>
-      <li>Installable and offline-capable. The trainer runs with no connection and syncs sessions when it returns.</li>
+      <li>Audio-first drill engine with spoken corner calls in Taglish, tones and haptics, usable without looking at the screen.</li>
+      <li>648 tests under Vitest and Testing Library; typecheck, lint, test and build gate every push. Installable and offline-capable.</li>
     </ul>
   </div>
 
   <div class="cv-entry">
-    <h3>BadmintonPH, tournament-management platform</h3>
-    <p class="when">Live at badminton-ph.web.app &middot; React, Firebase Hosting</p>
+    <h3>BadmintonPH, tournament management platform</h3>
+    <p class="when">2026 &middot; React, Firebase &middot; live at badminton-ph.web.app</p>
     <ul>
-      <li>Real-time scoring, rankings and multi-category tournaments, with an admin dashboard.</li>
-      <li>Built and deployed solo. Owned the interface, the performance work and the security work.</li>
-    </ul>
-  </div>
-
-  <div class="cv-entry">
-    <h3>Hiroshi Master Grill Samgyupsal, restaurant site and reservation system</h3>
-    <p class="when">Live at hiroshi-grill.vercel.app &middot; Next.js 16, TypeScript, Supabase, Zod &middot; External client</p>
-    <ul>
-      <li>First paying client. Public booking site plus a staff portal behind Supabase Auth, with role-aware controls.</li>
-      <li>Row Level Security denying by default, with 43 policy tests and 132 endpoint and sign-in tests, both run in CI against a real Postgres.</li>
-      <li>Nonce-based CSP so the App Router's inline scripts work without <code>unsafe-inline</code>, and rate limiting in Postgres because in-memory limits do not survive serverless.</li>
+      <li>Players, categories, tournaments, rankings and results across 14 competition categories and 60+ players, with real-time scoring and an admin dashboard.</li>
+      <li>Audited records across linked modules, catching inconsistencies before they reached the standings.</li>
     </ul>
   </div>
 
   <div class="cv-entry">
     <h3>CycleMind AI, AI cycling coach and bike doctor</h3>
-    <p class="when">Live at wilfredds.github.io/My_Projects &middot; Flutter, Dart, Riverpod, Firebase, Cloud Functions</p>
+    <p class="when">2026 &middot; Flutter, Dart, Riverpod, Firebase, Cloud Functions &middot; live on GitHub Pages</p>
     <ul>
-      <li>Clean Architecture, feature-first, repository pattern. Every external dependency behind an interface, so the whole app runs on mocks with no keys and no setup.</li>
-      <li>Model API keys held server-side in Cloud Functions, so no secret ships in the mobile binary.</li>
-      <li>Typed <code>Result</code> returns, so no exception crosses a layer boundary. No code generation, so a plain <code>flutter pub get</code> builds it.</li>
+      <li>Clean Architecture with every external service behind an interface, so the app runs fully on mocks. Claude text and vision models called through Cloud Functions, so no API key ships in the app.</li>
     </ul>
   </div>
 
   <div class="cv-entry">
-    <h3>Bike Guide PH, offline-first cycling PWA</h3>
-    <p class="when">Live at wilfredds.github.io/My_Projects/bike-guide-app &middot; Vanilla JS, Service Worker, Firebase, Geolocation API</p>
+    <h3>Also built</h3>
     <ul>
-      <li>Sixteen pages built with no framework or bundler: gear-ratio simulator, curated Philippine routes, GPS ride recording, 30-day challenge.</li>
-      <li>Replaced a client-generated UUID identity with Firebase Anonymous Auth, moving ownership checks server-side into rules that can verify them.</li>
-    </ul>
-  </div>
-
-  <div class="cv-entry">
-    <h3>Corruption Watch PH, public reporting site</h3>
-    <p class="when">2025 &middot; Firebase, Firestore security rules</p>
-    <ul>
-      <li>Anonymous submissions that anyone can write and only admins can read, enforced in Firestore rules rather than in the interface.</li>
-      <li>25 rules assertions run against the real Firestore emulator in CI, and verified to fail when the rules are loosened.</li>
-    </ul>
-  </div>
-
-
-  <div class="cv-entry">
-    <h3>Hiraya, Filipino MMORPG</h3>
-    <p class="when">In progress &middot; Unity 6, C# &middot; Self-directed</p>
-    <ul>
-      <li>Filipino-themed MMORPG with community-first design, built in Unity 6 with C#.</li>
-      <li>Also authored a formal five-page QA report on a separate MMORPG beta.</li>
+      <li><strong>Bike Guide PH:</strong> a sixteen-page offline-first cycling PWA in plain JavaScript, no framework.</li>
+      <li><strong>Corruption Watch PH:</strong> anonymous reporting on Firebase, with 25 security-rule assertions run against the Firestore emulator in CI.</li>
+      <li><strong>Hiraya:</strong> a Filipino MMORPG in Unity 6 and C#, in progress, plus a formal five-page QA report on another MMORPG beta.</li>
     </ul>
   </div>
 
   <h2>Technical skills</h2>
   <div class="cv-skills">
-    <div><b>Languages</b>TypeScript, JavaScript, Dart, C#, Python, SQL, HTML, CSS</div>
-    <div><b>Frontend</b>React, Next.js (App Router), Flutter, Vite, Tailwind CSS, Framer Motion, shadcn/ui, PWA</div>
-    <div><b>Backend &amp; data</b>Node.js, Prisma, PostgreSQL, Firebase and Firestore, Supabase, Cloud Functions, next-auth</div>
-    <div><b>Data &amp; analytics</b>SQL, Python, pandas, data cleaning, exploratory analysis, visualisation, reporting</div>
-    <div><b>Testing</b>Vitest, node:test, Firestore emulator, GitHub Actions</div>
-    <div><b>Practices</b>Clean Architecture, repository pattern, RBAC, i18n, CI/CD, code review</div>
-    <div><b>Networking &amp; security</b>Cisco CCNA (ITN), Networking Basics, Ethical Hacker, MITRE ATT&amp;CK mapping, Linux log analysis</div>
-    <div><b>Game development</b>Unity 6, C#</div>
-    <div><b>Deploy &amp; cloud</b>Vercel, Firebase Hosting, Neon, GitHub Pages, AWS Educate</div>
+    <div><b>Front end</b>React, Next.js (App Router), TypeScript, JavaScript, HTML, CSS, Tailwind CSS, shadcn/ui, Radix, Framer Motion, Vite, PWA, accessibility (WCAG AA)</div>
+    <div><b>Mobile</b>Flutter, Dart, Riverpod</div>
+    <div><b>Back end &amp; data</b>Node.js, PostgreSQL, Prisma, Supabase, Firebase and Firestore, Cloud Functions, REST, NextAuth</div>
+    <div><b>Testing &amp; delivery</b>Vitest, Testing Library, node:test, Firestore emulator, GitHub Actions, ESLint, Git and GitHub, Vercel, Firebase Hosting</div>
+    <div><b>Security</b>Row Level Security, role-based access, Content Security Policy, Cisco CCNA (ITN) and Ethical Hacker</div>
+    <div><b>Data</b>SQL, Python, pandas, Excel and Google Sheets, data cleaning and reporting</div>
+    <div><b>Tools</b>n8n automation, AI-assisted development (Claude Code, GitHub Copilot) with every change tested before it ships</div>
+    <div><b>Also</b>Unity 6 and C#; APA 7 and IEEE documentation; English and Filipino</div>
+  </div>
+
+  <h2>Certifications</h2>
+  <div class="cv-entry">
+    <ul class="cv-certs">
+      <li><strong>Certified Cloud System Analyst (CCSA)</strong>, East West, ICTIC and EduExpert at LPU. October 2026. Credential CVRTXOTGVX9DA.</li>
+      <li><strong>Associate Data Analyst</strong>, DataCamp. September 2026. Credential DAA0010897337178.</li>
+      <li><strong>Ethical Hacker</strong>, Cisco Networking Academy. July 2026.</li>
+      <li><strong>Networking Basics</strong>, Cisco Networking Academy through LPU Cavite. February 2026.</li>
+      <li><strong>CCNA: Introduction to Networks</strong>, Cisco Networking Academy through LPU Cavite. January 2026.</li>
+      <li><strong>Back-End Web Development Microcourse</strong>, Philippine Coding Camp at LPU Cavite. November 2025.</li>
+      <li><strong>SAP Business One Student Courseware</strong>, SAP through Erudite Academy and LPU Cavite. May 2025.</li>
+      <li><strong>Python Essentials 2</strong>, Cisco Networking Academy with OpenEDG Python Institute. May 2024.</li>
+      <li><strong>Getting Started with Compute</strong>, AWS Educate. Trained.</li>
+    </ul>
+  </div>
+
+  <h2>Education</h2>
+  <div class="cv-entry">
+    <h3>BS Information Technology, Lyceum of the Philippines University, Cavite</h3>
+    <p class="when">4th year &middot; expected 2027</p>
+    <ul>
+      <li>Coursework in Information Assurance and Security: SOC toolkit assembly, Linux server log analysis, MITRE ATT&amp;CK mapping.</li>
+    </ul>
   </div>
 
   <div class="cv-actions">

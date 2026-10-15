@@ -29,6 +29,12 @@
 <script src="js/boot.js"></script>
 </head>
 <body>
+<!-- The name intro. Hidden unless boot.js chose to play it; decorative, so
+     screen readers skip it and read the page underneath. -->
+<div class="intro" aria-hidden="true">
+  <p class="intro-name"><span class="intro-word">Francis</span> <span class="intro-word"><em>Wilfred</em></span> <span class="intro-word">Antiporda</span></p>
+  <span class="intro-rule"></span>
+</div>
 <a class="skip" href="#main">Skip to content</a>
 
 <nav class="nav" aria-label="Primary">
@@ -127,7 +133,9 @@
             Monitoring and Early Warning System with Automated SMS Notification for the
             Municipality of Noveleta, Cavite.</strong> Our capstone project, and the one
             with actual stakes: Noveleta floods, and a warning that arrives by SMS
-            reaches people who are not watching a dashboard. I lead the team.
+            reaches people who are not watching a dashboard. I lead the team. On
+            7 October 2026 we presented it to the MDRRMO and Mayor Davey R. Chua at
+            Noveleta's town hall.
           </p>
           <ul class="tags">
             <li>IoT sensors</li><li>Prediction</li><li>Automated SMS</li>
@@ -189,7 +197,7 @@
             back off. Installs to a phone, and the trainer runs with no connection.
           </p>
           <ul class="tags">
-            <li>React 19</li><li>TypeScript</li><li>Vite</li><li>Supabase</li>
+            <li>React 18</li><li>TypeScript</li><li>Vite</li><li>Supabase</li>
             <li>Vitest, 648 tests</li><li>PWA</li><li>Taglish audio</li>
           </ul>
           <div class="card-links">
@@ -542,11 +550,29 @@
     </div>
 
     <p class="certs-lead reveal">
-      Eight certifications, seven of them scanned or photographed from the certificate itself.
+      Nine certifications, eight of them scanned or photographed from the certificate itself.
       Click any one to read it full size.
     </p>
 
     <ul class="certs">
+      <li class="cert reveal">
+        <button class="cert-shot" type="button"
+                data-cert-src="assets/img/certs/cert-ccsa.webp"
+                data-cert-title="Certified Cloud System Analyst (CCSA)"
+                data-cert-note="Certificate of completion, 12 October 2026 &middot; credential CVRTXOTGVX9DA">
+          <img src="assets/img/certs/cert-ccsa.webp" width="1800" height="1273" loading="lazy"
+               alt="Certificate of completion naming Francis Wilfred Antiporda a Certified Cloud System Analyst (CCSA), dated 12 October 2026, credential CVRTXOTGVX9DA, bearing the logos of East West International Educational Specialists, Lyceum of the Philippines University, ICTIC and EduExpert.">
+          <span class="cert-zoom" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
+          </span>
+        </button>
+        <div class="cert-body">
+          <span class="cert-issuer">East West, ICTIC and EduExpert, at LPU</span>
+          <h3>Certified Cloud System Analyst (CCSA)</h3>
+          <p class="cert-meta">Completed 12 October 2026 &middot; credential CVRTXOTGVX9DA</p>
+        </div>
+      </li>
+
       <li class="cert reveal">
         <button class="cert-shot" type="button"
                 data-cert-src="assets/img/certs/cert-datacamp.webp"
