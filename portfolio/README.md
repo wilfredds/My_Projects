@@ -51,6 +51,24 @@ portfolio/
 
 ## Interactive bits
 
+- **The name intro.** On the first home-page visit of a browser session, the
+  name rises word by word, a brass hairline draws under it, and the panel
+  lifts like a curtain onto the hero, whose entrance starts as it rises.
+  About 1.8 seconds. How it is kept from getting in the way:
+  - `boot.js` decides before the first frame (adding `.intro-play`), so the
+    page never paints and then gets covered. It plays once per session
+    (`sessionStorage` key `intro-seen`), only on the home page, never with
+    reduced motion, and never when the URL has a hash: a link to `/#contact`
+    should land on contact.
+  - The overlay's exit is pure CSS and ends `visibility: hidden`, so the page
+    cannot be left covered even if `site.js` fails. `site.js` only starts the
+    hero as the curtain rises and lets a click, key, scroll or touch hurry it.
+  - **Skipping speeds up the running lift; it never starts a new animation.**
+    The first version swapped in a fresh exit animation, which begins from
+    fully closed: a click made while the curtain was already lifting dropped
+    it back over the page and swallowed the click. It now uses the Web
+    Animations API (jump to the start of the lift, then play it 1.75 times
+    faster); the class-based swap is only a fallback for browsers without it.
 - **Check me against your job post.** The section after Technical skills,
   linked from the hero as "Hiring? Check me against your job post". A
   recruiter pastes a job post (pasting runs it; so do the button and
@@ -287,6 +305,12 @@ snap, then removes it.
   staff member's with her full name and job title. The FloodGuard page also
   says in so many words that this is a bench-tested prototype and makes no
   claim about the prediction half, because nothing shown demonstrates it.
+  The four presentation photos (`present-*.webp`, 7 October 2026, at
+  Noveleta's town hall) have every legible ID card blurred: four in the team
+  shot, the speaker's, and an MDRRMO staff member's in the Q&A. A fifth photo
+  repeated the team shot and was left out. Uniform name tags in the room shot
+  are too small to read at 1400px; re-check them if that photo is ever
+  enlarged. The river is named from the team's own title slide.
 - **Client words are quoted only when they are the client's words.** The
   AutoCare quote is the owner's own sentence and carries quotation marks and
   a speaker. The Hiroshi line is the owner's reaction as reported to me, so it
@@ -544,6 +568,15 @@ Generate it only after `document.fonts.ready`. The copy published before this
 was printed before the fonts arrived, so it embedded LiberationSerif and
 DejaVu instead of Fraunces and Plex. Check the embedded `/FontName` entries in
 the PDF after regenerating.
+
+The résumé leads with what a front-end hiring manager scans for: the
+Certicode internship (role and stack only, React, TypeScript and Tailwind CSS,
+with no client or project names; that is the agreed limit), then Hiroshi and
+AutoCare as real-client experience, then projects. Every figure in it is
+checked against the repository: RallyReady is React 18 (its `package.json`
+pins 18.3; the site said 19 until this was caught), Hiroshi has four user
+types (public guests plus the `crew`, `host` and `owner` roles in its schema).
+In print the bullets run the full width and the contact block never wraps.
 
 Three things in that block exist only to hold those two pages, so do not "tidy"
 them away: the certifications list is set in two columns (`.cv-certs`), and

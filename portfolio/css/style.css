@@ -1252,6 +1252,8 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   overflow: hidden;
 }
 .shot-pair img { display: block; width: 100%; height: auto; }
+/* Two photos of the same shape share the row equally. */
+.shot-pair.is-even { grid-template-columns: 1fr 1fr; }
 .shot-pair figcaption {
   padding: 0.7rem 1rem;
   border-top: 1px solid var(--line);
@@ -1260,7 +1262,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   font-size: 0.73rem;
   color: var(--faint);
 }
-@media (max-width: 640px) { .shot-pair { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .shot-pair, .shot-pair.is-even { grid-template-columns: 1fr; } }
 
 /* A phone screen recording. Narrow and centred, with the caption beside it on
    wide screens so a 390px-wide video does not leave a column of empty page. */
@@ -1809,10 +1811,20 @@ code {
 
 .certs {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  /* Three across: nine certificates make three full rows, and the scans are
+     large enough to read. auto-fit put four across, leaving one stranded. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   list-style: none;
   padding: 0;
+}
+@media (max-width: 860px) {
+  .certs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* An odd count leaves the last card alone on its row; let it take the row. */
+  .certs > .cert:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (max-width: 540px) {
+  .certs { grid-template-columns: 1fr; }
 }
 
 .cert {
@@ -2212,6 +2224,10 @@ body.is-locked { overflow: hidden; }
   .cv-certs { columns: 2; column-gap: 1.4rem; }
   .cv-certs li { break-inside: avoid; page-break-inside: avoid; }
   .lede-prose { font-size: 9pt; max-width: none; }
+  /* 70ch suits a screen; on paper it left the right third of every bullet
+     empty. And an address must never break across lines. */
+  .cv-entry p, .cv-entry ul { max-width: none; }
+  .cv-contact { white-space: nowrap; }
   .cv-contact { line-height: 1.5; font-size: 8.5pt; }
   .cv h2, .cv-entry h3 { break-after: avoid; page-break-after: avoid; }
 }
@@ -2892,6 +2908,82 @@ html:not(.js) .hero-fit { display: none; }
 @keyframes fit-seg { from { opacity: 0; scale: 1 0; } }
 @keyframes fit-row { from { opacity: 0; translate: -10px 0; } }
 @keyframes fit-tick { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+/* =========================================================================
+   Intro.
+
+   The name, once per visit: it rises word by word, a hairline draws under
+   it, and the whole panel lifts away like a curtain onto the hero, whose
+   own entrance starts as it rises. About 1.8 seconds, and any click, key,
+   scroll or touch sends it away early.
+
+   boot.js adds .intro-play before the first frame, only on the home page,
+   only once per browser session, and never for reduced motion or a link to
+   a section. The exit is pure CSS and ends hidden, so if site.js never ran
+   the page still could not be left covered.
+   ========================================================================= */
+.intro { display: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .intro-play .intro {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: clamp(1rem, 2.5vw, 1.6rem);
+    padding: 1.5rem;
+    background: var(--bg);
+    animation: intro-lift 0.7s var(--ease-majestic, ease-out) 1.1s forwards;
+  }
+  /* Only for browsers without the Web Animations API; site.js otherwise
+     speeds up the running lift instead. */
+  .intro-play.intro-skip .intro { animation: intro-lift-now 0.4s var(--ease-majestic, ease-out) forwards; }
+
+  .intro-name {
+    font-family: var(--display);
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-size: clamp(2.3rem, 8vw, 6rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-align: center;
+    color: var(--text);
+  }
+  .intro-name em { font-style: italic; color: var(--green); }
+  .intro-word {
+    display: inline-block;
+    animation: intro-word 0.85s var(--ease-majestic, ease-out) both;
+  }
+  .intro-word:nth-child(2) { animation-delay: 0.12s; }
+  .intro-word:nth-child(3) { animation-delay: 0.24s; }
+
+  .intro-rule {
+    width: clamp(4rem, 12vw, 8rem);
+    height: 1px;
+    background: var(--amber);
+    transform-origin: center;
+    animation: intro-rule 0.8s var(--ease-majestic, ease-out) 0.35s both;
+  }
+}
+
+@keyframes intro-word {
+  from { opacity: 0; transform: translateY(0.45em); clip-path: inset(0 -10% 100% -10%); }
+  to   { opacity: 1; transform: none; clip-path: inset(-30% -10% -30% -10%); }
+}
+@keyframes intro-rule { from { transform: scaleX(0); } }
+/* The curtain rises off the hero. Ending hidden takes it out of the way of
+   every click even before site.js removes it. */
+@keyframes intro-lift {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(0 0 100% 0); visibility: hidden; }
+}
+@keyframes intro-lift-now {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(0 0 100% 0); visibility: hidden; }
+}
+@media print { .intro { display: none !important; } }
 
 /* =========================================================================
    Motion, in three places and nowhere else.

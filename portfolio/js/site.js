@@ -78,11 +78,58 @@
      observer would wait for them forever. They start on the next frame
      instead, after the masked state has painted, so the transition runs. */
   var heroReveals = document.querySelectorAll('.hero .reveal');
-  window.requestAnimationFrame(function () {
+  var heroIn = function () {
     window.requestAnimationFrame(function () {
-      heroReveals.forEach(function (el) { el.classList.add('in'); });
+      window.requestAnimationFrame(function () {
+        heroReveals.forEach(function (el) { el.classList.add('in'); });
+      });
     });
-  });
+  };
+
+  /* The name intro (see boot.js and the Intro block in style.css). Its exit
+     is pure CSS, so it lifts even if this never runs. Here it only does two
+     things: start the hero as the curtain rises, and let any click, key,
+     scroll or touch send it away early. */
+  var intro = document.querySelector('.intro');
+  var docEl = document.documentElement;
+  if (intro && docEl.classList.contains('intro-play')) {
+    var heroStarted = false;
+    var startHero = function () {
+      if (heroStarted) return;
+      heroStarted = true;
+      heroIn();
+    };
+    var heroTimer = window.setTimeout(startHero, 1000);
+    var skipEvents = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
+    // Skipping hurries the curtain along rather than starting a new
+    // animation: a fresh one would begin from fully closed, so a click while
+    // it was already lifting dropped it back over the page and swallowed the
+    // click. Still holding, it jumps to the start of the lift; already
+    // lifting, it just goes faster.
+    var skipIntro = function () {
+      skipEvents.forEach(function (ev) { window.removeEventListener(ev, skipIntro); });
+      window.clearTimeout(heroTimer);
+      startHero();
+      var lift = intro.getAnimations ? intro.getAnimations().filter(function (a) {
+        return a.animationName === 'intro-lift';
+      })[0] : null;
+      if (!lift) { docEl.classList.add('intro-skip'); return; }
+      var delay = lift.effect.getTiming().delay || 0;
+      if (lift.currentTime < delay) lift.currentTime = delay;
+      lift.playbackRate = 1.75;
+    };
+    skipEvents.forEach(function (ev) { window.addEventListener(ev, skipIntro, { passive: true }); });
+    intro.addEventListener('animationend', function (e) {
+      if (e.target !== intro) return;
+      skipEvents.forEach(function (ev) { window.removeEventListener(ev, skipIntro); });
+      startHero();
+      intro.remove();
+      docEl.classList.remove('intro-play', 'intro-skip');
+    });
+  } else {
+    if (intro) intro.remove();
+    heroIn();
+  }
   var revealables = document.querySelectorAll('.reveal:not(.hero .reveal), .reveal-head');
 
   if (reduceMotion || !('IntersectionObserver' in window)) {
@@ -484,15 +531,17 @@
           break;
 
         case 'certs':
+          line('East West / LPU   Certified Cloud System Analyst     Oct 2026');
           line('DataCamp          Associate Data Analyst             Sep 2026');
           line('Cisco NetAcad     Ethical Hacker                     Jul 2026');
           line('Cisco NetAcad     Networking Basics                  Feb 2026');
           line('Cisco NetAcad     CCNA: Introduction to Networks     Jan 2026');
+          line('Coding Camp       Back-End Web Development           Nov 2025');
           line('SAP / Erudite     SAP Business One Courseware        May 2025');
           line('Cisco / OpenEDG   Python Essentials 2                May 2024');
           line('AWS Educate       Getting Started with Compute       trained');
           blank();
-          line('Six of the seven are scanned on the certifications section.');
+          line('All nine are on the certifications section, eight as scans.');
           break;
 
         case 'contact':
@@ -1112,7 +1161,7 @@
       ['education', 'Experience and education', 'Certicode internship and LPU Cavite', 'experience work internship intern certicode school university lpu ojt'],
       ['stack', 'Tech stack', 'The stack I build on', 'tools technologies'],
       ['fit', 'Check me against your job post', 'Paste a post, see the work behind each skill', 'hiring job post description fit match requirements recruiter'],
-      ['certs', 'Certifications', 'Cisco, AWS, DataCamp, SAP and more', 'certificates cisco ccna aws datacamp sap python'],
+      ['certs', 'Certifications', 'Cloud, Cisco, DataCamp, AWS, SAP and more', 'certificates ccsa cloud cisco ccna aws datacamp sap python'],
       ['skills', 'Technical skills', 'Languages, frameworks, testing, cloud', 'skills languages'],
       ['room', 'Coding camp photos', 'Two days at the coding camp', 'bootcamp pictures gallery'],
       ['timeline', 'Timeline', 'How I got here', 'history journey'],
