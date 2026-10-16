@@ -531,7 +531,7 @@
           break;
 
         case 'certs':
-          line('East West / LPU   Certified Cloud System Analyst     Oct 2026');
+          line('East West         Certified Cloud System Analyst     Oct 2026');
           line('DataCamp          Associate Data Analyst             Sep 2026');
           line('Cisco NetAcad     Ethical Hacker                     Jul 2026');
           line('Cisco NetAcad     Networking Basics                  Feb 2026');

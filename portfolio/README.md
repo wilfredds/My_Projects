@@ -310,7 +310,8 @@ snap, then removes it.
   shot, the speaker's, and an MDRRMO staff member's in the Q&A. A fifth photo
   repeated the team shot and was left out. Uniform name tags in the room shot
   are too small to read at 1400px; re-check them if that photo is ever
-  enlarged. The river is named from the team's own title slide.
+  enlarged. The river is named from the team's own title slide. The whole
+  team agreed to these photos being public (confirmed 15 October 2026).
 - **Client words are quoted only when they are the client's words.** The
   AutoCare quote is the owner's own sentence and carries quotation marks and
   a speaker. The Hiroshi line is the owner's reaction as reported to me, so it
