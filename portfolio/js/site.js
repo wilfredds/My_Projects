@@ -1547,6 +1547,107 @@
     });
   })();
 
+  /* --- the phone menu --------------------------------------------------
+     Below 700px the section links leave the bar (they no longer fit on one
+     row). This button brings them back as a drop-down panel. It is a plain
+     disclosure: the same list, shown or hidden, so nothing is duplicated.
+     Without JavaScript the links simply stay in the bar. */
+  (function () {
+    var nav = document.querySelector('.nav');
+    var inner = nav && nav.querySelector('.nav-inner');
+    var links = nav && nav.querySelector('.nav-links');
+    if (!inner || !links) return;
+    var SVG_NS = 'http://www.w3.org/2000/svg';
+
+    var glyph = function (d, cls) {
+      var svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('stroke-width', '2');
+      svg.setAttribute('stroke-linecap', 'round');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('class', cls);
+      var path = document.createElementNS(SVG_NS, 'path');
+      path.setAttribute('d', d);
+      svg.appendChild(path);
+      return svg;
+    };
+
+    if (!links.id) links.id = 'nav-links';
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'nav-menu';
+    button.setAttribute('aria-controls', links.id);
+    button.setAttribute('aria-expanded', 'false');
+    button.setAttribute('aria-label', 'Open the menu');
+    button.appendChild(glyph('M4 7h16M4 12h16M4 17h16', 'i-open'));
+    button.appendChild(glyph('M6 6l12 12M18 6L6 18', 'i-close'));
+    inner.appendChild(button);
+
+    // On the narrowest phones the search icon gives way in the bar, so the
+    // menu carries a way to it. Hidden by CSS wherever the icon is showing.
+    var searchOpener = document.querySelector('.nav-search');
+    if (searchOpener) {
+      var row = document.createElement('li');
+      row.className = 'nav-links-search';
+      var go = document.createElement('button');
+      go.type = 'button';
+      go.textContent = 'Search the site';
+      go.addEventListener('click', function () {
+        close(false);
+        searchOpener.click();
+      });
+      row.appendChild(go);
+      links.appendChild(row);
+    }
+
+    var isOpen = function () { return nav.classList.contains('is-open'); };
+
+    var onKey = function (e) {
+      if (e.key === 'Escape' && isOpen()) { e.preventDefault(); close(true); }
+    };
+    var onOutside = function (e) {
+      if (isOpen() && !nav.contains(e.target)) close(false);
+    };
+
+    function open() {
+      nav.classList.add('is-open');
+      button.setAttribute('aria-expanded', 'true');
+      button.setAttribute('aria-label', 'Close the menu');
+      document.addEventListener('keydown', onKey);
+      document.addEventListener('pointerdown', onOutside);
+      var first = links.querySelector('a, button');
+      if (first) first.focus({ preventScroll: true });
+    }
+
+    function close(returnFocus) {
+      nav.classList.remove('is-open');
+      button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-label', 'Open the menu');
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onOutside);
+      if (returnFocus) button.focus();
+    }
+
+    button.addEventListener('click', function () {
+      if (isOpen()) close(false); else open();
+    });
+
+    // Following a link closes the panel, so it is not left open over the
+    // section the reader just asked to see.
+    links.addEventListener('click', function (e) {
+      if (e.target.closest('a')) close(false);
+    });
+
+    // Rotating to landscape or widening the window puts the links back in
+    // the bar; the panel must not stay open behind them.
+    var wide = window.matchMedia('(min-width: 701px)');
+    var onWide = function () { if (wide.matches && isOpen()) close(false); };
+    if (wide.addEventListener) wide.addEventListener('change', onWide);
+    else if (wide.addListener) wide.addListener(onWide);
+  })();
+
   /* --- highlight the section being read --------------------------------
      Sub-pages link back with "../index.html#projects", which is not a
      selector, so only same-page hashes are considered.                    */
