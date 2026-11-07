@@ -104,8 +104,10 @@
 </div>
 
 <script type="module">
-  import { initPage } from './js/app.js';
+  import { initPage, toast } from './js/app.js';
   initPage('home');
+  // Hydration calculator below runs as a classic script, outside module scope.
+  window.toast = toast;
 </script>
 <script>
   window.showDiet = function(id, btn) {
@@ -118,7 +120,7 @@
   window.calcHydration = function() {
     const weight = parseFloat(document.getElementById('weight-input').value);
     const hours  = parseFloat(document.getElementById('hours-input').value);
-    if (!weight || !hours) { alert('Please enter your weight and ride duration.'); return; }
+    if (!weight || !hours) { toast('Enter your weight and ride duration first', { type: 'warn' }); return; }
     const base    = 0.5 * weight;        // ml per kg bodyweight per hour (moderate intensity)
     const total   = Math.round(base * hours / 100) * 100;
     const bottles = (total / 750).toFixed(1);

@@ -219,7 +219,8 @@
   document.getElementById('hero-greeting').textContent = `${greet}, Rider! ${emoji}`;
 
   // 1) Paint last-known stats instantly from cache (no network wait)
-  const cached = JSON.parse(localStorage.getItem('dashStats') || 'null');
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem('dashStats') || 'null'); } catch { cached = null; }
   if (cached) {
     countUp($rides, cached.rides);
     countUp($km, cached.km, { decimals: 1 });

@@ -95,6 +95,57 @@
     .empty i { font-size: 2.3rem; display: block; margin-bottom: 11px; opacity: 0.45; }
     .empty p { font-size: 0.83rem; line-height: 1.6; }
 
+    /* Report-stolen sheet. This is the worst moment in the app's life —
+       the rider has just lost their bike — so it gets a real form with
+       context and a way back, not three browser prompts in a row. */
+    .rs-overlay {
+      position: fixed; inset: 0; z-index: 1400;
+      background: rgba(8,16,12,0.55); backdrop-filter: blur(3px);
+      opacity: 0; pointer-events: none; transition: opacity 0.26s var(--glide, ease);
+    }
+    .rs-overlay.open { opacity: 1; pointer-events: auto; }
+    .rs-sheet {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 1401;
+      max-width: 520px; margin: 0 auto;
+      background: var(--raised, #fff);
+      border-radius: 26px 26px 0 0;
+      padding: 14px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
+      transform: translateY(104%);
+      transition: transform 0.4s var(--spring, cubic-bezier(0.34,1.4,0.64,1));
+      max-height: 92vh; overflow-y: auto;
+    }
+    .rs-sheet.open { transform: translateY(0); }
+    .rs-handle { width: 42px; height: 4px; background: var(--hairline, #dde2e6);
+                 border-radius: 2px; margin: 2px auto 16px; }
+    .rs-head { display: flex; align-items: flex-start; gap: 13px; margin-bottom: 6px; }
+    .rs-badge {
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      background: linear-gradient(145deg, #E8574C, #C0392B);
+      color: #fff; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 16px rgba(192,57,43,0.4);
+    }
+    .rs-head h3 { margin: 0; font-size: 1.05rem; }
+    .rs-head p { margin: 2px 0 0; font-size: 0.76rem; color: var(--ink-3, #8a929a); }
+    .rs-bike {
+      background: var(--sunken, #f2f5f3); border-radius: 13px;
+      padding: 10px 14px; margin: 15px 0 4px;
+      font-size: 0.82rem; font-weight: 700; color: var(--ink, #1a1a2e);
+      display: flex; align-items: center; gap: 9px;
+    }
+    .rs-bike i { color: var(--brand, #2d6a4f); }
+    .rs-err { font-size: 0.78rem; color: #C0392B; margin-top: 10px; display: none; }
+    .rs-actions { display: flex; gap: 9px; margin-top: 18px; }
+    .rs-btn {
+      flex: 1; padding: 14px; border: none; border-radius: 50px;
+      font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer;
+    }
+    .rs-btn.go { background: linear-gradient(145deg, #E8574C, #C0392B); color: #fff;
+                 box-shadow: 0 6px 18px rgba(192,57,43,0.4); }
+    .rs-btn.go:disabled { opacity: 0.55; }
+    .rs-btn.cancel { flex: 0 0 34%; background: var(--sunken, #f0f3f5); color: var(--ink-3, #5a666f); }
+
     .toast { position: fixed; left: 50%; bottom: 92px; transform: translateX(-50%) translateY(18px);
              background: #1a1a2e; color: #fff; padding: 11px 20px; border-radius: 50px;
              font-size: 0.83rem; font-weight: 700; opacity: 0; pointer-events: none;
@@ -169,10 +220,48 @@
   <nav class="bottom-nav" id="bottom-nav"></nav>
 </div>
 
+<div class="rs-overlay" id="rs-overlay"></div>
+<div class="rs-sheet" id="rs-sheet" role="dialog" aria-modal="true" aria-labelledby="rs-title">
+  <div class="rs-handle"></div>
+  <div class="rs-head">
+    <div class="rs-badge"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <div>
+      <h3 id="rs-title">Report this bike stolen</h3>
+      <p>It goes on the public board so riders and buyers can spot it.</p>
+    </div>
+  </div>
+
+  <div class="rs-bike" id="rs-bike"><i class="fa-solid fa-bicycle"></i><span></span></div>
+
+  <div class="fg">
+    <label for="rs-area">Where was it taken? <span class="req">*</span></label>
+    <input id="rs-area" placeholder="Quezon City, near SM North" maxlength="80" autocomplete="off">
+    <div class="hint">Area is enough — no need for your exact address.</div>
+  </div>
+
+  <div class="fg">
+    <label for="rs-contact">How can people reach you? <span class="req">*</span></label>
+    <input id="rs-contact" placeholder="09XX XXX XXXX or your Facebook name" maxlength="60" autocomplete="off">
+    <div class="hint">Shown publicly. Use whatever you're comfortable sharing.</div>
+  </div>
+
+  <div class="fg">
+    <label for="rs-note">Anything else?</label>
+    <textarea id="rs-note" rows="2" maxlength="300" placeholder="Taken from outside the mall around 3pm, lock was cut"></textarea>
+  </div>
+
+  <div class="rs-err" id="rs-err"></div>
+
+  <div class="rs-actions">
+    <button class="rs-btn cancel" id="rs-cancel">Cancel</button>
+    <button class="rs-btn go" id="rs-submit"><i class="fa-solid fa-bullhorn"></i> Post it</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
-  import { initPage } from './js/app.js';
+  import { initPage, toast } from './js/app.js';
   import { getBikes, registerBike, reportStolen, markRecovered, deleteBike, compressImage }
     from './js/bikes.js';
   initPage('home');
@@ -181,10 +270,6 @@
   const esc = s => { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; };
   let photoData = null;
 
-  function toast(msg) {
-    const t = $('toast'); t.textContent = msg; t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2600);
-  }
 
   function render() {
     const bikes = getBikes();
@@ -208,7 +293,7 @@
               ${stolen
                 ? `<button class="card-btn good" data-recover="${esc(b.id)}"><i class="fa-solid fa-check"></i> I got it back</button>`
                 : `<button class="card-btn danger" data-steal="${esc(b.id)}"><i class="fa-solid fa-triangle-exclamation"></i> Report stolen</button>`}
-              <button class="card-btn neutral" data-del="${esc(b.id)}"><i class="fa-solid fa-trash"></i></button>
+              <button class="card-btn neutral" aria-label="Remove bike" data-del="${esc(b.id)}"><i class="fa-solid fa-trash"></i></button>
             </div>
           </div>
         </div>`;
@@ -291,27 +376,71 @@
       return;
     }
 
-    if (steal) {
-      const area = prompt('Where was it taken? (e.g. "Quezon City, near SM North")');
-      if (area === null) return;
-      const contact = prompt('Contact number or Facebook name so people can reach you:');
-      if (contact === null) return;
-      const note = prompt('Anything else? (optional)') || '';
+    if (steal) openReport(steal.dataset.steal);
+  });
 
-      let lat = null, lng = null;
-      try {
-        const p = await new Promise(res => navigator.geolocation.getCurrentPosition(
-          x => res(x), () => res(null), { timeout: 6000 }));
-        if (p) { lat = p.coords.latitude; lng = p.coords.longitude; }
-      } catch (_) {}
+  // ── Report-stolen sheet ──
+  let reportingId = null;
 
-      try {
-        await reportStolen(steal.dataset.steal, { area, contact, note, lat, lng });
-        render();
-        toast('Posted to the stolen board');
-      } catch (e2) {
-        toast(e2.message || 'Could not report');
-      }
+  function openReport(id) {
+    const bike = getBikes().find(b => b.id === id);
+    reportingId = id;
+    $('rs-bike').querySelector('span').textContent =
+      [bike?.brand, bike?.model].filter(Boolean).join(' ') || 'My bike';
+    $('rs-err').style.display = 'none';
+    $('rs-sheet').classList.add('open');
+    $('rs-overlay').classList.add('open');
+    setTimeout(() => $('rs-area').focus(), 320);
+  }
+
+  function closeReport() {
+    $('rs-sheet').classList.remove('open');
+    $('rs-overlay').classList.remove('open');
+    reportingId = null;
+  }
+
+  $('rs-overlay').addEventListener('click', closeReport);
+  $('rs-cancel').addEventListener('click', closeReport);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && reportingId) closeReport();
+  });
+
+  $('rs-submit').addEventListener('click', async () => {
+    const area    = $('rs-area').value.trim();
+    const contact = $('rs-contact').value.trim();
+    const note    = $('rs-note').value.trim();
+    const err     = $('rs-err');
+
+    // Both of these are what make the report useful to anyone else, so
+    // they're required — but say which one is missing, not just "invalid".
+    if (!area)    { err.textContent = 'Please say roughly where it was taken.'; err.style.display = 'block'; $('rs-area').focus(); return; }
+    if (!contact) { err.textContent = 'Add a contact so someone who spots it can reach you.'; err.style.display = 'block'; $('rs-contact').focus(); return; }
+
+    const btn = $('rs-submit');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Posting…';
+
+    // Best-effort location; never block the report on it.
+    let lat = null, lng = null;
+    try {
+      const pos = await new Promise(res => navigator.geolocation
+        ? navigator.geolocation.getCurrentPosition(x => res(x), () => res(null), { timeout: 6000 })
+        : res(null));
+      if (pos) { lat = pos.coords.latitude; lng = pos.coords.longitude; }
+    } catch (_) {}
+
+    try {
+      await reportStolen(reportingId, { area, contact, note, lat, lng });
+      closeReport();
+      ['rs-area','rs-contact','rs-note'].forEach(k => { $(k).value = ''; });
+      render();
+      toast('Posted to the stolen board', { type: 'success' });
+    } catch (e2) {
+      err.textContent = e2.message || 'Could not post it. Check your connection and try again.';
+      err.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-bullhorn"></i> Post it';
     }
   });
 

@@ -44,8 +44,28 @@ function addBotResponse(item) {
   const messages = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = 'chat-msg bot';
-  div.innerHTML = `<strong>${item.title}</strong><br>${item.response}<br><ul style="margin:8px 0 0 12px;font-size:0.75rem;">` +
-    item.steps.map(s => `<li>${s}</li>`).join('') + '</ul>';
+
+  // Built from DOM nodes rather than an innerHTML template. The data is
+  // ours today, but the moment troubleshooting entries become
+  // community-sourced an innerHTML template is a stored-XSS hole, and
+  // this is the version that stays correct either way.
+  const title = document.createElement('strong');
+  title.textContent = item.title;
+  div.append(title, document.createElement('br'));
+
+  const body = document.createElement('span');
+  body.textContent = item.response;
+  div.append(body, document.createElement('br'));
+
+  const ul = document.createElement('ul');
+  ul.style.cssText = 'margin:8px 0 0 12px;font-size:0.75rem;';
+  (item.steps || []).forEach(step => {
+    const li = document.createElement('li');
+    li.textContent = step;
+    ul.appendChild(li);
+  });
+  div.appendChild(ul);
+
   messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
 }

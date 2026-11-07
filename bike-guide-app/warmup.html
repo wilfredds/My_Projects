@@ -84,7 +84,7 @@
 
 <!-- Full-screen exercise mode -->
 <div class="exercise-mode" id="exercise-mode">
-  <button class="mode-close" onclick="closeRoutine()"><i class="fa-solid fa-xmark"></i></button>
+  <button class="mode-close" onclick="closeRoutine()" aria-label="Close routine"><i class="fa-solid fa-xmark"></i></button>
   <div class="ex-step-label" id="ex-step-label">EXERCISE 1 OF 7</div>
   <div class="ex-progress-dots" id="ex-dots"></div>
   <div class="ex-anim-big" id="ex-anim-big"></div>
@@ -102,8 +102,12 @@
 <nav class="bottom-nav" id="bottom-nav"></nav>
 
 <script type="module">
-  import { initPage } from './js/app.js';
+  import { initPage, toast } from './js/app.js';
   initPage('home');
+  // The routine logic below runs as a classic script, which does not share
+  // module scope — hand it the toast explicitly rather than letting the
+  // call fail at the one moment the rider is being congratulated.
+  window.toast = toast;
 </script>
 <script>
   let exercises = { warmup:[], cooldown:[] };
@@ -195,7 +199,7 @@
     clearInterval(timerInterval);
     document.getElementById('exercise-mode').classList.remove('active');
     const phase = currentPhase === 'warmup' ? 'warm-up' : 'cool-down';
-    alert(`Great work! Your ${phase} routine is complete. 💪`);
+    toast(`${phase.charAt(0).toUpperCase() + phase.slice(1)} complete! 💪`, { type: 'success', duration: 3200 });
   }
 
   function closeRoutine() {

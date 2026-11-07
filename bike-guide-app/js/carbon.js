@@ -23,6 +23,11 @@ export async function shareCarbonBadge(co2Kg, km) {
     await navigator.share({ title: 'My Carbon Save — RidePH', text });
   } else {
     await navigator.clipboard.writeText(text);
-    alert('Copied to clipboard! Paste it anywhere to share.');
+    // Prefer the app's toast; fall back to alert only if this module is
+    // ever used somewhere ui.js hasn't loaded.
+    try {
+      const { toast } = await import('./ui.js');
+      toast('Copied — paste it anywhere to share', { type: 'success' });
+    } catch { alert('Copied to clipboard! Paste it anywhere to share.'); }
   }
 }
