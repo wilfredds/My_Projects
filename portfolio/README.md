@@ -401,6 +401,14 @@ snap, then removes it.
   `shot-badminton.webp` is the live site's sign-in screen, because
   BadmintonPH's data needs a sign-in, so its front door is what a visitor
   actually sees.
+- **`shot-hiraya.webp` is a title card, not a screenshot.** Hiraya is a Unity
+  game with no public build, and there is no Unity here to capture one, so the
+  card shows a drawn cover instead: a moonlit volcano, terraced hills and
+  fireflies, with the name and an "In development" tag. It was drawn as SVG
+  in the site's own palette and fonts, rendered at 2x, and put on the same
+  1200x750 `#0B0E0B` canvas as the composites. Nothing in it claims to be from
+  the game. Swap it for a real in-game capture once there is one worth
+  showing.
 - **The project card screenshots carry `alt=""` on purpose.** Each sits inside
   an `aria-hidden="true"` wrapper with `tabindex="-1"`, because the link is a
   duplicate of the Case study button and the card's own heading and paragraph
