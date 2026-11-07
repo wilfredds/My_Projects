@@ -425,6 +425,9 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
    button reaches every one of them, so they are the ones that give way. */
 @media (max-width: 700px) {
   .nav-links { display: none; }
+  /* Without JavaScript there is no menu button, so the links stay in the bar
+     and wrap if they must: a taller bar beats no way around the site. */
+  html:not(.js) .nav-links { display: flex; }
 }
 @media (max-width: 520px) {
   .nav-brand { letter-spacing: 0.1em; }
@@ -2984,6 +2987,95 @@ html:not(.js) .hero-fit { display: none; }
   to   { clip-path: inset(0 0 100% 0); visibility: hidden; }
 }
 @media print { .intro { display: none !important; } }
+
+/* --- the phone menu ------------------------------------------------------
+   Below 700px a button opens the section links as a panel under the bar.
+   site.js builds the button; the panel is the same .nav-links list. */
+.nav-menu,
+.nav-links-search { display: none; }
+
+@media (max-width: 700px) {
+  .js .nav-menu {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    /* Same spacing as search and theme: the three read as one cluster. */
+    margin-left: -0.55rem;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface-2);
+    color: var(--dim);
+    cursor: pointer;
+    transition: color 0.18s ease, border-color 0.18s ease;
+  }
+  /* 30px to see, 44px to hit, like its neighbours. */
+  .js .nav-menu::after { content: ""; position: absolute; inset: -7px; }
+  .nav-menu:hover,
+  .nav.is-open .nav-menu { color: var(--green); border-color: var(--green); }
+  .nav-menu svg { width: 16px; height: 16px; }
+  .nav-menu .i-close,
+  .nav.is-open .nav-menu .i-open { display: none; }
+  .nav.is-open .nav-menu .i-close { display: block; }
+
+  /* The panel hangs from the bar itself, edge to edge. */
+  .nav-inner { position: static; }
+  .js .nav.is-open .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0.25rem 1.25rem 0.9rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 28px 40px -28px rgb(0 0 0 / 45%);
+    font-size: 1.02rem;
+  }
+  /* Dividers go between rows, so a hidden last row (the search row, shown
+     only on the narrowest phones) never leaves a doubled line. */
+  .nav.is-open .nav-links li + li { border-top: 1px solid var(--line-soft); }
+  .nav.is-open .nav-links a {
+    display: flex;
+    width: 100%;
+    min-height: 50px;
+    padding: 0;
+    color: var(--text);
+  }
+  .nav.is-open .nav-links a::after { display: none; }
+  .nav.is-open .nav-links a[aria-current="true"] { color: var(--green); }
+  .nav-links-search button {
+    width: 100%;
+    min-height: 50px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--green);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+}
+
+/* At 360px and under, the name, search, theme and menu buttons cannot all
+   fit; search moves into the menu, which already holds the way around. */
+@media (max-width: 360px) {
+  .js .nav-search { display: none; }
+  .js .nav-search + .theme-toggle { margin-left: auto; }
+  .nav.is-open .nav-links-search { display: block; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .nav.is-open .nav-links { animation: nav-drop 0.28s var(--ease-majestic, ease-out); }
+}
+@keyframes nav-drop {
+  from { opacity: 0; transform: translateY(-6px); }
+}
+@media print { .nav-menu { display: none !important; } }
 
 /* =========================================================================
    Motion, in three places and nowhere else.

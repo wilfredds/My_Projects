@@ -375,7 +375,12 @@ snap, then removes it.
   told a recruiter nothing about the section underneath. If you add a section,
   write the heading as a claim, not a filename.
 - **The nav bar must stay one row.** At 700px and below the section links
-  hide and the search button takes their place. Measured before this, the
+  leave the bar and a menu button (built by `site.js`) shows them as a panel
+  under it: the same `.nav-links` list, so nothing is duplicated. Escape, a
+  tap outside or following a link closes it; widening past 700px closes it
+  too. At 360px and under the search icon also gives way and the menu gains a
+  "Search the site" row. Without JavaScript there is no button, so the links
+  stay in the bar and wrap rather than vanish. Measured before this, the
   home page's six links wrapped the bar to 110px tall anywhere from 521 to
   689px, which had gone unnoticed since the links were added. If you add a
   link, sweep the widths again: the bar should be 53px at every width from
@@ -387,11 +392,15 @@ snap, then removes it.
 - **Contrast is checked, not assumed.** Body and secondary text clear 4.5:1 in
   both themes. If you darken `--faint` or `--dim`, re-check them.
 - **The screenshots are composites**, generated from the running apps at
-  1200x750 on the site's own background so all six cards match. They live in
-  `assets/img/shot-*.jpg`. To regenerate one, screenshot the app and paste it
-  onto a `#0C0E0B` canvas at that size. That value is measured off the existing
-  files, not guessed; the README used to say `#0b0e0b`, which is close but not
-  what is actually in them.
+  1200x750 on the site's own background so the cards match. They live in
+  `assets/img/shot-*.webp`. To make one: capture the app at 1440x900, scale it
+  to 1056x660, and paste it at (72, 45) with a 14px corner radius onto a
+  `#0B0E0B` canvas. That colour is measured off the current files (November
+  2026), not guessed; match it again before adding one. FloodGuard's card is
+  the exception: a photograph of the bench rig, not a composite.
+  `shot-badminton.webp` is the live site's sign-in screen, because
+  BadmintonPH's data needs a sign-in, so its front door is what a visitor
+  actually sees.
 - **The project card screenshots carry `alt=""` on purpose.** Each sits inside
   an `aria-hidden="true"` wrapper with `tabindex="-1"`, because the link is a
   duplicate of the Case study button and the card's own heading and paragraph
