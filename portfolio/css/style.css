@@ -139,8 +139,6 @@
   --glow:     rgb(127 201 188 / 7%);
   --glow-2:   rgb(217 179 108 / 4%);
   --shadow:   0 24px 60px -30px rgb(0 0 0 / 88%);
-  --stripe-a: #0E1413;
-  --stripe-b: #0B100F;
   --sunk:     #0A0E0D;
   --term-top: #101715;
   --term-bottom: #0C1211;
@@ -1065,20 +1063,6 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .card-shot img { transition: transform 0.5s ease; }
 .card-shot:hover img { transform: scale(1.02); }
-
-.card-shot.is-empty {
-  display: grid;
-  place-items: center;
-  min-height: 220px;
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  color: var(--faint);
-  text-align: center;
-  padding: 1.5rem;
-  background:
-    repeating-linear-gradient(45deg, var(--stripe-a) 0 10px, var(--stripe-b) 10px 20px);
-  line-height: 1.9;
-}
 
 .card h3 {
   /* The display face, not mono at a weight that was never loaded and so was
@@ -2270,41 +2254,6 @@ body.is-locked { overflow: hidden; }
   margin-top: 0.75rem;
   padding-top: 0.6rem;
   border-top: 1px solid var(--line-soft);
-}
-
-/* ---------------------------------------------- placeholder screenshots --
-   Some projects genuinely cannot be screenshotted from here: no Flutter SDK,
-   no Unity, and a capstone that is still being built. The tile should read as
-   a deliberate panel rather than a picture that failed to load.             */
-/* A tile for a project that genuinely cannot be screenshotted from here: no
-   Flutter SDK, no Unity, a capstone still being built, and one site that is
-   live but unreachable from this build environment. It has to read as a
-   deliberate panel. A dark box inside a light card reads as a failed image. */
-.card-shot.is-empty {
-  gap: 0.35rem;
-  padding: 2rem 1.5rem;
-  border: 1px dashed var(--line);
-  background: var(--surface-2);
-  color: var(--dim);
-  text-align: center;
-  line-height: 1.6;
-}
-.card-shot.is-empty .empty-icon {
-  width: 26px;
-  height: 26px;
-  color: var(--faint);
-  margin-bottom: 0.35rem;
-}
-.card-shot.is-empty b {
-  font-family: var(--mono);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text);
-}
-.card-shot.is-empty span {
-  font-family: var(--sans);
-  font-size: 0.83rem;
-  max-width: 34ch;
 }
 
 /* ------------------------------------------------- touch target sizes --
