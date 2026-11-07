@@ -35,7 +35,10 @@ class ClaudeVisionService implements VisionService {
       id: _uuid.v4(),
       userId: userId,
       bikeId: bikeId,
-      healthScore: (json['healthScore'] as num?)?.toInt() ?? 0,
+      // Clamped: the model can return out-of-range values, and the Firestore
+      // rules bound this to 0..100 — an unclamped 105 would lose the whole
+      // report after the API call was already paid for.
+      healthScore: ((json['healthScore'] as num?)?.toInt() ?? 0).clamp(0, 100),
       riskLevel: _risk(json['riskLevel'] as String?),
       summary: json['summary'] as String? ?? '',
       findings: ((json['findings'] as List?) ?? const [])

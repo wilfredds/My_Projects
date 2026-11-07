@@ -1,5 +1,6 @@
 import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/firebase_options.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
@@ -17,6 +18,20 @@ Future<void> bootstrap() async {
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    // App Check must be activated before anything calls getToken(). The Cloud
+    // Functions default to REQUIRE_APP_CHECK=true, so without this every AI
+    // request is rejected with 401 "Missing App Check token".
+    //
+    // Debug providers are used in debug builds so a developer machine still
+    // works; register the printed debug token in the Firebase console. Release
+    // builds use the platform attestation providers.
+    await FirebaseAppCheck.instance.activate(
+      androidProvider:
+          kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+      appleProvider:
+          kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
     );
   } catch (e) {
     debugPrint('Firebase init failed (continuing): $e');

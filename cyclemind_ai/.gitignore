@@ -28,3 +28,4 @@ functions/lib/
 google-services.json
 GoogleService-Info.plist
 .env
+firestore-tests/node_modules/

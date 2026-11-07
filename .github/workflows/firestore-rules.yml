@@ -1,0 +1,55 @@
+name: Firestore rules tests
+
+# Security rules are the only thing standing between a signed-in user and
+# everyone else's data, so this job must be able to FAIL the build. Note the
+# deliberate absence of continue-on-error anywhere below.
+
+on:
+  push:
+    branches:
+      - main
+      - claude/cyclemind-ai-vision-r19yap
+    paths:
+      - "cyclemind_ai/firestore.rules"
+      - "cyclemind_ai/firestore.indexes.json"
+      - "cyclemind_ai/firebase.json"
+      - "cyclemind_ai/firestore-tests/**"
+      # A change to any toMap() is a change to the rules contract.
+      - "cyclemind_ai/lib/**/data/models/**"
+      - ".github/workflows/firestore-rules.yml"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # The Firestore emulator is a Java application. Without a JRE it exits
+      # before any test runs, with an error that looks nothing like a missing
+      # dependency.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # The emulator jar is ~60 MB and downloaded on first use. Caching it also
+      # removes a flaky network dependency from every run.
+      - name: Cache emulator binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ hashFiles('cyclemind_ai/firestore-tests/package.json') }}
+
+      - name: Install
+        working-directory: cyclemind_ai/firestore-tests
+        run: npm install --no-audit --no-fund
+
+      - name: Run rules tests
+        working-directory: cyclemind_ai/firestore-tests
+        run: npm test

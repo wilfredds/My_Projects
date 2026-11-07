@@ -1,44 +1,332 @@
 rules_version = '2';
 
-// CycleMind AI security rules.
-// Principle: a signed-in user may only read/write documents they own. Ownership
-// is the `userId` field (or the document id for the users collection).
+// CycleMind AI — Firestore security rules.
+//
+// OWNERSHIP MODEL
+//   A `userId` field on every collection except `users`, where ownership is the
+//   document id. Every document is private to exactly one user: no sharing, no
+//   admin role, no public read, no collection-group queries.
+//
+// INVARIANTS ENFORCED HERE
+//   1. Owner-only access, checked on BOTH the stored and the incoming document.
+//   2. `userId` is immutable — an owner cannot hand a document to anyone else,
+//      and cannot have one pushed onto them.
+//   3. Exact field allowlists. An unknown key fails the write; this is what
+//      stops a client inventing `role`, `isAdmin`, `verified`, `trustScore`.
+//   4. Per-field types, enum domains and generous numeric ceilings.
+//   5. Operations the app does not perform are denied outright.
+//   6. `ai_usage` is server-only. The Admin SDK bypasses rules, so the
+//      charge() transaction in functions/src/auth.ts is unaffected.
+//
+// WHAT THIS FILE CANNOT ENFORCE — do not mistake it for complete:
+//   * Array element shape. The rules language cannot iterate a list, so
+//     bikes.components[] and ai_reports.recommendations[] are checked only for
+//     being lists of bounded length. Their contents are arbitrary up to the
+//     1 MiB document limit. Closing this needs server-side writes.
+//   * Report integrity. ai_reports is written by the CLIENT
+//     (FirebaseReportsRepository.saveReport), so `healthScore` is a
+//     client-asserted number. Bounding it to 0..100 limits blast radius; it
+//     does not make it true. If a health score ever becomes a trust or resale
+//     signal, analyzeBike must write the document and `create` must become
+//     `if false`.
+//   * Timestamp honesty. startedAt / serviceDate / createdAt come from the
+//     device clock. They are deliberately NOT bounded against request.time:
+//     clock skew is common and back-dating a ride or a service is legitimate.
+//     Ordering is advisory.
+//   * App Check. request.app is deliberately not required — see bootstrap.dart.
+//     Add it only after verifying activate() works, or every write is denied.
+//
+// NULLS ARE EXPLICIT. Every Dart toMap() emits all keys unconditionally, so
+// optional fields arrive present-with-null, never absent. `x is string` is
+// FALSE for null — hence optStr/optNumIn below. The complete set of
+// null-tolerant fields, and no others:
+//     users.profile.avatarUrl, users.profile.weightKg,
+//     bikes.imageUrl,
+//     rides.bikeId, rides.cadence, rides.heartRate, rides.power,
+//     ai_reports.bikeId, ai_reports.imageUrl
+// maintenance_logs.bikeId is NOT in that list — MaintenanceLog.bikeId is a
+// non-nullable String. Do not "tidy" it into optStr.
+//
+// MERGE SEMANTICS. Two call sites use set(..., SetOptions(merge: true)):
+// FirebaseAuthRepository.updateProfile and FirebaseBikesRepository.updateBike.
+// On a merge write `request.resource.data` is the POST-MERGE document (stored
+// keys union incoming keys), and merge deep-merges nested maps, so keysAre()
+// also governs `profile` and `preferences`. Consequence: a stored document
+// carrying any key outside an allowlist becomes permanently un-editable by its
+// owner. Ship model changes and rule changes together, and never backfill a
+// new field via the Admin SDK before widening the allowlist here.
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isSignedIn() {
+    // ------------------------------------------------------------- identity
+
+    function signedIn() {
       return request.auth != null;
     }
-    function owns(resourceData) {
-      return isSignedIn() && request.auth.uid == resourceData.userId;
+
+    function uid() {
+      return request.auth.uid;
     }
 
+    // The STORED document belongs to the caller. For get / list / update / delete.
+    function ownsStored() {
+      return signedIn() && resource.data.userId == uid();
+    }
+
+    // The INCOMING document names the caller as owner. For create.
+    function ownsIncoming() {
+      return signedIn() && request.resource.data.userId == uid();
+    }
+
+    // `userId` cannot be introduced, removed or reassigned by an update.
+    // Correct for merge writes precisely because request.resource.data is
+    // post-merge: a client that omits userId still compares equal to the
+    // stored value, so a write that does not touch ownership is not punished.
+    function ownerPinned() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    // ---------------------------------------------------------------- shape
+
+    // Exactly `allowed`: no extra keys, no missing keys.
+    //
+    // hasOnly is the SECURITY control (no field injection). hasAll is a SAFETY
+    // INTERLOCK guaranteeing every key the type assertions dereference is
+    // present, so a missing key is a clean denial rather than an evaluation
+    // error. It is not itself a security control.
+    function keysAre(d, allowed) {
+      return d.keys().hasAll(allowed) && d.keys().hasOnly(allowed);
+    }
+
+    function str(v, maxLen) {
+      return v is string && v.size() <= maxLen;
+    }
+
+    function numIn(v, lo, hi) {
+      return v is number && v >= lo && v <= hi;
+    }
+
+    // Null-tolerant accessors. map.get(k, null) also tolerates an ABSENT key,
+    // so these keep working if a future client stops emitting explicit nulls.
+    function optStr(d, k, maxLen) {
+      return d.get(k, null) == null || str(d.get(k, null), maxLen);
+    }
+
+    function optNumIn(d, k, lo, hi) {
+      return d.get(k, null) == null || numIn(d.get(k, null), lo, hi);
+    }
+
+    // ================================================================= users
+    // Ownership is the DOCUMENT ID. There is no userId field, and the
+    // allowlist forbids one from appearing — otherwise a future rule keying
+    // off resource.data.userId would read a client-planted value.
+    //
+    // create: signUpWithEmail / _loadOrCreate -> set(toMap)
+    // update: updateProfile                   -> set(toMap, merge: true)
+    // delete: no call site. Denied — removing the profile would orphan the
+    //         Firebase Auth user with no way to recreate it from the client.
+    // =====================================================================
     match /users/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
+
+      function userShapeOk(d) {
+        return keysAre(d, ['email', 'profile', 'goals', 'preferences'])
+
+          && str(d.email, 320)
+
+          && d.profile is map
+          && keysAre(d.profile, ['displayName', 'level', 'avatarUrl', 'weightKg'])
+          && str(d.profile.displayName, 80)
+          && d.profile.level in ['beginner', 'intermediate', 'advanced']
+          && optStr(d.profile, 'avatarUrl', 2048)
+          && optNumIn(d.profile, 'weightKg', 20, 400)
+
+          && d.goals is list
+          && d.goals.size() <= 4
+          && d.goals.hasOnly(
+               ['loseWeight', 'improveEndurance', 'prepareRace', 'firstHundredKm'])
+
+          && d.preferences is map
+          && keysAre(d.preferences,
+               ['metricUnits', 'darkMode', 'notificationsEnabled'])
+          && d.preferences.metricUnits is bool
+          && d.preferences.darkMode is bool
+          && d.preferences.notificationsEnabled is bool;
+      }
+
+      function isSelf() {
+        return signedIn() && uid() == userId;
+      }
+
+      // `get` on a non-existent document is allowed and required:
+      // authStateChanges() reads users/{uid} before the document exists.
+      // `list` is denied — nothing queries this collection.
+      allow get: if isSelf();
+      allow list: if false;
+
+      allow create: if isSelf() && userShapeOk(request.resource.data);
+
+      // Email is pinned. It is the only identity-shaped field a client can
+      // write, and updateProfile round-trips the stored value verbatim, so
+      // pinning costs nothing today. The second clause pre-authorises a
+      // future email-change flow driven by the verified token.
+      allow update: if isSelf()
+        && userShapeOk(request.resource.data)
+        && (request.resource.data.email == resource.data.email
+            || request.resource.data.email == request.auth.token.get('email', ''));
+
+      allow delete: if false;
     }
 
+    // ================================================================= bikes
+    // create: addBike    -> add(toMap)
+    // update: updateBike -> set(toMap, merge: true)
+    // delete: deleteBike exists on the repository. Allowed — an owner deleting
+    //         their own bike is always safe.
+    // list:   watchBikes -> where('userId','==',uid)
+    // =====================================================================
     match /bikes/{bikeId} {
-      allow read: if owns(resource.data);
-      allow create: if owns(request.resource.data);
-      allow update, delete: if owns(resource.data);
+
+      function bikeShapeOk(d) {
+        return keysAre(d, ['userId', 'name', 'frame', 'groupset', 'tires',
+                           'totalMileageKm', 'imageUrl', 'components'])
+          && d.userId is string
+          && str(d.name, 80)
+          && str(d.frame, 120)
+          && str(d.groupset, 120)
+          && str(d.tires, 120)
+          && numIn(d.totalMileageKm, 0, 500000)
+          && optStr(d, 'imageUrl', 2048)
+          && d.components is list
+          && d.components.size() <= 60;
+      }
+
+      allow get, list: if ownsStored();
+      allow create: if ownsIncoming() && bikeShapeOk(request.resource.data);
+      allow update: if ownsStored()
+        && ownerPinned()
+        && bikeShapeOk(request.resource.data);
+      allow delete: if ownsStored();
     }
 
+    // ================================================================= rides
+    // create: addRide -> add(toMap)
+    // update: NO call site anywhere. Denied outright.
+    // delete: deleteRide exists on the repository.
+    // list:   watchRides/getRides -> where('userId','==',uid)
+    //                                .orderBy('startedAt', desc)
+    //
+    // Field names differ from the Dart entity: distance (not distanceKm),
+    // elevation (not elevationM), avgSpeed (not avgSpeedKmh). The Firestore
+    // names are authoritative here.
+    // =====================================================================
     match /rides/{rideId} {
-      allow read: if owns(resource.data);
-      allow create: if owns(request.resource.data);
-      allow update, delete: if owns(resource.data);
+
+      function rideShapeOk(d) {
+        return keysAre(d, ['userId', 'bikeId', 'title', 'startedAt',
+                           'distance', 'elevation', 'avgSpeed', 'durationSec',
+                           'calories', 'cadence', 'heartRate', 'power'])
+          && d.userId is string
+          && optStr(d, 'bikeId', 200)
+          && str(d.title, 120)                 // AddRideScreen has no validator
+          && d.startedAt is timestamp
+          && numIn(d.distance, 0, 2000)
+          && numIn(d.elevation, -5000, 30000)
+          && numIn(d.avgSpeed, 0, 150)
+          && numIn(d.durationSec, 0, 1209600)  // 14 days
+          && numIn(d.calories, 0, 200000)
+          && optNumIn(d, 'cadence', 0, 250)
+          && optNumIn(d, 'heartRate', 0, 260)
+          && optNumIn(d, 'power', 0, 3000);
+      }
+
+      allow get, list: if ownsStored();
+      allow create: if ownsIncoming() && rideShapeOk(request.resource.data);
+      allow update: if false;
+      allow delete: if ownsStored();
     }
 
+    // ====================================================== maintenance_logs
+    // create: addLog -> add(toMap)
+    // update/delete: no method exists on BikesRepository. Denied.
+    // list:   watchLogs -> where('userId','==',uid).where('bikeId','==',id)
+    //                      .orderBy('serviceDate', desc)
+    //         The userId filter is REQUIRED: rules cannot filter a query, so a
+    //         bikeId-only listen is rejected wholesale.
+    //
+    // bikeId here is a required non-null string. Not optStr. See header.
+    // =====================================================================
     match /maintenance_logs/{logId} {
-      allow read: if owns(resource.data);
-      allow create: if owns(request.resource.data);
-      allow update, delete: if owns(resource.data);
+
+      function logShapeOk(d) {
+        return keysAre(d, ['userId', 'bikeId', 'component', 'mileageAtService',
+                           'status', 'serviceDate', 'notes'])
+          && d.userId is string
+          && str(d.bikeId, 200)
+          && str(d.component, 80)
+          && numIn(d.mileageAtService, 0, 500000)
+          && d.status in ['ok', 'dueSoon', 'overdue']
+          && d.serviceDate is timestamp
+          && str(d.notes, 2000);
+      }
+
+      allow get, list: if ownsStored();
+      allow create: if ownsIncoming() && logShapeOk(request.resource.data);
+      allow update, delete: if false;
     }
 
+    // ============================================================ ai_reports
+    // create: saveReport -> add(toMap). CLIENT-WRITTEN — see the header note
+    //         on report integrity. `type` is pinned to the literal the list
+    //         query filters on, so a document can never become invisible to
+    //         the app while still occupying the owner's collection.
+    // update/delete: no method exists on ReportsRepository. Denied.
+    //         Data-subject erasure is an Admin SDK job, which bypasses rules.
+    // list:   watchReports -> where('userId','==',uid)
+    //                         .where('type','==','bikeHealth')
+    //                         .orderBy('createdAt', desc)
+    // =====================================================================
     match /ai_reports/{reportId} {
-      allow read: if owns(resource.data);
-      allow create: if owns(request.resource.data);
-      allow update, delete: if owns(resource.data);
+
+      function reportShapeOk(d) {
+        return keysAre(d, ['userId', 'bikeId', 'type', 'imageUrl',
+                           'healthScore', 'riskLevel', 'summary',
+                           'recommendations', 'createdAt'])
+          && d.userId is string
+          && optStr(d, 'bikeId', 200)
+          && d.type == 'bikeHealth'
+          && optStr(d, 'imageUrl', 2048)
+          && numIn(d.healthScore, 0, 100)
+          && d.riskLevel in ['low', 'medium', 'high']
+          && str(d.summary, 4000)
+          && d.recommendations is list
+          && d.recommendations.size() <= 40
+          && d.createdAt is timestamp;
+      }
+
+      allow get, list: if ownsStored();
+      allow create: if ownsIncoming() && reportShapeOk(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // ============================================================== ai_usage
+    // ai_usage/{uid}_{YYYY-MM-DD} — server-only quota counter, written by the
+    // charge() transaction in functions/src/auth.ts via the Admin SDK, which
+    // bypasses these rules. A client that could read it would learn its own
+    // quota; a client that could write it could reset its quota and drain the
+    // Anthropic key. Both denied.
+    // =====================================================================
+    match /ai_usage/{usageId} {
+      allow read, write: if false;
+    }
+
+    // Everything else. Firestore is default-deny, so this grants nothing and
+    // denies nothing already denied — rule conditions are OR-ed, never AND-ed,
+    // so it cannot override the blocks above. Kept as executable documentation
+    // and as the subject of an explicit test, so that adding a collection is a
+    // conscious decision rather than an oversight.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

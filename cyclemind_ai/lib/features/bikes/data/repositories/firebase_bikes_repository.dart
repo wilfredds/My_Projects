@@ -55,8 +55,9 @@ class FirebaseBikesRepository implements BikesRepository {
   }
 
   @override
-  Stream<List<MaintenanceLog>> watchLogs(String bikeId) {
+  Stream<List<MaintenanceLog>> watchLogs(String userId, String bikeId) {
     return _logs
+        .where('userId', isEqualTo: userId)
         .where('bikeId', isEqualTo: bikeId)
         .orderBy('serviceDate', descending: true)
         .snapshots()

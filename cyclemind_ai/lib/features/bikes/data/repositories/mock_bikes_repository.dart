@@ -47,10 +47,10 @@ class MockBikesRepository implements BikesRepository {
   }
 
   @override
-  Stream<List<MaintenanceLog>> watchLogs(String bikeId) async* {
-    yield MockStore.instance.logs.where((l) => l.bikeId == bikeId).toList();
-    yield* _logsController.stream
-        .map((all) => all.where((l) => l.bikeId == bikeId).toList());
+  Stream<List<MaintenanceLog>> watchLogs(String userId, String bikeId) async* {
+    bool mine(MaintenanceLog l) => l.userId == userId && l.bikeId == bikeId;
+    yield MockStore.instance.logs.where(mine).toList();
+    yield* _logsController.stream.map((all) => all.where(mine).toList());
   }
 
   @override
