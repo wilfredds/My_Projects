@@ -279,19 +279,22 @@ async function finishRide() {
   showSummary(summary);
 
   try {
-    const { logRide } = await import('./tracker.js');
+    const { logRide, localDate, saveLocalTrack } = await import('./tracker.js');
     if (summary.distanceKm > 0.05) {
-      await logRide({
+      const ref = await logRide({
         distanceKm: Number(summary.distanceKm.toFixed(2)),
         durationMinutes: Math.round(summary.durationMin),
-        date: new Date().toISOString().split('T')[0],
-        routeName: 'Co-pilot ride',
+        date: localDate(),               // local date: UTC would say "yesterday" before 8 AM
+        routeName: '',
         notes: '',
+        source: 'gps',
         avgSpeedKmh: Number(summary.avgSpeedKmh.toFixed(1)),
         maxSpeedKmh: Number(summary.maxSpeedKmh.toFixed(1)),
         elevGainM: summary.elevGainM,
         calories: summary.calories,
       });
+      // The track stays on this phone (history thumbnail); it is never uploaded.
+      saveLocalTrack(ref?.id, summary.track);
     }
   } catch (_) { /* logging is best-effort */ }
 }

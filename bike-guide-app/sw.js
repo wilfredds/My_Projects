@@ -1,5 +1,5 @@
-const CACHE_NAME = 'bikeguide-v18';
-const RUNTIME_CACHE = 'bikeguide-runtime-v18';
+const CACHE_NAME = 'bikeguide-v19';
+const RUNTIME_CACHE = 'bikeguide-runtime-v19';
 const TILE_CACHE = 'bikeguide-tiles-v2';
 const MAX_TILES = 1200; // cap cached map tiles so storage stays bounded
 

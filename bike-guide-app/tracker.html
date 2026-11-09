@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Ride Tracker - RidePH</title>
+  <title>Ride Log - RidePH</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2d6a4f">
+  <meta name="theme-color" content="#0B5E3B">
   <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,282 +15,447 @@
   <link href="css/style.css" rel="stylesheet">
   <link href="css/system.css" rel="stylesheet">
   <style>
-    .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:16px 20px; }
-    .stat-card { background:#fff; border-radius:16px; padding:16px; box-shadow:0 4px 14px rgba(0,0,0,0.08); text-align:center; }
-    .stat-card .sv { font-size:1.6rem; font-weight:800; color:var(--green-primary); }
-    .stat-card .sl { font-size:0.7rem; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
-    .log-form { margin:0 20px 20px; background:#fff; border-radius:20px; box-shadow:0 8px 24px rgba(0,0,0,0.1); padding:20px; }
-    .log-form h3 { font-size:1rem; margin-bottom:14px; }
-    .form-group { margin-bottom:14px; }
-    .form-group label { font-size:0.78rem; font-weight:600; color:#555; display:block; margin-bottom:6px; }
-    .form-group input, .form-group select, .form-group textarea {
-      width:100%; padding:11px 14px;
-      border:1.5px solid #e0e0e0; border-radius:12px;
-      font-family:'Overpass',sans-serif; font-size:0.85rem;
-      outline:none; transition:border-color 0.2s;
-      background:#fafafa;
+    /* Ride log. Same language as home: one guide sign to record a ride,
+       numbers on hairlines, history as grouped lists. Everything is scoped
+       under .tk and uses its own class names, so the older .ride-item /
+       .stat-card rules in style.css and system.css don't apply. */
+    .tk { padding: 16px 18px 28px; }
+
+    .tk .sign-panel {
+      display: flex; align-items: center; gap: 16px; padding: 16px 18px;
+      background: var(--sign); color: var(--sign-ink); border-radius: 12px; text-decoration: none;
+      box-shadow: inset 0 0 0 3px var(--sign), inset 0 0 0 5px rgba(255,255,255,0.92);
     }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#2d6a4f; background:#fff; }
-    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .submit-btn { width:100%; padding:14px; background:linear-gradient(135deg,#2d6a4f,#52b788); color:#fff; border:none; border-radius:50px; font-family:'Overpass',sans-serif; font-size:0.95rem; font-weight:700; cursor:pointer; }
-    .rides-list { padding:0 20px 20px; }
-    .rides-list h3 { font-size:0.95rem; font-weight:700; margin-bottom:12px; }
-    .ride-item { background:#fff; border-radius:14px; padding:14px; margin-bottom:10px; box-shadow:0 2px 10px rgba(0,0,0,0.07); display:flex; align-items:center; gap:12px; }
-    .ride-icon { width:42px; height:42px; background:#f0f7f4; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#2d6a4f; font-size:1.1rem; flex-shrink:0; }
-    .ride-info { flex:1; }
-    .ride-name { font-size:0.88rem; font-weight:700; color:#1a1a2e; }
-    .ride-meta { font-size:0.72rem; color:#888; margin-top:2px; }
-    .ride-km { font-size:1rem; font-weight:800; color:#2d6a4f; }
-    .empty-state { text-align:center; padding:40px 20px; color:#aaa; }
+    .tk .sign-arrow { width: 40px; height: 40px; flex-shrink: 0; }
+    .tk .sign-arrow svg { display: block; width: 100%; height: 100%; }
+    .tk .sign-title { display: block; font-size: 1.32rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; color: #fff; }
+    .tk .sign-sub { display: block; font-size: 0.84rem; font-weight: 500; line-height: 1.35; color: rgba(255,255,255,0.88); margin-top: 3px; }
 
-    /* GPS record CTA */
-    .gps-cta { display:flex; align-items:center; gap:14px; margin:16px 20px 4px; padding:16px 18px;
-      background:linear-gradient(135deg,#2d6a4f,#52b788); border-radius:20px; text-decoration:none;
-      box-shadow:0 8px 24px rgba(45,106,79,0.35); color:#fff; }
-    .gps-cta-icon { width:46px; height:46px; border-radius:14px; background:rgba(255,255,255,0.2);
-      display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
-    .gps-cta-title { font-size:0.95rem; font-weight:700; }
-    .gps-cta-sub { font-size:0.72rem; opacity:0.85; }
+    .tk-stats { display: grid; grid-template-columns: 1fr 1fr; margin-top: 18px; border-top: 1px solid var(--hairline); }
+    .tk-stats .st { padding: 12px 0 11px; border-bottom: 1px solid var(--hairline); min-width: 0; }
+    .tk-stats .st:nth-child(even) { padding-left: 14px; border-left: 1px solid var(--hairline); }
+    .tk-stats .v {
+      display: block; white-space: nowrap; color: var(--ink);
+      font-family: var(--font-num); font-weight: 600; font-size: 1.45rem; line-height: 1.1; letter-spacing: -0.03em;
+    }
+    .tk-stats .v small { font-size: 0.8rem; font-weight: 500; color: var(--ink-4); }
+    .tk-stats .l { display: block; font-size: 0.76rem; color: var(--ink-3); margin-top: 2px; }
 
-    /* GPS ride extras */
-    .ride-badge-gps { display:inline-block; background:#f0f7f4; color:#2d6a4f; font-size:0.58rem; font-weight:700;
-      padding:2px 7px; border-radius:50px; text-transform:uppercase; letter-spacing:0.5px; margin-left:6px; vertical-align:middle; }
-    [data-theme="dark"] .ride-badge-gps { background:#16251d; color:#7fd1a8; }
-    .route-thumb { width:54px; height:54px; border-radius:12px; background:#eef4f1; flex-shrink:0; overflow:hidden; }
-    [data-theme="dark"] .route-thumb { background:#141a23; }
-    .ride-substats { display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; }
-    .ride-substats span { font-size:0.66rem; color:var(--text-muted); }
-    .ride-substats i { color:var(--green-primary); }
+    .tk-log { margin-top: 18px; background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px; }
+    .tk-log summary {
+      list-style: none; display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 12px 14px; font-size: 0.95rem; font-weight: 700; color: var(--ink);
+    }
+    .tk-log summary::-webkit-details-marker { display: none; }
+    .tk-log .plus {
+      width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--sunken); color: var(--sign); font-size: 0.85rem;
+    }
+    [data-theme="dark"] .tk-log .plus { color: var(--brand); }
+    .tk-log .chev { margin-left: auto; color: var(--ink-4); font-size: 0.8rem; transition: transform 0.15s linear; }
+    .tk-log[open] .chev { transform: rotate(180deg); }
+    .tk-form { padding: 2px 14px 16px; border-top: 1px solid var(--hairline); }
+    .tk-form .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tk-form label { display: block; margin-top: 12px; min-width: 0; }
+    .tk-form .lab { display: block; font-size: 0.78rem; font-weight: 700; color: var(--ink-2); margin-bottom: 5px; }
+    .tk-form .opt { font-weight: 500; color: var(--ink-4); }
+    .tk-form input, .tk-form textarea {
+      display: block; width: 100%; min-width: 0; padding: 11px 12px;
+      border: 1px solid var(--hairline); border-radius: 9px; background: var(--canvas); color: var(--ink);
+      font: inherit; font-size: 0.95rem;
+    }
+    .tk-form textarea { resize: vertical; min-height: 64px; }
+    .tk-form input::placeholder, .tk-form textarea::placeholder { color: var(--ink-4); }
+    .tk-form input:focus, .tk-form textarea:focus { outline: none; border-color: var(--sign); box-shadow: 0 0 0 3px rgba(11,94,59,0.18); }
+    .tk-form .num { font-family: var(--font-num); }
+    .tk .tk-pace { font-family: var(--font-num); font-size: 0.78rem; color: var(--ink-3); margin: 10px 0 0; min-height: 1.3em; }
+    .tk .tk-pace.bad { color: var(--stop); }
+    .tk-save {
+      width: 100%; margin-top: 12px; padding: 13px; border: 0; border-radius: 10px; cursor: pointer;
+      background: var(--sign); color: #fff; font: inherit; font-size: 0.98rem; font-weight: 700;
+    }
+    .tk-save:disabled { opacity: 0.6; cursor: default; }
+
+    .tk-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 26px 2px 0; }
+    .tk-h h2 { font-size: 0.8rem; font-weight: 700; color: var(--ink-3); margin: 0; letter-spacing: 0; text-transform: none; }
+    .tk-hint { font-size: 0.74rem; color: var(--ink-4); }
+    .tk .tk-status { font-size: 0.82rem; color: var(--ink-3); margin: 8px 2px 0; }
+    .tk-month { margin-top: 12px; }
+    .tk-month-h {
+      display: flex; justify-content: space-between; gap: 12px; margin: 0 2px 6px;
+      font-size: 0.8rem; font-weight: 700; color: var(--ink-2); letter-spacing: 0; text-transform: none;
+    }
+    .tk-month-h .sum { font-family: var(--font-num); font-weight: 500; color: var(--ink-3); white-space: nowrap; }
+    .tk-rows { background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+    .tk-swipe { position: relative; overflow: hidden; transition: height 0.25s ease, opacity 0.25s ease; }
+    .tk-swipe + .tk-swipe { border-top: 1px solid var(--hairline); }
+    .tk-del {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+      padding-right: 20px; border: 0; background: var(--stop); color: #fff; cursor: pointer;
+      font: inherit; font-size: 0.88rem; font-weight: 700;
+    }
+    .tk-row {
+      position: relative; z-index: 1; display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center;
+      padding: 11px 14px; background: var(--surface); touch-action: pan-y;
+      transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .tk-swipe:focus-within .tk-row { transform: translateX(-104px); }
+    .tk-thumb {
+      width: 44px; height: 44px; border-radius: 9px; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--sunken); color: var(--ink-3); font-size: 0.95rem;
+    }
+    .tk-thumb svg { display: block; width: 44px; height: 44px; }
+    .tk-thumb .trk { fill: none; stroke: var(--sign); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+    [data-theme="dark"] .tk-thumb .trk { stroke: var(--brand); }
+    .tk-thumb .dot { fill: var(--ink); }
+    .tk-info { min-width: 0; }
+    .tk-name { display: block; font-size: 0.95rem; font-weight: 700; line-height: 1.25; color: var(--ink); }
+    .tk-gps {
+      display: inline-block; margin-left: 6px; padding: 1px 5px 0; vertical-align: 2px;
+      border: 1px solid var(--hairline); border-radius: 4px;
+      font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; color: var(--ink-3);
+    }
+    .tk-meta { display: block; font-size: 0.78rem; line-height: 1.35; color: var(--ink-3); margin-top: 1px; }
+    .tk-meta .n { font-family: var(--font-num); }
+    .tk-note { display: block; font-size: 0.8rem; line-height: 1.35; color: var(--ink-2); margin-top: 3px; overflow-wrap: anywhere; }
+    .tk-km { font-family: var(--font-num); font-weight: 600; font-size: 1.05rem; color: var(--ink); white-space: nowrap; }
+    .tk-km small { font-size: 0.72rem; font-weight: 500; color: var(--ink-4); }
+    .tk-empty {
+      margin-top: 10px; padding: 22px 16px; text-align: center; font-size: 0.9rem; line-height: 1.5;
+      color: var(--ink-3); background: var(--surface); border: 1px dashed var(--hairline); border-radius: 12px;
+    }
+    .tk-empty b { color: var(--ink-2); }
+    .tk-retry {
+      margin-top: 10px; padding: 9px 16px; border-radius: 9px; cursor: pointer;
+      border: 1px solid var(--hairline); background: var(--canvas); color: var(--ink); font: inherit; font-weight: 700;
+    }
   </style>
 </head>
 <body>
 <div class="page-wrapper">
   <div class="top-bar">
-    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
-    <span class="app-name"><i class="fa-solid fa-chart-line" style="color:#f4722b;margin-right:6px;"></i>Ride Tracker</span>
+    <a href="dashboard.html" aria-label="Back to home" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name">Ride log</span>
     <div class="top-actions"><span class="rider-badge" id="rider-badge"></span></div>
   </div>
 
-  <!-- Record with GPS CTA -->
-  <a href="ride.html" class="gps-cta">
-    <div class="gps-cta-icon"><i class="fa-solid fa-shield-heart"></i></div>
-    <div class="gps-cta-text">
-      <div class="gps-cta-title">Start a Ride</div>
-      <div class="gps-cta-sub">Voice hazard alerts · live share · GPS</div>
-    </div>
-    <i class="fa-solid fa-chevron-right" style="margin-left:auto;opacity:0.8;"></i>
-  </a>
+  <main class="tk">
+    <a href="ride.html" class="sign-panel">
+      <span class="sign-arrow" aria-hidden="true">
+        <svg viewBox="0 0 40 40"><path d="M20 4 L34 19 H25 V36 H15 V19 H6 Z" fill="#fff"/></svg>
+      </span>
+      <span>
+        <span class="sign-title">Record a ride</span>
+        <span class="sign-sub">GPS, voice warnings for what's ahead, and live share</span>
+      </span>
+    </a>
 
-  <!-- Stats -->
-  <div class="stats-grid" id="stats-grid">
-    <div class="stat-card"><div class="sv" id="s-rides">0</div><div class="sl">Total Rides</div></div>
-    <div class="stat-card"><div class="sv" id="s-km">0</div><div class="sl">Total km</div></div>
-    <div class="stat-card"><div class="sv" id="s-avg">0</div><div class="sl">Avg Speed km/h</div></div>
-    <div class="stat-card"><div class="sv" id="s-best">0</div><div class="sl">Longest Ride km</div></div>
-  </div>
+    <div class="tk-stats" aria-label="Your totals">
+      <div class="st"><span class="v" id="s-rides">0</span><span class="l">rides</span></div>
+      <div class="st"><span class="v"><span id="s-km">0.0</span><small> km</small></span><span class="l">total distance</span></div>
+      <div class="st"><span class="v"><span id="s-avg">0.0</span><small> km/h</small></span><span class="l">average speed</span></div>
+      <div class="st"><span class="v"><span id="s-best">0.0</span><small> km</small></span><span class="l">longest ride</span></div>
+    </div>
 
-  <!-- Log Form -->
-  <div class="log-form">
-    <h3><i class="fa-solid fa-plus" style="color:#2d6a4f;"></i> Log a Ride</h3>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Distance (km)*</label>
-        <input type="number" id="f-dist" placeholder="15.5" min="0.1" step="0.1" required>
-      </div>
-      <div class="form-group">
-        <label>Duration (min)*</label>
-        <input type="number" id="f-dur" placeholder="60" min="1" required>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Date*</label>
-      <input type="date" id="f-date" required>
-    </div>
-    <div class="form-group">
-      <label>Route Name</label>
-      <input type="text" id="f-route" placeholder="BGC Loop, Tagaytay, etc.">
-    </div>
-    <div class="form-group">
-      <label>Notes</label>
-      <textarea id="f-notes" rows="2" placeholder="How was the ride?"></textarea>
-    </div>
-    <button class="submit-btn" onclick="submitRide()"><i class="fa-solid fa-floppy-disk"></i> Save Ride</button>
-    <p id="log-msg" style="text-align:center;font-size:0.8rem;margin-top:10px;color:#2d6a4f;display:none;"></p>
-  </div>
+    <details class="tk-log" id="log">
+      <summary>
+        <span class="plus" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+        Log a ride you didn't record
+        <i class="fa-solid fa-chevron-down chev" aria-hidden="true"></i>
+      </summary>
+      <form class="tk-form" id="log-form" novalidate>
+        <div class="pair">
+          <label><span class="lab">Distance (km)</span>
+            <input class="num" type="number" id="f-dist" inputmode="decimal" min="0.1" max="400" step="0.1" placeholder="15.5" required></label>
+          <label><span class="lab">Time (minutes)</span>
+            <input class="num" type="number" id="f-dur" inputmode="numeric" min="1" max="1440" step="1" placeholder="60" required></label>
+        </div>
+        <p class="tk-pace" id="pace" aria-live="polite"></p>
+        <label><span class="lab">Date</span>
+          <input class="num" type="date" id="f-date" required></label>
+        <label><span class="lab">Route <span class="opt">(optional)</span></span>
+          <input type="text" id="f-route" maxlength="60" placeholder="BGC loop, Tagaytay…"></label>
+        <label><span class="lab">Notes <span class="opt">(optional)</span></span>
+          <textarea id="f-notes" rows="2" maxlength="300" placeholder="How was it?"></textarea></label>
+        <button type="submit" class="tk-save" id="save-btn">Save ride</button>
+      </form>
+    </details>
 
-  <!-- Rides List -->
-  <div class="rides-list">
-    <h3>Ride History</h3>
-    <div id="rides-container"><div class="empty-state"><i class="fa-solid fa-person-biking" style="font-size:2rem;margin-bottom:8px;display:block;"></i>No rides yet. Log your first one!</div></div>
-  </div>
+    <div class="tk-h">
+      <h2>Ride history</h2>
+      <span class="tk-hint" id="swipe-hint" hidden>Swipe a ride left to delete</span>
+    </div>
+    <p class="tk-status" id="tk-status" hidden></p>
+    <div id="rides-container"><p class="tk-status">Loading your rides…</p></div>
+  </main>
 
   <nav class="bottom-nav" id="bottom-nav"></nav>
 </div>
 
 <script type="module">
   import { initPage, toast, countUp } from './js/app.js';
-  import { logRide, getRides, deleteRide, calcStats } from './js/tracker.js';
+  import { logRide, getRides, deleteRide, calcStats, localDate, cachedRides, cacheRides,
+           getLocalTrack, moveLocalTrack, rideForResave } from './js/tracker.js';
   initPage('tracker');
 
-  // Set today's date as default
-  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const MONTH = new Intl.DateTimeFormat('en-PH', { month: 'long', year: 'numeric' });
+  const DAY   = new Intl.DateTimeFormat('en-PH', { weekday: 'short', month: 'short', day: 'numeric' });
+  const parseDate = s => { const [y, m, d] = String(s || '').split('-').map(Number); return y && m && d ? new Date(y, m - 1, d) : null; };
+  const dayLabel = s => { const d = parseDate(s); return d ? DAY.format(d) : ''; };
+  const fmtDuration = min => { if (!min) return ''; const h = Math.floor(min / 60), m = min % 60; return h ? `${h} h${m ? ` ${m} min` : ''}` : `${m} min`; };
+  const speedOf = r => r.avgSpeedKmh ?? (r.durationMinutes ? r.distanceKm / (r.durationMinutes / 60) : null);
 
   let rides = [];
-  const pendingDeletes = {}; // id -> timeout (debounced server delete, allows Undo)
-  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
 
-  function setStats(list) {
-    const stats = calcStats(list);
-    countUp(document.getElementById('s-rides'), stats.totalRides);
-    countUp(document.getElementById('s-km'),    stats.totalKm,    { decimals: 1 });
-    countUp(document.getElementById('s-avg'),   stats.avgSpeed,   { decimals: 1 });
-    countUp(document.getElementById('s-best'),  stats.longestRide,{ decimals: 1 });
+  // ── Form ──
+  $('f-date').value = localDate();
+  $('f-date').max = localDate();
+
+  function problem(dist, dur, date) {
+    if (!(dist > 0)) return 'Enter the distance in km.';
+    if (dist > 400) return 'That distance looks too long. Check the km.';
+    if (!(dur >= 1)) return 'Enter how long the ride took, in minutes.';
+    if (dur > 1440) return "That's more than a day. Check the minutes.";
+    const kmh = dist / (dur / 60);
+    if (kmh > 60) return `That works out to ${kmh.toFixed(0)} km/h. Check the distance and time.`;
+    if (!date) return 'Pick the date of the ride.';
+    if (date > localDate()) return "The date can't be in the future.";
+    return null;
   }
 
-  const EMPTY = '<div class="empty-state"><i class="fa-solid fa-person-biking" style="font-size:2rem;margin-bottom:8px;display:block;"></i>No rides yet. Log your first one!</div>';
+  function showPace() {
+    const dist = parseFloat($('f-dist').value), dur = parseInt($('f-dur').value, 10);
+    const el = $('pace');
+    if (dist > 0 && dur > 0) {
+      const kmh = dist / (dur / 60);
+      el.textContent = kmh > 60 ? `${kmh.toFixed(1)} km/h — too fast to be right` : `${kmh.toFixed(1)} km/h average`;
+      el.classList.toggle('bad', kmh > 60);
+    } else { el.textContent = ''; el.classList.remove('bad'); }
+  }
+  $('f-dist').addEventListener('input', showPace);
+  $('f-dur').addEventListener('input', showPace);
 
-  async function loadRides() {
-    rides = await getRides();
-    setStats(rides);
-    renderRides();
+  $('log-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const dist = parseFloat($('f-dist').value);
+    const dur  = parseInt($('f-dur').value, 10);
+    const date = $('f-date').value;
+    const err = problem(dist, dur, date);
+    if (err) { toast(err, { type: 'error' }); return; }
+    const btn = $('save-btn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      await logRide({
+        distanceKm: Math.round(dist * 10) / 10, durationMinutes: dur, date, source: 'manual',
+        routeName: $('f-route').value.trim(), notes: $('f-notes').value.trim(),
+      });
+      ['f-dist', 'f-dur', 'f-route', 'f-notes'].forEach(id => { $(id).value = ''; });
+      showPace();
+      toast(`Saved: ${dist} km on ${dayLabel(date)}.`, { type: 'success' });
+      await loadRides();
+    } catch (_) {
+      toast("Couldn't save the ride. Check your connection.", { type: 'error' });
+    } finally {
+      btn.disabled = false; btn.textContent = 'Save ride';
+    }
+  });
+
+  // ── Stats ──
+  function setStats(list, animate) {
+    const s = calcStats(list);
+    const put = (id, v, d) => animate ? countUp($(id), v, { decimals: d }) : ($(id).textContent = Number(v).toFixed(d));
+    put('s-rides', s.totalRides, 0);
+    put('s-km', s.totalKm, 1);
+    put('s-avg', s.avgSpeed, 1);
+    put('s-best', s.longestRide, 1);
   }
 
-  // Build a tiny SVG thumbnail of a GPS track (fast, offline, no map tiles)
-  function routeThumb(track) {
-    if (!Array.isArray(track) || track.length < 2) return '';
-    const lats = track.map(p => p.lat), lngs = track.map(p => p.lng);
-    const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-    const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
-    const w = 54, h = 54, pad = 7;
-    const spanLat = (maxLat - minLat) || 1e-6, spanLng = (maxLng - minLng) || 1e-6;
-    const scale = Math.min((w - 2 * pad) / spanLng, (h - 2 * pad) / spanLat);
-    const offX = (w - spanLng * scale) / 2, offY = (h - spanLat * scale) / 2;
-    const pts = track.map(p => {
-      const x = offX + (p.lng - minLng) * scale;
-      const y = h - (offY + (p.lat - minLat) * scale); // flip Y (north up)
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
-    return `<svg class="route-thumb" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-      <polyline points="${pts}" fill="none" stroke="#f4722b" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-      <circle cx="${pts.split(' ')[0].split(',')[0]}" cy="${pts.split(' ')[0].split(',')[1]}" r="3" fill="#2d6a4f"/>
-    </svg>`;
+  // ── History ──
+  // GPS track thumbnail from the copy kept on this phone (north up).
+  function trackSvg(pts) {
+    const lats = pts.map(p => p[0]), lngs = pts.map(p => p[1]);
+    const minLat = Math.min(...lats), maxLat = Math.max(...lats), minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+    const S = 44, pad = 7;
+    const kx = Math.cos(((minLat + maxLat) / 2) * Math.PI / 180);
+    const spanX = Math.max((maxLng - minLng) * kx, 1e-6), spanY = Math.max(maxLat - minLat, 1e-6);
+    const scale = Math.min((S - 2 * pad) / spanX, (S - 2 * pad) / spanY);
+    const ox = (S - spanX * scale) / 2, oy = (S - spanY * scale) / 2;
+    const xy = pts.map(([lat, lng]) => [ox + (lng - minLng) * kx * scale, S - (oy + (lat - minLat) * scale)]);
+    const line = xy.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+    return `<svg viewBox="0 0 ${S} ${S}" aria-hidden="true"><polyline class="trk" points="${line}"/><circle class="dot" cx="${xy[0][0].toFixed(1)}" cy="${xy[0][1].toFixed(1)}" r="2.6"/></svg>`;
+  }
+
+  function thumb(r) {
+    const t = r.source === 'gps' ? getLocalTrack(r.id) : null;
+    if (t && t.length > 1) return `<span class="tk-thumb">${trackSvg(t)}</span>`;
+    return `<span class="tk-thumb"><i class="fa-solid ${r.source === 'gps' ? 'fa-location-arrow' : 'fa-pen'}" aria-hidden="true"></i></span>`;
+  }
+
+  function rowHtml(r) {
+    const name = r.routeName || (r.source === 'gps' ? 'Recorded ride' : 'Ride');
+    const kmh = speedOf(r);
+    const when = [dayLabel(r.date), fmtDuration(r.durationMinutes)].filter(Boolean).map(esc).join(' · ');
+    const how = [
+      kmh ? `<span class="n">${esc(Number(kmh).toFixed(1))}</span> km/h` : '',
+      r.source === 'gps' && r.elevGainM ? `+<span class="n">${esc(Math.round(r.elevGainM))}</span> m climb` : '',
+      r.source === 'gps' && r.calories ? `about ${esc(Math.round(r.calories))} kcal` : '',
+    ].filter(Boolean).join(' · ');
+    return `
+      <div class="tk-swipe" data-id="${esc(r.id)}">
+        <button type="button" class="tk-del" aria-label="Delete ${esc(name)}, ${esc(dayLabel(r.date))}">Delete <i class="fa-solid fa-trash" aria-hidden="true"></i></button>
+        <div class="tk-row">
+          ${thumb(r)}
+          <span class="tk-info">
+            <span class="tk-name">${esc(name)}${r.source === 'gps' ? '<span class="tk-gps">GPS</span>' : ''}</span>
+            <span class="tk-meta">${when}</span>
+            ${how ? `<span class="tk-meta">${how}</span>` : ''}
+            ${r.notes ? `<span class="tk-note">${esc(r.notes)}</span>` : ''}
+          </span>
+          <span class="tk-km">${esc(r.distanceKm.toFixed(1))}<small> km</small></span>
+        </div>
+      </div>`;
   }
 
   function renderRides() {
-    const container = document.getElementById('rides-container');
-    if (rides.length === 0) { container.innerHTML = EMPTY; return; }
-    container.innerHTML = rides.map(r => {
-      const isGps = r.source === 'gps';
-      const icon = isGps && r.track ? routeThumb(r.track)
-        : `<div class="ride-icon"><i class="fa-solid fa-person-biking"></i></div>`;
-      const substats = isGps ? `
-        <div class="ride-substats">
-          ${r.avgSpeed != null ? `<span><i class="fa-solid fa-gauge-high"></i> ${esc(r.avgSpeed)} km/h</span>` : ''}
-          ${r.elevationGain ? `<span><i class="fa-solid fa-mountain"></i> ${esc(r.elevationGain)} m</span>` : ''}
-          ${r.calories ? `<span><i class="fa-solid fa-fire"></i> ${esc(r.calories)} kcal</span>` : ''}
-        </div>` : '';
+    const box = $('rides-container');
+    $('swipe-hint').hidden = !rides.length;
+    if (!rides.length) {
+      box.innerHTML = '<div class="tk-empty">No rides yet.<br>Tap <b>Record a ride</b> above, or log one you did without the app.</div>';
+      return;
+    }
+    const months = new Map();
+    for (const r of rides) {
+      const key = (r.date || '').slice(0, 7);
+      if (!months.has(key)) months.set(key, []);
+      months.get(key).push(r);
+    }
+    box.innerHTML = [...months].map(([key, list]) => {
+      const first = parseDate(`${key}-01`);
+      const km = list.reduce((s, r) => s + r.distanceKm, 0);
       return `
-      <div class="ride-swipe" data-id="${esc(r.id)}">
-        <div class="ride-delete"><span class="swipe-hint">Swipe to delete</span> <i class="fa-solid fa-trash"></i></div>
-        <div class="ride-item">
-          ${icon}
-          <div class="ride-info">
-            <div class="ride-name">${esc(r.routeName) || 'Unnamed Ride'}${isGps ? '<span class="ride-badge-gps">GPS</span>' : ''}</div>
-            <div class="ride-meta">${esc(r.date)} · ${esc(r.durationMinutes) || '?'} min</div>
-            ${substats}
-            ${r.notes ? `<div class="ride-meta" style="margin-top:2px;">${esc(r.notes)}</div>` : ''}
-          </div>
-          <div class="ride-km">${esc(r.distanceKm)} km</div>
-        </div>
-      </div>`;
+        <section class="tk-month">
+          <h3 class="tk-month-h"><span>${first ? esc(MONTH.format(first)) : 'Undated'}</span>
+            <span class="sum">${list.length} ride${list.length === 1 ? '' : 's'} · ${km.toFixed(1)} km</span></h3>
+          <div class="tk-rows">${list.map(rowHtml).join('')}</div>
+        </section>`;
     }).join('');
     attachSwipe();
   }
 
+  // Swipe left to reveal Delete; a long swipe deletes straight away.
+  // Keyboard users reach the same button with Tab (the row slides aside).
   function attachSwipe() {
-    document.querySelectorAll('.ride-swipe').forEach(row => {
-      const item = row.querySelector('.ride-item');
-      const OPEN = -76;
-      let startX = 0, dx = 0, dragging = false;
+    const OPEN = -104;
+    document.querySelectorAll('.tk-swipe').forEach(row => {
+      const item = row.querySelector('.tk-row');
+      let x0 = 0, y0 = 0, dx = 0, active = false, horizontal = null, wasOpen = false;
       item.addEventListener('pointerdown', e => {
-        dragging = true; startX = e.clientX; dx = 0;
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        document.querySelectorAll('.tk-row').forEach(o => { if (o !== item) o.style.transform = ''; });
+        active = true; horizontal = null; dx = 0; x0 = e.clientX; y0 = e.clientY;
+        wasOpen = item.style.transform.includes(`${OPEN}px`);
         item.style.transition = 'none';
-        item.setPointerCapture(e.pointerId);
       });
       item.addEventListener('pointermove', e => {
-        if (!dragging) return;
-        dx = e.clientX - startX;
-        if (dx > 0) dx *= 0.25; // resist swiping right
-        item.style.transform = `translateX(${dx}px)`;
+        if (!active) return;
+        const mx = e.clientX - x0, my = e.clientY - y0;
+        if (horizontal === null) {
+          if (Math.abs(mx) < 6 && Math.abs(my) < 6) return;
+          horizontal = Math.abs(mx) > Math.abs(my);
+          if (horizontal) { try { item.setPointerCapture(e.pointerId); } catch (_) {} }
+        }
+        if (!horizontal) return;
+        const base = wasOpen ? OPEN : 0;
+        dx = base + (mx > 0 ? mx * (wasOpen ? 1 : 0.25) : mx);
+        item.style.transform = `translateX(${Math.min(dx, 0)}px)`;
       });
-      const finish = () => {
-        if (!dragging) return;
-        dragging = false;
+      const end = () => {
+        if (!active) return;
+        active = false;
         item.style.transition = '';
-        const threshold = row.clientWidth * 0.4;
-        if (dx < -threshold) { item.style.transform = 'translateX(-110%)'; removeRide(row); }
-        else if (dx < OPEN / 1.5) { item.style.transform = `translateX(${OPEN}px)`; }
-        else { item.style.transform = ''; }
-        dx = 0;
+        if (!horizontal) { if (wasOpen) item.style.transform = ''; return; }
+        if (dx < -row.clientWidth * 0.45) { item.style.transform = 'translateX(-110%)'; removeRide(row); }
+        else if (dx < OPEN / 2) item.style.transform = `translateX(${OPEN}px)`;
+        else item.style.transform = '';
       };
-      item.addEventListener('pointerup', finish);
-      item.addEventListener('pointercancel', finish);
-      row.querySelector('.ride-delete').addEventListener('click', () => {
-        item.style.transition = ''; item.style.transform = 'translateX(-110%)';
+      item.addEventListener('pointerup', end);
+      item.addEventListener('pointercancel', end);
+      row.querySelector('.tk-del').addEventListener('click', () => {
+        item.style.transform = 'translateX(-110%)';
         removeRide(row);
       });
     });
   }
 
-  function removeRide(row) {
+  // Deletes right away (a delayed delete is lost if you leave the page —
+  // there's no offline queue here); Undo saves the ride again.
+  async function removeRide(row) {
     const id = row.dataset.id;
+    const ride = rides.find(r => r.id === id);
+    if (!ride || row.dataset.gone) return;
+    row.dataset.gone = '1';
     if (navigator.vibrate) { try { navigator.vibrate(15); } catch (_) {} }
-    // Optimistically collapse the row and update stats
     rides = rides.filter(r => r.id !== id);
-    setStats(rides);
-    row.style.height = row.offsetHeight + 'px';
-    requestAnimationFrame(() => {
-      row.style.transition = 'height 0.25s ease, opacity 0.25s ease, margin 0.25s ease';
-      row.style.height = '0'; row.style.opacity = '0'; row.style.marginBottom = '0';
-    });
-    setTimeout(() => { row.remove(); if (rides.length === 0) document.getElementById('rides-container').innerHTML = EMPTY; }, 260);
-    // Defer the real delete so Undo can cancel it
-    pendingDeletes[id] = setTimeout(async () => {
-      try { await deleteRide(id); } catch (_) {}
-      delete pendingDeletes[id];
-    }, 4500);
+    cacheRides(rides);
+    setStats(rides, false);
+    row.style.height = `${row.offsetHeight}px`;
+    requestAnimationFrame(() => { row.style.height = '0px'; row.style.opacity = '0'; });
+    setTimeout(renderRides, 260);
+    try {
+      await deleteRide(id);
+    } catch (_) {
+      toast("Couldn't delete the ride. Check your connection.", { type: 'error' });
+      loadRides();
+      return;
+    }
     toast('Ride deleted', {
-      type: 'info', duration: 4500,
-      action: { label: 'Undo', onClick: () => { clearTimeout(pendingDeletes[id]); delete pendingDeletes[id]; loadRides(); } },
+      type: 'info', duration: 5000,
+      action: { label: 'Undo', onClick: async () => {
+        try {
+          const ref = await logRide(rideForResave(ride));
+          moveLocalTrack(id, ref.id);
+        } catch (_) {
+          toast("Couldn't restore the ride. Check your connection.", { type: 'error' });
+        }
+        loadRides();
+      } },
     });
   }
 
-  window.submitRide = async function() {
-    const dist = parseFloat(document.getElementById('f-dist').value);
-    const dur  = parseInt(document.getElementById('f-dur').value);
-    if (!dist || !dur) { toast('Please enter distance and duration.', { type: 'error' }); return; }
-    const btn = document.querySelector('.submit-btn');
-    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
-    try {
-      await logRide({
-        distanceKm: dist,
-        durationMinutes: dur,
-        date: document.getElementById('f-date').value,
-        routeName: document.getElementById('f-route').value,
-        notes: document.getElementById('f-notes').value,
-      });
-      document.getElementById('f-dist').value  = '';
-      document.getElementById('f-dur').value   = '';
-      document.getElementById('f-route').value = '';
-      document.getElementById('f-notes').value = '';
-      toast(`Ride saved — ${dist} km logged! 🚴`, { type: 'success' });
-      await loadRides();
-    } catch (_) {
-      toast('Could not save ride. Check your connection.', { type: 'error' });
-    } finally {
-      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Ride';
+  // ── Load: last-known list first, then the live one ──
+  let painted = false;
+  async function loadRides() {
+    if (!painted) {
+      const cached = cachedRides();
+      if (cached) { rides = cached; setStats(rides, false); renderRides(); painted = true; }
     }
-  };
+    try {
+      rides = await getRides();
+      setStats(rides, !painted);
+      renderRides();
+      painted = true;
+      $('tk-status').hidden = true;
+      if (!rides.length) $('log').open = true;
+    } catch (_) {
+      if (painted) {
+        $('tk-status').textContent = "You're offline. Showing your rides from the last time you were connected.";
+        $('tk-status').hidden = false;
+      } else {
+        $('rides-container').innerHTML = `<div class="tk-empty">Couldn't load your rides. Check your connection.<br>
+          <button type="button" class="tk-retry" id="retry">Try again</button></div>`;
+        $('retry').addEventListener('click', () => {
+          $('rides-container').innerHTML = '<p class="tk-status">Loading your rides…</p>';
+          loadRides();
+        });
+      }
+    }
+  }
 
   loadRides();
 </script>
