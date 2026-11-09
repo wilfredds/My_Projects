@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **683 tests across 44 files, all passing** — if you
+individually. Baseline is **687 tests across 45 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -80,6 +80,23 @@ see fewer, something is being skipped.
   wording and `LANGUAGE_INTERVAL_FACTOR.en` is exactly 1. Anything shown on
   screen that quotes a call must be quoted in the same language, or the player
   translates mid-lunge.
+- **No signal is not a reason to stop reading this phone.** The query cache
+  runs with `networkMode: 'always'`. TanStack Query's default pauses every
+  read once the browser fires `offline`, and a paused query is neither loading
+  nor loaded, so screens read it as empty: a drill finished on a court with no
+  signal ended on "Session not found", with the session saved, and a program,
+  a past session or a benchmark result opened offline said it did not exist.
+  Do not remove it, and do not add a query that waits for the network.
+- **One cache per person, and no screen before the player is known.**
+  `DataProvider` creates the query cache with the repositories and keys the
+  tree on the user. Every query key is unscoped (`['profile']`), so a shared
+  cache served the previous person's data across a sign-in or sign-out — on a
+  phone passed around a club, somebody else's history. A query observer stays
+  bound to the cache it was made with, which is why it is a remount and not
+  just a new cache. `ProfileLoaded` holds the screens until the profile has
+  been read (milliseconds locally, at most `PROFILE_WAIT_MS` with an
+  account), because until then the level reads as beginner and the first
+  render of every screen draws a beginner's numbers.
 - **A session is what Start was pressed on.** The plan can change after the
   runner first renders — the player's level comes from a query, and until it
   resolves it reads as beginner. `useDrillRunner` used to build its cursor
@@ -222,6 +239,13 @@ see fewer, something is being skipped.
   screen does not call a bug, and it only offers a reload when one can work.
   The error screen also clears when the path changes, so the phone's Back
   button gets you out of it.
+- **Targets are for thumbs.** Buttons are 44px by default and icon buttons
+  never shrink (`shrink-0` in the size variant): beside a long title the cue
+  settings button was squeezed to 22px wide. A list row that opens something
+  is a stretched link (`relative` row, `after:absolute after:inset-0` link),
+  as the drill cards are — the session and benchmark histories made only
+  their 17px line of text tappable. The runner's controls are all at least
+  44px, measured mid-drill.
 - **Motion comes from `lib/motion`.** Four durations, two easings, two springs
   and a set of shared variants, mirrored into CSS custom properties in
   `index.css` so a Tailwind `duration-*` class and a framer-motion transition

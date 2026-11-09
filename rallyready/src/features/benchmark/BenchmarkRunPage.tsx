@@ -207,7 +207,16 @@ export function BenchmarkRunPage() {
                 <Badge variant="outline">18s → 30s work</Badge>
                 <Badge variant="outline">10s recovery</Badge>
               </div>
-              <Button size="xl" className="w-full" onClick={() => void runner.start()}>
+              <Button
+                size="xl"
+                className="w-full"
+                onClick={() => {
+                  // When the test began, not when this screen opened — the
+                  // same mistake the drill runner made, in the same place.
+                  startedAtRef.current = new Date()
+                  void runner.start()
+                }}
+              >
                 <Play className="fill-current" />
                 Start the test
               </Button>

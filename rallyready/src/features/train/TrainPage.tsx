@@ -164,9 +164,11 @@ export function TrainPage() {
 
       {streak && streak.currentStreak > 0 && (
         <div className="text-muted-foreground mb-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+          {/* Padded to a 44px target, and pulled back by the same amount so
+              the line it sits on does not move. */}
           <Link
             to="/progress"
-            className="text-foreground inline-flex items-center gap-1.5 font-medium hover:underline"
+            className="text-foreground -my-3 inline-flex items-center gap-1.5 py-3 font-medium hover:underline"
           >
             <Flame className="text-primary-ink size-4" aria-hidden />
             {pluralize(streak.currentStreak, 'week')} in a row

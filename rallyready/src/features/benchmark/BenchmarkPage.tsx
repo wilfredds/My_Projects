@@ -159,11 +159,15 @@ export function BenchmarkPage() {
           <CardContent>
             <ul className="divide-border divide-y">
               {benchmarks.map((entry) => (
-                <li key={entry.id} className="flex items-center justify-between gap-3 py-3">
+                <li
+                  key={entry.id}
+                  className="relative flex items-center justify-between gap-3 py-3"
+                >
                   <div>
+                    {/* The whole row, not the 17px line of text. */}
                     <Link
                       to={`/benchmark/result/${entry.id}`}
-                      className="text-sm font-medium hover:underline"
+                      className="text-sm font-medium after:absolute after:inset-0 hover:underline"
                     >
                       Level {entry.levelReached ?? 0} ·{' '}
                       {gradeBenchmark(entry.levelReached ?? 0).label}

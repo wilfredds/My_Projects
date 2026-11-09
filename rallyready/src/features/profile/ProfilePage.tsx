@@ -332,11 +332,16 @@ export function ProfilePage() {
             ) : (
               <ul className="divide-border divide-y">
                 {sessions.slice(0, 10).map((session) => (
-                  <li key={session.id} className="flex items-center justify-between gap-3 py-3">
+                  <li
+                    key={session.id}
+                    className="relative flex items-center justify-between gap-3 py-3"
+                  >
                     <div className="min-w-0">
+                      {/* Stretched over the row, like the drill cards: the
+                          name alone was a 17px-tall target. */}
                       <Link
                         to={`/session/${session.id}`}
-                        className="truncate text-sm font-medium hover:underline"
+                        className="truncate text-sm font-medium after:absolute after:inset-0 hover:underline"
                       >
                         {session.drillName ?? 'Custom drill'}
                       </Link>

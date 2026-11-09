@@ -30,10 +30,11 @@ the way.
 | 18 — Playing it as a player ten weeks in | ✅ Done |
 | 19 — What a QA engineer found | ✅ Done |
 | 20 — Does every control do what it says | ✅ Done |
-| **21 — On the phone they actually have** | ✅ **Done — ready for review** |
+| 21 — On the phone they actually have | ✅ Done |
+| **22 — Before the data, and without a signal** | ✅ **Done — ready for review** |
 
-All twenty-one phases are built. `npm run verify` is green: 0 type errors, 0
-lint errors/warnings, 683 unit tests passing across 44 files, production build
+All twenty-two phases are built. `npm run verify` is green: 0 type errors, 0
+lint errors/warnings, 687 unit tests passing across 45 files, production build
 clean.
 
 Earlier phases, one line each — the detail is in the git history:
@@ -46,6 +47,82 @@ Earlier phases, one line each — the detail is in the git history:
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
 
+
+---
+
+## Phase 22 — before the data, and without a signal
+
+Phase 21's bug was one shape: something used the player's data before it had
+loaded. Where there is one of a shape there are usually more, so this phase
+hunted the shape across the app instead of the instance.
+
+### Without a signal, the app forgot it had data
+
+The worst find, and it was in the released build. A player loses signal on a
+court and does a drill. At the end: **"Session not found."** The session was
+saved; the screen could not read it. The query library pauses every read once
+the browser reports it is offline, because it assumes data comes over the
+network, and a paused read is neither loading nor loaded, so the screen took
+it for nothing. RallyReady's data is on the phone.
+
+Every screen was opened online, then again after the signal dropped, and the
+two compared:
+
+| After losing signal | Released build | Now |
+| ------------------- | -------------- | --- |
+| Screens that showed the same thing | 12 of 16 | 16 of 16 |
+
+The four that broke said "Session not found" (twice), "Program not found" and
+"Result not found". The fix is `networkMode: 'always'`, and a test reads data
+with the phone marked offline.
+
+### Before the profile, everyone was a beginner
+
+Until the player's profile has been read, their level reads as beginner. The
+runner showed a beginner's "5:52" for two or three frames before correcting
+itself to "7:35" on every direct open, and in Phase 21 it built the drill
+itself from that. The screens now wait for the profile — milliseconds on the
+phone, at most 1.5s with an account on a bad connection, so a request that
+never answers cannot mean an app that never opens. Train still paints its
+first content at the same time as before (602–709ms against 641ms, at 4×
+slower CPU).
+
+### Signing out kept the last person's data
+
+Not live yet — accounts are not switched on — but it would have been the
+first thing to go wrong when they are. Every cached read was shared across
+people, so signing out on a club's shared phone kept the previous player's
+history on screen for up to thirty seconds. The cache is now one per person.
+
+### Also
+
+- **The benchmark logged its start time when the screen opened**, the same
+  mistake Phase 21 fixed in the drill runner.
+- **Tap targets**, measured on every screen against WCAG 2.5.8 and against
+  44px for the runner mid-drill. Everything passed the rule; four things were
+  still small for a thumb and are fixed. The cue settings button was squeezed
+  to 22px wide beside a long title on the setup screen. The rows in the
+  session and benchmark histories were tappable only on their 17px line of
+  text, and are now whole-row targets (316×65). The streak link went from
+  20px to 44px tall without moving anything around it.
+
+### Known limit
+
+With an account and no signal, a read now fails at once rather than hanging,
+and the screens still word a failed read the way they word a missing record.
+Offline use with an account needs a local copy that syncs, which is a design
+of its own and belongs with switching accounts on.
+
+### Verified
+
+`npm run verify`: 687 tests across 45 files, no type or lint errors, clean
+build. Four new, each checked against a deliberate break: the first render
+already has the saved level, a profile that never answers does not hang the
+app, a new person never sees the last one's data, and data reads with the
+phone offline. In the browser: the functional passes, the 23 split checks, the
+offline sweep (16 of 16) and the offline drill (summary shown), the tap-target
+audit, and the visual audit at 0 contrast failures, overflow, clipping and
+console errors.
 
 ---
 

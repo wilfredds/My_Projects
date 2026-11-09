@@ -22,8 +22,10 @@ const buttonVariants = cva(
         sm: 'h-9 rounded-md px-3 text-xs [&_svg]:size-3.5',
         lg: 'h-14 rounded-xl px-8 text-base [&_svg]:size-5',
         xl: 'h-16 rounded-2xl px-10 text-lg [&_svg]:size-6',
-        icon: 'size-11 [&_svg]:size-5',
-        'icon-sm': 'size-9 [&_svg]:size-4',
+        // `shrink-0`: an icon button beside a long title in a flex row was
+        // squeezed to 22px wide on the drill setup screen — half a target.
+        icon: 'size-11 shrink-0 [&_svg]:size-5',
+        'icon-sm': 'size-9 shrink-0 [&_svg]:size-4',
       },
     },
     defaultVariants: { variant: 'default', size: 'default' },

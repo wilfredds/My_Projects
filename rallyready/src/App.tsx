@@ -1,4 +1,3 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { Suspense } from 'react'
 import { Link, Route, Routes } from 'react-router-dom'
@@ -66,18 +65,6 @@ const ReflexRushPage = lazyScreen(() => import('@/features/games/ReflexRushPage'
 const PremiumPage = lazyScreen(() => import('@/features/premium/PremiumPage'), 'PremiumPage')
 const FocusPage = lazyScreen(() => import('@/features/train/FocusPage'), 'FocusPage')
 const WorkoutsPage = lazyScreen(() => import('@/features/workouts/WorkoutsPage'), 'WorkoutsPage')
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Local storage reads are instant and the app must work offline, so
-      // retrying a "failed" query buys nothing but a delay.
-      retry: false,
-      refetchOnWindowFocus: false,
-      staleTime: 30_000,
-    },
-  },
-})
 
 function NotFound() {
   return (
@@ -158,11 +145,10 @@ function AppRoutes() {
 export function App() {
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </QueryClientProvider>
+      {/* The query cache lives in DataProvider, one per signed-in person. */}
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </ErrorBoundary>
   )
 }
