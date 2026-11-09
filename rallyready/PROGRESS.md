@@ -31,10 +31,11 @@ the way.
 | 19 — What a QA engineer found | ✅ Done |
 | 20 — Does every control do what it says | ✅ Done |
 | 21 — On the phone they actually have | ✅ Done |
-| **22 — Before the data, and without a signal** | ✅ **Done — ready for review** |
+| 22 — Before the data, and without a signal | ✅ Done |
+| **23 — When the phone closes the app** | ✅ **Done — ready for review** |
 
-All twenty-two phases are built. `npm run verify` is green: 0 type errors, 0
-lint errors/warnings, 687 unit tests passing across 45 files, production build
+All twenty-three phases are built. `npm run verify` is green: 0 type errors, 0
+lint errors/warnings, 697 unit tests passing across 46 files, production build
 clean.
 
 Earlier phases, one line each — the detail is in the git history:
@@ -47,6 +48,64 @@ Earlier phases, one line each — the detail is in the git history:
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
 
+
+---
+
+## Phase 23 — when the phone closes the app
+
+### A drill the phone cut short is no longer lost
+
+A budget Android frees memory by throwing away tabs in the background. A
+player who switches to their music app twenty minutes into a drill can come
+back to a page that has reloaded from nothing. Tested: start a drill, run it,
+hide the page, throw it away, reopen it. The released build was back at
+"Ready to start" with nothing saved and nothing kept.
+
+Now the runner keeps a copy of exactly what "End and save" would write, and
+only when that costs the drill nothing: when it pauses (it does the instant
+the page is hidden) and when a block changes. On return, Train — and the
+runner, where Android puts you back — asks:
+
+> **Your last drill was cut short.** The phone closed the app 14 min into
+> Six-Corner Shadow. Keep what you did? **Save it** · Don't save
+
+"Save it" logs it as an unfinished session and opens its summary. Pressing
+Start without answering keeps it too: that means "keep training", not "throw
+away twenty minutes". Under thirty seconds it is not worth asking about, and
+after a day it is dropped. The duration reads "14 min", not "14:22" — the
+first draft said "14:22 into", which reads as a time of day.
+
+Thirteen checks in the browser: save from the runner (logged once, 40s, not
+finished, not offered again), don't save from Train (gone for good, nothing
+logged), Start without answering (kept, and the new drill calls), a drill
+ended normally (nothing to ask), ten seconds in (not asked). The calls were
+re-timed with the copies being written: at 1×, 4× and 6× slower CPU every
+call landed on the set 1350ms pace, worst gap 15ms off, none skipped.
+
+### Dates in Manila: correct
+
+At 07:00 on a Monday in Manila it is still Sunday in UTC, so any day worked
+out in UTC files a morning session under last week. Checked in the browser
+with the clock set there: Train starts the new week ("Nothing logged this
+week yet"), a drill then counts as this week and the streak goes up; the same
+instant viewed from UTC is still Sunday. Streaks, readiness, the coach and
+the training load all use the local day. Three places did not and are fixed,
+though none changed what a screen showed: a program's stored start date (two
+backends) and the backup file's name, which at 7am in Manila was dated
+yesterday. The test suite now runs on Manila time, so the next one fails a
+test; the new filename test failed on the old code.
+
+### Verified
+
+`npm run verify`: 697 tests across 46 files, no type or lint errors, clean
+build. Ten new: the kept copy (round trip, threshold, expiry, a clock in the
+future, a corrupt copy, refused storage), the runner's snapshot leaving the
+drill running, and the Manila-morning filename. Before the suite was pinned to
+Manila, all 687 tests it had then also passed in Los Angeles, Kiritimati (+14)
+and UTC. In the browser: every functional
+pass, the 23 split checks, the offline sweep and drill, the 13 cut-short
+checks, the call timing, and the visual audit with and without the card at 0
+contrast failures, overflow, clipping and console errors.
 
 ---
 

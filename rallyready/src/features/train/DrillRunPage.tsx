@@ -34,7 +34,13 @@ import {
   METRIC_SEED,
   METRIC_WORK_SEC,
 } from '@/lib/data/stats'
-import type { Drill, SkillLevel } from '@/lib/data/types'
+import type { Drill, NewSession, NewSessionMetric, SkillLevel } from '@/lib/data/types'
+import {
+  clearCheckpoint,
+  keepCheckpoint,
+  readCheckpoint,
+  sessionFrom,
+} from '@/lib/training/interrupted'
 import { cornerIdsForLayout } from '@/lib/timer/corners'
 import { estimateDurationSec, isCircuit, planFromConfig, type DrillConfig } from '@/lib/timer/plan'
 import { CircuitBoard } from '@/features/conditioning/components/CircuitBoard'
@@ -48,6 +54,7 @@ import { useUiStore } from '@/store/uiStore'
 import { useDrillConfig } from '@/store/drillConfigStore'
 
 import { CourtBoard } from './components/CourtBoard'
+import { InterruptedRunCard } from './components/InterruptedRunCard'
 import { TimerDial } from './components/TimerDial'
 import { PHASE_TEXT, PHASE_WASH } from './phaseStyles'
 import { useDrillRunner, type RunnerSummary } from './useDrillRunner'
@@ -163,9 +170,55 @@ function Runner({ drill }: { drill: Drill }) {
     })
   }, [config, cues.splitStepEnabled, cues.splitStepLeadMs, seed])
 
+  /**
+   * The session this run would save, built in one place: "End and save" writes
+   * it, and the copy kept in case the phone closes the app is the same object,
+   * so saving it later records exactly what ending would have.
+   */
+  const recordFor = useCallback(
+    (summary: RunnerSummary): { input: NewSession; metrics: NewSessionMetric[] } => {
+      const ran = ranWithRef.current
+      const ranConfig = ran?.config ?? config
+      return {
+        input: {
+          drillId: drill.id,
+          drillName: drill.name,
+          startedAt: startedAtRef.current,
+          durationSec: summary.durationSec,
+          roundsCompleted: summary.roundsCompleted,
+          avgShotIntervalMs: summary.avgShotIntervalMs,
+          source: isConditioning(drill) ? 'conditioning' : 'timer',
+        },
+        metrics: [
+          { metricKey: METRIC_CALLS, metricValue: summary.callsAnswered },
+          { metricKey: METRIC_COMPLETED, metricValue: summary.completed ? 1 : 0 },
+          // Recorded per session so the badge engine can count Deception work
+          // without having to know what the drill is configured like today.
+          {
+            metricKey: METRIC_DECEPTION,
+            metricValue: (ran?.mode ?? drillMode) === 'deception' ? 1 : 0,
+          },
+          // What it would take to replay this session exactly on another
+          // phone. Recorded here rather than reconstructed later, because the
+          // settings can be changed afterwards and a challenge that does not
+          // match what you actually did is worse than no challenge.
+          { metricKey: METRIC_SEED, metricValue: seed },
+          { metricKey: METRIC_ROUNDS, metricValue: ranConfig?.rounds ?? 0 },
+          { metricKey: METRIC_WORK_SEC, metricValue: ranConfig?.workSec ?? 0 },
+          { metricKey: METRIC_REST_SEC, metricValue: ranConfig?.restSec ?? 0 },
+          { metricKey: METRIC_INTERVAL_MS, metricValue: ranConfig?.intervalMs ?? 0 },
+          { metricKey: METRIC_LEVEL, metricValue: levelIndex(ran?.level ?? training.level) },
+        ],
+      }
+    },
+    [config, drillMode, drill, seed, training.level],
+  )
+
   const handleComplete = useCallback(
     async (summary: RunnerSummary) => {
       setSaving(true)
+      // However it ended, this run is no longer one the phone cut short.
+      clearCheckpoint()
 
       // A warm-up is preparation, not training. Logging it as a session would
       // let someone hold a streak by stretching, and would drag the training
@@ -177,40 +230,9 @@ function Runner({ drill }: { drill: Drill }) {
         return
       }
 
-      const ran = ranWithRef.current
-      const ranConfig = ran?.config ?? config
       try {
-        const session = await repositories.sessions.create(
-          {
-            drillId: drill.id,
-            drillName: drill.name,
-            startedAt: startedAtRef.current,
-            durationSec: summary.durationSec,
-            roundsCompleted: summary.roundsCompleted,
-            avgShotIntervalMs: summary.avgShotIntervalMs,
-            source: isConditioning(drill) ? 'conditioning' : 'timer',
-          },
-          [
-            { metricKey: METRIC_CALLS, metricValue: summary.callsAnswered },
-            { metricKey: METRIC_COMPLETED, metricValue: summary.completed ? 1 : 0 },
-            // Recorded per session so the badge engine can count Deception work
-            // without having to know what the drill is configured like today.
-            {
-              metricKey: METRIC_DECEPTION,
-              metricValue: (ran?.mode ?? drillMode) === 'deception' ? 1 : 0,
-            },
-            // What it would take to replay this session exactly on another
-            // phone. Recorded here rather than reconstructed later, because the
-            // settings can be changed afterwards and a challenge that does not
-            // match what you actually did is worse than no challenge.
-            { metricKey: METRIC_SEED, metricValue: seed },
-            { metricKey: METRIC_ROUNDS, metricValue: ranConfig?.rounds ?? 0 },
-            { metricKey: METRIC_WORK_SEC, metricValue: ranConfig?.workSec ?? 0 },
-            { metricKey: METRIC_REST_SEC, metricValue: ranConfig?.restSec ?? 0 },
-            { metricKey: METRIC_INTERVAL_MS, metricValue: ranConfig?.intervalMs ?? 0 },
-            { metricKey: METRIC_LEVEL, metricValue: levelIndex(ran?.level ?? training.level) },
-          ],
-        )
+        const { input, metrics } = recordFor(summary)
+        const session = await repositories.sessions.create(input, metrics)
         navigate(`/session/${session.id}`, { replace: true })
       } catch {
         // Storage refused (private mode, quota). The training still happened —
@@ -218,7 +240,7 @@ function Runner({ drill }: { drill: Drill }) {
         navigate('/', { replace: true })
       }
     },
-    [config, drillMode, drill, markWarmedUp, navigate, repositories, seed, training.level],
+    [drill, markWarmedUp, navigate, recordFor, repositories],
   )
 
   const runner = useDrillRunner({
@@ -227,6 +249,29 @@ function Runner({ drill }: { drill: Drill }) {
     onComplete: handleComplete,
   })
   const { state, timeline } = runner
+
+  /*
+   * A copy of the run so far, kept in case the phone closes the app.
+   *
+   * Only when writing it costs the drill nothing: when it pauses — which it
+   * does the moment the page is hidden, the last thing a tab is reliably told
+   * before Android throws it away — and when a block changes. In an effect,
+   * after the frame has painted, never on the frame loop. A warm-up is never
+   * saved as a session, so it is never kept either.
+   */
+  const keepsRun = !isPrepOrRecovery(drill)
+  const { snapshot } = runner
+  useEffect(() => {
+    if (!keepsRun) return
+    if (state.status !== 'running' && state.status !== 'paused') return
+    const { input, metrics } = recordFor(snapshot())
+    keepCheckpoint({
+      drillSlug: drill.slug,
+      savedAt: Date.now(),
+      input: { ...input, startedAt: input.startedAt.toISOString() },
+      metrics,
+    })
+  }, [keepsRun, state.status, state.blockIndex, recordFor, snapshot, drill.slug])
 
   const phase: BlockPhase = state.block?.phase ?? 'prepare'
   const isIdle = state.status === 'idle'
@@ -442,15 +487,25 @@ function Runner({ drill }: { drill: Drill }) {
                   </>
                 )}
               </div>
+              <InterruptedRunCard className="mb-4" />
               <Button
                 size="xl"
                 className="w-full"
                 onClick={() => {
+                  // Read before this run's first copy replaces it.
+                  const cutShort = readCheckpoint()
                   // When the drill began, not when this screen opened: a player
                   // who sat on it for three minutes did not train for them.
                   startedAtRef.current = new Date()
                   ranWithRef.current = { config, level: training.level, mode: drillMode }
+                  // First, inside the tap: audio only unlocks in a user gesture.
                   void runner.start()
+                  // Starting again without answering means "keep training",
+                  // not "throw away the last twenty minutes": keep them.
+                  if (cutShort) {
+                    const { input, metrics } = sessionFrom(cutShort)
+                    void repositories.sessions.create(input, metrics).catch(() => undefined)
+                  }
                 }}
               >
                 <Play className="fill-current" />

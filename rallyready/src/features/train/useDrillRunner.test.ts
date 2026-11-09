@@ -110,4 +110,28 @@ describe('the session a drill runs is the one on screen when Start is pressed', 
     expect(callTimes(heard).slice(0, expected.length)).toEqual(expected)
     expect(result.current.timeline.avgIntervalMs).toBe(buildTimeline(started).avgIntervalMs)
   })
+
+  it('can report the session so far without ending it', async () => {
+    // What is kept in case the phone closes the app: read mid-drill, it must
+    // describe the drill so far and leave it running.
+    const { result } = renderHook(() =>
+      useDrillRunner({
+        plan: planAt(1350),
+        preferences: DEFAULT_CUE_PREFERENCES,
+        onComplete: () => {},
+      }),
+    )
+    await act(async () => {
+      await result.current.start()
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(12_000)
+    })
+
+    const sofar = result.current.snapshot()
+    expect(sofar.completed).toBe(false)
+    expect(sofar.durationSec).toBe(12)
+    expect(sofar.callsAnswered).toBeGreaterThan(0)
+    expect(result.current.state.status).toBe('running')
+  })
 })

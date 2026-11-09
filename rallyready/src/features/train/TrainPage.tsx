@@ -15,6 +15,7 @@ import {
 import { useMemo, useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 
+import { InterruptedRunCard } from './components/InterruptedRunCard'
 import { EmptyState } from '@/components/EmptyState'
 import { PageHeader } from '@/components/PageHeader'
 import { StaggerItem } from '@/components/motion/StaggerItem'
@@ -161,6 +162,7 @@ export function TrainPage() {
       />
 
       <StorageWarning className="mb-5" />
+      <InterruptedRunCard />
 
       {streak && streak.currentStreak > 0 && (
         <div className="text-muted-foreground mb-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">

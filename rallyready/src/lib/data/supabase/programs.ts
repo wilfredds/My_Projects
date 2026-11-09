@@ -2,6 +2,7 @@ import type { RallyReadyClient } from '@/lib/supabase/client'
 import { periodise } from '@/lib/programs/periodise'
 
 import type { ProgramRepository } from '../ports'
+import { localDateKey } from '../streaks'
 import type { EnrollmentStatus, NewProgram, Program, ProgramDay, ProgramEnrollment } from '../types'
 import type { ProgramDayRow, ProgramEnrollmentRow, ProgramRow } from './database.types'
 
@@ -241,7 +242,8 @@ export function createSupabasePrograms(
           {
             user_id: userId,
             program_id: programId,
-            started_on: new Date().toISOString().slice(0, 10),
+            // The player's day, not UTC's: in Manila UTC is a day behind until 8am.
+            started_on: localDateKey(new Date()),
             current_week: 1,
             current_day: 1,
             status: 'active' as const,

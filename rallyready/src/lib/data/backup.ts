@@ -10,6 +10,8 @@ import type {
   SessionMetric,
 } from './types'
 
+import { localDateKey } from './streaks'
+
 /**
  * Getting your training out of the app, and back in again.
  *
@@ -245,8 +247,10 @@ export function planRestore(
   }
 }
 
-/** A filename someone can find again in six months. */
+/**
+ * A filename someone can find again in six months, dated the day they made
+ * it — the local day, not UTC's, which in Manila is still yesterday until 8am.
+ */
 export function backupFilename(now = new Date()): string {
-  const iso = now.toISOString().slice(0, 10)
-  return `rallyready-backup-${iso}.json`
+  return `rallyready-backup-${localDateKey(now)}.json`
 }

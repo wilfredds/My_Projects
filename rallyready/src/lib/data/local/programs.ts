@@ -2,6 +2,7 @@ import { periodise } from '@/lib/programs/periodise'
 
 import type { ProgramRepository } from '../ports'
 import { daysForProgram, SEED_PROGRAMS } from '../seed/programs'
+import { localDateKey } from '../streaks'
 import type { EnrollmentStatus, NewProgram, Program, ProgramDay, ProgramEnrollment } from '../types'
 import { newId, readJson, STORAGE_KEYS, writeJson } from './storage'
 
@@ -127,7 +128,8 @@ export const localPrograms: ProgramRepository = {
       id: newId(),
       userId: null,
       programId,
-      startedOn: new Date().toISOString().slice(0, 10),
+      // The player's day, not UTC's: in Manila UTC is a day behind until 8am.
+      startedOn: localDateKey(new Date()),
       currentWeek: 1,
       currentDay: 1,
       status: 'active',

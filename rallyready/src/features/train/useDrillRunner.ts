@@ -419,5 +419,12 @@ export function useDrillRunner({
 
   const state = useMemo<RunnerState>(() => ({ status, ...metrics }), [status, metrics])
 
-  return { timeline, state, start, pause, resume, togglePause, skipBlock, stop }
+  /**
+   * The session so far, as "End and save" would record it, without ending
+   * anything. Read off the clock and the calls already heard; nothing on the
+   * frame loop is touched.
+   */
+  const snapshot = useCallback(() => buildSummary(false), [buildSummary])
+
+  return { timeline, state, start, pause, resume, togglePause, skipBlock, stop, snapshot }
 }

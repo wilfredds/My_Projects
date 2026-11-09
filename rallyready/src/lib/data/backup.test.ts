@@ -259,4 +259,13 @@ describe('backupFilename', () => {
       'rallyready-backup-2026-08-11.json',
     )
   })
+
+  it("is dated by the player's own day, not UTC's", () => {
+    // 07:00 on Monday in Manila, where the suite runs (vitest.config.ts), is
+    // still 23:00 on Sunday in UTC. A backup made before training is that
+    // morning's backup.
+    expect(backupFilename(new Date('2026-11-08T23:00:00Z'))).toBe(
+      'rallyready-backup-2026-11-09.json',
+    )
+  })
 })

@@ -17,6 +17,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    // The players' own clock. In UTC a day computed with UTC getters looks
+    // right, so a bug that files a Manila morning under yesterday — eight
+    // hours of every day — passes every test. At +8 it fails them.
+    env: { TZ: 'Asia/Manila' },
     // Stylesheets are stubbed to an empty string in tests — even with `?raw` —
     // except this one. The contrast test reads the colour tokens straight out
     // of it, and against an empty file it can only fail, with an error about a

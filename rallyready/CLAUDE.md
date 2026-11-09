@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **687 tests across 45 files, all passing** — if you
+individually. Baseline is **697 tests across 46 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -80,6 +80,26 @@ see fewer, something is being skipped.
   wording and `LANGUAGE_INTERVAL_FACTOR.en` is exactly 1. Anything shown on
   screen that quotes a call must be quoted in the same language, or the player
   translates mid-lunge.
+- **A drill the phone cut short is kept.** A budget Android throws away
+  background tabs to free memory, and switching to a music app mid-drill is
+  how a tab gets there; the page then reloads fresh, and the run used to be
+  simply gone. `lib/training/interrupted` keeps the exact record "End and
+  save" would write — the runner page builds it in one place, `recordFor` —
+  and writes it only when that costs the drill nothing: when the run pauses
+  (it does the instant the page is hidden, the last thing a tab is reliably
+  told) and when a block changes, from an effect, never on the frame loop.
+  Measured after: calls still land on the set pace at 4× and 6× slower CPU.
+  Ending a drill clears it. `InterruptedRunCard` offers it on Train and above
+  Start on the runner ("Save it" opens the summary); pressing Start without
+  answering keeps it, because that means "keep training", not "throw away
+  twenty minutes". Under 30 seconds it is not asked about; after a day it is
+  dropped. Never move `runner.start()` after an `await` in that click — audio
+  only unlocks inside the tap.
+- **Tests run on Manila time.** `vitest.config.ts` sets `TZ=Asia/Manila`. In
+  UTC a day computed with UTC getters looks right, so a bug that files a
+  Manila morning under yesterday — eight hours of every day — passes every
+  test. Day keys come from `localDateKey`; `toISOString().slice(0, 10)` is
+  UTC's day, not the player's.
 - **No signal is not a reason to stop reading this phone.** The query cache
   runs with `networkMode: 'always'`. TanStack Query's default pauses every
   read once the browser fires `offline`, and a paused query is neither loading
