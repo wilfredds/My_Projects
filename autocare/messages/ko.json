@@ -65,7 +65,6 @@
     "errorInactive": "이 계정은 사용이 중지되었습니다. 관리자에게 문의하세요.",
     "errorTooMany": "시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.",
     "errorGeneric": "지금은 로그인할 수 없습니다. 다시 시도해 주세요.",
-    "attemptsLeft": "계정이 잠기기까지 {count}번 남았습니다.",
     "footerNote": "{shopName} 직원만 사용할 수 있습니다."
   },
   "dashboard": {

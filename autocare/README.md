@@ -161,12 +161,24 @@ Follow these in order. It takes about fifteen minutes.
 1. Go to <https://neon.tech> and sign up (the free tier is enough).
 2. Click **New Project**. Name it `autocare`. Pick the region closest to the
    Philippines (Singapore is usually the best choice).
-3. When it finishes, Neon shows a **Connection string**. Choose the **Pooled
-   connection** version and copy it. It looks like:
+3. When it finishes, Neon shows a **Connection string**. Copy the **direct**
+   one — the host does *not* contain `-pooler`:
 
    ```
-   postgresql://user:password@ep-xxxx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+   postgresql://user:password@ep-xxxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
    ```
+
+   Not the pooled one. Migrations run automatically on every production deploy
+   (see [If a later deploy needs a schema change](#if-a-later-deploy-needs-a-schema-change)),
+   and Prisma's migration engine takes an advisory lock that PgBouncer — which
+   is what Neon's pooled endpoint is — does not support. Pointing
+   `DATABASE_URL` at the pooled host makes those deploys fail.
+
+   If you later outgrow a direct connection, keep the pooled string in
+   `DATABASE_URL`, add the direct one as `DIRECT_URL`, and declare
+   `directUrl = env("DIRECT_URL")` in the datasource block. That is the proper
+   split, and it is not set up in advance because declaring `directUrl` makes
+   the variable mandatory and a missing one fails every build.
 
 4. Keep this tab open — you need that string in Step 3.
 
@@ -192,7 +204,7 @@ git push
 
    | Name | Value |
    | --- | --- |
-   | `DATABASE_URL` | the pooled connection string from Step 1 |
+   | `DATABASE_URL` | the **direct** connection string from Step 1 (no `-pooler`) |
    | `AUTH_SECRET` | run `openssl rand -base64 32` and paste the result |
 
    Optionally also add `SHOP_TIMEZONE` = `Asia/Manila`.
@@ -235,9 +247,11 @@ SELECT (SELECT count(*) FROM "User") AS users,
 
 ### Step 5 — Log in
 
-Open the URL Vercel gave you and log in as `raul` or `france`. Accept the Rules
-of Use, then go to **Users → Change password** and set real passwords for both
-owners.
+Open the URL Vercel gave you and log in as `raul` or `france`. The app walks
+you through it: **Rules of Use** (tick the box), then **My Account**, which
+will not let you reach any other page until you have replaced the temporary
+password with one of your own. Do this for *both* owner accounts — the starting
+passwords are printed in this README and should be treated as public.
 
 ### Step 6 (optional) — Your own domain
 
@@ -394,7 +408,7 @@ A few things worth knowing:
 ## Languages
 
 Filipino is the default; English, Spanish, Japanese, Korean and Chinese ship
-alongside it. All six catalogs are complete (433 keys each) — no UI text is
+alongside it. All six catalogs are complete (432 keys each) — no UI text is
 hardcoded.
 
 ### Adding another language
