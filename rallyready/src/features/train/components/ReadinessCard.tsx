@@ -40,9 +40,9 @@ const ADJUSTMENT_ICON: Record<Adjustment, typeof ArrowDown> = {
 }
 
 const ADJUSTMENT_TONE: Record<Adjustment, string> = {
-  lighter: 'bg-rest/15 text-rest',
+  lighter: 'bg-rest/15 text-rest-ink',
   'as-planned': 'bg-secondary text-secondary-foreground',
-  harder: 'bg-work/15 text-work',
+  harder: 'bg-work/15 text-work-ink',
 }
 
 export function ReadinessCard() {

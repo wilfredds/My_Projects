@@ -7,11 +7,11 @@ import type { BlockPhase } from '@/lib/timer/types'
 
 export const PHASE_TEXT: Record<BlockPhase, string> = {
   prepare: 'text-muted-foreground',
-  warmup: 'text-warmup',
-  work: 'text-work',
-  rest: 'text-rest',
-  sprint: 'text-sprint',
-  cooldown: 'text-cooldown',
+  warmup: 'text-warmup-ink',
+  work: 'text-work-ink',
+  rest: 'text-rest-ink',
+  sprint: 'text-sprint-ink',
+  cooldown: 'text-cooldown-ink',
 }
 
 export const PHASE_STROKE: Record<BlockPhase, string> = {

@@ -439,6 +439,86 @@ export function isFittedStructure(config: DrillConfig, fitted: DrillConfig): boo
   )
 }
 
+/** One option on a setup-screen picker. */
+export interface PresetChoice {
+  value: string
+  label: string
+  hint: string
+}
+
+/**
+ * The options a picker offers, and which one is selected.
+ *
+ * Three kinds of option: the named presets; "Your level", which is the drill
+ * as the app fitted it to this player; and "Custom", for numbers the player
+ * really did set themselves. "Your level" is left out when the fitted numbers
+ * already *are* a named preset — an intermediate player's pace on most drills
+ * is exactly "Intermediate 1.35s", and offering "Your level 1.35s" beside it
+ * put the same choice on screen twice. "Custom" only appears when nothing else
+ * describes the current numbers, so it is never shown for a choice the app made.
+ */
+function choices<T extends { id: string; label: string }>(
+  presets: T[],
+  hintOf: (values: T | DrillConfig) => string,
+  matched: T | undefined,
+  fitted: DrillConfig | null,
+  fittedMatch: T | undefined,
+  usingFitted: boolean,
+  custom: PresetChoice,
+): { options: PresetChoice[]; selected: string } {
+  const options: PresetChoice[] = presets.map((preset) => ({
+    value: preset.id,
+    label: preset.label,
+    hint: hintOf(preset),
+  }))
+  if (fitted && !fittedMatch) {
+    options.push({ value: 'fitted', label: 'Your level', hint: hintOf(fitted) })
+  }
+  if (!matched && !usingFitted) options.push(custom)
+  return { options, selected: matched?.id ?? (usingFitted ? 'fitted' : 'custom') }
+}
+
+export function paceChoices(config: DrillConfig, fitted: DrillConfig | null) {
+  const matched = matchDifficulty(config)
+  const seconds = (values: { intervalMs: number }) => `${(values.intervalMs / 1000).toFixed(2)}s`
+  /*
+   * A fitted pace can share its speed with a preset and still be a different
+   * setting: Multifeed Shadow at intermediate runs at 0.88s like "Pro", but Pro
+   * lets a zone come up twice in a row and the drill does not. Two options both
+   * reading "0.88s" told the player nothing, and merging them would have the
+   * screen claim repeats were on. So the fitted one says what differs.
+   */
+  const twin =
+    fitted && !matchDifficulty(fitted)
+      ? DIFFICULTY_PRESETS.find((preset) => preset.intervalMs === fitted.intervalMs)
+      : undefined
+  return choices(
+    DIFFICULTY_PRESETS,
+    (values) =>
+      twin && values === fitted
+        ? `${seconds(values)} · ${fitted.avoidImmediateRepeat ? 'no repeats' : 'repeats'}`
+        : seconds(values),
+    matched,
+    fitted,
+    fitted ? matchDifficulty(fitted) : undefined,
+    Boolean(fitted && !matched && isFittedDifficulty(config, fitted)),
+    { value: 'custom', label: 'Custom', hint: 'Your own pace' },
+  )
+}
+
+export function shapeChoices(config: DrillConfig, fitted: DrillConfig | null) {
+  const matched = matchStructure(config)
+  return choices(
+    STRUCTURE_PRESETS,
+    (values) => `${values.workSec}s / ${values.restSec}s × ${values.rounds}`,
+    matched,
+    fitted,
+    fitted ? matchStructure(fitted) : undefined,
+    Boolean(fitted && !matched && isFittedStructure(config, fitted)),
+    { value: 'custom', label: 'Custom', hint: 'Set it yourself' },
+  )
+}
+
 /** Total wall-clock length of a configured drill, in seconds. */
 export function estimateDurationSec(config: DrillConfig): number {
   if (isCircuit(config) && config.circuit) {

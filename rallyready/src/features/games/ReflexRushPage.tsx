@@ -353,7 +353,7 @@ export function ReflexRushPage() {
           >
             <Card level={beatIt ? 'lead' : 'default'} className="mb-4">
               <CardContent className="p-5 text-center">
-                {beatIt && <p className="text-primary type-eyebrow mb-1">New personal best</p>}
+                {beatIt && <p className="text-primary-ink type-eyebrow mb-1">New personal best</p>}
                 <p className="tnum text-5xl leading-none font-bold tracking-tight">
                   <CountUp value={summary.score} />
                 </p>

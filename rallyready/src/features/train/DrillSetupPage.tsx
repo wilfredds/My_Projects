@@ -31,8 +31,8 @@ import {
   minIntervalFor,
   STRUCTURE_PRESETS,
   isCircuit,
-  isFittedDifficulty,
-  isFittedStructure,
+  paceChoices,
+  shapeChoices,
   matchDifficulty,
   matchStructure,
   type DrillConfig,
@@ -162,8 +162,10 @@ export function DrillSetupPage() {
    * actually in.
    */
   const fitted = drill ? configFromDrill(drill, training) : null
-  const usingFittedPace = Boolean(fitted && !difficulty && isFittedDifficulty(config, fitted))
-  const usingFittedShape = Boolean(fitted && !structure && isFittedStructure(config, fitted))
+  const pace = paceChoices(config, fitted)
+  const shape = shapeChoices(config, fitted)
+  const usingFittedPace = pace.selected === 'fitted'
+  const usingFittedShape = shape.selected === 'fitted'
   const durationSec = estimateDurationSec(config)
 
   return (
@@ -333,28 +335,8 @@ export function DrillSetupPage() {
                     label="Difficulty preset"
                     layout="stacked"
                     columns={3}
-                    value={difficulty?.id ?? (usingFittedPace ? 'fitted' : 'custom')}
-                    options={[
-                      ...DIFFICULTY_PRESETS.map((preset) => ({
-                        value: preset.id,
-                        label: preset.label,
-                        hint: `${(preset.intervalMs / 1000).toFixed(2)}s`,
-                      })),
-                      // Always offered, so a preset can be undone. "Custom"
-                      // only appears when the numbers really are the player's.
-                      ...(fitted
-                        ? [
-                            {
-                              value: 'fitted',
-                              label: 'Your level',
-                              hint: `${(fitted.intervalMs / 1000).toFixed(2)}s`,
-                            },
-                          ]
-                        : []),
-                      ...(difficulty || usingFittedPace
-                        ? []
-                        : [{ value: 'custom', label: 'Custom', hint: 'Your own pace' }]),
-                    ]}
+                    value={pace.selected}
+                    options={pace.options}
                     onChange={(id) => {
                       const preset =
                         id === 'fitted' ? fitted : DIFFICULTY_PRESETS.find((p) => p.id === id)
@@ -370,8 +352,8 @@ export function DrillSetupPage() {
                     <p className="text-muted-foreground mt-2 text-xs">{difficulty.description}</p>
                   ) : usingFittedPace ? (
                     <p className="text-muted-foreground mt-2 text-xs">
-                      The pace your level asks for, not one you picked. Choose a preset to override
-                      it for this drill.
+                      The pace your level asks for, not one you picked. Pick another to change it
+                      for this drill.
                     </p>
                   ) : null}
                 </div>
@@ -390,26 +372,8 @@ export function DrillSetupPage() {
                 <Segmented
                   label="Structure preset"
                   layout="stacked"
-                  value={structure?.id ?? (usingFittedShape ? 'fitted' : 'custom')}
-                  options={[
-                    ...STRUCTURE_PRESETS.map((preset) => ({
-                      value: preset.id,
-                      label: preset.label,
-                      hint: `${preset.workSec}s / ${preset.restSec}s × ${preset.rounds}`,
-                    })),
-                    ...(fitted
-                      ? [
-                          {
-                            value: 'fitted',
-                            label: 'Your level',
-                            hint: `${fitted.workSec}s / ${fitted.restSec}s × ${fitted.rounds}`,
-                          },
-                        ]
-                      : []),
-                    ...(structure || usingFittedShape
-                      ? []
-                      : [{ value: 'custom', label: 'Custom', hint: 'Set it yourself' }]),
-                  ]}
+                  value={shape.selected}
+                  options={shape.options}
                   onChange={(id) => {
                     const preset =
                       id === 'fitted' ? fitted : STRUCTURE_PRESETS.find((p) => p.id === id)
@@ -522,7 +486,7 @@ export function DrillSetupPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="text-primary size-4" aria-hidden />
+              <Lightbulb className="text-primary-ink size-4" aria-hidden />
               Coaching cues
             </CardTitle>
           </CardHeader>
@@ -538,7 +502,7 @@ export function DrillSetupPage() {
             {drill.commonFaults.length > 0 && (
               <div className="border-border border-t pt-4">
                 <p className="mb-2.5 flex items-center gap-2 text-sm font-semibold">
-                  <AlertTriangle className="text-sprint size-4" aria-hidden />
+                  <AlertTriangle className="text-sprint-ink size-4" aria-hidden />
                   Common faults
                 </p>
                 <ul className="text-muted-foreground space-y-2 text-sm leading-relaxed">
@@ -560,7 +524,7 @@ export function DrillSetupPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BookOpen className="text-primary size-4" aria-hidden />
+                <BookOpen className="text-primary-ink size-4" aria-hidden />
                 Learn the technique
               </CardTitle>
               <CardDescription>The reference behind this drill, in a few minutes.</CardDescription>

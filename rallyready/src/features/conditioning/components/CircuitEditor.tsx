@@ -142,7 +142,7 @@ export function CircuitEditor({ drill, config, onChange }: CircuitEditorProps) {
                       </ul>
                       <div>
                         <p className="mb-1.5 flex items-center gap-2 text-xs font-semibold">
-                          <AlertTriangle className="text-sprint size-3.5" aria-hidden />
+                          <AlertTriangle className="text-sprint-ink size-3.5" aria-hidden />
                           Common faults
                         </p>
                         <ul className="text-muted-foreground space-y-1.5 text-xs leading-relaxed">

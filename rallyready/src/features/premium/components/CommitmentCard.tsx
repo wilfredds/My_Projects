@@ -113,7 +113,7 @@ export function CommitmentCard() {
             <ShieldCheck className="size-5" aria-hidden />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="type-eyebrow text-primary">What you bought</p>
+            <p className="type-eyebrow text-primary-ink">What you bought</p>
             <h2 className="type-headline mt-1 text-xl">{bundle?.name ?? 'Premium'}</h2>
             <p className="text-muted-foreground type-body mt-1">
               Started {new Date(commitment.startedAt).toLocaleDateString(undefined, DATE)} · runs to{' '}
@@ -152,7 +152,7 @@ export function CommitmentCard() {
             {promises.map((promise) => (
               <li key={promise.id} className="flex items-start gap-2">
                 {promise.live ? (
-                  <Check className="text-primary mt-0.5 size-3.5 shrink-0" aria-hidden />
+                  <Check className="text-primary-ink mt-0.5 size-3.5 shrink-0" aria-hidden />
                 ) : (
                   <X className="text-destructive mt-0.5 size-3.5 shrink-0" aria-hidden />
                 )}

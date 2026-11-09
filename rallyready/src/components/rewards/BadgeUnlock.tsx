@@ -34,7 +34,7 @@ export function BadgeUnlock({ slugs }: { slugs: string[] }) {
     <Card level="lead" className="relative mb-5">
       <Confetti count={18} />
       <CardContent className="relative p-5">
-        <p className="text-primary type-eyebrow mb-3">
+        <p className="text-primary-ink type-eyebrow mb-3">
           {badges.length === 1 ? 'Badge unlocked' : `${badges.length} badges unlocked`}
         </p>
         <ul className="space-y-3">

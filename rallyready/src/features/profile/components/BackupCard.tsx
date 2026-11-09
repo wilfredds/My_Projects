@@ -114,7 +114,7 @@ export function BackupCard() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <HardDriveDownload className="text-primary size-4" aria-hidden />
+          <HardDriveDownload className="text-primary-ink size-4" aria-hidden />
           Back up your training
         </CardTitle>
         <CardDescription>

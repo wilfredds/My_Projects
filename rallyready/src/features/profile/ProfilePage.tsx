@@ -84,14 +84,14 @@ export function ProfilePage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <UserRound className="text-primary size-4" aria-hidden />
+              <UserRound className="text-primary-ink size-4" aria-hidden />
               Account
             </CardTitle>
             <CardDescription>
               {auth.status === 'signed-in'
                 ? 'Your sessions sync to this account.'
                 : auth.status === 'unavailable'
-                  ? 'Accounts are switched off in this build, so your training stays on this device. Everything still works.'
+                  ? 'Accounts are not switched on yet, so your training stays on this phone. Everything still works.'
                   : 'Signing in syncs your training across devices. It is entirely optional.'}
             </CardDescription>
           </CardHeader>
@@ -156,7 +156,7 @@ export function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <ShieldCheck className="text-primary size-4" aria-hidden />
+                <ShieldCheck className="text-primary-ink size-4" aria-hidden />
                 Your Premium block
               </CardTitle>
               <CardDescription>
@@ -186,7 +186,7 @@ export function ProfilePage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="text-primary size-4" aria-hidden />
+              <Sparkles className="text-primary-ink size-4" aria-hidden />
               How RallyReady works
             </CardTitle>
             <CardDescription>
@@ -207,7 +207,7 @@ export function ProfilePage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Palette className="text-primary size-4" aria-hidden />
+              <Palette className="text-primary-ink size-4" aria-hidden />
               Appearance
             </CardTitle>
             <CardDescription>Follows your system unless you pick one.</CardDescription>
@@ -230,9 +230,9 @@ export function ProfilePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {repositories.backend === 'supabase' ? (
-                <Database className="text-primary size-4" aria-hidden />
+                <Database className="text-primary-ink size-4" aria-hidden />
               ) : (
-                <CloudOff className="text-primary size-4" aria-hidden />
+                <CloudOff className="text-primary-ink size-4" aria-hidden />
               )}
               Your data
             </CardTitle>
@@ -324,7 +324,7 @@ export function ProfilePage() {
             {sessions.length === 0 ? (
               <p className="text-muted-foreground text-sm">
                 Nothing logged yet.{' '}
-                <Link className="text-primary underline" to="/">
+                <Link className="text-primary-ink underline" to="/">
                   Start a drill
                 </Link>{' '}
                 and it will show up here.

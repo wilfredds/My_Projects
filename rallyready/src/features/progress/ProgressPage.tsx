@@ -381,7 +381,7 @@ export function ProgressPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <Award className="text-primary size-4" aria-hidden />
+                <Award className="text-primary-ink size-4" aria-hidden />
                 Trophy case
               </CardTitle>
               <CardDescription>

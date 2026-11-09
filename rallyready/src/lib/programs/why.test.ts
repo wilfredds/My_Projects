@@ -19,9 +19,9 @@ describe('whyToday', () => {
     })
   })
 
-  it('calls the last week a taper rather than a deload', () => {
+  it('calls the last week the final one rather than another easy week', () => {
     const why = whyToday({ totalWeeks: 8, currentWeek: 8, focus: 'footwork' })
-    expect(why?.label).toContain('Taper')
+    expect(why?.label).toBe('Final week — the last of 8')
     expect(why?.ahead).toBeNull()
   })
 

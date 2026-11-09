@@ -63,7 +63,7 @@ export function BottomNav() {
                 cn(
                   'relative flex min-h-[3.25rem] flex-col items-center justify-center gap-1 rounded-xl py-2 text-[0.6875rem] font-medium transition-colors md:min-h-16 md:gap-1.5',
                   isActive
-                    ? 'text-primary'
+                    ? 'text-primary-ink'
                     : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
                 )
               }

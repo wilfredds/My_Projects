@@ -13,9 +13,9 @@ const FOCUS_ICON = {
 } as const
 
 const FOCUS_TINT: Record<ProgramFocus, string> = {
-  footwork: 'bg-work/15 text-work',
-  conditioning: 'bg-sprint/15 text-sprint',
-  matchplay: 'bg-cooldown/15 text-cooldown',
+  footwork: 'bg-work/15 text-work-ink',
+  conditioning: 'bg-sprint/15 text-sprint-ink',
+  matchplay: 'bg-cooldown/15 text-cooldown-ink',
   rest: 'bg-muted text-muted-foreground',
 }
 

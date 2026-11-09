@@ -39,12 +39,13 @@ export const PREMIUM_FEATURES: Feature[] = [
     id: 'all-programs',
     name: 'Every training program',
     blurb:
-      'All periodised plans, four to sixteen weeks, Base through Sharpen with deloads built in. Free covers one.',
+      'Every plan, four to sixteen weeks long, with easy weeks built in. The free app includes one.',
   },
   {
     id: 'custom-programs',
     name: 'Build your own program',
-    blurb: 'Generate a periodised plan around your weeks, your sessions and your court access.',
+    blurb:
+      'A plan built around how many weeks you have, how often you train, and whether you have a court.',
   },
   {
     id: 'deep-analytics',
@@ -170,6 +171,25 @@ export function expiryFor(bundle: Bundle, from = new Date()): number {
 }
 
 /** Days left, for the reminder on the profile screen. */
+/**
+ * Whether the upgrade screen offers a way back to free.
+ *
+ * A preview always can: nothing was paid, so leaving costs nothing. This used
+ * to be "active and no commitment" — but every unlock records a commitment, so
+ * once anybody switched the free preview on, the way off disappeared for good.
+ * A real purchase is a different question (it is a block of weeks you are
+ * owed), and stays out of reach here until a payment provider exists to
+ * refund it.
+ */
+export function canSwitchOff(state: {
+  active: boolean
+  source: 'none' | 'preview' | 'purchase'
+  commitment: unknown
+}): boolean {
+  if (!state.active) return false
+  return state.source === 'preview' || !state.commitment
+}
+
 export function daysRemaining(expiresAt: number | null, now = Date.now()): number | null {
   if (expiresAt === null) return null
   return Math.max(0, Math.ceil((expiresAt - now) / 86_400_000))

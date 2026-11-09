@@ -116,7 +116,7 @@ export function WelcomePage() {
           >
             {screen === 'what' && (
               <section>
-                <p className="text-primary type-eyebrow text-sm">RallyReady</p>
+                <p className="text-primary-ink type-eyebrow text-sm">RallyReady</p>
                 <h1 className="mt-2 text-[2.6rem] leading-[1.05] font-extrabold tracking-[-0.03em] text-balance">
                   A badminton coach for training on your own.
                 </h1>
@@ -148,7 +148,7 @@ export function WelcomePage() {
 
             {screen === 'hear' && (
               <section>
-                <p className="text-primary type-eyebrow flex items-center gap-2 text-sm">
+                <p className="text-primary-ink type-eyebrow flex items-center gap-2 text-sm">
                   <Volume2 className="size-4" aria-hidden />
                   Listen
                 </p>
@@ -165,7 +165,7 @@ export function WelcomePage() {
 
             {screen === 'track' && (
               <section>
-                <p className="text-primary type-eyebrow text-sm">And it watches</p>
+                <p className="text-primary-ink type-eyebrow text-sm">And it watches</p>
                 <h1 className="mt-2 text-[2.2rem] leading-[1.08] font-extrabold tracking-[-0.03em] text-balance">
                   It will tell you when to stop.
                 </h1>

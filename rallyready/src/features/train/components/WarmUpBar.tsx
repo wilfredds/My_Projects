@@ -20,7 +20,7 @@ export function WarmUpBar() {
     return (
       <div className="text-muted-foreground mb-6 flex items-center justify-between gap-3 px-1 text-xs">
         <span className="inline-flex items-center gap-1.5">
-          <Check className="text-primary size-3.5" aria-hidden />
+          <Check className="text-primary-ink size-3.5" aria-hidden />
           Warmed up — you are good to go.
         </span>
         <Button asChild variant="ghost" size="sm" className="text-xs">
@@ -36,7 +36,7 @@ export function WarmUpBar() {
   return (
     <div className="border-border bg-secondary/30 mb-6 rounded-xl border p-3">
       <div className="flex items-center gap-3">
-        <span className="bg-work/15 text-work grid size-9 shrink-0 place-items-center rounded-lg">
+        <span className="bg-work/15 text-work-ink grid size-9 shrink-0 place-items-center rounded-lg">
           <Flame className="size-4" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">

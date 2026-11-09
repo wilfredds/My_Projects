@@ -168,7 +168,7 @@ export function TrainPage() {
             to="/progress"
             className="text-foreground inline-flex items-center gap-1.5 font-medium hover:underline"
           >
-            <Flame className="text-primary size-4" aria-hidden />
+            <Flame className="text-primary-ink size-4" aria-hidden />
             {pluralize(streak.currentStreak, 'week')} in a row
           </Link>
           <span>
@@ -291,7 +291,7 @@ export function TrainPage() {
           an unclosable prompt outranked the content it was advertising. */}
       {!profileLoading && !profile && !setupDismissed && !isNewHere && (
         <div className="border-border mb-6 flex items-center gap-3 rounded-xl border border-dashed p-3">
-          <Sparkles className="text-primary size-4 shrink-0" aria-hidden />
+          <Sparkles className="text-primary-ink size-4 shrink-0" aria-hidden />
           <p className="text-muted-foreground min-w-0 flex-1 text-xs leading-relaxed">
             <span className="text-foreground font-medium">Get drills picked for you.</span> Four
             questions, under two minutes.
@@ -340,7 +340,7 @@ export function TrainPage() {
             bonus, and it was previously reachable only through a tab. */}
         <Card level="quiet">
           <CardContent className="flex items-center gap-3 p-4">
-            <span className="bg-primary/15 text-primary grid size-10 shrink-0 place-items-center rounded-xl">
+            <span className="bg-primary/15 text-primary-ink grid size-10 shrink-0 place-items-center rounded-xl">
               <Dumbbell className="size-5" aria-hidden />
             </span>
             <div className="min-w-0 flex-1">
@@ -357,7 +357,7 @@ export function TrainPage() {
 
         <Card level="quiet">
           <CardContent className="flex items-center gap-3 p-4">
-            <span className="bg-sprint/15 text-sprint grid size-10 shrink-0 place-items-center rounded-xl">
+            <span className="bg-sprint/15 text-sprint-ink grid size-10 shrink-0 place-items-center rounded-xl">
               <Gamepad2 className="size-5" aria-hidden />
             </span>
             <div className="min-w-0 flex-1">

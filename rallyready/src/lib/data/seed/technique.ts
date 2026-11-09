@@ -1134,7 +1134,7 @@ export const TECHNIQUE_TOPICS: TechniqueTopic[] = [
         heading: 'What solo work cannot teach you',
         body: [
           'Timing against a real shuttle, reading an opponent’s preparation, and touch at the net. Those need a shuttle and, for the last two, another person.',
-          'What solo work is unusually good at is movement quality, the split step, work capacity and speed — the things that most limit a returning club player, and the things that are hardest to fix during a match. Use the court time you do get for the parts that need a partner.',
+          'What solo work is unusually good at is movement quality, the split step, stamina and speed — the things that most limit a returning club player, and the things that are hardest to fix during a match. Use the court time you do get for the parts that need a partner.',
         ],
       },
       {

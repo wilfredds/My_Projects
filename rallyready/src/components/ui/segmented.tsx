@@ -86,7 +86,11 @@ export function Segmented<T extends string>({
               <span
                 className={cn(
                   'text-xs font-normal',
-                  selected ? 'opacity-80' : 'text-muted-foreground/80',
+                  // Full muted, not /80: faded, these hints measured 3.8:1 on
+                  // white — under the 4.5 text needs — and they carry the
+                  // numbers ("1.35s", "30s / 30s × 6") the choice is made on.
+                  // Size and weight already set them apart from the label.
+                  selected ? 'opacity-80' : 'text-muted-foreground',
                 )}
               >
                 {option.hint}

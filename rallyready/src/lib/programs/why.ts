@@ -61,11 +61,10 @@ export function whyToday(input: {
   const isFinalWeek = week === total
   const taper = isFinalWeek && phase === 'deload'
 
+  // "Deload" and "taper" are coach words; this line is on the Today card.
   const label = taper
-    ? `Taper week — last of ${total}`
-    : phase === 'deload'
-      ? `Deload week ${week} of ${total}`
-      : `${PHASE_WORD[phase]} week ${week} of ${total}`
+    ? `Final week — the last of ${total}`
+    : `${PHASE_WORD[phase]} week ${week} of ${total}`
 
   const purpose =
     input.focus === 'rest'
@@ -81,7 +80,7 @@ const PHASE_WORD: Record<ProgramPhase, string> = {
   base: 'Base',
   build: 'Build',
   sharpen: 'Sharpen',
-  deload: 'Deload',
+  deload: 'Easy',
 }
 
 function aheadOf(phases: ProgramPhase[], week: number, phase: ProgramPhase): string | null {

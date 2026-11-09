@@ -86,7 +86,8 @@ export function ChallengePage() {
               id="challenge-code"
               value={pasted}
               onChange={(event) => setPasted(event.target.value)}
-              placeholder="1,ABC,G,BN,U,1C8,4M,six-corner-shadow,Wilfred"
+              /* A sample code looked like one already typed in. */
+              placeholder="Paste the code your friend sent"
               className="mt-2"
               autoCapitalize="off"
               autoCorrect="off"

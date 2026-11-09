@@ -15,9 +15,9 @@ const KIND_ICON: Record<LibraryKind, typeof BookOpen> = {
 }
 
 const KIND_TINT: Record<LibraryKind, string> = {
-  technique: 'bg-cooldown/15 text-cooldown',
-  drill: 'bg-work/15 text-work',
-  exercise: 'bg-sprint/15 text-sprint',
+  technique: 'bg-cooldown/15 text-cooldown-ink',
+  drill: 'bg-work/15 text-work-ink',
+  exercise: 'bg-sprint/15 text-sprint-ink',
 }
 
 export function EntryCard({ entry }: { entry: LibraryEntry }) {

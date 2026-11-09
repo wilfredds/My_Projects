@@ -74,6 +74,24 @@
   --cooldown: oklch(0.6 0.09 292);
   --cooldown-foreground: oklch(0.99 0.01 292);
 
+  /*
+   * Ink: each colour above, deep enough to be read as text.
+   *
+   * The lime and the phase colours are fills — a button, a bar, a tint behind
+   * a chip. Used as text on a light surface they fail badly: the brand lime
+   * measured 1.4:1 on the active nav tab, and every phase colour was under 3.3
+   * on its own tinted chip. WCAG asks 4.5 for text. These keep each hue and
+   * pass on white, on the page, on secondary, on accent and on a 20% tint of
+   * themselves (worst case 4.8, for orange). Use `text-*-ink` for words and
+   * glyphs; keep `bg-*`, `fill-*` and `stroke-*` on the base colour.
+   */
+  --primary-ink: oklch(0.47 0.12 128);
+  --work-ink: oklch(0.47 0.13 130);
+  --rest-ink: oklch(0.47 0.12 235);
+  --sprint-ink: oklch(0.52 0.16 45);
+  --warmup-ink: oklch(0.47 0.09 192);
+  --cooldown-ink: oklch(0.47 0.1 292);
+
   /* Court board */
   --court-line: oklch(0.82 0.008 255);
   --court-surface: oklch(0.97 0.004 250);
@@ -118,6 +136,14 @@
   --cooldown: oklch(0.78 0.09 292);
   --cooldown-foreground: oklch(0.16 0.03 292);
 
+  /* On a dark surface the base colours already read as text. */
+  --primary-ink: var(--primary);
+  --work-ink: var(--work);
+  --rest-ink: var(--rest);
+  --sprint-ink: var(--sprint);
+  --warmup-ink: var(--warmup);
+  --cooldown-ink: var(--cooldown);
+
   --court-line: oklch(0.42 0.014 255);
   --court-surface: oklch(0.22 0.016 255);
 }
@@ -149,6 +175,12 @@
   --color-rest-foreground: var(--rest-foreground);
   --color-sprint: var(--sprint);
   --color-sprint-foreground: var(--sprint-foreground);
+  --color-primary-ink: var(--primary-ink);
+  --color-work-ink: var(--work-ink);
+  --color-rest-ink: var(--rest-ink);
+  --color-sprint-ink: var(--sprint-ink);
+  --color-warmup-ink: var(--warmup-ink);
+  --color-cooldown-ink: var(--cooldown-ink);
   --color-warmup: var(--warmup);
   --color-warmup-foreground: var(--warmup-foreground);
   --color-cooldown: var(--cooldown);

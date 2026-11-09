@@ -217,7 +217,7 @@ export function FeedbackDialog({ trigger }: { trigger: React.ReactNode }) {
             </div>
           </div>
 
-          {done && <p className="text-primary text-sm font-medium">{done}</p>}
+          {done && <p className="text-primary-ink text-sm font-medium">{done}</p>}
 
           <div className="flex flex-wrap gap-2">
             <Button onClick={send} disabled={!isSendable(draft) || busy}>

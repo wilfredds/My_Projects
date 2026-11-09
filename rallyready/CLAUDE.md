@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **648 tests across 41 files, all passing** — if you
+individually. Baseline is **671 tests across 42 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -146,9 +146,14 @@ see fewer, something is being skipped.
   defaults for ever, so the drill silently stops following the level. A fitted
   drill matches no named preset, because the factors *scale* the drill's own
   numbers rather than snapping them to one — so the setup screen has three
-  states, not two (`isFittedDifficulty` / `isFittedStructure`). Calling the
-  fitted state "Custom · your own pace" told every beginner and every advanced
-  player, on every drill, that they had chosen a pace the app chose.
+  states, not two. Calling the fitted state "Custom · your own pace" told every
+  beginner and every advanced player, on every drill, that they had chosen a
+  pace the app chose. Which options the screen offers is decided by
+  `paceChoices` / `shapeChoices` in `lib/timer/plan`, not by the page: "Your
+  level" is listed only when it is not already a named preset, "Custom" only
+  for numbers the player set, and when the fitted pace shares its interval with
+  a preset the hint says what differs ("0.88s · no repeats"). Two options with
+  the same label is a choice nobody can make, and the page used to offer one.
 - **A rally pattern calls a point, not a corner.** `lib/timer/patterns` holds
   named sequences of corner-plus-shot taken from how rallies are constructed;
   `pattern` selection walks one, then picks another. Every shot must be legal
@@ -192,6 +197,17 @@ see fewer, something is being skipped.
   `transform` and `opacity` only. Nothing on `lib/timer/*` or `lib/audio/*`
   gets an animation, and nothing on the runner may force a layout or a paint
   per tick; `TimerDial.tsx` explains why its sweep has no CSS transition.
+- **A fill colour is not a text colour.** The brand lime and the phase colours
+  are fills: buttons, bars, the tint behind a chip. Used as the colour of words
+  on a light surface they measured as low as 1.4:1 (the active nav tab), and
+  seventy places in the light theme failed the 4.5:1 WCAG asks of text. Words
+  and glyphs use the `-ink` shade (`text-primary-ink`, `text-work-ink`, …),
+  which is darker in light mode and the colour itself in dark mode.
+  `lib/design/contrast.test.ts` computes every ink token out of `index.css`
+  against every surface and its own tint, and fails the build on a bare
+  `text-primary` (or any other fill) in source. It reads the stylesheet as real
+  text because `vitest.config.ts` exempts `index.css` from CSS stubbing — undo
+  that and the test can only fail, on a missing token.
 - **A figure that contradicts its cue is worse than no figure.** The renderer
   mirrors left and right, which makes it a *front view* by construction;
   `MobilityPose.ground` tips the whole body over for anything done on the floor
@@ -232,7 +248,10 @@ see fewer, something is being skipped.
 - **No payment provider is wired.** Premium is a local entitlement plus an
   upgrade screen that says so on the page. Anything that looks like it takes
   money must keep saying it does not until a provider and server-side receipt
-  verification exist.
+  verification exist. A free preview is not a purchase, so it can always be
+  switched off: `canSwitchOff` decides when the "Turn it off" card shows. It
+  used to hide whenever a commitment existed, and every unlock records one, so
+  a preview once switched on could never be turned off.
 
 ## Layout
 

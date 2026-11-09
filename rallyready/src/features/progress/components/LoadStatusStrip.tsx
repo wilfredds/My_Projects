@@ -17,9 +17,9 @@ import { cn } from '@/lib/utils'
 
 const TONE: Record<LoadStatus, { icon: typeof Check; className: string }> = {
   settling: { icon: Hourglass, className: 'bg-secondary text-muted-foreground' },
-  detraining: { icon: ArrowDownRight, className: 'bg-rest/15 text-rest' },
-  steady: { icon: Check, className: 'bg-work/15 text-work' },
-  building: { icon: ArrowUpRight, className: 'bg-sprint/15 text-sprint' },
+  detraining: { icon: ArrowDownRight, className: 'bg-rest/15 text-rest-ink' },
+  steady: { icon: Check, className: 'bg-work/15 text-work-ink' },
+  building: { icon: ArrowUpRight, className: 'bg-sprint/15 text-sprint-ink' },
   spiking: { icon: AlertTriangle, className: 'bg-destructive/15 text-destructive' },
 }
 

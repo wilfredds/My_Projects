@@ -80,9 +80,9 @@ export function BenchmarkResultPage() {
             <div
               className={`grid size-10 shrink-0 place-items-center rounded-xl ${
                 delta > 0
-                  ? 'bg-work/15 text-work'
+                  ? 'bg-work/15 text-work-ink'
                   : delta < 0
-                    ? 'bg-rest/15 text-rest'
+                    ? 'bg-rest/15 text-rest-ink'
                     : 'bg-secondary'
               }`}
             >

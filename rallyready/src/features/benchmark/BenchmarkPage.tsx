@@ -93,7 +93,7 @@ export function BenchmarkPage() {
         <Card className="mt-4">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <TrendingUp className="text-primary size-4" aria-hidden />
+              <TrendingUp className="text-primary-ink size-4" aria-hidden />
               Score over time
             </CardTitle>
             <CardDescription>Corner touches completed. Higher is fitter.</CardDescription>
@@ -126,7 +126,7 @@ export function BenchmarkPage() {
         <CardContent className="space-y-4 p-5">
           <div className="flex items-start gap-3">
             <div className="bg-background/70 grid size-11 shrink-0 place-items-center rounded-xl">
-              <Gauge className="text-primary size-5" aria-hidden />
+              <Gauge className="text-primary-ink size-5" aria-hidden />
             </div>
             <div>
               <p className="font-semibold">{latest ? 'Test again' : 'Take your first benchmark'}</p>

@@ -17,6 +17,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
-    css: false,
+    // Stylesheets are stubbed to an empty string in tests — even with `?raw` —
+    // except this one. The contrast test reads the colour tokens straight out
+    // of it, and against an empty file it can only fail, with an error about a
+    // missing token rather than about the colour.
+    css: { include: [/src\/index\.css/] },
   },
 })

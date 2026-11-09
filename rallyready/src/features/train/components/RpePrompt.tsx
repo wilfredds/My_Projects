@@ -88,7 +88,7 @@ export function RpePrompt({ sessionId, durationSec, initial }: RpePromptProps) {
           </div>
           {saving && <Loader2 className="text-muted-foreground mt-1 size-4 animate-spin" />}
           {!saving && value !== null && !failed && (
-            <Check className="text-primary mt-1 size-4 shrink-0" aria-hidden />
+            <Check className="text-primary-ink mt-1 size-4 shrink-0" aria-hidden />
           )}
         </div>
 

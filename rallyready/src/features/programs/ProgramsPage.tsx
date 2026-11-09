@@ -46,7 +46,7 @@ export function ProgramsPage() {
     <>
       <PageHeader
         title="Programs"
-        description="Periodised plans that decide what to train and when, so you do not have to."
+        description="Multi-week plans that decide what you train, and when. You just turn up."
         action={
           <Button asChild variant="outline" size="icon" title="Create a program">
             <Link to="/programs/new" aria-label="Create a program">

@@ -11,6 +11,8 @@ import {
   isFittedDifficulty,
   isFittedStructure,
   matchDifficulty,
+  paceChoices,
+  shapeChoices,
   estimateDurationSec,
   isCircuit,
   minIntervalFor,
@@ -486,5 +488,73 @@ describe('what the setup screen can honestly call a drill', () => {
     const fitted = configFromDrill(drill, { level: 'intermediate', discipline: 'singles' })
     const picked = { ...fitted, intervalMs: 1100, avoidImmediateRepeat: true }
     expect(matchDifficulty(picked)?.id).toBe('advanced')
+  })
+})
+
+describe('the options the setup screen offers', () => {
+  const LEVELS = ['beginner', 'intermediate', 'advanced'] as const
+  const callDrills = SEED_DRILLS.filter((drill) => !drill.circuit)
+  const every = () =>
+    callDrills.flatMap((drill) =>
+      LEVELS.map((level) => {
+        const fitted = configFromDrill(drill, { level, discipline: 'singles' })
+        return { where: `${drill.slug} @ ${level}`, fitted }
+      }),
+    )
+
+  it('never offers the same choice twice', () => {
+    /*
+     * An intermediate player's fitted pace is, on most drills, exactly the
+     * "Intermediate 1.35s" preset. Offering "Your level 1.35s" next to it put
+     * one choice on screen twice, and which of the two lit up was arbitrary.
+     */
+    for (const { where, fitted } of every()) {
+      for (const { options } of [paceChoices(fitted, fitted), shapeChoices(fitted, fitted)]) {
+        const hints = options.map((option) => option.hint)
+        expect(new Set(hints).size, `${where}: ${hints.join(' | ')}`).toBe(hints.length)
+      }
+    }
+  })
+
+  it('always selects an option that is actually on the list', () => {
+    for (const { where, fitted } of every()) {
+      for (const { options, selected } of [
+        paceChoices(fitted, fitted),
+        shapeChoices(fitted, fitted),
+      ]) {
+        expect(
+          options.map((option) => option.value),
+          where,
+        ).toContain(selected)
+      }
+    }
+  })
+
+  it('never calls an untouched drill "Custom"', () => {
+    for (const { where, fitted } of every()) {
+      expect(paceChoices(fitted, fitted).selected, where).not.toBe('custom')
+      expect(shapeChoices(fitted, fitted).selected, where).not.toBe('custom')
+    }
+  })
+
+  it('keeps a way back to the fitted numbers after a preset is picked', () => {
+    // "Your level" when the fitted pace is its own thing, or the named preset
+    // it equals — either way, one tap undoes an experiment.
+    for (const { where, fitted } of every()) {
+      const tried = { ...fitted, intervalMs: 880, avoidImmediateRepeat: false }
+      const values = paceChoices(tried, fitted).options.map((option) => option.value)
+      // Either "Your level" itself, or the one named preset that *is* the
+      // fitted setting — not merely one that runs at the same speed.
+      const back = matchDifficulty(fitted)?.id ?? 'fitted'
+      expect(values, where).toContain(back)
+    }
+  })
+
+  it('offers "Custom" only for numbers the player set', () => {
+    const fitted = configFromDrill(callDrills[0]!, { level: 'beginner', discipline: 'singles' })
+    const odd = { ...fitted, intervalMs: fitted.intervalMs + 50 }
+    const { options, selected } = paceChoices(odd, fitted)
+    expect(selected).toBe('custom')
+    expect(options.filter((option) => option.value === 'custom')).toHaveLength(1)
   })
 })

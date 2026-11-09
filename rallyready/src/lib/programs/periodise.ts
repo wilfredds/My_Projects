@@ -183,7 +183,7 @@ const PHASE_SLOTS: Record<ProgramPhase, Slot[]> = {
     {
       focus: 'footwork',
       pool: 'footwork',
-      title: 'Footwork — volume',
+      title: 'Footwork — more rounds',
       notes: 'Add a round rather than adding speed.',
     },
     {
@@ -239,7 +239,7 @@ const PHASE_SLOTS: Record<ProgramPhase, Slot[]> = {
     {
       focus: 'footwork',
       pool: 'footwork',
-      title: 'Footwork — volume',
+      title: 'Footwork — more rounds',
       notes: null,
     },
   ],
@@ -266,7 +266,7 @@ const PHASE_SLOTS: Record<ProgramPhase, Slot[]> = {
       focus: 'footwork',
       pool: 'footwork',
       title: 'Footwork — crisp',
-      notes: 'Cut the volume, keep the pace.',
+      notes: 'Fewer rounds, same pace.',
     },
     {
       focus: 'conditioning',

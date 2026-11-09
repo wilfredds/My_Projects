@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
+  canSwitchOff,
   daysRemaining,
   monthlyRate,
   ALWAYS_FREE,
@@ -61,7 +62,15 @@ export function PremiumPage() {
 
       <CommitmentCard />
 
-      {premium.active && !premium.commitment && (
+      {/*
+       * The way back to free. It used to render only when there was no
+       * commitment — but every unlock records one, so the moment anybody
+       * switched the free preview on, this card disappeared for good and the
+       * preview could never be turned off again. A preview is not a purchase:
+       * nothing was paid, so leaving it costs nothing and must always be
+       * possible.
+       */}
+      {canSwitchOff(premium) && (
         <Card level="lead" className="mb-6">
           <CardContent className="flex items-start gap-3 p-5">
             <span className="bg-primary text-primary-foreground grid size-9 shrink-0 place-items-center rounded-xl">
@@ -70,9 +79,11 @@ export function PremiumPage() {
             <div className="min-w-0 flex-1">
               <p className="font-semibold">Premium is on</p>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                {left === null
-                  ? 'Active.'
-                  : `${left} ${left === 1 ? 'day' : 'days'} left on your ${premium.bundleId} bundle.`}
+                {premium.source === 'preview'
+                  ? 'This is the free preview. Nothing was charged, so you can switch it off at any time.'
+                  : left === null
+                    ? 'Active.'
+                    : `${left} ${left === 1 ? 'day' : 'days'} left on your ${premium.bundleId} bundle.`}
               </p>
               <Button variant="ghost" size="sm" className="mt-2 -ml-2" onClick={cancel}>
                 Turn it off
@@ -102,7 +113,7 @@ export function PremiumPage() {
             <li key={feature.id}>
               <Card>
                 <CardContent className="flex gap-3 p-4">
-                  <span className="bg-primary/15 text-primary mt-0.5 grid size-6 shrink-0 place-items-center rounded-full">
+                  <span className="bg-primary/15 text-primary-ink mt-0.5 grid size-6 shrink-0 place-items-center rounded-full">
                     <Check className="size-3.5" aria-hidden />
                   </span>
                   <div className="min-w-0">
@@ -192,7 +203,7 @@ export function PremiumPage() {
             <li key={guarantee.title}>
               <Card>
                 <CardContent className="flex gap-3 p-4">
-                  <ShieldCheck className="text-primary mt-0.5 size-4 shrink-0" aria-hidden />
+                  <ShieldCheck className="text-primary-ink mt-0.5 size-4 shrink-0" aria-hidden />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold">{guarantee.title}</p>
                     <p className="text-muted-foreground type-meta mt-0.5 leading-relaxed">
@@ -215,7 +226,7 @@ export function PremiumPage() {
         <ul className="space-y-2">
           {ALWAYS_FREE.map((item) => (
             <li key={item} className="text-muted-foreground flex gap-2.5 text-sm leading-snug">
-              <Check className="text-primary mt-0.5 size-4 shrink-0" aria-hidden />
+              <Check className="text-primary-ink mt-0.5 size-4 shrink-0" aria-hidden />
               {item}
             </li>
           ))}

@@ -217,7 +217,7 @@ export function SessionSummaryPage() {
               <Flame className="size-5" aria-hidden />
             </motion.div>
             <div className="min-w-0">
-              {extendedStreak && <p className="text-primary type-eyebrow">Streak extended</p>}
+              {extendedStreak && <p className="text-primary-ink type-eyebrow">Streak extended</p>}
               <p className="font-semibold">
                 {streak.currentStreak > 0
                   ? `${pluralize(streak.currentStreak, 'week')} in a row`

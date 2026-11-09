@@ -58,7 +58,7 @@ export function RatingCard({ rating }: { rating: PlayerRating }) {
             </ul>
 
             <div className="bg-secondary/60 mt-4 flex items-start gap-2.5 rounded-lg p-3">
-              <TrendingUp className="text-primary mt-0.5 size-4 shrink-0" aria-hidden />
+              <TrendingUp className="text-primary-ink mt-0.5 size-4 shrink-0" aria-hidden />
               <p className="text-xs leading-relaxed">
                 <span className="font-semibold">Biggest gain: {rating.weakest.label}.</span>{' '}
                 <span className="text-muted-foreground">{rating.weakest.hint}</span>

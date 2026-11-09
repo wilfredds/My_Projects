@@ -251,11 +251,11 @@ export function ProgramBuilderPage() {
                   className={cn(
                     'rounded-md px-2 py-1 text-[0.625rem] font-semibold',
                     phase === 'deload'
-                      ? 'bg-rest/15 text-rest'
+                      ? 'bg-rest/15 text-rest-ink'
                       : phase === 'sharpen'
-                        ? 'bg-sprint/15 text-sprint'
+                        ? 'bg-sprint/15 text-sprint-ink'
                         : phase === 'build'
-                          ? 'bg-work/20 text-work'
+                          ? 'bg-work/20 text-work-ink'
                           : 'bg-muted text-muted-foreground',
                   )}
                   title={`Week ${index + 1}: ${PHASE_LABEL[phase]}`}
@@ -307,7 +307,8 @@ export function ProgramBuilderPage() {
             <Badge variant="outline" className="mr-1.5">
               Note
             </Badge>
-            Editing the shape later rebuilds the plan and discards day-level edits.
+            Changing the length or sessions later rebuilds the plan. Days you edited by hand are
+            reset.
           </p>
         )}
       </div>

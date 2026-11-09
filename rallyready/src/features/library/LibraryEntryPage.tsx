@@ -183,7 +183,7 @@ export function LibraryEntryPage() {
       <Card className="mb-5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Lightbulb className="text-primary size-4" aria-hidden />
+            <Lightbulb className="text-primary-ink size-4" aria-hidden />
             Coaching cues
           </CardTitle>
         </CardHeader>
@@ -198,7 +198,7 @@ export function LibraryEntryPage() {
           </ul>
           <div className="border-border border-t pt-4">
             <p className="mb-2.5 flex items-center gap-2 text-sm font-semibold">
-              <AlertTriangle className="text-sprint size-4" aria-hidden />
+              <AlertTriangle className="text-sprint-ink size-4" aria-hidden />
               Common faults
             </p>
             <ul className="text-muted-foreground space-y-2 text-sm leading-relaxed">
@@ -222,7 +222,7 @@ export function LibraryEntryPage() {
               href={entry.reference.url}
               target="_blank"
               rel="noreferrer noopener"
-              className="text-primary inline-flex items-center gap-1.5 text-sm hover:underline"
+              className="text-primary-ink inline-flex items-center gap-1.5 text-sm hover:underline"
             >
               {entry.reference.title}
               <ExternalLink className="size-3.5" aria-hidden />

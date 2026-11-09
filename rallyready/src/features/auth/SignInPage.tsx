@@ -67,15 +67,16 @@ export function SignInPage() {
       <div className="mx-auto max-w-md py-10">
         <Card>
           <CardContent className="space-y-4 p-6">
-            <h1 className="text-xl font-semibold">Accounts are not configured</h1>
+            {/* A player reads this, not a developer. How to switch accounts
+                on — the two environment variables — is in the README. */}
+            <h1 className="text-xl font-semibold">Accounts are not switched on yet</h1>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              This build has no Supabase project attached, so there is nothing to sign in to.
-              Everything still works — your sessions, streaks and badges are saved on this device.
+              There is nothing to sign in to yet. Everything still works. Your sessions, streaks and
+              badges are saved on this phone.
             </p>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              To enable accounts, set <code className="text-foreground">VITE_SUPABASE_URL</code> and{' '}
-              <code className="text-foreground">VITE_SUPABASE_ANON_KEY</code>. The README has the
-              full walkthrough.
+              To keep a copy somewhere safe, use <strong>Back up your training</strong> on the
+              Profile screen.
             </p>
             <Button asChild>
               <Link to="/">Back to Train</Link>

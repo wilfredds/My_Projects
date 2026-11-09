@@ -28,10 +28,11 @@ the way.
 | 16 — Training where the browser fights you | ✅ Done |
 | 17 — Playing the app as a player | ✅ Done |
 | 18 — Playing it as a player ten weeks in | ✅ Done |
-| **19 — What a QA engineer found** | ✅ **Done — ready for review** |
+| 19 — What a QA engineer found | ✅ Done |
+| **20 — Does every control do what it says** | ✅ **Done — ready for review** |
 
-All nineteen phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 648 unit tests passing, production build clean.
+All twenty phases are built. `npm run verify` is green: 0 type errors, 0 lint
+errors/warnings, 671 unit tests passing across 42 files, production build clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -43,6 +44,73 @@ Earlier phases, one line each — the detail is in the git history:
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
 
+
+---
+
+## Phase 20 — does every control do what it says
+
+Asked to fix the UI and make sure every function does what it is for. So every
+control was pressed in a real browser, by a script playing a player, and its
+effect checked in what got saved rather than in what the screen claimed. Then
+every screen was measured, light and dark, at phone and tablet width.
+
+### What held
+
+Level and game change the drill's numbers and are kept. Conditioning, No court
+and the focus cards filter what they say. Every setup option, the runner's
+start, pause, resume, skip, end and keep going, the effort rating, Go again,
+the workout filters, enrolling in a program, marking a day done, leaving and
+restarting it, the program builder, library search and filters, the challenge
+round trip, export, clear and import (thirty-one sessions out and back, and a
+second import adds nothing), every cue switch, the benchmark, Reflex Rush's
+best score, onboarding's two ways out, and both themes. No console errors on
+any screen.
+
+### What did not
+
+- **The Premium preview could never be switched off.** The "Turn it off" card
+  showed only when there was no commitment, and every unlock records one. So
+  the moment anybody tried the free preview, the way back disappeared for good.
+  `canSwitchOff` now decides: a preview can always be left, because nothing
+  was paid. Four tests.
+- **The setup screen offered the same choice twice.** On Multifeed Shadow an
+  intermediate player's fitted pace is 0.88s, the same as Pro, so the picker
+  listed "Pro 0.88s" and "Your level 0.88s". They differ, in whether a corner
+  can repeat, and now the hint says so. The page no longer works out its own
+  options: `paceChoices` / `shapeChoices` do, and a test walks every drill at
+  every level to check no two options read the same, the chosen one is always
+  on the list, and the way back after trying Pro is still there.
+- **Seventy places in the light theme failed text contrast.** The brand lime
+  and phase colours were being used as the colour of words. The active nav tab
+  measured 1.4:1, and every phase colour was under 3.3 on its own tinted chip,
+  against 4.5. New `-ink` tokens (darker in light mode, unchanged in dark) are
+  now used for text in 65 places, and the unselected segmented hint lost its
+  80% opacity. Re-measured: zero failures. `lib/design/contrast.test.ts`
+  computes every ink token out of `index.css` against every surface, and fails
+  on a bare fill colour used as text. It was checked against a lightened ink
+  and a planted `text-primary`, and failed on both.
+- **Jargon left over from Phase 19.** "Deload week" and "Taper" in the
+  program's why line ("Easy week 4 of 8", "Final week — the last of 8"),
+  "volume" in session names, "periodised", "work capacity", "override",
+  "day-level". The sign-in screen told players about Supabase environment
+  variables; it now says accounts are not switched on yet and points to Back
+  up your training. The challenge box asked for a raw code; it now asks for
+  the one your friend sent. The focus page said "Showing the basics" over an
+  empty list; it now says to change your level.
+
+### Not bugs
+
+The bundle-size warning on build was already there before this phase. A few
+"failures" in the old browser script were the script: a drill slug that does
+not exist, a reflex score read from the wrong key, an onboarding loop that
+never pressed the final screen's buttons. Each was checked by hand.
+
+### Verified
+
+`npm run verify`: 671 tests across 42 files, no type or lint errors, clean
+build. In the browser: 39 + 36 + 19 + 3 + 6 functional checks passing, and a
+measure of twenty routes × two themes × two widths with 0 contrast failures,
+0 overflow, 0 clipped text, 0 console errors.
 
 ---
 

@@ -84,9 +84,13 @@ export function FocusPage() {
             onChange={(next) => setLevel(next as SkillLevel)}
           />
           <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
-            {level === 'beginner'
-              ? 'Showing the basics only. Move this up when they stop feeling hard.'
-              : `Showing everything up to ${LEVEL_LABEL[level].toLowerCase()}.`}
+            {/* Not when the list below is empty: "showing the basics" above
+                "nothing here at this level" contradicted itself. */}
+            {shown.length === 0
+              ? 'Change your level to see what this area holds.'
+              : level === 'beginner'
+                ? 'Showing the basics only. Move this up when they stop feeling hard.'
+                : `Showing everything up to ${LEVEL_LABEL[level].toLowerCase()}.`}
           </p>
         </div>
       )}
@@ -94,7 +98,7 @@ export function FocusPage() {
       {focus.fundamentalsOnly && (
         <Card className="mb-5">
           <CardContent className="flex items-start gap-3 p-4">
-            <BookOpen className="text-primary mt-0.5 size-4 shrink-0" aria-hidden />
+            <BookOpen className="text-primary-ink mt-0.5 size-4 shrink-0" aria-hidden />
             <p className="text-muted-foreground text-sm leading-relaxed">
               <span className="text-foreground font-medium">Read these in order.</span> Each one has
               a diagram you can copy — the grips especially are almost impossible to learn from

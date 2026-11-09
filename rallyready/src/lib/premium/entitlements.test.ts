@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  canSwitchOff,
   daysRemaining,
   expiryFor,
   isActive,
@@ -103,5 +104,30 @@ describe('entitlement lifetime', () => {
     expect(daysRemaining(now + 86_400_000 * 3, now)).toBe(3)
     expect(daysRemaining(now - 86_400_000, now)).toBe(0)
     expect(daysRemaining(null, now)).toBeNull()
+  })
+})
+
+describe('getting back to free', () => {
+  const commitment = { bundleId: 'quarter', startedAt: 0, endsAt: 1, sessionsPerWeek: 3 }
+
+  it('is always possible from the free preview', () => {
+    /*
+     * Every unlock records a commitment. The off switch used to require there
+     * be none, so switching the preview on was a one-way door: a tester who
+     * wanted to see the free app again had no way back.
+     */
+    expect(canSwitchOff({ active: true, source: 'preview', commitment })).toBe(true)
+  })
+
+  it('is offered for a plain unlock with nothing promised', () => {
+    expect(canSwitchOff({ active: true, source: 'purchase', commitment: null })).toBe(true)
+  })
+
+  it('is not offered on a paid block, which is weeks owed rather than a switch', () => {
+    expect(canSwitchOff({ active: true, source: 'purchase', commitment })).toBe(false)
+  })
+
+  it('is not offered when Premium is not on', () => {
+    expect(canSwitchOff({ active: false, source: 'preview', commitment })).toBe(false)
   })
 })
