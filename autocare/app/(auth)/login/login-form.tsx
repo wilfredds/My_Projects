@@ -48,7 +48,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
       {state.error ? (
         <div
           role="alert"
-          className="flex items-start gap-3 rounded-lg border-2 border-destructive bg-destructive/10 p-4"
+          className="flex items-start gap-3 rounded-xl border-2 border-destructive bg-destructive-tint p-4"
         >
           <AlertCircle className="mt-0.5 size-7 shrink-0 text-destructive" aria-hidden />
           <div className="space-y-1">

@@ -28,7 +28,7 @@ export default async function PrintReceiptPage({ params }: { params: Promise<{ i
   if (!job) notFound();
 
   return (
-    <div className="min-h-screen bg-muted/40 py-6">
+    <div className="min-h-screen bg-background py-6">
       <PrintControls
         backHref={`/jobs/${job.id}`}
         printLabel={tcom('print')}

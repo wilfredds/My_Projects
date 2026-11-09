@@ -110,10 +110,10 @@ export function SettingsForm({ shop, myLocale }: { shop: ShopValues; myLocale: s
           </Field>
 
           {/* Live preview of the receipt header, so the owner sees the effect. */}
-          <div className="rounded-lg border-2 border-dashed border-border bg-muted/30 p-5">
+          <div className="rounded-2xl border-2 border-dashed border-border bg-background p-5">
             <p className="mb-3 text-base font-semibold text-muted-foreground">{t('preview')}</p>
             <div className="border-b-4 border-foreground pb-3 text-center">
-              <p className="text-xl font-extrabold uppercase">{values.name}</p>
+              <p className="font-display text-2xl font-bold uppercase tracking-wide">{values.name}</p>
               <p className="whitespace-pre-wrap text-base">{values.address}</p>
               <p className="text-base">{values.phone}</p>
               {values.email ? <p className="text-base">{values.email}</p> : null}

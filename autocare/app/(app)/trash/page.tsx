@@ -8,6 +8,8 @@ import { onlyDeleted } from '@/lib/jobs';
 import { decimalToNumber, formatDate, formatDateTime } from '@/lib/utils';
 import { Badge, statusVariant } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/misc';
+import { RowList } from '@/components/ui/card';
+import { Plate } from '@/components/ui/plate';
 import { TrashRowActions } from './trash-controls';
 
 export const metadata = { title: 'Trash — AutoCare' };
@@ -49,49 +51,48 @@ export default async function TrashPage() {
         <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
       </div>
 
-      <p className="rounded-xl border-2 border-border bg-muted/40 p-4 text-lg text-muted-foreground">
+      <p className="rounded-2xl border border-border bg-card p-4 text-lg sm:p-5">
         {t('explainer')}
       </p>
 
       {jobs.length === 0 ? (
         <EmptyState title={t('empty')} icon={<Trash2 className="size-12" aria-hidden />} />
       ) : (
-        <ul className="space-y-3">
-          {jobs.map((job, index) => (
-            <li
-              key={job.id}
-              className="animate-rise space-y-4 rounded-xl border-2 border-border bg-background p-5"
-              style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
-            >
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="truncate text-lg font-bold">{job.customer.fullName}</p>
-                  <p className="truncate text-base text-muted-foreground">
-                    {job.vehicle.plateNumber} · {job.jobNumber} · {formatDate(job.date, tag)}
-                  </p>
-                  <p className="mt-1 text-base text-muted-foreground">
-                    {t('deletedBy', {
-                      who: job.deletedBy?.name ?? '—',
-                      when: job.deletedAt ? formatDateTime(job.deletedAt, tag) : '—',
-                    })}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="money">{formatPeso(decimalToNumber(job.total), tag)}</span>
-                  <Badge variant={statusVariant(job.status)}>
-                    {tj(`status_${job.status}` as never)}
-                  </Badge>
-                </div>
+        <RowList>
+          {jobs.map((job) => (
+            <li key={job.id} className="space-y-1.5 px-5 py-4 sm:px-6">
+              <div className="flex items-center justify-between gap-3">
+                <Plate>{job.vehicle.plateNumber}</Plate>
+                <span className="num text-money font-bold">
+                  {formatPeso(decimalToNumber(job.total), tag)}
+                </span>
               </div>
+              <p className="pt-0.5 text-lg font-semibold leading-snug [overflow-wrap:anywhere]">
+                {job.customer.fullName}
+              </p>
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                <span className="text-base text-muted-foreground">
+                  {formatDate(job.date, tag)} · <span className="whitespace-nowrap">{job.jobNumber}</span>
+                </span>
+                <Badge variant={statusVariant(job.status)}>{tj(`status_${job.status}` as never)}</Badge>
+              </div>
+              <p className="text-base text-muted-foreground">
+                {t('deletedBy', {
+                  who: job.deletedBy?.name ?? '—',
+                  when: job.deletedAt ? formatDateTime(job.deletedAt, tag) : '—',
+                })}
+              </p>
 
-              <TrashRowActions
-                jobId={job.id}
-                jobNumber={job.jobNumber}
-                customerName={job.customer.fullName}
-              />
+              <div className="pt-2">
+                <TrashRowActions
+                  jobId={job.id}
+                  jobNumber={job.jobNumber}
+                  customerName={job.customer.fullName}
+                />
+              </div>
             </li>
           ))}
-        </ul>
+        </RowList>
       )}
 
       <p className="flex items-center gap-2 text-base text-muted-foreground">

@@ -42,7 +42,7 @@ export function DeleteJobButton({
 
   return (
     <>
-      <Button variant="destructive" size="lg" onClick={() => setOpen(true)}>
+      <Button variant="destructive" size="lg" className="w-full sm:w-auto" onClick={() => setOpen(true)}>
         <Trash2 aria-hidden />
         <span>{tcom('delete')}</span>
       </Button>

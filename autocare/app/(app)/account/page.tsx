@@ -49,7 +49,7 @@ export default async function AccountPage({
       {forced ? (
         <div
           role="alert"
-          className="animate-in fade-in slide-in-from-top-2 flex items-start gap-4 rounded-xl border-2 border-warning bg-warning/10 p-5"
+          className="animate-in fade-in slide-in-from-top-2 flex items-start gap-4 rounded-2xl border-2 border-warning/40 bg-warning-tint p-5"
         >
           <ShieldAlert className="mt-0.5 size-8 shrink-0 text-warning" aria-hidden />
           <div>

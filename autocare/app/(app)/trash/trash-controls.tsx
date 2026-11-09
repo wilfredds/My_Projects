@@ -54,14 +54,15 @@ export function TrashRowActions({
   }
 
   return (
-    <div className="flex flex-wrap gap-3 border-t-2 border-border pt-4">
-      {/* Restoring is the safe path, so it gets the prominent button. */}
-      <Button variant="success" size="default" onClick={restore} disabled={pending}>
+    <div className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:flex-wrap">
+      {/* Restoring is the safe path, so it comes first; removing for good is
+          outlined in red and still asks before it does anything. */}
+      <Button variant="secondary" onClick={restore} disabled={pending}>
         <Undo2 aria-hidden />
         <span>{t('restore')}</span>
       </Button>
 
-      <Button variant="outline" size="default" onClick={() => setConfirmOpen(true)} disabled={pending}>
+      <Button variant="destructive" onClick={() => setConfirmOpen(true)} disabled={pending}>
         <Trash2 aria-hidden />
         <span>{t('purge')}</span>
       </Button>

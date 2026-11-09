@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Check, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
@@ -9,6 +10,7 @@ import { AUDIT_ACTIONS } from '@/lib/audit';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/misc';
+import { RowList } from '@/components/ui/card';
 
 export const metadata = { title: 'Activity Log — AutoCare' };
 export const dynamic = 'force-dynamic';
@@ -65,51 +67,61 @@ export default async function AuditPage({
         <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
       </div>
 
-      <div className="rounded-xl border-2 border-border bg-muted/30 p-5">
-        <p className="mb-3 text-lg font-semibold">{t('filterAction')}</p>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant={action ? 'outline' : 'default'} size="compact">
-            <Link href="/audit">{tcom('all')}</Link>
-          </Button>
+      {/* The list of action types is long, so it folds away; it opens by
+          itself when a filter is in use so the current choice stays visible. */}
+      <details className="group rounded-2xl border border-border bg-card" open={action ? true : undefined}>
+        <summary className="flex min-h-tap cursor-pointer list-none flex-wrap items-center justify-between gap-3 rounded-2xl px-5 py-3 text-lg font-semibold hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+          <span>
+            {t('filterAction')}:{' '}
+            <span className="font-normal text-muted-foreground">
+              {action ? describe(action) : tcom('all')}
+            </span>
+          </span>
+          <ChevronDown
+            aria-hidden
+            className="size-6 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
+          />
+        </summary>
+        <div className="flex flex-wrap gap-2 border-t border-border p-4">
+          <FilterChip href="/audit" active={!action}>
+            {tcom('all')}
+          </FilterChip>
           {AUDIT_ACTIONS.map((value) => (
-            <Button
-              key={value}
-              asChild
-              variant={action === value ? 'default' : 'outline'}
-              size="compact"
-            >
-              <Link href={`/audit?action=${value}`}>{describe(value)}</Link>
-            </Button>
+            <FilterChip key={value} href={`/audit?action=${value}`} active={action === value}>
+              {describe(value)}
+            </FilterChip>
           ))}
         </div>
-      </div>
+      </details>
 
       {entries.length === 0 ? (
         <EmptyState title={t('empty')} />
       ) : (
-        <ul className="space-y-3">
+        <RowList>
           {entries.map((entry) => (
             <li
               key={entry.id}
-              className="flex flex-wrap items-start justify-between gap-4 rounded-lg border-2 border-border bg-background p-4"
+              className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-5 py-4 sm:px-6"
             >
-              <div className="min-w-0 flex-1">
-                <p className="text-lg font-bold">{describe(entry.action)}</p>
-                <p className="text-base text-muted-foreground">
+              <div className="min-w-0 flex-1 basis-64">
+                <p className="text-lg font-semibold">{describe(entry.action)}</p>
+                <p className="text-base text-muted-foreground [overflow-wrap:anywhere]">
                   {t('who')}: {entry.user ? `${entry.user.name} (@${entry.user.username})` : '—'}
                 </p>
-                <p className="text-base text-muted-foreground">
+                <p className="text-base text-muted-foreground [overflow-wrap:anywhere]">
                   {t('record')}: {entry.entity}
                   {entry.entityId ? ` · ${entry.entityId}` : ''}
                 </p>
-                {entry.metadata ? (
-                  <p className="mt-1 break-all text-base text-muted-foreground">
-                    {JSON.stringify(entry.metadata)}
+                {entry.metadata && typeof entry.metadata === 'object' ? (
+                  <p className="mt-1 text-base text-muted-foreground [overflow-wrap:anywhere]">
+                    {Object.entries(entry.metadata as Record<string, unknown>)
+                      .map(([key, value]) => `${key}: ${typeof value === 'object' ? JSON.stringify(value) : String(value)}`)
+                      .join(' · ')}
                   </p>
                 ) : null}
               </div>
 
-              <div className="shrink-0 text-right">
+              <div className="shrink-0 sm:text-right">
                 <p className="text-base font-semibold">{formatDateTime(entry.createdAt, tag)}</p>
                 {entry.ipAddress ? (
                   <Badge variant="muted" className="mt-1">
@@ -119,26 +131,61 @@ export default async function AuditPage({
               </div>
             </li>
           ))}
-        </ul>
+        </RowList>
       )}
 
       {pageCount > 1 ? (
-        <nav className="flex items-center justify-center gap-3">
+        <nav className="flex flex-wrap items-center justify-between gap-3" aria-label={tcom('pages')}>
           {page > 1 ? (
             <Button asChild variant="outline" size="compact">
-              <Link href={`/audit?${action ? `action=${action}&` : ''}page=${page - 1}`}>{'‹'}</Link>
+              <Link href={`/audit?${action ? `action=${action}&` : ''}page=${page - 1}`}>
+                <ChevronLeft aria-hidden />
+                <span>{tcom('previous')}</span>
+              </Link>
             </Button>
-          ) : null}
+          ) : (
+            <span />
+          )}
           <span className="text-lg font-semibold">
-            {page} / {pageCount}
+            {tcom('pageOf', { current: page, total: pageCount })}
           </span>
           {page < pageCount ? (
             <Button asChild variant="outline" size="compact">
-              <Link href={`/audit?${action ? `action=${action}&` : ''}page=${page + 1}`}>{'›'}</Link>
+              <Link href={`/audit?${action ? `action=${action}&` : ''}page=${page + 1}`}>
+                <span>{tcom('next')}</span>
+                <ChevronRight aria-hidden />
+              </Link>
             </Button>
-          ) : null}
+          ) : (
+            <span />
+          )}
         </nav>
       ) : null}
     </div>
+  );
+}
+
+/** One filter option. The chosen one is marked with an orange edge and a tick. */
+function FilterChip({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Button
+      asChild
+      variant="outline"
+      size="compact"
+      className={active ? 'border-primary bg-primary-tint hover:bg-primary-tint' : undefined}
+    >
+      <Link href={href} aria-current={active ? 'true' : undefined}>
+        {active ? <Check aria-hidden strokeWidth={3} className="text-primary-strong" /> : null}
+        <span>{children}</span>
+      </Link>
+    </Button>
   );
 }

@@ -1,5 +1,22 @@
 import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { extendTailwindMerge } from 'tailwind-merge';
+
+/**
+ * tailwind-merge, told about this app's custom font sizes.
+ *
+ * Out of the box it only knows Tailwind's built-in size names. Faced with
+ * `text-money` it guesses "a colour", so `cn('text-money', 'text-success')`
+ * dropped the size and kept the colour — every coloured money figure on the
+ * dashboard rendered at body size. Registering the sizes here puts them in the
+ * font-size group, where they belong and no longer collide with colours.
+ */
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      'font-size': [{ text: ['money', 'total', 'meter'] }],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

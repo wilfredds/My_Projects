@@ -5,9 +5,11 @@ import { useTranslations, useLocale } from 'next-intl';
 import { formatPeso, type JobTotals } from '@/lib/calc';
 import { intlTagFor } from '@/i18n/locales';
 import { cn } from '@/lib/utils';
+import { Meter, MeterAmount } from '@/components/ui/meter';
 
 /**
- * The running total, pinned to the bottom of every wizard step.
+ * The running total, pinned to the bottom of every wizard step — drawn as the
+ * meter (see components/ui/meter.tsx).
  *
  * It is a read-only display — there is no input here and no way to type a
  * total. The figure comes straight from `computeJobTotals`, the same function
@@ -19,11 +21,11 @@ export function TotalBar({ totals, className }: { totals: JobTotals; className?:
   const tag = intlTagFor(useLocale());
 
   /**
-   * Re-trigger a short pulse whenever the total actually changes.
+   * Re-trigger the tick whenever the total actually changes.
    *
    * The point is confirmation, not decoration: the owner taps "Carwash" and
-   * the number visibly reacts, so he knows it registered without having to
-   * compare figures. Keying the element on the value restarts the CSS
+   * the number visibly rolls over, so he knows it registered without having
+   * to compare figures. Keying the element on the value restarts the CSS
    * animation; `prefers-reduced-motion` flattens it to nothing.
    */
   const [pulseKey, setPulseKey] = React.useState(0);
@@ -35,50 +37,34 @@ export function TotalBar({ totals, className }: { totals: JobTotals; className?:
     }
   }, [totals.total]);
 
+  const details: { label: string; value: string }[] = [];
+  if (totals.discount > 0) {
+    details.push({ label: tj('subtotal'), value: formatPeso(totals.subtotal, tag) });
+    details.push({ label: tj('discount'), value: `−${formatPeso(totals.discount, tag)}` });
+  }
+  if (totals.amountPaid > 0) {
+    details.push({ label: tj('amountPaid'), value: formatPeso(totals.amountPaid, tag) });
+    details.push({ label: tj('balance'), value: formatPeso(totals.balance, tag) });
+  }
+
   return (
-    <div className={cn('total-bar -mx-4 mt-8 px-4 py-4 sm:mx-0 sm:rounded-t-xl', className)}>
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
-        <div>
-          <p className="text-lg font-semibold text-muted-foreground">{t('grandTotal')}</p>
-          {/* Read-only by construction: rendered text, never an input. */}
+    <div className={cn('total-bar -mx-4 mt-8 px-4 pb-2 pt-2 sm:mx-0 sm:px-0', className)}>
+      <Meter
+        compact
+        label={t('grandTotal')}
+        details={details}
+        amountSlot={
+          /* Read-only by construction: rendered text, never an input. */
           <output
             key={pulseKey}
             aria-live="polite"
             aria-atomic="true"
-            className="animate-total-bump grand-total block origin-left text-primary"
+            className={cn('block', pulseKey > 0 && 'animate-total-bump')}
           >
-            {formatPeso(totals.total, tag)}
+            <MeterAmount amount={formatPeso(totals.total, tag)} />
           </output>
-        </div>
-
-        <dl className="flex flex-wrap gap-x-6 gap-y-1 text-base">
-          <div className="flex gap-2">
-            <dt className="text-muted-foreground">{tj('subtotal')}:</dt>
-            <dd className="font-semibold tabular-nums">{formatPeso(totals.subtotal, tag)}</dd>
-          </div>
-          {totals.discount > 0 ? (
-            <div className="flex gap-2">
-              <dt className="text-muted-foreground">{tj('discount')}:</dt>
-              <dd className="font-semibold tabular-nums text-destructive">
-                −{formatPeso(totals.discount, tag)}
-              </dd>
-            </div>
-          ) : null}
-          {totals.amountPaid > 0 ? (
-            <div className="flex gap-2">
-              <dt className="text-muted-foreground">{tj('balance')}:</dt>
-              <dd
-                className={cn(
-                  'font-semibold tabular-nums',
-                  totals.balance > 0 ? 'text-destructive' : 'text-success',
-                )}
-              >
-                {formatPeso(totals.balance, tag)}
-              </dd>
-            </div>
-          ) : null}
-        </dl>
-      </div>
+        }
+      />
     </div>
   );
 }

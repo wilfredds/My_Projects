@@ -69,7 +69,7 @@ export function PasswordFields({
         />
       </Field>
 
-      <div className="rounded-lg border-2 border-border bg-muted/40 p-4">
+      <div className="rounded-2xl border border-border bg-background p-4">
         <p className="mb-3 text-base font-bold">{t('passwordRules')}</p>
         <ul className="space-y-2">
           {rules.map((rule) => (
@@ -78,12 +78,12 @@ export function PasswordFields({
                 aria-hidden
                 className={cn(
                   'flex size-7 shrink-0 items-center justify-center rounded-full',
-                  rule.ok ? 'bg-success text-success-foreground' : 'bg-muted-foreground/25',
+                  rule.ok ? 'bg-foreground text-card' : 'border-2 border-input bg-card text-muted-foreground',
                 )}
               >
                 {rule.ok ? <Check className="size-5" /> : <X className="size-5" />}
               </span>
-              <span className={rule.ok ? 'text-success font-semibold' : 'text-muted-foreground'}>
+              <span className={rule.ok ? 'font-semibold text-foreground' : 'text-muted-foreground'}>
                 {rule.label}
               </span>
             </li>

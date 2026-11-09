@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { Search, ArrowRight } from 'lucide-react';
+import { Search, ChevronRight } from 'lucide-react';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requirePageUser } from '@/lib/session';
@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/misc';
+import { RowList } from '@/components/ui/card';
+import { Plate } from '@/components/ui/plate';
 import { CustomerFormDialog } from '@/components/forms/customer-form';
 
 export const metadata = { title: 'Customers — AutoCare' };
@@ -20,9 +22,10 @@ export default async function CustomersPage({
 }) {
   await requirePageUser();
   const { q } = await searchParams;
-  const [t, tcom] = await Promise.all([
+  const [t, tcom, td] = await Promise.all([
     getTranslations('customers'),
     getTranslations('common'),
+    getTranslations('dashboard'),
   ]);
 
   const where: Prisma.CustomerWhereInput = q
@@ -46,7 +49,7 @@ export default async function CustomersPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1>{t('title')}</h1>
           <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
@@ -55,8 +58,8 @@ export default async function CustomersPage({
       </div>
 
       {/* A plain GET form keeps search working even without JavaScript. */}
-      <form className="rounded-xl border-2 border-border bg-muted/30 p-5">
-        <Field label={tcom('search')} htmlFor="customer-search">
+      <form className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+        <Field label={t('searchPlaceholder')} htmlFor="customer-search">
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <Search
@@ -66,12 +69,12 @@ export default async function CustomersPage({
               <Input
                 id="customer-search"
                 name="q"
+                type="search"
                 defaultValue={q ?? ''}
-                placeholder={t('searchPlaceholder')}
                 className="pl-14"
               />
             </div>
-            <Button type="submit" size="default">
+            <Button type="submit" variant="secondary">
               <Search aria-hidden />
               <span>{tcom('search')}</span>
             </Button>
@@ -82,34 +85,43 @@ export default async function CustomersPage({
       {customers.length === 0 ? (
         <EmptyState title={q ? tcom('noResults') : t('empty')} />
       ) : (
-        <ul className="space-y-3">
-          {customers.map((customer) => (
-            <li key={customer.id}>
-              <Link
-                href={`/customers/${customer.id}`}
-                className="flex min-h-tap flex-wrap items-center justify-between gap-4 lift rounded-lg border-2 border-border bg-background p-4 hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
-              >
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-lg font-bold">{customer.fullName}</span>
-                  <span className="block truncate text-base text-muted-foreground">
-                    {[
-                      customer.phone,
-                      customer.vehicles.map((v) => v.plateNumber).join(', '),
-                    ]
-                      .filter(Boolean)
-                      .join(' · ') || tcom('notSet')}
+        <RowList>
+          {customers.map((customer) => {
+            const extra = customer._count.vehicles - customer.vehicles.length;
+            return (
+              <li key={customer.id}>
+                <Link
+                  href={`/customers/${customer.id}`}
+                  className="flex items-center gap-4 px-5 py-4 hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-ring sm:px-6"
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-lg font-semibold leading-snug [overflow-wrap:anywhere]">
+                      {customer.fullName}
+                    </span>
+                    <span className="mt-0.5 block text-base text-muted-foreground">
+                      {[customer.phone, td('jobsCount', { count: customer._count.jobs })]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
+                    {customer.vehicles.length > 0 ? (
+                      <span className="mt-2 flex flex-wrap items-center gap-2">
+                        {customer.vehicles.map((v) => (
+                          <Plate key={v.plateNumber} className="text-base">
+                            {v.plateNumber}
+                          </Plate>
+                        ))}
+                        {extra > 0 ? (
+                          <span className="text-base font-semibold text-muted-foreground">+{extra}</span>
+                        ) : null}
+                      </span>
+                    ) : null}
                   </span>
-                </span>
-                <span className="flex items-center gap-4">
-                  <span className="text-base text-muted-foreground">
-                    {t('jobCount')}: <strong className="text-foreground">{customer._count.jobs}</strong>
-                  </span>
-                  <ArrowRight className="size-6 text-muted-foreground" aria-hidden />
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                  <ChevronRight className="size-6 shrink-0 text-muted-foreground" aria-hidden />
+                </Link>
+              </li>
+            );
+          })}
+        </RowList>
       )}
     </div>
   );

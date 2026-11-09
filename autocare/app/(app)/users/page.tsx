@@ -4,6 +4,7 @@ import { requirePageAdmin } from '@/lib/session';
 import { intlTagFor } from '@/i18n/locales';
 import { formatDateTime } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { RowList } from '@/components/ui/card';
 import { CreateUserDialog, UserRowActions } from './user-controls';
 
 export const metadata = { title: 'Users — AutoCare' };
@@ -39,18 +40,15 @@ export default async function UsersPage() {
         <CreateUserDialog />
       </div>
 
-      <ul className="space-y-3">
+      <RowList>
         {users.map((user) => {
           const locked = Boolean(user.lockedUntil && user.lockedUntil > now);
           return (
-            <li
-              key={user.id}
-              className="space-y-4 rounded-lg border-2 border-border bg-background p-5"
-            >
+            <li key={user.id} className="space-y-4 px-5 py-5 sm:px-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="truncate text-xl font-bold">{user.name}</p>
-                  <p className="truncate text-lg text-muted-foreground">@{user.username}</p>
+                  <p className="text-xl font-semibold leading-snug [overflow-wrap:anywhere]">{user.name}</p>
+                  <p className="text-lg text-muted-foreground [overflow-wrap:anywhere]">@{user.username}</p>
                   <p className="mt-1 text-base text-muted-foreground">
                     {t('lastLogin')}:{' '}
                     {user.lastLoginAt ? formatDateTime(user.lastLoginAt, tag) : t('never')}
@@ -66,7 +64,7 @@ export default async function UsersPage() {
                   <Badge variant={user.role === 'ADMIN' ? 'outline' : 'muted'}>
                     {t(`role_${user.role}` as never)}
                   </Badge>
-                  <Badge variant={user.isActive ? 'paid' : 'unpaid'}>
+                  <Badge variant={user.isActive ? 'outline' : 'muted'}>
                     {user.isActive ? t('active') : t('inactive')}
                   </Badge>
                 </div>
@@ -84,7 +82,7 @@ export default async function UsersPage() {
             </li>
           );
         })}
-      </ul>
+      </RowList>
     </div>
   );
 }

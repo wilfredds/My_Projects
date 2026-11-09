@@ -268,13 +268,7 @@ export function JobWizard({
         </Button>
 
         {step === 'review' ? (
-          <Button
-            variant="success"
-            size="lg"
-            className="sm:flex-[2]"
-            onClick={handleSave}
-            disabled={saving}
-          >
+          <Button size="lg" className="sm:flex-[2]" onClick={handleSave} disabled={saving}>
             <Save aria-hidden />
             <span>{saving ? tcom('saving') : t('saveJob')}</span>
           </Button>
@@ -290,7 +284,7 @@ export function JobWizard({
       <Dialog open={Boolean(saved)} onOpenChange={() => {}}>
         <DialogContent closeLabel={tcom('close')} onEscapeKeyDown={(e) => e.preventDefault()}>
           <DialogHeader>
-            <span className="flex size-16 items-center justify-center rounded-full bg-success/15 text-success">
+            <span className="flex size-16 items-center justify-center rounded-full bg-primary-tint text-primary-strong">
               <CheckCircle2 className="size-10" aria-hidden />
             </span>
             <DialogTitle>{t('savedTitle')}</DialogTitle>

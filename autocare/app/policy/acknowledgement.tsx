@@ -40,7 +40,7 @@ export function PolicyAcknowledgement({ alreadyAccepted }: { alreadyAccepted: bo
   }
 
   return (
-    <div className="space-y-5 rounded-lg border-2 border-primary bg-primary/5 p-5">
+    <div className="space-y-5 rounded-2xl border-2 border-primary bg-primary-tint p-5">
       <BigCheckbox
         id="policy-ack"
         checked={checked}

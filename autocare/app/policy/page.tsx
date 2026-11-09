@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { ShieldCheck, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, CircleCheck } from 'lucide-react';
 import { getShopInfo } from '@/lib/settings';
 import { getSessionUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 import { formatDate } from '@/lib/utils';
 import { intlTagFor } from '@/i18n/locales';
 import { LanguageSwitcher } from '@/components/app-shell/language-switcher';
+import { ShopMark } from '@/components/app-shell/shop-mark';
 import { Button } from '@/components/ui/button';
 import { PolicyAcknowledgement } from './acknowledgement';
 
@@ -24,9 +25,11 @@ export default async function PolicyPage({
   searchParams: Promise<{ first?: string }>;
 }) {
   const params = await searchParams;
-  const [shop, t, user] = await Promise.all([
+  const [shop, t, tnav, tlogin, user] = await Promise.all([
     getShopInfo(),
     getTranslations('policy'),
+    getTranslations('nav'),
+    getTranslations('login'),
     getSessionUser(),
   ]);
 
@@ -45,16 +48,18 @@ export default async function PolicyPage({
   const rules = [1, 2, 3, 4, 5] as const;
 
   return (
-    <div className="flex min-h-screen flex-col bg-muted/30">
-      <header className="flex items-center justify-between gap-4 border-b-2 border-border bg-background p-4">
-        <span className="truncate text-xl font-extrabold">{shop.name}</span>
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-t-4 border-b-border border-t-primary bg-card p-4">
+        <span className="font-display text-xl font-bold uppercase tracking-wide">
+          <ShopMark name={shop.name} />
+        </span>
         <LanguageSwitcher signedIn={Boolean(user)} />
       </header>
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
-        <div className="space-y-8 rounded-xl border-2 border-border bg-background p-6 sm:p-8">
+        <div className="space-y-8 rounded-2xl border border-border bg-card p-5 sm:p-8">
           <div className="flex items-start gap-4">
-            <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary-tint text-primary-strong">
               <ShieldCheck className="size-9" aria-hidden />
             </span>
             <div className="space-y-2">
@@ -67,11 +72,11 @@ export default async function PolicyPage({
 
           <ol className="space-y-6">
             {rules.map((n) => (
-              <li key={n} className="rounded-lg border-2 border-border bg-muted/30 p-5">
+              <li key={n} className="border-t border-border pt-5 first:border-t-0 first:pt-0">
                 <h2 className="flex items-start gap-3 text-xl font-bold">
                   <span
                     aria-hidden
-                    className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-lg text-primary-foreground"
+                    className="num flex size-9 shrink-0 items-center justify-center rounded-full bg-foreground text-lg text-card"
                   >
                     {n}
                   </span>
@@ -87,16 +92,19 @@ export default async function PolicyPage({
           ) : (
             <div className="space-y-4">
               {acceptedAt ? (
-                <p className="rounded-lg border-2 border-success/40 bg-success/10 p-4 text-lg font-semibold text-success">
-                  {t('acceptedOn', {
-                    date: formatDate(acceptedAt, intlTagFor(user?.locale ?? 'fil')),
-                  })}
+                <p className="flex items-start gap-3 rounded-xl border border-border bg-background p-4 text-lg font-semibold">
+                  <CircleCheck aria-hidden className="mt-0.5 size-6 shrink-0" />
+                  <span>
+                    {t('acceptedOn', {
+                      date: formatDate(acceptedAt, intlTagFor(user?.locale ?? 'fil')),
+                    })}
+                  </span>
                 </p>
               ) : null}
               <Button asChild variant="outline" size="lg">
                 <Link href={user ? '/dashboard' : '/login'}>
                   <ArrowLeft aria-hidden />
-                  <span>{user ? 'Dashboard' : 'Login'}</span>
+                  <span>{user ? tnav('dashboard') : tlogin('title')}</span>
                 </Link>
               </Button>
             </div>

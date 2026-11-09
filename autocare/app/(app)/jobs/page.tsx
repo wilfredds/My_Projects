@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getTranslations, getLocale } from 'next-intl/server';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requirePageUser } from '@/lib/session';
@@ -10,8 +10,8 @@ import { decimalToNumber, formatDate, startOfDay, endOfDay } from '@/lib/utils';
 import { notDeleted } from '@/lib/jobs';
 import { jobFilterSchema } from '@/lib/validation';
 import { Button } from '@/components/ui/button';
-import { Badge, statusVariant } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/misc';
+import { JobList, JobRow } from '@/components/jobs/job-row';
 import { JobFilters } from './job-filters';
 
 export const metadata = { title: 'Jobs — AutoCare' };
@@ -26,10 +26,11 @@ export default async function JobsPage({
 }) {
   await requirePageUser();
   const raw = await searchParams;
-  const [t, tj, tnav, locale] = await Promise.all([
+  const [t, tj, tnav, tcom, locale] = await Promise.all([
     getTranslations('jobs'),
     getTranslations('job'),
     getTranslations('nav'),
+    getTranslations('common'),
     getLocale(),
   ]);
   const tag = intlTagFor(locale);
@@ -46,7 +47,8 @@ export default async function JobsPage({
       { jobNumber: { contains: filters.q, mode: 'insensitive' } },
     ];
   }
-  if (filters.status) where.status = filters.status;
+  if (filters.status === 'OWED') where.status = { not: 'PAID' };
+  else if (filters.status) where.status = filters.status;
 
   const fromDate = filters.from ? new Date(filters.from) : null;
   const toDate = filters.to ? new Date(filters.to) : null;
@@ -84,12 +86,12 @@ export default async function JobsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1>{t('title')}</h1>
           <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
         </div>
-        <Button asChild size="lg" variant="success">
+        <Button asChild size="lg" className="w-full sm:w-auto">
           <Link href="/jobs/new">
             <PlusCircle aria-hidden />
             <span>{tnav('newJob')}</span>
@@ -99,53 +101,59 @@ export default async function JobsPage({
 
       <JobFilters />
 
-      <p className="text-lg font-semibold text-muted-foreground">
+      <p className="text-lg font-semibold text-muted-foreground" aria-live="polite">
         {t('resultCount', { count: total })}
       </p>
 
       {jobs.length === 0 ? (
         <EmptyState title={t('empty')} />
       ) : (
-        <ul className="space-y-3">
+        <JobList>
           {jobs.map((job) => (
             <li key={job.id}>
-              <Link
+              <JobRow
                 href={`/jobs/${job.id}`}
-                className="flex min-h-tap flex-wrap items-center justify-between gap-4 lift rounded-lg border-2 border-border bg-background p-4 hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
-              >
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-lg font-bold">{job.customer.fullName}</span>
-                  <span className="block truncate text-base text-muted-foreground">
-                    {job.vehicle.plateNumber} · {job.jobNumber} · {formatDate(job.date, tag)}
-                  </span>
-                </span>
-                <span className="flex flex-wrap items-center gap-4">
-                  <span className="money">{formatPeso(decimalToNumber(job.total), tag)}</span>
-                  <Badge variant={statusVariant(job.status)}>
-                    {tj(`status_${job.status}` as never)}
-                  </Badge>
-                </span>
-              </Link>
+                plate={job.vehicle.plateNumber}
+                customer={job.customer.fullName}
+                date={formatDate(job.date, tag)}
+                jobNumber={job.jobNumber}
+                amount={formatPeso(decimalToNumber(job.total), tag)}
+                status={job.status}
+                statusLabel={tj(`status_${job.status}` as never)}
+              />
             </li>
           ))}
-        </ul>
+        </JobList>
       )}
 
       {pageCount > 1 ? (
-        <nav className="flex flex-wrap items-center justify-center gap-3" aria-label="Pages">
+        <nav
+          className="flex flex-wrap items-center justify-between gap-3"
+          aria-label={tcom('pages')}
+        >
           {filters.page > 1 ? (
             <Button asChild variant="outline" size="compact">
-              <Link href={pageHref(filters.page - 1)}>{'‹'}</Link>
+              <Link href={pageHref(filters.page - 1)}>
+                <ChevronLeft aria-hidden />
+                <span>{tcom('previous')}</span>
+              </Link>
             </Button>
-          ) : null}
+          ) : (
+            <span />
+          )}
           <span className="text-lg font-semibold">
-            {filters.page} / {pageCount}
+            {tcom('pageOf', { current: filters.page, total: pageCount })}
           </span>
           {filters.page < pageCount ? (
             <Button asChild variant="outline" size="compact">
-              <Link href={pageHref(filters.page + 1)}>{'›'}</Link>
+              <Link href={pageHref(filters.page + 1)}>
+                <span>{tcom('next')}</span>
+                <ChevronRight aria-hidden />
+              </Link>
             </Button>
-          ) : null}
+          ) : (
+            <span />
+          )}
         </nav>
       ) : null}
     </div>

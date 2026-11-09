@@ -1,31 +1,49 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { CircleAlert, CircleCheck, CircleDashed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-/** All badge colours meet WCAG AA (>= 4.5:1) against their background. */
+/**
+ * All badge colours meet WCAG AA (>= 4.5:1) against their tint. The three
+ * money states also carry an icon, so "paid" and "unpaid" never depend on
+ * someone being able to tell green from red.
+ */
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full px-4 py-1.5 text-base font-bold whitespace-nowrap',
+  'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-base font-semibold leading-snug whitespace-nowrap',
   {
     variants: {
       variant: {
-        default: 'bg-secondary text-secondary-foreground',
-        paid: 'bg-success/15 text-success ring-2 ring-success/40',
-        unpaid: 'bg-destructive/15 text-destructive ring-2 ring-destructive/40',
-        partial: 'bg-warning/20 text-warning ring-2 ring-warning/50',
-        muted: 'bg-muted text-muted-foreground',
-        outline: 'ring-2 ring-border text-foreground',
+        default: 'border-transparent bg-foreground text-card',
+        paid: 'border-success/30 bg-success-tint text-success',
+        unpaid: 'border-destructive/30 bg-destructive-tint text-destructive',
+        partial: 'border-warning/30 bg-warning-tint text-warning',
+        muted: 'border-transparent bg-muted text-muted-foreground',
+        outline: 'border-input bg-card text-foreground',
       },
     },
     defaultVariants: { variant: 'default' },
   },
 );
 
+const STATUS_ICON = {
+  paid: CircleCheck,
+  unpaid: CircleAlert,
+  partial: CircleDashed,
+} as const;
+
 export function Badge({
   className,
   variant,
+  children,
   ...props
 }: React.HTMLAttributes<HTMLSpanElement> & VariantProps<typeof badgeVariants>) {
-  return <span className={cn(badgeVariants({ variant }), className)} {...props} />;
+  const Icon = variant && variant in STATUS_ICON ? STATUS_ICON[variant as keyof typeof STATUS_ICON] : null;
+  return (
+    <span className={cn(badgeVariants({ variant }), className)} {...props}>
+      {Icon ? <Icon aria-hidden className="size-[1.1em] shrink-0" strokeWidth={2.5} /> : null}
+      {children}
+    </span>
+  );
 }
 
 /** Map a job status to its badge colour. */

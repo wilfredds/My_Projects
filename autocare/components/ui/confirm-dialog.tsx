@@ -41,7 +41,7 @@ export function ConfirmDialog({
         <AlertDialogPrimitive.Content
           className={cn(
             'fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2',
-            'rounded-xl border-2 border-border bg-background p-6 shadow-xl',
+            'rounded-2xl border border-border bg-card p-6 shadow-2xl',
             'data-[state=open]:animate-in data-[state=open]:fade-in-0',
           )}
         >
@@ -50,7 +50,7 @@ export function ConfirmDialog({
               aria-hidden
               className={cn(
                 'flex size-14 shrink-0 items-center justify-center rounded-full',
-                tone === 'destructive' ? 'bg-destructive/15 text-destructive' : 'bg-muted',
+                tone === 'destructive' ? 'bg-destructive-tint text-destructive' : 'bg-muted',
               )}
             >
               <AlertTriangle className="size-8" />
@@ -74,7 +74,7 @@ export function ConfirmDialog({
               }}
               disabled={pending}
               className={cn(
-                buttonVariants({ variant: tone === 'destructive' ? 'destructive' : 'default', size: 'lg' }),
+                buttonVariants({ variant: tone === 'destructive' ? 'danger' : 'default', size: 'lg' }),
                 'flex-1',
               )}
             >
