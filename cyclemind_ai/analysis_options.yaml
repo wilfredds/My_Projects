@@ -19,7 +19,6 @@ linter:
     - prefer_const_constructors
     - prefer_const_declarations
     - prefer_final_locals
-    - require_trailing_commas
     - sort_child_properties_last
     - unawaited_futures
     - use_super_parameters

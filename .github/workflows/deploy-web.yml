@@ -47,10 +47,13 @@ jobs:
         working-directory: cyclemind_ai
         run: flutter pub get
 
+      # Blocking. With continue-on-error this step exited 1 on every run (100
+      # findings, including a real unused-import warning) while reporting
+      # success, so nobody knew. Note flutter analyze treats info-level
+      # findings as fatal by default.
       - name: Analyze
         working-directory: cyclemind_ai
         run: flutter analyze
-        continue-on-error: true
 
       # No continue-on-error: these tests cover the odometer and the
       # cross-user scoping of the mock store. A suite that cannot fail the

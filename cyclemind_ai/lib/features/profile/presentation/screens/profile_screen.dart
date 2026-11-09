@@ -127,10 +127,10 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Center(
+          const Center(
             child: Text(
               '${AppConstants.appName} · ${AppConstants.useMocks ? 'Mock mode' : 'Live mode'}',
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ),
         ],

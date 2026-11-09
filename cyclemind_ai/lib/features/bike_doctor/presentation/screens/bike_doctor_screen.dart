@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:cyclemind_ai/app/theme/app_colors.dart';
 import 'package:cyclemind_ai/core/constants/app_constants.dart';
-import 'package:cyclemind_ai/features/bike_doctor/domain/entities/bike_health_report.dart';
 import 'package:cyclemind_ai/features/bike_doctor/presentation/controllers/bike_doctor_controller.dart';
 import 'package:cyclemind_ai/features/bike_doctor/presentation/widgets/report_card.dart';
 import 'package:cyclemind_ai/services/vision/vision_service.dart';
