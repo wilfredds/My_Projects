@@ -476,16 +476,31 @@ passwords with bcrypt at cost 12 — the plaintext is never written to the file.
 
 ### Dependency overrides
 
-`package.json` pins two transitive dependencies via `overrides`:
+`package.json` pins three transitive dependencies via `overrides`:
 
 | Package | Why |
 | --- | --- |
 | `sharp` → 0.35.3 | Next ships an older `sharp` for image optimization, which carries libvips CVEs. This app uses no images at all, but the override clears the advisory without a Next major bump. |
 | `postcss` → 8.5.25 | Next pins `postcss@8.4.31` internally, which has path-traversal and XSS advisories. 8.5.25 is the same major and is already what Tailwind and autoprefixer use here. |
+| `minimatch` → 11.0.5, under `@typescript-eslint/typescript-estree` only | No typescript-estree 8.x release, up to 8.72.1, admits a fixed minimatch: they declare `^9.0.x` or `^10.2.2`, and every 9.x and 10.x is affected by a denial-of-service advisory ([GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249)) that was fixed only in 11.0.1. Dev-only — it sits under ESLint's TypeScript parser. Scoped so the `minimatch@3` that ESLint 8 itself uses, which is not affected, is left alone. |
 
-Both are same-major bumps. Re-check them when upgrading Next — if a later
-release ships patched versions itself, the overrides can be dropped.
-`npm audit` currently reports zero vulnerabilities.
+The `sharp` and `postcss` overrides are same-major bumps. Re-check them when
+upgrading Next — if a later release ships patched versions itself, they can be
+dropped.
+
+The `minimatch` override is the exception: it crosses a major version, outside
+the range typescript-estree declares. The risk is small. typescript-estree
+makes exactly one call into minimatch — `minimatch(path, pattern, { dot: true })`,
+to match `parserOptions.projectService.allowDefaultProject` — which this
+project's ESLint config does not use, and 10.2.6 and 11.0.5 answer that call
+identically (checked across 2,184 pattern/path pairs when the override was
+added). Drop it once
+`npm view @typescript-eslint/typescript-estree dependencies.minimatch` reports
+`^11.0.1` or later.
+
+`npm audit` now reports exactly what `npm audit --omit=dev` reports: every
+remaining advisory is in a production dependency. As of 2026-11-09 that list is
+not empty — run `npm audit --omit=dev` to see it.
 
 ---
 
