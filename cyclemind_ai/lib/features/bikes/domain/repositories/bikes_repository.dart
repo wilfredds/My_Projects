@@ -1,12 +1,21 @@
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
 
 /// Contract for bike + maintenance persistence.
+///
+/// OFFLINE: writes succeed with [WriteAck.queued] when the server doesn't
+/// answer in time. Firestore has then already applied them on this device and
+/// delivers them on reconnect. They are never left waiting forever.
 abstract interface class BikesRepository {
   Stream<List<Bike>> watchBikes(String userId);
 
-  Future<Result<Bike>> addBike(Bike bike);
+  /// Saves [bike] under its own [Bike.id], which the caller generates once per
+  /// form, not per attempt. A second tap or a retry then rewrites the same
+  /// bike instead of creating a duplicate, which matters most offline, where
+  /// nothing visibly happens until the save is reported as queued.
+  Future<Result<WriteAck>> addBike(Bike bike);
 
   /// Replaces a bike's tracked components.
   ///
@@ -16,7 +25,8 @@ abstract interface class BikesRepository {
   /// read. Narrowing the interface makes that impossible by construction
   /// rather than by convention: only logging or deleting a ride moves the
   /// odometer.
-  Future<Result<Bike>> setComponents(String bikeId, List<BikeComponent> components);
+  Future<Result<WriteAck>> setComponents(
+      String bikeId, List<BikeComponent> components);
 
   Future<Result<void>> deleteBike(String bikeId);
 
@@ -43,7 +53,7 @@ abstract interface class BikesRepository {
   /// There is deliberately NO standalone "add log" method. A history entry
   /// without its reset, or a reset without its entry, is exactly the drift
   /// this pairing exists to prevent.
-  Future<Result<void>> replaceComponent({
+  Future<Result<WriteAck>> replaceComponent({
     required Bike bike,
     required BikeComponent replacement,
     required MaintenanceLog log,

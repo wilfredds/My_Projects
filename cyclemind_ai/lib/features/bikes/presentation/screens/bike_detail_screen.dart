@@ -1,5 +1,6 @@
 import 'package:cyclemind_ai/app/theme/app_colors.dart';
 import 'package:cyclemind_ai/core/constants/app_constants.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/core/widgets/stat_card.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 // For statusForWear / MaintenanceStatus. Top-level functions and extensions
@@ -140,7 +141,12 @@ class BikeDetailScreen extends ConsumerWidget {
         .read(bikesRepositoryProvider)
         .setComponents(fresh.id, [...fresh.components, added]);
     if (!context.mounted) return;
-    result.fold((f) => say(f.message), (_) {});
+    result.fold(
+      (f) => say(f.message),
+      (ack) {
+        if (ack == WriteAck.queued) say('${added.type} added. $savedOfflineNote');
+      },
+    );
   }
 }
 

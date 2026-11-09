@@ -39,6 +39,34 @@ class AppConstants {
   /// 0, 2000)` in firestore.rules.
   static const double maxRideDistanceKm = 2000;
 
+  // The rest of rideShapeOk. A ride saved offline is only checked by the
+  // server LATER, and a rejection then rolls it back silently, so everything
+  // the rules check must be checked before saving.
+
+  /// Mirrors `str(d.title, 120)` on rides.
+  static const int maxRideTitleChars = 120;
+
+  /// Mirrors `numIn(d.durationSec, 0, 1209600)`, which is 14 days.
+  static const int maxRideDurationSec = 1209600;
+
+  /// Mirrors `numIn(d.calories, 0, 200000)`.
+  static const int maxRideCalories = 200000;
+
+  /// Mirrors `optNumIn(d, 'cadence', 0, 250)`.
+  static const int maxCadenceRpm = 250;
+
+  /// Mirrors `str(d.name, 80)` on bikes.
+  static const int maxBikeNameChars = 80;
+
+  /// Mirrors `str(d.frame, 120)`, and the same for groupset and tires.
+  static const int maxBikeSpecChars = 120;
+
+  /// How long a save waits for the server before it's reported as saved
+  /// offline. Online answers, rejections included, arrive well inside this.
+  /// A slow-but-online save misread as offline is harmless: it syncs moments
+  /// later.
+  static const Duration writeAckTimeout = Duration(seconds: 4);
+
   /// Longest lifespan a component may be given. An app-level sanity bound:
   /// the rules cannot see inside `components[]`, so component_validation.dart
   /// is the only thing enforcing it.

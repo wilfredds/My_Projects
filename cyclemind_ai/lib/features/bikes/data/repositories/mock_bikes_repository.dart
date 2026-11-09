@@ -2,6 +2,7 @@ import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/core/error/failures.dart';
 import 'package:cyclemind_ai/core/providers/mock_store.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
 import 'package:cyclemind_ai/features/bikes/domain/repositories/bikes_repository.dart';
@@ -30,15 +31,32 @@ class MockBikesRepository implements BikesRepository {
     yield* MockStore.instance.changes.map((_) => _bikesFor(userId));
   }
 
+  /// An upsert by id, like Firestore's `doc(id).set()`: a second tap or a
+  /// retry rewrites the same bike instead of adding a duplicate. Another
+  /// user's id is denied, as the rules' owner-only update would deny it.
   @override
-  Future<Result<Bike>> addBike(Bike bike) async {
+  Future<Result<WriteAck>> addBike(Bike bike) async {
     await MockStore.instance.ensureLoaded();
-    MockStore.instance.commit((s) => s.bikes.add(bike));
-    return Success(bike);
+    final store = MockStore.instance;
+    if (bike.id.isEmpty) {
+      return Failure(const ValidationFailure('A bike needs an id.'));
+    }
+    final i = store.bikes.indexWhere((b) => b.id == bike.id);
+    if (i >= 0 && store.bikes[i].userId != bike.userId) {
+      return Failure(const ValidationFailure('Could not save the bike.'));
+    }
+    store.commit((s) {
+      if (i >= 0) {
+        s.bikes[i] = bike;
+      } else {
+        s.bikes.add(bike);
+      }
+    });
+    return const Success(WriteAck.confirmed);
   }
 
   @override
-  Future<Result<Bike>> setComponents(
+  Future<Result<WriteAck>> setComponents(
     String bikeId,
     List<BikeComponent> components,
   ) async {
@@ -56,12 +74,10 @@ class MockBikesRepository implements BikesRepository {
     }
     // copyWith leaves totalMileageKm alone, mirroring the field-scoped
     // Firestore update.
-    late Bike updated;
     store.commit((s) {
-      updated = s.bikes[i].copyWith(components: components);
-      s.bikes[i] = updated;
+      s.bikes[i] = s.bikes[i].copyWith(components: components);
     });
-    return Success(updated);
+    return const Success(WriteAck.confirmed);
   }
 
   @override
@@ -82,7 +98,7 @@ class MockBikesRepository implements BikesRepository {
   /// a denial leaves nothing behind. That is the same all-or-nothing
   /// behaviour a Firestore batch has.
   @override
-  Future<Result<void>> replaceComponent({
+  Future<Result<WriteAck>> replaceComponent({
     required Bike bike,
     required BikeComponent replacement,
     required MaintenanceLog log,
@@ -131,7 +147,7 @@ class MockBikesRepository implements BikesRepository {
       s.bikes[i] = after;
       s.logs.add(log);
     });
-    return const Success(null);
+    return const Success(WriteAck.confirmed);
   }
 
   /// The `logShapeOk` clauses a well-formed client could still trip, each

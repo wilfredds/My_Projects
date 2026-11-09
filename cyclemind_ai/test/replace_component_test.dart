@@ -1,6 +1,7 @@
 import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/core/error/failures.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/bikes/domain/component_validation.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
@@ -12,17 +13,21 @@ import 'package:flutter_test/flutter_test.dart';
 /// Applies a replacement the way the real repositories do, and reproduces the
 /// rules' denial of a repeated log id (maintenance_logs update is denied).
 class _FakeBikes implements BikesRepository {
-  _FakeBikes(List<Bike> bikes, {this.failWith}) : bikes = [...bikes];
+  _FakeBikes(List<Bike> bikes, {this.failWith, this.ack = WriteAck.confirmed})
+      : bikes = [...bikes];
 
   List<Bike> bikes;
   final AppFailure? failWith;
+
+  /// What a successful save reports: queued is what offline looks like.
+  final WriteAck ack;
   final List<MaintenanceLog> logs = [];
 
   /// How many times a write was attempted at all.
   int calls = 0;
 
   @override
-  Future<Result<void>> replaceComponent({
+  Future<Result<WriteAck>> replaceComponent({
     required Bike bike,
     required BikeComponent replacement,
     required MaintenanceLog log,
@@ -42,15 +47,16 @@ class _FakeBikes implements BikesRepository {
             : b
     ];
     logs.add(log);
-    return const Success(null);
+    return Success(ack);
   }
 
   @override
   Stream<List<Bike>> watchBikes(String userId) => Stream.value(bikes);
   @override
-  Future<Result<Bike>> addBike(Bike bike) async => Success(bike);
+  Future<Result<WriteAck>> addBike(Bike bike) async =>
+      const Success(WriteAck.confirmed);
   @override
-  Future<Result<Bike>> setComponents(
+  Future<Result<WriteAck>> setComponents(
           String bikeId, List<BikeComponent> components) async =>
       throw UnimplementedError();
   @override
@@ -296,6 +302,21 @@ void main() {
       // 4262.4 + 0.8 x 3000 = 6662.4
       expect(replacementMessage(r),
           'Chain replaced at 4262 km. Next reminder around 6662 km.');
+    });
+  });
+
+  group('offline', () {
+    test('a replacement saved only on this device is reported as queued, and '
+        'the message says it will sync', () async {
+      final r =
+          (await _replace(_FakeBikes([_bike()], ack: WriteAck.queued))).valueOrNull!;
+
+      expect(r.queued, isTrue);
+      expect(
+        replacementMessage(r),
+        'Chain replaced at 4262 km. Next reminder around 6662 km. '
+        '$savedOfflineNote',
+      );
     });
   });
 

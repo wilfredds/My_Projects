@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import {
   doc, setDoc, getDoc, getDocs, deleteDoc, collection, query, where, writeBatch, increment,
+  disableNetwork, enableNetwork, getDocFromCache,
 } from 'firebase/firestore';
 import { beforeAll, afterAll, beforeEach, describe, it, expect } from 'vitest';
 import { aBike, aRide, aLog } from './fixtures.js';
@@ -309,4 +310,78 @@ describe('C10: deleting a ride whose bike was deleted', () => {
       expect(bike.data().totalMileageKm).toBe(100);
     });
   });
+});
+
+// ------------------------------------------------------------------------
+// C11: offline writes. The three facts the "saved offline" design rests on.
+//
+// The app awaited every commit. A commit's promise settles only when the
+// SERVER answers, so offline every save spun forever. The fix waits a few
+// seconds, then reports the write as queued. That is only honest if (a) the
+// write is already applied locally, (b) it is delivered on reconnect, and
+// (c) a later rejection is observable, because Firestore rolls it back
+// silently.
+//
+// Ids are unique to C11: `alice`'s local cache outlives clearFirestore().
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const cached = (path) => getDocFromCache(doc(alice, path)).then((s) => s.exists(), () => false);
+
+describe('C11: offline writes', () => {
+  it('C11a offline, a commit stays PENDING, yet the write is already in the local cache', async () => {
+    await seed((db) => setDoc(doc(db, 'bikes/off-b1'), aBike('alice', { totalMileageKm: 100 })));
+    await disableNetwork(alice);
+    try {
+      const b = writeBatch(alice);
+      b.set(doc(alice, 'rides/off-r1'), aRide('alice', { bikeId: 'off-b1', odometerDeltaKm: 42 }));
+      b.update(doc(alice, 'bikes/off-b1'), { totalMileageKm: increment(42) });
+      const commit = b.commit();
+
+      const outcome = await Promise.race([
+        commit.then(() => 'acknowledged'),
+        sleep(1500).then(() => 'still pending'),
+      ]);
+      expect(outcome).toBe('still pending');
+      expect(await cached('rides/off-r1')).toBe(true);
+    } finally {
+      await enableNetwork(alice);
+    }
+  }, 20000);
+
+  it('C11b after reconnecting, the pending commit is delivered', async () => {
+    await seed((db) => setDoc(doc(db, 'bikes/off-b2'), aBike('alice', { totalMileageKm: 100 })));
+    await disableNetwork(alice);
+    let commit;
+    try {
+      const b = writeBatch(alice);
+      b.set(doc(alice, 'rides/off-r2'), aRide('alice', { bikeId: 'off-b2', odometerDeltaKm: 42 }));
+      b.update(doc(alice, 'bikes/off-b2'), { totalMileageKm: increment(42) });
+      commit = b.commit();
+    } finally {
+      await enableNetwork(alice);
+    }
+    await commit; // resolves once the server acknowledges
+
+    await env.withSecurityRulesDisabled(async (c) => {
+      const bike = await getDoc(doc(c.firestore(), 'bikes/off-b2'));
+      expect(bike.data().totalMileageKm).toBe(142);
+    });
+  }, 20000);
+
+  it('C11c a queued write the rules reject fails AFTER reconnect, and is rolled back locally', async () => {
+    await disableNetwork(alice);
+    let write;
+    try {
+      // bikeShapeOk caps name at 80. The client accepts it offline.
+      write = setDoc(doc(alice, 'bikes/off-bad'), aBike('alice', { name: 'x'.repeat(81) }));
+      expect(await cached('bikes/off-bad')).toBe(true);
+    } finally {
+      await enableNetwork(alice);
+    }
+
+    const err = await write.then(() => null, (e) => e);
+    expect(err?.code).toBe('permission-denied');
+    // Silently gone from the device: nothing tells the rider unless the app does.
+    expect(await cached('bikes/off-bad')).toBe(false);
+  }, 20000);
 });

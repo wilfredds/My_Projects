@@ -1,5 +1,6 @@
 import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/core/providers/firebase_providers.dart';
+import 'package:cyclemind_ai/core/providers/sync_errors.dart';
 import 'package:cyclemind_ai/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:cyclemind_ai/features/rides/data/repositories/firebase_rides_repository.dart';
 import 'package:cyclemind_ai/features/rides/data/repositories/mock_rides_repository.dart';
@@ -16,7 +17,12 @@ final currentUserIdProvider = Provider<String>((ref) {
 /// Binds the [RidesRepository] implementation.
 final ridesRepositoryProvider = Provider<RidesRepository>((ref) {
   if (AppConstants.useMocks) return MockRidesRepository();
-  return FirebaseRidesRepository(ref.watch(firestoreProvider));
+  return FirebaseRidesRepository(
+    ref.watch(firestoreProvider),
+    // A write reported as saved offline and later rejected by the server is
+    // rolled back silently; this is how the rider hears about it.
+    onLateFailure: ref.watch(syncErrorsProvider).report,
+  );
 });
 
 /// Reactive list of the current user's logged rides.

@@ -2,6 +2,7 @@ import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/core/error/failures.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
 import 'package:cyclemind_ai/core/utils/ride_metrics.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/bikes/domain/usecases/generate_reminders.dart';
 import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
@@ -19,6 +20,7 @@ class RideLogged {
     this.odometerBeforeKm,
     this.odometerAfterKm,
     this.newlyDue = const [],
+    this.queued = false,
   });
 
   final Ride ride;
@@ -32,6 +34,10 @@ class RideLogged {
   /// concurrently it can be slightly off. The bikes stream is the source of
   /// truth; this exists to make the moment of crossing visible.
   final List<MaintenanceReminder> newlyDue;
+
+  /// Saved on this device only: no signal, so the server hasn't confirmed it
+  /// yet. It syncs on reconnect, and the odometer has already moved locally.
+  final bool queued;
 
   bool get odometerMoved => odometerAfterKm != null;
 }
@@ -61,6 +67,14 @@ class LogRide {
   }) async {
     // Mirror the bounds in firestore.rules so a rejection is explained here
     // rather than surfacing as an opaque permission error.
+    //
+    // Every bound in rideShapeOk is checked here. A ride saved offline only
+    // meets the rules when it syncs, and a rejection then would roll it back
+    // on the device without a word.
+    if (title.length > AppConstants.maxRideTitleChars) {
+      return Failure(const ValidationFailure(
+          'Keep the title under ${AppConstants.maxRideTitleChars} characters.'));
+    }
     if (distanceKm <= 0) {
       return Failure(const ValidationFailure('Distance must be more than 0 km.'));
     }
@@ -69,6 +83,14 @@ class LogRide {
     }
     if (durationSec <= 0) {
       return Failure(const ValidationFailure('Duration must be more than 0.'));
+    }
+    if (durationSec > AppConstants.maxRideDurationSec) {
+      return Failure(const ValidationFailure(
+          'That duration looks too long for one ride.'));
+    }
+    if (cadence != null && (cadence < 0 || cadence > AppConstants.maxCadenceRpm)) {
+      return Failure(const ValidationFailure(
+          'Cadence must be between 0 and ${AppConstants.maxCadenceRpm} rpm.'));
     }
     if (elevationM < -5000 || elevationM > 30000) {
       return Failure(const ValidationFailure('That elevation looks wrong.'));
@@ -87,6 +109,16 @@ class LogRide {
           'That ride would push the bike\'s odometer out of range.'));
     }
 
+    final calories = RideMetrics.estimateCalories(
+      avgSpeedKmh: avgSpeedKmh,
+      weightKg: riderWeightKg ?? 72,
+      durationSec: durationSec,
+    );
+    if (calories > AppConstants.maxRideCalories) {
+      return Failure(const ValidationFailure(
+          'That works out to an implausible calorie count. Check the duration.'));
+    }
+
     final ride = Ride(
       id: rideId,
       userId: userId,
@@ -97,11 +129,7 @@ class LogRide {
       elevationM: elevationM,
       avgSpeedKmh: avgSpeedKmh,
       durationSec: durationSec,
-      calories: RideMetrics.estimateCalories(
-        avgSpeedKmh: avgSpeedKmh,
-        weightKg: riderWeightKg ?? 72,
-        durationSec: durationSec,
-      ),
+      calories: calories,
       cadence: cadence,
       // The one place the bike/delta pairing is decided.
       odometerDeltaKm: bike == null ? null : distanceKm,
@@ -110,8 +138,9 @@ class LogRide {
     final saved = await _rides.addRide(ride);
     return saved.fold(
       Failure<RideLogged>,
-      (r) => Success(RideLogged(
-        ride: r,
+      (ack) => Success(RideLogged(
+        ride: ride,
+        queued: ack == WriteAck.queued,
         bikeName: bike?.name,
         odometerBeforeKm: before,
         odometerAfterKm: before == null ? null : before + distanceKm,
@@ -137,7 +166,7 @@ class DeleteRide {
   const DeleteRide(this._rides);
   final RidesRepository _rides;
 
-  Future<Result<void>> call(Ride ride) => _rides.deleteRide(ride);
+  Future<Result<WriteAck>> call(Ride ride) => _rides.deleteRide(ride);
 }
 
 /// Which bike to preselect on the ride form: last-used, else the only bike,

@@ -26,7 +26,13 @@ String? lifespanError(double? lifespanKm) {
 }
 
 /// Null when [km] is a usable "already ridden on this part" figure.
-String? alreadyRiddenError(double? km) {
+String? alreadyRiddenError(double? km) => _kmRangeError(km);
+
+/// Null when [km] is a usable odometer reading. Mirrors
+/// `numIn(d.totalMileageKm, 0, 500000)` on bikes.
+String? odometerError(double? km) => _kmRangeError(km);
+
+String? _kmRangeError(double? km) {
   if (km == null || !km.isFinite) return 'Enter a number of km';
   if (km < 0) return 'Cannot be negative';
   if (km > AppConstants.maxOdometerKm) return 'That looks too large';

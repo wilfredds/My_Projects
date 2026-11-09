@@ -1,4 +1,5 @@
 import 'package:cyclemind_ai/app/theme/app_colors.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/bikes/presentation/controllers/bikes_providers.dart';
 import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
 import 'package:cyclemind_ai/features/rides/presentation/controllers/rides_providers.dart';
@@ -75,10 +76,17 @@ class RideTile extends ConsumerWidget {
 
         final result = await ref.read(deleteRideProvider).call(ride);
         if (!context.mounted) return false;
+        final messenger = ScaffoldMessenger.of(context);
         result.fold(
-          (f) => ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(f.message))),
-          (_) {},
+          (f) => messenger.showSnackBar(SnackBar(content: Text(f.message))),
+          (ack) {
+            // Offline the row is already gone (deleted on this device); say
+            // that it still has to sync.
+            if (ack == WriteAck.queued) {
+              messenger.showSnackBar(const SnackBar(
+                  content: Text('Ride deleted. $savedOfflineNote')));
+            }
+          },
         );
         return false;
       },

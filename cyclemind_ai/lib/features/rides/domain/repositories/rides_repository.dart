@@ -1,4 +1,5 @@
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
 
 /// Contract for ride persistence.
@@ -11,6 +12,10 @@ import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
 /// odometer. There is deliberately NO standalone "add mileage" method
 /// anywhere: one would be callable without a ride, which is precisely how a
 /// double-count gets introduced later.
+///
+/// OFFLINE: writes succeed with [WriteAck.queued] when the server doesn't
+/// answer in time. Firestore has then already applied them on this device and
+/// delivers them on reconnect. They are never left waiting forever.
 abstract interface class RidesRepository {
   /// Reactive stream of [userId]'s rides, newest first.
   Stream<List<Ride>> watchRides(String userId);
@@ -26,7 +31,7 @@ abstract interface class RidesRepository {
   /// [Ride.id] MUST be caller-generated and STABLE ACROSS RETRIES. Re-sending
   /// the same id is rejected (firestore.rules denies `rides` update), which is
   /// what makes retrying an ambiguous timeout safe instead of double-counting.
-  Future<Result<Ride>> addRide(Ride ride);
+  Future<Result<WriteAck>> addRide(Ride ride);
 
   /// Deletes [ride] and subtracts [Ride.odometerDeltaKm] in the same atomic
   /// write.
@@ -41,5 +46,5 @@ abstract interface class RidesRepository {
   /// before doing that. Never infer it from a failed write: a refusal can
   /// also mean the bike exists and the decrement was denied, and deleting
   /// the ride alone then would leave its km on that odometer for good.
-  Future<Result<void>> deleteRide(Ride ride);
+  Future<Result<WriteAck>> deleteRide(Ride ride);
 }

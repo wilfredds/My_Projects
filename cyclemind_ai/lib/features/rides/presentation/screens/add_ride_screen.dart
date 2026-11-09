@@ -1,3 +1,4 @@
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 // For MaintenanceStatusX.label used in the snackbar. Extensions are not
@@ -101,8 +102,14 @@ class _AddRideScreenState extends ConsumerState<AddRideScreen> {
   }
 
   /// Says what actually happened, instead of the old unconditional
-  /// "component wear updated" — which was false.
+  /// "component wear updated" — which was false. Offline, it says the ride is
+  /// saved on the phone and will sync.
   String _message(RideLogged l) {
+    final m = _outcome(l);
+    return l.queued ? '$m $savedOfflineNote' : m;
+  }
+
+  String _outcome(RideLogged l) {
     final km = l.ride.distanceKm.toStringAsFixed(1);
     if (!l.odometerMoved) {
       return 'Logged $km km. No bike selected, so no odometer moved.';

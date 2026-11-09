@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cyclemind_ai/core/error/failures.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
 import 'package:cyclemind_ai/features/bikes/domain/repositories/bikes_repository.dart';
@@ -20,18 +21,19 @@ import 'package:flutter_test/flutter_test.dart';
 /// poked mid-save.
 class _GatedBikes implements BikesRepository {
   final List<MaintenanceLog> attempts = [];
-  final List<Completer<Result<void>>> _pending = [];
+  final List<Completer<Result<WriteAck>>> _pending = [];
 
-  void resolveNext(Result<void> result) => _pending.removeAt(0).complete(result);
+  void resolveNext(Result<WriteAck> result) =>
+      _pending.removeAt(0).complete(result);
 
   @override
-  Future<Result<void>> replaceComponent({
+  Future<Result<WriteAck>> replaceComponent({
     required Bike bike,
     required BikeComponent replacement,
     required MaintenanceLog log,
   }) {
     attempts.add(log);
-    final c = Completer<Result<void>>();
+    final c = Completer<Result<WriteAck>>();
     _pending.add(c);
     return c.future;
   }
@@ -39,11 +41,12 @@ class _GatedBikes implements BikesRepository {
   @override
   Stream<List<Bike>> watchBikes(String userId) => const Stream.empty();
   @override
-  Future<Result<Bike>> addBike(Bike bike) async => Success(bike);
+  Future<Result<WriteAck>> addBike(Bike bike) async =>
+      const Success(WriteAck.confirmed);
   @override
-  Future<Result<Bike>> setComponents(
+  Future<Result<WriteAck>> setComponents(
           String bikeId, List<BikeComponent> components) async =>
-      const Success(_roadie);
+      const Success(WriteAck.confirmed);
   @override
   Future<Result<void>> deleteBike(String bikeId) async => const Success(null);
   @override
@@ -141,5 +144,24 @@ void main() {
 
     expect(repo.attempts, hasLength(2));
     expect(repo.attempts[1].id, repo.attempts[0].id);
+  });
+
+  testWidgets('saved offline: the dialog closes, and the snackbar says it will '
+      'sync', (tester) async {
+    final repo = await _openDialog(tester);
+
+    await tester.tap(_confirm);
+    await tester.pump();
+    repo.resolveNext(const Success(WriteAck.queued));
+    await tester.pump(); // run the save's continuation
+    await tester.pump(); // pop, show the snackbar
+    await tester.pump(const Duration(milliseconds: 400)); // animations
+
+    expect(_confirm, findsNothing);
+    expect(find.textContaining(savedOfflineNote), findsOneWidget);
+
+    // Let the snackbar time out so no timer outlives the test.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pump(const Duration(seconds: 1));
   });
 }

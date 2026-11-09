@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/core/error/failures.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/bikes/data/models/bike_model.dart';
 import 'package:cyclemind_ai/features/bikes/data/models/maintenance_log_model.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
@@ -10,8 +11,19 @@ import 'package:cyclemind_ai/features/bikes/domain/repositories/bikes_repository
 
 /// Firestore-backed [BikesRepository].
 class FirebaseBikesRepository implements BikesRepository {
-  FirebaseBikesRepository(this._db);
+  FirebaseBikesRepository(
+    this._db, {
+    void Function(String message)? onLateFailure,
+  }) : _onLateFailure = onLateFailure;
+
   final FirebaseFirestore _db;
+
+  /// Told when a write reported as saved offline is later rejected by the
+  /// server, which rolls it back on the device silently.
+  final void Function(String message)? _onLateFailure;
+
+  void Function(Object) _late(String message) =>
+      (_) => _onLateFailure?.call(message);
 
   CollectionReference<Map<String, dynamic>> get _bikes =>
       _db.collection(AppConstants.bikesCollection);
@@ -25,28 +37,43 @@ class FirebaseBikesRepository implements BikesRepository {
   }
 
   @override
-  Future<Result<Bike>> addBike(Bike bike) async {
+  Future<Result<WriteAck>> addBike(Bike bike) async {
+    if (bike.id.isEmpty) {
+      return Failure(const ValidationFailure('A bike needs an id.'));
+    }
     try {
-      final ref = await _bikes.add(BikeModel.toMap(bike));
-      return Success(bike.copyWith(id: ref.id));
+      // doc(bike.id).set, not .add(): .add() minted a new id per call, so a
+      // second tap (easy offline, where nothing seemed to happen) queued a
+      // duplicate bike. A repeat now rewrites the same document, which the
+      // rules allow as an owner update.
+      final ack = await awaitServerAck(
+        _bikes.doc(bike.id).set(BikeModel.toMap(bike)),
+        onLateFailure:
+            _late("Couldn't sync a bike you added offline, so it was removed."),
+      );
+      return Success(ack);
     } catch (_) {
-      return Failure(const ServerFailure());
+      return Failure(const ServerFailure('Could not save the bike.'));
     }
   }
 
   @override
-  Future<Result<Bike>> setComponents(
+  Future<Result<WriteAck>> setComponents(
     String bikeId,
     List<BikeComponent> components,
   ) async {
     try {
       // Field-scoped update: `totalMileageKm` is absent from the payload, so
-      // the stored value carries through untouched.
-      await _bikes.doc(bikeId).update(
-        {'components': BikeModel.componentsToMaps(components)},
+      // the stored value carries through untouched. There is no follow-up
+      // read: nothing used it, and offline it was a second thing to wait on.
+      final ack = await awaitServerAck(
+        _bikes.doc(bikeId).update(
+          {'components': BikeModel.componentsToMaps(components)},
+        ),
+        onLateFailure: _late(
+            "Couldn't sync a change to your parts made offline, so it was undone."),
       );
-      final snap = await _bikes.doc(bikeId).get();
-      return Success(BikeModel.fromMap(bikeId, snap.data() ?? const {}));
+      return Success(ack);
     } catch (_) {
       return Failure(const ServerFailure('Could not update the components.'));
     }
@@ -75,7 +102,7 @@ class FirebaseBikesRepository implements BikesRepository {
   }
 
   @override
-  Future<Result<void>> replaceComponent({
+  Future<Result<WriteAck>> replaceComponent({
     required Bike bike,
     required BikeComponent replacement,
     required MaintenanceLog log,
@@ -96,8 +123,12 @@ class FirebaseBikesRepository implements BikesRepository {
           'components': BikeModel.componentsToMaps(
               replaceById(bike.components, replacement)),
         });
-      await batch.commit();
-      return const Success(null);
+      final ack = await awaitServerAck(
+        batch.commit(),
+        onLateFailure: _late(
+            "Couldn't sync a replacement you recorded offline, so it was undone."),
+      );
+      return Success(ack);
     } catch (_) {
       return Failure(const ServerFailure('Could not record the replacement.'));
     }

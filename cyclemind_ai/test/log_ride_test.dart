@@ -1,5 +1,7 @@
+import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/core/error/failures.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
 import 'package:cyclemind_ai/features/rides/domain/repositories/rides_repository.dart';
@@ -9,14 +11,21 @@ import 'package:flutter_test/flutter_test.dart';
 /// Fake repository that applies the odometer the way the real ones do, and
 /// reproduces the denials the Firestore rules enforce.
 class _FakeRides implements RidesRepository {
-  _FakeRides({this.bikes = const [], this.failWith});
+  _FakeRides({
+    this.bikes = const [],
+    this.failWith,
+    this.ack = WriteAck.confirmed,
+  });
 
   List<Bike> bikes;
   final AppFailure? failWith;
+
+  /// What a successful save reports: queued is what offline looks like.
+  final WriteAck ack;
   final List<Ride> saved = [];
 
   @override
-  Future<Result<Ride>> addRide(Ride ride) async {
+  Future<Result<WriteAck>> addRide(Ride ride) async {
     if (failWith != null) return Failure(failWith!);
     if (saved.any((r) => r.id == ride.id)) {
       return Failure(const ValidationFailure('duplicate'));
@@ -31,11 +40,11 @@ class _FakeRides implements RidesRepository {
               : b
       ];
     }
-    return Success(ride);
+    return Success(ack);
   }
 
   @override
-  Future<Result<void>> deleteRide(Ride ride) async {
+  Future<Result<WriteAck>> deleteRide(Ride ride) async {
     saved.removeWhere((r) => r.id == ride.id);
     final d = ride.odometerDeltaKm;
     if (ride.bikeId != null && d != null) {
@@ -48,7 +57,7 @@ class _FakeRides implements RidesRepository {
               : b
       ];
     }
-    return const Success(null);
+    return Success(ack);
   }
 
   @override
@@ -218,6 +227,86 @@ void main() {
 
     test('rejects a distance beyond the rules ceiling', () async {
       expect((await run(distance: 2001, duration: 360000)).isSuccess, isFalse);
+    });
+  });
+
+  group('offline', () {
+    test('a save that only reached this device is reported as queued',
+        () async {
+      final repo = _FakeRides(bikes: [_bike(km: 1000)], ack: WriteAck.queued);
+      final r = await LogRide(repo).call(
+        rideId: 'r1', userId: 'u1', title: 'x',
+        distanceKm: 42, elevationM: 0, durationSec: 3600,
+        bike: repo.bikes.first,
+      );
+
+      expect(r.valueOrNull!.queued, isTrue);
+      // The odometer has already moved on this device, so this stays true.
+      expect(r.valueOrNull!.odometerAfterKm, 1042);
+    });
+
+    test('a confirmed save is not', () async {
+      final repo = _FakeRides(bikes: [_bike()]);
+      final r = await LogRide(repo).call(
+        rideId: 'r1', userId: 'u1', title: 'x',
+        distanceKm: 10, elevationM: 0, durationSec: 3600,
+      );
+      expect(r.valueOrNull!.queued, isFalse);
+    });
+  });
+
+  // A ride saved offline only meets the rules when it syncs, and a rejection
+  // then rolls it back on the device silently. So every rideShapeOk bound is
+  // checked before saving, and a failure writes NOTHING.
+  group('LogRide checks every bound the rules check', () {
+    Future<(Result<RideLogged>, _FakeRides)> attempt({
+      String title = 'x',
+      double distance = 10,
+      int duration = 3600,
+      int? cadence,
+      double? weightKg,
+    }) async {
+      final repo = _FakeRides(bikes: [_bike()]);
+      final r = await LogRide(repo).call(
+        rideId: 'r', userId: 'u1', title: title,
+        distanceKm: distance, elevationM: 0, durationSec: duration,
+        cadence: cadence, riderWeightKg: weightKg,
+      );
+      return (r, repo);
+    }
+
+    Future<void> refused(Future<(Result<RideLogged>, _FakeRides)> a) async {
+      final (r, repo) = await a;
+      expect(r.isSuccess, isFalse);
+      expect(repo.saved, isEmpty);
+    }
+
+    Future<void> accepted(Future<(Result<RideLogged>, _FakeRides)> a) async {
+      final (r, _) = await a;
+      expect(r.isSuccess, isTrue);
+    }
+
+    test('title: 120 characters pass, 121 are refused (str(d.title, 120))',
+        () async {
+      await accepted(attempt(title: 'x' * 120));
+      await refused(attempt(title: 'x' * 121));
+    });
+
+    test('duration: 14 days pass, a second more is refused', () async {
+      await accepted(attempt(duration: AppConstants.maxRideDurationSec));
+      await refused(attempt(duration: AppConstants.maxRideDurationSec + 1));
+    });
+
+    test('cadence: 0 to 250 rpm pass, outside is refused', () async {
+      await accepted(attempt(cadence: 250));
+      await refused(attempt(cadence: 251));
+      await refused(attempt(cadence: -1));
+    });
+
+    test('derived calories over 200000 are refused', () async {
+      // 2000 km in 100 h is 20 km/h (MET 8). At 400 kg that's 320000 kcal.
+      await refused(attempt(distance: 2000, duration: 360000, weightKg: 400));
+      await accepted(attempt(distance: 2000, duration: 360000, weightKg: 72));
     });
   });
 

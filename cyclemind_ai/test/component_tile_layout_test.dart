@@ -1,5 +1,6 @@
 import 'package:cyclemind_ai/app/theme/app_theme.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
 import 'package:cyclemind_ai/features/bikes/domain/repositories/bikes_repository.dart';
@@ -26,20 +27,21 @@ class _NoLogs implements BikesRepository {
   @override
   Stream<List<Bike>> watchBikes(String userId) => const Stream.empty();
   @override
-  Future<Result<Bike>> addBike(Bike bike) async => Success(bike);
+  Future<Result<WriteAck>> addBike(Bike bike) async =>
+      const Success(WriteAck.confirmed);
   @override
-  Future<Result<Bike>> setComponents(
+  Future<Result<WriteAck>> setComponents(
           String bikeId, List<BikeComponent> components) async =>
       throw UnimplementedError();
   @override
   Future<Result<void>> deleteBike(String bikeId) async => const Success(null);
   @override
-  Future<Result<void>> replaceComponent({
+  Future<Result<WriteAck>> replaceComponent({
     required Bike bike,
     required BikeComponent replacement,
     required MaintenanceLog log,
   }) async =>
-      const Success(null);
+      const Success(WriteAck.confirmed);
 }
 
 Bike _bikeWithPartAt(double usedKm) => Bike(

@@ -1,5 +1,6 @@
 import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/core/providers/firebase_providers.dart';
+import 'package:cyclemind_ai/core/providers/sync_errors.dart';
 import 'package:cyclemind_ai/features/bikes/data/repositories/firebase_bikes_repository.dart';
 import 'package:cyclemind_ai/features/bikes/data/repositories/mock_bikes_repository.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
@@ -13,7 +14,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Binds the [BikesRepository] implementation.
 final bikesRepositoryProvider = Provider<BikesRepository>((ref) {
   if (AppConstants.useMocks) return MockBikesRepository();
-  return FirebaseBikesRepository(ref.watch(firestoreProvider));
+  return FirebaseBikesRepository(
+    ref.watch(firestoreProvider),
+    // A write reported as saved offline and later rejected by the server is
+    // rolled back silently; this is how the rider hears about it.
+    onLateFailure: ref.watch(syncErrorsProvider).report,
+  );
 });
 
 /// Reactive list of the current user's bikes.

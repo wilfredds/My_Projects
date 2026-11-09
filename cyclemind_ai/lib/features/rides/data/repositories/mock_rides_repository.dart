@@ -2,6 +2,7 @@ import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/core/error/failures.dart';
 import 'package:cyclemind_ai/core/providers/mock_store.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
 import 'package:cyclemind_ai/features/rides/domain/repositories/rides_repository.dart';
 
@@ -32,7 +33,7 @@ class MockRidesRepository implements RidesRepository {
   }
 
   @override
-  Future<Result<Ride>> addRide(Ride ride) async {
+  Future<Result<WriteAck>> addRide(Ride ride) async {
     await MockStore.instance.ensureLoaded();
     final store = MockStore.instance;
     final delta = ride.odometerDeltaKm;
@@ -69,11 +70,12 @@ class MockRidesRepository implements RidesRepository {
         );
       }
     });
-    return Success(ride);
+    // In memory, so every write is confirmed at once.
+    return const Success(WriteAck.confirmed);
   }
 
   @override
-  Future<Result<void>> deleteRide(Ride ride) async {
+  Future<Result<WriteAck>> deleteRide(Ride ride) async {
     await MockStore.instance.ensureLoaded();
     final store = MockStore.instance;
     final delta = ride.odometerDeltaKm;
@@ -91,6 +93,6 @@ class MockRidesRepository implements RidesRepository {
         );
       }
     });
-    return const Success(null);
+    return const Success(WriteAck.confirmed);
   }
 }

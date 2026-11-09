@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/core/error/failures.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/rides/data/models/ride_model.dart';
 import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
 import 'package:cyclemind_ai/features/rides/domain/repositories/rides_repository.dart';
@@ -19,8 +20,19 @@ import 'package:cyclemind_ai/features/rides/domain/repositories/rides_repository
 /// `numIn(d.totalMileageKm, 0, 500000)` bound still applies — verified in
 /// firestore-tests/premise.test.js.
 class FirebaseRidesRepository implements RidesRepository {
-  FirebaseRidesRepository(this._db);
+  FirebaseRidesRepository(
+    this._db, {
+    void Function(String message)? onLateFailure,
+  }) : _onLateFailure = onLateFailure;
+
   final FirebaseFirestore _db;
+
+  /// Told when a write reported as saved offline is later rejected by the
+  /// server, which rolls it back on the device silently.
+  final void Function(String message)? _onLateFailure;
+
+  void Function(Object) _late(String message) =>
+      (_) => _onLateFailure?.call(message);
 
   Query<Map<String, dynamic>> _userRides(String userId) => _db
       .collection(AppConstants.ridesCollection)
@@ -45,7 +57,7 @@ class FirebaseRidesRepository implements RidesRepository {
   }
 
   @override
-  Future<Result<Ride>> addRide(Ride ride) async {
+  Future<Result<WriteAck>> addRide(Ride ride) async {
     final delta = ride.odometerDeltaKm;
     if ((ride.bikeId == null) != (delta == null)) {
       return Failure(const ValidationFailure(
@@ -65,15 +77,19 @@ class FirebaseRidesRepository implements RidesRepository {
           {'totalMileageKm': FieldValue.increment(delta)},
         );
       }
-      await batch.commit();
-      return Success(ride);
+      final ack = await awaitServerAck(
+        batch.commit(),
+        onLateFailure:
+            _late("Couldn't sync a ride you logged offline, so it was removed."),
+      );
+      return Success(ack);
     } catch (_) {
       return Failure(const ServerFailure('Could not save the ride.'));
     }
   }
 
   @override
-  Future<Result<void>> deleteRide(Ride ride) async {
+  Future<Result<WriteAck>> deleteRide(Ride ride) async {
     final delta = ride.odometerDeltaKm;
     final creditsBack = ride.bikeId != null && delta != null && delta != 0;
     final rideRef = _db.collection(AppConstants.ridesCollection).doc(ride.id);
@@ -85,8 +101,16 @@ class FirebaseRidesRepository implements RidesRepository {
           {'totalMileageKm': FieldValue.increment(-delta)},
         );
       }
-      await batch.commit();
-      return const Success(null);
+      // A commit that FAILS in time still throws through awaitServerAck, so
+      // the deleted-bike fallback below is unaffected. Offline, the batch is
+      // queued; if its bike is gone by the time it syncs, the rejection is
+      // reported and a retry online takes the fallback.
+      final ack = await awaitServerAck(
+        batch.commit(),
+        onLateFailure:
+            _late("Couldn't sync a ride you deleted offline, so it's back."),
+      );
+      return Success(ack);
     } on FirebaseException catch (e) {
       // The bike was deleted after this ride was logged, so there is no
       // odometer left to credit back. The batch's bike update is then DENIED,
@@ -103,8 +127,11 @@ class FirebaseRidesRepository implements RidesRepository {
           e.code == 'permission-denied' &&
           await _bikeIsGone(ride)) {
         try {
-          await rideRef.delete();
-          return const Success(null);
+          return Success(await awaitServerAck(
+            rideRef.delete(),
+            onLateFailure:
+                _late("Couldn't sync a ride you deleted offline, so it's back."),
+          ));
         } catch (_) {
           return Failure(const ServerFailure('Could not delete the ride.'));
         }

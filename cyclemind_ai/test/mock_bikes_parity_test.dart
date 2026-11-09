@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cyclemind_ai/core/providers/mock_store.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/bikes/data/repositories/mock_bikes_repository.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
@@ -59,7 +60,7 @@ void main() {
         notes: notes,
       );
 
-  Future<Result<void>> replace({
+  Future<Result<WriteAck>> replace({
     Bike? bike,
     BikeComponent? replacement,
     MaintenanceLog? log,
@@ -215,5 +216,30 @@ void main() {
 
     expect((await repo.setComponents('bike-1', many)).isSuccess, isFalse);
     expect(roadie().components.length, countBefore);
+  });
+
+  test('doc(id).set: the same bike id twice upserts, never duplicates',
+      () async {
+    // What a second tap, or a retry offline, sends.
+    final gravel = Bike(
+        id: 'new-1', userId: uid, name: 'Gravel', frame: '', groupset: '',
+        tires: '');
+    expect((await repo.addBike(gravel)).isSuccess, isTrue);
+    expect((await repo.addBike(gravel.copyWith(name: 'Gravel 2'))).isSuccess,
+        isTrue);
+
+    final saved = store.bikes.where((b) => b.id == 'new-1').toList();
+    expect(saved, hasLength(1));
+    expect(saved.single.name, 'Gravel 2');
+  });
+
+  test("bikes update ownsStored: another user's bike id is denied", () async {
+    final r = await repo.addBike(const Bike(
+        id: 'bike-1', userId: 'intruder', name: 'Mine now', frame: '',
+        groupset: '', tires: ''));
+
+    expect(r.isSuccess, isFalse);
+    expect(roadie().userId, uid);
+    expect(roadie().name, 'Roadie');
   });
 }

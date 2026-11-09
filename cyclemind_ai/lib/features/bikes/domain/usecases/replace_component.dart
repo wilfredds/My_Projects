@@ -1,6 +1,7 @@
 import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/core/error/failures.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
+import 'package:cyclemind_ai/core/utils/write_ack.dart';
 import 'package:cyclemind_ai/features/bikes/domain/component_validation.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
@@ -12,6 +13,7 @@ class ComponentReplaced {
     required this.removed,
     required this.fitted,
     required this.log,
+    this.queued = false,
   });
 
   /// The part as it was before. Its wear is what [log] records.
@@ -22,6 +24,10 @@ class ComponentReplaced {
 
   /// The service-history entry, written in the same atomic batch.
   final MaintenanceLog log;
+
+  /// Saved on this device only: no signal, so the server hasn't confirmed it
+  /// yet. It syncs on reconnect, and wear has already reset locally.
+  final bool queued;
 
   /// Odometer reading at which the new part will first raise a reminder.
   double get nextReminderAtKm =>
@@ -117,8 +123,12 @@ class ReplaceComponent {
     );
     return saved.fold(
       Failure<ComponentReplaced>,
-      (_) => Success(
-          ComponentReplaced(removed: removed, fitted: fitted, log: log)),
+      (ack) => Success(ComponentReplaced(
+        removed: removed,
+        fitted: fitted,
+        log: log,
+        queued: ack == WriteAck.queued,
+      )),
     );
   }
 }
@@ -178,8 +188,11 @@ String _named(String brand, String fallback) {
   return b.isEmpty ? fallback : b;
 }
 
-/// Snackbar text: what was recorded, and when the next reminder will come.
-String replacementMessage(ComponentReplaced r) =>
-    '${r.log.component} replaced at '
-    '${r.log.mileageAtService.toStringAsFixed(0)} km. '
-    'Next reminder around ${r.nextReminderAtKm.toStringAsFixed(0)} km.';
+/// Snackbar text: what was recorded, when the next reminder will come, and
+/// whether it's still waiting to sync.
+String replacementMessage(ComponentReplaced r) {
+  final base = '${r.log.component} replaced at '
+      '${r.log.mileageAtService.toStringAsFixed(0)} km. '
+      'Next reminder around ${r.nextReminderAtKm.toStringAsFixed(0)} km.';
+  return r.queued ? '$base $savedOfflineNote' : base;
+}
