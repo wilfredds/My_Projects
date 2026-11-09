@@ -70,7 +70,7 @@ Each feature layer:
 | **Dashboard** | Readiness ring, weekly distance/elevation/calories, AI recommendation, bike-health summary. |
 | **AI Coach** | Log rides (auto calorie estimate), distance trend chart, AI ride summaries, training-plan generator, readiness score. |
 | **Bike Doctor** | Capture/upload a photo, pick a bike area, run AI vision analysis → health score, risk level, per-area findings & fixes. Plus an AI mechanic chat. |
-| **Bikes** | Multiple bikes, component tracking with wear bars, mileage, and automatic maintenance reminders. |
+| **Bikes** | Multiple bikes, component tracking with wear bars, mileage, and automatic maintenance reminders. **Mark replaced** resets a part's wear and clears its reminder, and every replacement is kept in a per-bike, append-only **service history**. Parts added to a bike you already own can carry the km already on them. |
 
 ---
 

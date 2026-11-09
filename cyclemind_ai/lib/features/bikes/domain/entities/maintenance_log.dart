@@ -11,7 +11,36 @@ extension MaintenanceStatusX on MaintenanceStatus {
       };
 }
 
+/// Wear fraction at which a component becomes "due soon".
+const double dueSoonWearFraction = 0.8;
+
+/// Wear fraction at which a component becomes "overdue".
+const double overdueWearFraction = 1.0;
+
+/// The ONE definition of the wear thresholds.
+///
+/// Reminders, tile colours and the status recorded in a service log all go
+/// through here, so they cannot disagree. There used to be three inline
+/// copies. NaN, reachable only through a corrupt lifespan or odometer,
+/// compares false and reads [MaintenanceStatus.ok]; the validators in
+/// component_validation.dart are what keep it out.
+MaintenanceStatus statusForWear(
+  double wear, {
+  double dueSoonAt = dueSoonWearFraction,
+}) {
+  if (wear >= overdueWearFraction) return MaintenanceStatus.overdue;
+  if (wear >= dueSoonAt) return MaintenanceStatus.dueSoon;
+  return MaintenanceStatus.ok;
+}
+
 /// A service-history entry. Maps to `maintenance_logs/{logId}`.
+///
+/// APPEND-ONLY: firestore.rules denies update and delete. That is what makes a
+/// service history worth trusting, and it is also what makes a retried write
+/// with the same [id] safe (it is denied instead of recorded twice).
+///
+/// [status] is the status of the part that was REMOVED, so the history shows
+/// whether it was replaced early, when due, or overdue.
 class MaintenanceLog extends Equatable {
   const MaintenanceLog({
     required this.id,

@@ -8,7 +8,11 @@ import 'package:cyclemind_ai/features/bike_doctor/domain/entities/bike_health_re
 import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/features/bikes/data/repositories/mock_bikes_repository.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
+import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
+import 'package:cyclemind_ai/features/bikes/domain/usecases/generate_reminders.dart';
+import 'package:cyclemind_ai/features/bikes/domain/usecases/replace_component.dart';
 import 'package:cyclemind_ai/features/rides/data/repositories/mock_rides_repository.dart';
+import 'package:cyclemind_ai/features/rides/domain/usecases/log_ride.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Proves the cross-user leak is closed.
@@ -62,6 +66,19 @@ void main() {
       // The seeded totalMileageKm is a lump figure that already includes these
       // rides. A non-null delta would make deleting one subtract twice.
       expect(store.rides.every((r) => r.odometerDeltaKm == null), isTrue);
+    });
+
+    test('seeded service history belongs to the seed user and agrees with wear',
+        () {
+      expect(store.logs, isNotEmpty);
+      for (final log in store.logs) {
+        expect(log.userId, store.seedUser.id);
+        final bike = store.bikes.firstWhere((b) => b.id == log.bikeId);
+        final part = bike.components.firstWhere((c) => c.type == log.component);
+        // A part's latest replacement is where its current wear starts, so a
+        // seeded entry that disagreed would make the demo contradict itself.
+        expect(part.installedAtKm, log.mileageAtService, reason: log.component);
+      }
     });
 
     test('rides are newest-first (defaultBikeId depends on it)', () {
@@ -195,5 +212,50 @@ void _demoLoopTests() {
     // After one ride the size of the seeded Saturday endurance ride.
     final after = bike.copyWith(totalMileageKm: bike.totalMileageKm + 62.4);
     expect(chain.wearFraction(after.totalMileageKm), greaterThan(0.8));
+  });
+
+  // The whole promise, end to end through the real mock repositories: a ride
+  // makes a part due, and saying it was replaced makes the reminder go away.
+  // Before "Mark replaced" existed, the last two steps were impossible.
+  test('ride -> due soon -> Mark replaced -> reminder gone, history updated',
+      () async {
+    final store = MockStore.instance;
+    final uid = store.seedUser.id;
+    const generate = GenerateReminders();
+    Bike roadie() => store.bikes.firstWhere((b) => b.id == 'bike-1');
+
+    final logged = await LogRide(MockRidesRepository()).call(
+      rideId: 'demo-ride',
+      userId: uid,
+      title: 'Saturday endurance',
+      distanceKm: 62.4,
+      elevationM: 540,
+      durationSec: 8080,
+      bike: roadie(),
+    );
+    expect(logged.isSuccess, isTrue);
+    expect(generate.call(store.bikes).map((r) => r.component.id),
+        contains('c1'));
+
+    final odometer = roadie().totalMileageKm;
+    final replaced = await ReplaceComponent(MockBikesRepository()).call(
+      logId: 'demo-log',
+      userId: uid,
+      bike: roadie(),
+      componentId: 'c1',
+      brand: 'KMC',
+      lifespanKm: 3000,
+    );
+    expect(replaced.isSuccess, isTrue);
+
+    expect(generate.call(store.bikes), isEmpty);
+    expect(componentById(roadie(), 'c1')!.wearFraction(odometer), 0);
+    expect(roadie().totalMileageKm, odometer);
+
+    final history = await MockBikesRepository().watchLogs(uid, 'bike-1').first;
+    expect(history.first.id, 'demo-log');
+    expect(history.first.component, 'Chain');
+    expect(history.first.status, MaintenanceStatus.dueSoon);
+    expect(history.first.mileageAtService, closeTo(4262.4, 1e-6));
   });
 }

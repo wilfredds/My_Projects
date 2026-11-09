@@ -1,7 +1,8 @@
-import 'package:cyclemind_ai/app/theme/app_colors.dart';
 import 'package:cyclemind_ai/core/widgets/empty_state.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
+import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
 import 'package:cyclemind_ai/features/bikes/presentation/controllers/bikes_providers.dart';
+import 'package:cyclemind_ai/features/bikes/presentation/widgets/status_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -59,11 +60,7 @@ class _BikeCard extends StatelessWidget {
         : bike.components
             .map((c) => c.wearFraction(bike.totalMileageKm))
             .reduce((a, b) => a > b ? a : b);
-    final color = worstWear >= 1.0
-        ? AppColors.danger
-        : worstWear >= 0.8
-            ? AppColors.warning
-            : AppColors.success;
+    final color = statusColor(statusForWear(worstWear));
 
     return Card(
       child: ListTile(

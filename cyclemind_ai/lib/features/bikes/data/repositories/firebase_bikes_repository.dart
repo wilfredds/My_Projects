@@ -75,12 +75,31 @@ class FirebaseBikesRepository implements BikesRepository {
   }
 
   @override
-  Future<Result<MaintenanceLog>> addLog(MaintenanceLog log) async {
+  Future<Result<void>> replaceComponent({
+    required Bike bike,
+    required BikeComponent replacement,
+    required MaintenanceLog log,
+  }) async {
+    final violation = replacementContractViolation(
+        bike: bike, replacement: replacement, log: log);
+    if (violation != null) return Failure(ValidationFailure(violation));
+
     try {
-      final ref = await _logs.add(MaintenanceLogModel.toMap(log));
-      return Success(log.copyWith(id: ref.id));
+      final batch = _db.batch()
+        // doc(log.id).set and never .add(): the client id is load-bearing.
+        // Logs are create-only, so a retry is evaluated as a denied update
+        // instead of writing a second history entry.
+        ..set(_logs.doc(log.id), MaintenanceLogModel.toMap(log))
+        // Field-scoped: totalMileageKm is absent, so the stored odometer
+        // carries through even if [bike] is a stale snapshot.
+        ..update(_bikes.doc(bike.id), {
+          'components': BikeModel.componentsToMaps(
+              replaceById(bike.components, replacement)),
+        });
+      await batch.commit();
+      return const Success(null);
     } catch (_) {
-      return Failure(const ServerFailure());
+      return Failure(const ServerFailure('Could not record the replacement.'));
     }
   }
 }

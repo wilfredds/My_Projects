@@ -5,7 +5,8 @@ import { Timestamp } from 'firebase/firestore';
  *
  * These are asserted against the fixtures below (drift guard G1) so a fixture
  * that drifts from the rules fails loudly instead of silently testing the
- * wrong shape. The Dart side has a matching guard.
+ * wrong shape. The Dart side has a matching guard: test/model_keys_test.dart
+ * asserts each toMap() emits exactly these keys.
  *
  * NOTE: `rides` uses `distance`/`elevation`/`avgSpeed` — NOT the Dart property
  * names distanceKm/elevationM/avgSpeedKmh. Likewise `ai_reports` stores

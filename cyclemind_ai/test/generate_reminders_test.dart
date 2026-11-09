@@ -59,4 +59,14 @@ void main() {
     expect(reminders.first.wearFraction,
         greaterThanOrEqualTo(reminders.last.wearFraction));
   });
+
+  test('statusForWear boundaries (the one definition of the thresholds)', () {
+    expect(statusForWear(0.7999), MaintenanceStatus.ok);
+    expect(statusForWear(0.8), MaintenanceStatus.dueSoon);
+    expect(statusForWear(0.9999), MaintenanceStatus.dueSoon);
+    expect(statusForWear(1.0), MaintenanceStatus.overdue);
+    // NaN compares false everywhere: it must not read as due, and the
+    // validators are what keep it out in the first place.
+    expect(statusForWear(double.nan), MaintenanceStatus.ok);
+  });
 }

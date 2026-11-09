@@ -3,8 +3,10 @@ import 'package:cyclemind_ai/core/providers/firebase_providers.dart';
 import 'package:cyclemind_ai/features/bikes/data/repositories/firebase_bikes_repository.dart';
 import 'package:cyclemind_ai/features/bikes/data/repositories/mock_bikes_repository.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
+import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
 import 'package:cyclemind_ai/features/bikes/domain/repositories/bikes_repository.dart';
 import 'package:cyclemind_ai/features/bikes/domain/usecases/generate_reminders.dart';
+import 'package:cyclemind_ai/features/bikes/domain/usecases/replace_component.dart';
 import 'package:cyclemind_ai/features/rides/presentation/controllers/rides_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -35,4 +37,21 @@ final remindersProvider = Provider<List<MaintenanceReminder>>((ref) {
 final bikeNamesProvider = Provider<Map<String, String>>((ref) {
   final bikes = ref.watch(bikesStreamProvider).valueOrNull ?? const [];
   return {for (final b in bikes) b.id: b.name};
+});
+
+/// Records a replacement: resets the part's wear and appends a service-history
+/// entry, atomically.
+final replaceComponentProvider = Provider<ReplaceComponent>(
+    (ref) => ReplaceComponent(ref.watch(bikesRepositoryProvider)));
+
+/// One bike's service history, newest first.
+///
+/// autoDispose + family: one listener per bike screen that is actually open.
+/// Without autoDispose, every bike ever opened would keep a live Firestore
+/// listener for the rest of the session.
+final maintenanceLogsProvider = StreamProvider.autoDispose
+    .family<List<MaintenanceLog>, String>((ref, bikeId) {
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId.isEmpty) return const Stream.empty();
+  return ref.watch(bikesRepositoryProvider).watchLogs(userId, bikeId);
 });

@@ -5,7 +5,7 @@ import {
   assertSucceeds,
 } from '@firebase/rules-unit-testing';
 import {
-  doc, setDoc, getDoc, deleteDoc, collection, query, where, orderBy, getDocs,
+  doc, setDoc, getDoc, updateDoc, deleteDoc, collection, query, where, orderBy, getDocs,
 } from 'firebase/firestore';
 import { beforeAll, afterAll, beforeEach, describe, it, expect } from 'vitest';
 
@@ -86,6 +86,15 @@ describe('happy path: writes the app actually makes', () => {
     await assertSucceeds(setDoc(doc(alice, 'bikes/b1'), aBike('alice', {
       components: [{ id: 'c1', type: 'Chain', brand: 'Shimano', installedAtKm: 2000, lifespanKm: 3000 }],
     }), { merge: true }));
+  });
+
+  it('bikes: field-scoped update of components (setComponents / replaceComponent)', async () => {
+    // The write path the app actually uses. It omits totalMileageKm, so the
+    // stored odometer carries through and bikeShapeOk sees a complete doc.
+    await seed((db) => setDoc(doc(db, 'bikes/b1'), aBike()));
+    await assertSucceeds(updateDoc(doc(alice, 'bikes/b1'), {
+      components: [{ id: 'c1', type: 'Chain', brand: 'KMC', installedAtKm: 4200, lifespanKm: 3000 }],
+    }));
   });
 
   it('bikes: delete own', async () => {
@@ -397,5 +406,26 @@ describe('rides: odometerDeltaKm', () => {
     // They must stay valid, which is why the rules do not tie the two together.
     await assertSucceeds(setDoc(doc(alice, 'rides/d6'),
       aRide('alice', { bikeId: 'bike-1', odometerDeltaKm: null })));
+  });
+});
+
+// ------------------------------------------------ maintenance_logs bounds
+
+describe('maintenance_logs: field bounds (mirrored by the mock and the use case)', () => {
+  it('component label: 80 chars passes, 81 fails', async () => {
+    await assertSucceeds(setDoc(doc(alice, 'maintenance_logs/m1'), aLog('alice', { component: 'x'.repeat(80) })));
+    await assertFails(setDoc(doc(alice, 'maintenance_logs/m2'), aLog('alice', { component: 'x'.repeat(81) })));
+  });
+
+  it('notes: 2000 chars passes, 2001 fails', async () => {
+    await assertSucceeds(setDoc(doc(alice, 'maintenance_logs/m3'), aLog('alice', { notes: 'x'.repeat(2000) })));
+    await assertFails(setDoc(doc(alice, 'maintenance_logs/m4'), aLog('alice', { notes: 'x'.repeat(2001) })));
+  });
+
+  it('mileageAtService: 0 and 500000 pass, -1 and 500001 fail', async () => {
+    await assertSucceeds(setDoc(doc(alice, 'maintenance_logs/m5'), aLog('alice', { mileageAtService: 0 })));
+    await assertSucceeds(setDoc(doc(alice, 'maintenance_logs/m6'), aLog('alice', { mileageAtService: 500000 })));
+    await assertFails(setDoc(doc(alice, 'maintenance_logs/m7'), aLog('alice', { mileageAtService: -1 })));
+    await assertFails(setDoc(doc(alice, 'maintenance_logs/m8'), aLog('alice', { mileageAtService: 500001 })));
   });
 });

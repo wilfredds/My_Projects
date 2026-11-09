@@ -20,6 +20,11 @@ rules_version = '2';
 //      odometer increment, so re-committing an ambiguous retry hits this denial
 //      instead of incrementing twice. Relaxing it to allow ride edits would
 //      silently reintroduce double-counting. See firestore-tests/premise.test.js.
+//   5c. `maintenance_logs` update being denied is load-bearing the same way: a
+//      replacement's log is written with a client-generated id in the same
+//      batch as the component reset, so a retry is denied whole instead of
+//      recording the replacement twice. Denying delete keeps service history
+//      append-only, which is what makes it worth trusting. premise.test.js C7-C8.
 //   6. `ai_usage` is server-only. The Admin SDK bypasses rules, so the
 //      charge() transaction in functions/src/auth.ts is unaffected.
 //
@@ -52,14 +57,18 @@ rules_version = '2';
 // maintenance_logs.bikeId is NOT in that list — MaintenanceLog.bikeId is a
 // non-nullable String. Do not "tidy" it into optStr.
 //
-// MERGE SEMANTICS. Two call sites use set(..., SetOptions(merge: true)):
-// FirebaseAuthRepository.updateProfile and FirebaseBikesRepository.updateBike.
-// On a merge write `request.resource.data` is the POST-MERGE document (stored
-// keys union incoming keys), and merge deep-merges nested maps, so keysAre()
-// also governs `profile` and `preferences`. Consequence: a stored document
-// carrying any key outside an allowlist becomes permanently un-editable by its
-// owner. Ship model changes and rule changes together, and never backfill a
-// new field via the Admin SDK before widening the allowlist here.
+// UPDATE SEMANTICS. Every update the app sends is either a merge write
+// (FirebaseAuthRepository.updateProfile -> set(..., SetOptions(merge: true)))
+// or a field-scoped update() on a bike (setComponents, replaceComponent, and
+// the ride batches' FieldValue.increment). In both cases `request.resource.data`
+// is the POST-WRITE document: stored keys union incoming keys. Merge also
+// deep-merges nested maps, so keysAre() governs `profile` and `preferences`
+// too. Nothing writes a whole bike document after creation.
+//
+// Consequence: a stored document carrying any key outside an allowlist
+// becomes permanently un-editable by its owner. Ship model changes and rule
+// changes together, and never backfill a new field via the Admin SDK before
+// widening the allowlist here.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -184,8 +193,13 @@ service cloud.firestore {
     }
 
     // ================================================================= bikes
-    // create: addBike    -> add(toMap)
-    // update: updateBike -> set(toMap, merge: true)
+    // create: addBike -> add(toMap)
+    // update: field-scoped update() only, never a whole-document write:
+    //           setComponents      -> update({components})
+    //           replaceComponent   -> update({components}), batched with a
+    //                                 maintenance_logs create
+    //           addRide/deleteRide -> update({totalMileageKm: increment(±d)}),
+    //                                 batched with the ride write
     // delete: deleteBike exists on the repository. Allowed — an owner deleting
     //         their own bike is always safe.
     // list:   watchBikes -> where('userId','==',uid)
@@ -215,9 +229,9 @@ service cloud.firestore {
     }
 
     // ================================================================= rides
-    // create: addRide -> add(toMap)
-    // update: NO call site anywhere. Denied outright.
-    // delete: deleteRide exists on the repository.
+    // create: addRide -> batch.set(doc(clientId)), with the odometer increment
+    // update: NO call site anywhere. Denied outright (invariant 5b).
+    // delete: deleteRide -> batch.delete, with the matching decrement
     // list:   watchRides/getRides -> where('userId','==',uid)
     //                                .orderBy('startedAt', desc)
     //
@@ -259,8 +273,11 @@ service cloud.firestore {
     }
 
     // ====================================================== maintenance_logs
-    // create: addLog -> add(toMap)
-    // update/delete: no method exists on BikesRepository. Denied.
+    // create: replaceComponent -> batch.set(doc(clientId)), in ONE batch with
+    //         the bike's components update. NEVER .add(): the client id is
+    //         what turns a retry into a denied update instead of a second
+    //         history entry (invariant 5c).
+    // update/delete: denied. History is append-only.
     // list:   watchLogs -> where('userId','==',uid).where('bikeId','==',id)
     //                      .orderBy('serviceDate', desc)
     //         The userId filter is REQUIRED: rules cannot filter a query, so a

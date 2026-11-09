@@ -148,6 +148,27 @@ class MockStore {
       ));
     }
     rides.sort((a, b) => b.startedAt.compareTo(a.startedAt));
+
+    // Service history, so a reviewer opening the demo bike sees what a
+    // replacement record looks like before making one. Each entry's mileage
+    // matches the seeded part's installedAtKm, so history and wear agree.
+    for (final l in (seed['logs'] as List?) ?? const []) {
+      final m = l as Map<String, dynamic>;
+      logs.add(MaintenanceLog(
+        id: m['id'] as String,
+        userId: user.id,
+        bikeId: m['bikeId'] as String,
+        component: m['component'] as String,
+        mileageAtService: (m['mileageAtService'] as num).toDouble(),
+        status: MaintenanceStatus.values.firstWhere(
+          (s) => s.name == m['status'],
+          orElse: () => MaintenanceStatus.ok,
+        ),
+        serviceDate:
+            DateTime.now().subtract(Duration(days: (m['daysAgo'] as num).toInt())),
+        notes: m['notes'] as String? ?? '',
+      ));
+    }
   }
 
   BikeComponent _component(Map<String, dynamic> c) => BikeComponent(

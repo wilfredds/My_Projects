@@ -1,7 +1,12 @@
 import 'package:cyclemind_ai/app/theme/app_colors.dart';
 import 'package:cyclemind_ai/core/widgets/stat_card.dart';
 import 'package:cyclemind_ai/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
+import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
+import 'package:cyclemind_ai/features/bikes/domain/usecases/generate_reminders.dart';
 import 'package:cyclemind_ai/features/bikes/presentation/controllers/bikes_providers.dart';
+import 'package:cyclemind_ai/features/bikes/presentation/widgets/replace_component_dialog.dart';
+import 'package:cyclemind_ai/features/bikes/presentation/widgets/status_color.dart';
 import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
 import 'package:cyclemind_ai/features/rides/presentation/controllers/rides_providers.dart';
 import 'package:cyclemind_ai/features/rides/presentation/widgets/ride_tile.dart';
@@ -72,20 +77,38 @@ class DashboardScreen extends ConsumerWidget {
             const SizedBox(height: 20),
 
             const SectionHeader(title: 'Bike health'),
-            Card(
-              child: ListTile(
-                leading: Icon(
-                  reminders.isEmpty ? Icons.check_circle : Icons.warning_amber,
-                  color: reminders.isEmpty ? AppColors.success : AppColors.warning,
+            if (reminders.isEmpty)
+              const Card(
+                child: ListTile(
+                  leading: Icon(Icons.check_circle, color: AppColors.success),
+                  title: Text('All components healthy'),
+                  subtitle: Text('No maintenance due'),
                 ),
-                title: Text(reminders.isEmpty
-                    ? 'All components healthy'
-                    : '${reminders.length} maintenance alert(s)'),
-                subtitle: Text(reminders.isEmpty
-                    ? 'No maintenance due'
-                    : reminders.first.message),
+              )
+            else
+              // Each reminder can be acted on where it is shown. Before this,
+              // a reminder could only be read: there was no way to say the
+              // part had been replaced, so it never went away.
+              Card(
+                child: Column(
+                  children: [
+                    for (final r in reminders.take(_maxReminderRows))
+                      _ReminderRow(reminder: r),
+                    if (reminders.length > _maxReminderRows)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '+${reminders.length - _maxReminderRows} more '
+                            'on your bikes',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
             const SizedBox(height: 20),
 
             SectionHeader(
@@ -128,6 +151,38 @@ class DashboardScreen extends ConsumerWidget {
       km: week.fold<double>(0, (s, r) => s + r.distanceKm),
       elev: week.fold<double>(0, (s, r) => s + r.elevationM),
       calories: week.fold<int>(0, (s, r) => s + r.calories),
+    );
+  }
+}
+
+/// Reminders are sorted worst-first, so the rows shown are the most urgent.
+const _maxReminderRows = 3;
+
+class _ReminderRow extends ConsumerWidget {
+  const _ReminderRow({required this.reminder});
+
+  final MaintenanceReminder reminder;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final overdue = reminder.status == MaintenanceStatus.overdue;
+    return ListTile(
+      leading: Icon(overdue ? Icons.error_outline : Icons.warning_amber,
+          color: statusColor(reminder.status)),
+      title: Text(reminder.message),
+      trailing: TextButton(
+        onPressed: () => markReplaced(context,
+            bikeId: reminder.bikeId, componentId: reminder.component.id),
+        child: const Text('Mark replaced'),
+      ),
+      // Tapping the row opens the bike, for anyone who wants the full wear
+      // picture before deciding.
+      onTap: () {
+        final bike = bikeById(
+            ref.read(bikesStreamProvider).valueOrNull ?? const [],
+            reminder.bikeId);
+        if (bike != null) context.push('/bikes/detail', extra: bike);
+      },
     );
   }
 }

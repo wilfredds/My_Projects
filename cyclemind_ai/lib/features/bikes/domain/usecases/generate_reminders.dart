@@ -29,20 +29,16 @@ class GenerateReminders {
   const GenerateReminders();
 
   /// [dueSoonThreshold] is the wear fraction (default 0.8) at which a component
-  /// is flagged "due soon"; ≥ 1.0 is "overdue".
+  /// is flagged "due soon"; ≥ 1.0 is "overdue". Both live in [statusForWear].
   List<MaintenanceReminder> call(
     List<Bike> bikes, {
-    double dueSoonThreshold = 0.8,
+    double dueSoonThreshold = dueSoonWearFraction,
   }) {
     final reminders = <MaintenanceReminder>[];
     for (final bike in bikes) {
       for (final c in bike.components) {
         final wear = c.wearFraction(bike.totalMileageKm);
-        final status = wear >= 1.0
-            ? MaintenanceStatus.overdue
-            : wear >= dueSoonThreshold
-                ? MaintenanceStatus.dueSoon
-                : MaintenanceStatus.ok;
+        final status = statusForWear(wear, dueSoonAt: dueSoonThreshold);
         if (status == MaintenanceStatus.ok) continue;
         reminders.add(MaintenanceReminder(
           bikeId: bike.id,

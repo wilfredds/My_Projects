@@ -38,6 +38,28 @@ class AppConstants {
   /// Upper bound on a single ride's distance. Mirrors `numIn(d.distance,
   /// 0, 2000)` in firestore.rules.
   static const double maxRideDistanceKm = 2000;
+
+  /// Longest lifespan a component may be given. An app-level sanity bound:
+  /// the rules cannot see inside `components[]`, so component_validation.dart
+  /// is the only thing enforcing it.
+  static const double maxComponentLifespanKm = 100000;
+
+  /// Mirrors `d.components.size() <= 60` on bikes.
+  static const int maxComponentsPerBike = 60;
+
+  /// Input limit for a component's type and brand. App-level, and well inside
+  /// [maxLogComponentChars], so a new part's label never needs clipping.
+  static const int maxComponentTextChars = 40;
+
+  /// Mirrors `str(d.component, 80)` on maintenance_logs.
+  static const int maxLogComponentChars = 80;
+
+  /// Mirrors `str(d.notes, 2000)` on maintenance_logs.
+  static const int maxLogNotesChars = 2000;
+
+  /// Longest note a rider can add to a replacement. Kept well under
+  /// [maxLogNotesChars] so the generated summary always fits beside it.
+  static const int maxServiceNoteChars = 1000;
 }
 
 /// Rider experience level.

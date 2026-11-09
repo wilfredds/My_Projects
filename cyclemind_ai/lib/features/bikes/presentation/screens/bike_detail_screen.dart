@@ -1,15 +1,23 @@
 import 'package:cyclemind_ai/app/theme/app_colors.dart';
+import 'package:cyclemind_ai/core/constants/app_constants.dart';
 import 'package:cyclemind_ai/core/widgets/stat_card.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
+// For statusForWear / MaintenanceStatus. Top-level functions and extensions
+// are not transitively visible, so the defining library is imported directly.
+import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
 import 'package:cyclemind_ai/features/bikes/presentation/controllers/bikes_providers.dart';
+import 'package:cyclemind_ai/features/bikes/presentation/widgets/add_component_dialog.dart';
+import 'package:cyclemind_ai/features/bikes/presentation/widgets/replace_component_dialog.dart';
+import 'package:cyclemind_ai/features/bikes/presentation/widgets/service_history.dart';
+import 'package:cyclemind_ai/features/bikes/presentation/widgets/status_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
-/// Bike detail: specs, component wear bars, and add-component flow.
+/// Bike detail: specs, component wear, "Mark replaced", and service history.
 ///
 /// Reads the live bike from [bikesStreamProvider] (falling back to the passed
-/// [bike]) so wear bars update immediately after edits.
+/// [bike] for display only) so wear bars update immediately after edits.
+/// Writes never use that fallback; they always start from the live stream.
 class BikeDetailScreen extends ConsumerWidget {
   const BikeDetailScreen({super.key, required this.bike});
   final Bike bike;
@@ -17,12 +25,12 @@ class BikeDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bikes = ref.watch(bikesStreamProvider).valueOrNull ?? const [];
-    final current = bikes.firstWhere((b) => b.id == bike.id, orElse: () => bike);
+    final current = bikeById(bikes, bike.id) ?? bike;
 
     return Scaffold(
       appBar: AppBar(title: Text(current.name)),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _addComponent(context, ref, current),
+        onPressed: () => _addComponent(context, ref),
         icon: const Icon(Icons.add),
         label: const Text('Component'),
       ),
@@ -67,7 +75,14 @@ class BikeDetailScreen extends ConsumerWidget {
             ...current.components.map((c) => _ComponentTile(
                   component: c,
                   bikeTotalKm: current.totalMileageKm,
+                  onReplace: () => markReplaced(context,
+                      bikeId: current.id, componentId: c.id),
                 )),
+          const SizedBox(height: 20),
+          const SectionHeader(title: 'Service history'),
+          ServiceHistory(bikeId: current.id),
+          // Clearance so the FAB never covers the last entry.
+          const SizedBox(height: 80),
         ],
       ),
     );
@@ -83,88 +98,75 @@ class BikeDetailScreen extends ConsumerWidget {
         ),
       );
 
-  Future<void> _addComponent(
-      BuildContext context, WidgetRef ref, Bike current) async {
-    final type = TextEditingController(text: 'Chain');
-    final brand = TextEditingController();
-    final lifespan = TextEditingController(text: '3000');
+  Bike? _liveBike(WidgetRef ref) =>
+      bikeById(ref.read(bikesStreamProvider).valueOrNull ?? const [], bike.id);
 
-    final added = await showDialog<bool>(
+  Future<void> _addComponent(BuildContext context, WidgetRef ref) async {
+    void say(String m) => ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(m)));
+
+    final live = _liveBike(ref);
+    if (live == null) {
+      say('This bike is no longer available.');
+      return;
+    }
+    // Mirrors `d.components.size() <= 60` in firestore.rules: say so here
+    // rather than letting the write fail with an opaque permission error.
+    if (live.components.length >= AppConstants.maxComponentsPerBike) {
+      say('A bike can track at most '
+          '${AppConstants.maxComponentsPerBike} components.');
+      return;
+    }
+
+    final added = await showDialog<BikeComponent>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Add component'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-                controller: type,
-                decoration: const InputDecoration(labelText: 'Type')),
-            const SizedBox(height: 8),
-            TextField(
-                controller: brand,
-                decoration: const InputDecoration(labelText: 'Brand')),
-            const SizedBox(height: 8),
-            TextField(
-                controller: lifespan,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Lifespan (km)')),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Add')),
-        ],
-      ),
+      builder: (_) => AddComponentDialog(odometerKm: live.totalMileageKm),
     );
+    if (added == null || !context.mounted) return;
 
-    if (added != true) return;
-    final components = [
-      ...current.components,
-      BikeComponent(
-        id: const Uuid().v4(),
-        type: type.text.trim(),
-        brand: brand.text.trim(),
-        // "Installed at today's odometer reading" — correct as written. It
-        // only looked broken while the odometer was frozen.
-        installedAtKm: current.totalMileageKm,
-        lifespanKm: double.tryParse(lifespan.text) ?? 3000,
-      ),
-    ];
-    // setComponents, NOT updateBike: the old call wrote the whole document
-    // from a possibly-stale snapshot, so adding a component silently rolled
-    // the odometer back to whatever this screen last read.
-    final result =
-        await ref.read(bikesRepositoryProvider).setComponents(current.id, components);
+    // Re-read AFTER the dialog. The components array is written whole, so it
+    // must start from the freshest copy, never the snapshot this screen was
+    // opened with.
+    final fresh = _liveBike(ref);
+    if (fresh == null) {
+      say('This bike is no longer available.');
+      return;
+    }
+
+    // setComponents, NOT a whole-document write: the old updateBike call
+    // wrote from a possibly-stale snapshot, so adding a component silently
+    // rolled the odometer back to whatever this screen last read.
+    final result = await ref
+        .read(bikesRepositoryProvider)
+        .setComponents(fresh.id, [...fresh.components, added]);
     if (!context.mounted) return;
-    result.fold(
-      (f) => ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(f.message))),
-      (_) {},
-    );
+    result.fold((f) => say(f.message), (_) {});
   }
 }
 
 class _ComponentTile extends StatelessWidget {
-  const _ComponentTile({required this.component, required this.bikeTotalKm});
+  const _ComponentTile({
+    required this.component,
+    required this.bikeTotalKm,
+    required this.onReplace,
+  });
+
   final BikeComponent component;
   final double bikeTotalKm;
+  final VoidCallback onReplace;
 
   @override
   Widget build(BuildContext context) {
     final wear = component.wearFraction(bikeTotalKm);
-    final color = wear >= 1.0
-        ? AppColors.danger
-        : wear >= 0.8
-            ? AppColors.warning
-            : AppColors.success;
+    final status = statusForWear(wear);
+    final color = statusColor(status);
+    const replaceIcon = Icon(Icons.autorenew, size: 18);
+    const replaceLabel = Text('Mark replaced');
+
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -190,10 +192,30 @@ class _ComponentTile extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            Text(
-              '${component.usedKm(bikeTotalKm).toStringAsFixed(0)} / '
-              '${component.lifespanKm.toStringAsFixed(0)} km',
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${component.usedKm(bikeTotalKm).toStringAsFixed(0)} / '
+                    '${component.lifespanKm.toStringAsFixed(0)} km',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ),
+                // Always available: replacing early (after a crash, say) is
+                // legitimate. It's just louder when the part is due.
+                if (status == MaintenanceStatus.ok)
+                  TextButton.icon(
+                    onPressed: onReplace,
+                    icon: replaceIcon,
+                    label: replaceLabel,
+                  )
+                else
+                  FilledButton.tonalIcon(
+                    onPressed: onReplace,
+                    icon: replaceIcon,
+                    label: replaceLabel,
+                  ),
+              ],
             ),
           ],
         ),

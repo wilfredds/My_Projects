@@ -42,5 +42,9 @@
     {"id": "r3", "title": "Hill repeats", "bikeId": "bike-1", "daysAgo": 5, "distanceKm": 38.9, "elevationM": 910, "avgSpeedKmh": 21.5, "durationSec": 6510, "calories": 1120, "cadence": 76, "heartRate": 164, "power": 232},
     {"id": "r4", "title": "Trail session", "bikeId": "bike-2", "daysAgo": 6, "distanceKm": 18.3, "elevationM": 430, "avgSpeedKmh": 14.8, "durationSec": 4450, "calories": 690, "cadence": 70, "heartRate": 158, "power": 0},
     {"id": "r5", "title": "Coffee ride", "bikeId": "bike-1", "daysAgo": 8, "distanceKm": 31.2, "elevationM": 210, "avgSpeedKmh": 25.6, "durationSec": 4390, "calories": 720, "cadence": 86, "heartRate": 134, "power": 162}
+  ],
+  "logs": [
+    {"id": "l1", "bikeId": "bike-1", "component": "Brake Pads", "mileageAtService": 3800, "status": "overdue", "daysAgo": 20, "notes": "Removed Shimano after 1500 km (100% of 1500 km). Fitted SwissStop, lifespan 1500 km."},
+    {"id": "l2", "bikeId": "bike-1", "component": "Chain", "mileageAtService": 1850, "status": "dueSoon", "daysAgo": 140, "notes": "Removed KMC after 1850 km (93% of 2000 km). Fitted Shimano, lifespan 3000 km."}
   ]
 }
