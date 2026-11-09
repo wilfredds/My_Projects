@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#1b4332">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
   <title>Stolen Bike Check — Kasama</title>
   <link rel="icon" href="assets/icons/favicon.ico">
   <link rel="manifest" href="manifest.json">
@@ -26,12 +27,12 @@
     .check-hero p  { font-size: 0.8rem; color: rgba(255,255,255,0.75); margin-bottom: 15px; line-height: 1.55; }
     .check-row { display: flex; gap: 9px; position: relative; z-index: 2; }
     .check-row input {
-      flex: 1; padding: 14px 16px; border: none; border-radius: 14px;
+      flex: 1; min-width: 0; padding: 14px 16px; border: none; border-radius: 14px;
       font-family: 'Poppins', sans-serif; font-size: 0.95rem; font-weight: 700;
       letter-spacing: 1px; text-transform: uppercase; outline: none; color: #1a1a2e;
     }
     .check-row button {
-      padding: 0 20px; border: none; border-radius: 14px;
+      flex-shrink: 0; padding: 0 20px; border: none; border-radius: 14px;
       background: #f4722b; color: #fff; font-size: 1.05rem; cursor: pointer;
       box-shadow: 0 6px 18px rgba(244,114,43,0.45);
     }

@@ -487,3 +487,26 @@ button:active, a.module-card:active, .card-tap:active,
 }
 .ptr-indicator.spinning i { animation: ptrSpin 0.7s linear infinite; }
 @keyframes ptrSpin { to { transform: rotate(360deg); } }
+
+
+/* ═══ Text on brand-coloured surfaces ═══
+   style.css coloured these with var(--white), but --white also serves as
+   the card background and flips to near-black (#1b2230) in dark mode. Found
+   by rendering the app in dark mode: every top-bar title, button label and
+   module icon went dark-on-dark and vanished. These all sit on green,
+   orange or red in BOTH themes, so their ink is literally white in both. */
+.top-bar, .top-bar .app-name, .top-bar a, .top-bar .icon-btn,
+.rider-badge, .hero-banner, .stat-pill,
+.module-card .icon-wrap, .module-card .icon-wrap i,
+.btn-primary-green, .btn-orange, .submit-btn, .start-routine-btn,
+.chatbot-btn, .chat-msg.user, .day-cell.done {
+  color: #fff;
+}
+
+/* Placeholders must never read as entered values. The serial field is bold
+   and uppercase, so its placeholder looked like a serial already filled in. */
+.fg input::placeholder, .fg textarea::placeholder,
+.form-group input::placeholder, .form-group textarea::placeholder,
+.safe-field::placeholder, .check-row input::placeholder {
+  color: var(--ink-4); opacity: 1; font-weight: 400; letter-spacing: 0;
+}

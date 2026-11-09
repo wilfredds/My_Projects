@@ -98,8 +98,26 @@
   let dayStatus = {};
   let currentDay = 1;
 
+  // The 30-day plan ships with the app; only progress lives in Firestore.
+  // Measured on the live site, Firestore's first connection takes ~5 s, and
+  // render() used to await it before drawing anything — a blank calendar and
+  // "Loading…" on a fast connection, longer on mobile data. Now paint() draws
+  // straight away from last-known progress, and render() refreshes behind it.
+  const STATUS_CACHE = 'bgph_challenge_status_cache';
+  function readCachedStatus() {
+    try { return JSON.parse(localStorage.getItem(STATUS_CACHE)) || {}; } catch { return {}; }
+  }
+
   async function render() {
-    dayStatus = await getDayStatus();
+    const fresh = await getDayStatus();
+    // getDayStatus() returns {} when offline as well as for a new rider, so
+    // never let an empty result wipe progress we already know about.
+    if (Object.keys(fresh).length || !Object.keys(dayStatus).length) dayStatus = fresh;
+    try { localStorage.setItem(STATUS_CACHE, JSON.stringify(dayStatus)); } catch (_) {}
+    paint();
+  }
+
+  function paint() {
     const done  = Object.values(dayStatus).filter(d => d.completed).length;
     const streak = getStreakCount(dayStatus);
     document.getElementById('streak-num').textContent = streak;
@@ -178,6 +196,8 @@
     }
   };
 
+  dayStatus = readCachedStatus();
+  paint();
   render();
 </script>
 <script src="js/sw-register.js"></script>
