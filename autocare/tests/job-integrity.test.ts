@@ -131,5 +131,79 @@ check('money fields tolerate what people actually type', () => {
   assert.equal(parsed.expenses, 0);
 });
 
+/**
+ * Each issue as "code @ path". The count is asserted first, on its own: a
+ * failing deepEqual between thousands of issues and the two expected builds a
+ * diff that alone can exhaust memory, so the failure message must stay cheap.
+ */
+function assertIssues(issues: { code: string; path: (string | number)[] }[], expected: string[]) {
+  assert.equal(issues.length, expected.length, `expected ${expected.length} issue(s), got ${issues.length}`);
+  assert.deepEqual(
+    issues.map((i) => `${i.code} @ ${i.path.join('.')}`),
+    expected,
+  );
+}
+
+check('an oversized line-item list is refused before a single item is parsed', () => {
+  // GHSA-mrhx-c7xc-m3w5. Plain Zod 3 checks .max(100) and then parses every
+  // item anyway, keeping an issue for each one that fails — measured at ~10 s
+  // and ~1.5 GB of heap for one 1 MB request. One issue per list, not 5,000.
+  const result = jobSchema.safeParse({
+    customerId: 'c1',
+    vehicleId: 'v1',
+    parts: Array.from({ length: 1_000 }, () => ({})),
+    services: Array.from({ length: 1_000 }, () => ({})),
+  });
+  assert.equal(result.success, false);
+  if (!result.success) {
+    assertIssues(result.error.issues, ['too_big @ parts', 'too_big @ services']);
+  }
+});
+
+check('an oversized list stops the parse, so nothing reads its raw items', () => {
+  // The discount rule sums quantity x unitPrice over the parts. Were the cap
+  // only to flag the list, that sum would run over raw, unparsed items — and
+  // a null item would throw instead of being rejected.
+  const parse = () =>
+    jobSchema.safeParse({
+      customerId: 'c1',
+      vehicleId: 'v1',
+      discount: '1',
+      parts: Array.from({ length: 101 }, () => null),
+      services: [],
+    });
+  assert.doesNotThrow(parse);
+  const result = parse();
+  assert.equal(result.success, false);
+  if (!result.success) {
+    assertIssues(result.error.issues, ['too_big @ parts']);
+  }
+});
+
+check('a job at the line-item cap is still checked item by item', () => {
+  const part = { partName: 'Filter', quantity: '1', unitPrice: '75' };
+  const full = jobSchema.parse({
+    customerId: 'c1',
+    vehicleId: 'v1',
+    parts: Array.from({ length: 100 }, () => part),
+    services: [],
+  });
+  assert.equal(full.parts.length, 100);
+
+  // At the cap nothing is short-circuited: every bad item is still reported,
+  // so the form can point at the exact field — partName, quantity, unitPrice.
+  const result = jobSchema.safeParse({
+    customerId: 'c1',
+    vehicleId: 'v1',
+    parts: Array.from({ length: 100 }, () => ({})),
+    services: [],
+  });
+  assert.equal(result.success, false);
+  if (!result.success) {
+    assert.equal(result.error.issues.length, 300);
+    assert.ok(result.error.issues.every((i) => i.path[0] === 'parts' && typeof i.path[1] === 'number'));
+  }
+});
+
 console.log(`\n  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exitCode = 1;

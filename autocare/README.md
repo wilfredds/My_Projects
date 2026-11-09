@@ -435,12 +435,12 @@ npm run test:all
 npm run typecheck
 ```
 
-45 assertions in four files, all against real code:
+48 assertions in four files, all against real code:
 
 | File | What it proves |
 | --- | --- |
 | `tests/calc.test.ts` (11) | `lib/calc.ts`: rounding, the status rule, float drift, negative input |
-| `tests/job-integrity.test.ts` (6) | the client cannot dictate a total — the server recomputes it |
+| `tests/job-integrity.test.ts` (9) | the client cannot dictate a total — the server recomputes it; an oversized line-item list is refused before it is parsed |
 | `tests/security.test.ts` (11) | the real lockout, audit and hashing code, against a live database |
 | `tests/access-control.test.ts` (17) | session revocation, soft delete and restore, the capability map |
 

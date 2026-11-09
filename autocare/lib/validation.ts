@@ -113,6 +113,38 @@ export const jobServiceSchema = z.object({
   price: money,
 });
 
+/**
+ * `z.array(item).max(max)`, except that an oversized array is refused before a
+ * single item is parsed.
+ *
+ * Zod 3 checks `.max()` and then parses every item anyway, keeping an issue
+ * for each one that fails (GHSA-mrhx-c7xc-m3w5). Measured against `jobSchema`:
+ * one 1 MB Server Action body of empty objects in `parts` cost ~10 s of CPU and
+ * ~1.5 GB of heap. Zod 4.6.6 fixed it by failing the size check first and
+ * parsing nothing; this is the same rule for Zod 3. `fatal` ends the parse
+ * there, as upstream does, so nothing after it — the discount check below —
+ * ever reads the raw, unparsed array.
+ *
+ * Once the app is on Zod >= 4.6.6, go back to plain `z.array(item).max(max)`.
+ */
+function cappedArray<T extends z.ZodTypeAny>(item: T, max: number) {
+  return z
+    .unknown()
+    .superRefine((value, ctx) => {
+      if (Array.isArray(value) && value.length > max) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.too_big,
+          type: 'array',
+          maximum: max,
+          inclusive: true,
+          exact: false,
+          fatal: true,
+        });
+      }
+    })
+    .pipe(z.array(item).max(max));
+}
+
 export const jobSchema = z
   .object({
     customerId: z.string().trim().min(1, 'wizard.missingCustomer'),
@@ -141,8 +173,8 @@ export const jobSchema = z
       .nullable()
       .or(z.literal('').transform(() => null)),
     notes: optionalText(2000),
-    parts: z.array(jobPartSchema).max(100).default([]),
-    services: z.array(jobServiceSchema).max(100).default([]),
+    parts: cappedArray(jobPartSchema, 100).default([]),
+    services: cappedArray(jobServiceSchema, 100).default([]),
   })
   // NOTE: subtotal / total / balance / status are deliberately absent. They are
   // never accepted from the client — the server always recomputes them with
