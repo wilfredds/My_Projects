@@ -43,7 +43,7 @@ class _GatedBikes implements BikesRepository {
   @override
   Future<Result<Bike>> setComponents(
           String bikeId, List<BikeComponent> components) async =>
-      Success(_roadie);
+      const Success(_roadie);
   @override
   Future<Result<void>> deleteBike(String bikeId) async => const Success(null);
   @override
