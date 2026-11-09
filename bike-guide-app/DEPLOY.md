@@ -27,6 +27,20 @@ be merged — the production branch must be set explicitly:
 
 After that every push to that branch deploys automatically.
 
+### Only the production branch builds
+
+`vercel.json` turns off automatic deployments for every branch except
+`claude/bike-guide-app-planning-ciID4` (`git.deploymentEnabled`). This repo is
+connected to several Vercel projects, so each push — and each `gh-pages`
+publish by the workflow below — started a rideph build too. That used up the
+Hobby plan's 100 deployments a day, and Vercel then skips pushes without
+queuing them.
+
+**If you change the production branch, change it in `vercel.json` as well**,
+or production stops deploying. Vercel reads this setting from the `vercel.json`
+in the pushed commit, so branches made before this change still build until
+they include it.
+
 ## GitHub Pages (secondary, still live)
 
 `https://wilfredds.github.io/My_Projects/bike-guide-app/` via

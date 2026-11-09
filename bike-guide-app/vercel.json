@@ -1,5 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "*": false,
+      "**": false,
+      "claude/bike-guide-app-planning-ciID4": true
+    }
+  },
   "headers": [
     {
       "source": "/sw.js",
