@@ -435,12 +435,12 @@ npm run test:all
 npm run typecheck
 ```
 
-45 assertions in four files, all against real code:
+48 assertions in four files, all against real code:
 
 | File | What it proves |
 | --- | --- |
 | `tests/calc.test.ts` (11) | `lib/calc.ts`: rounding, the status rule, float drift, negative input |
-| `tests/job-integrity.test.ts` (6) | the client cannot dictate a total — the server recomputes it |
+| `tests/job-integrity.test.ts` (9) | the client cannot dictate a total — the server recomputes it; an oversized line-item list is refused before it is parsed |
 | `tests/security.test.ts` (11) | the real lockout, audit and hashing code, against a live database |
 | `tests/access-control.test.ts` (17) | session revocation, soft delete and restore, the capability map |
 
@@ -476,16 +476,45 @@ passwords with bcrypt at cost 12 — the plaintext is never written to the file.
 
 ### Dependency overrides
 
-`package.json` pins two transitive dependencies via `overrides`:
+`package.json` pins one transitive dependency via `overrides`:
 
 | Package | Why |
 | --- | --- |
-| `sharp` → 0.35.3 | Next ships an older `sharp` for image optimization, which carries libvips CVEs. This app uses no images at all, but the override clears the advisory without a Next major bump. |
 | `postcss` → 8.5.25 | Next pins `postcss@8.4.31` internally, which has path-traversal and XSS advisories. 8.5.25 is the same major and is already what Tailwind and autoprefixer use here. |
 
-Both are same-major bumps. Re-check them when upgrading Next — if a later
-release ships patched versions itself, the overrides can be dropped.
-`npm audit` currently reports zero vulnerabilities.
+It is a same-major bump. Re-check it when upgrading Next — if a later release
+ships a patched version itself, the override can be dropped.
+
+That is what happened to `sharp`, which was pinned here too until Next
+15.5.29. Next 15.5.22 declared `sharp@^0.34.3`, a range with no patched
+release, so the override forced 0.35.3. From 15.5.28 Next declares
+`^0.34.3 || ^0.35.5`, and npm resolves the patched 0.35.5 on its own. An exact
+override would now only get in the way: if Next raised its floor again, the
+override would pull the older version back in.
+
+### What `npm audit --omit=dev` still reports
+
+Two advisories, listed as four entries. Neither has a fix short of a major
+upgrade:
+
+- **`deepmerge-ts` <8** ([GHSA-ggr8-5vv4-36mx](https://github.com/advisories/GHSA-ggr8-5vv4-36mx)),
+  repeated under `@prisma/config` and `prisma`. Every Prisma 6.19.x pins
+  `deepmerge-ts@7.1.5` exactly; the fix arrives in Prisma 7.10.1. Nothing in
+  this app can reach it. Only the Prisma CLI uses it, at build time, to merge
+  the contents of `prisma.config.ts` — a file this app does not have, and one
+  that is code: anyone able to edit it can already run whatever they like.
+  The crash needs a cyclic object, which JSON cannot express, and no deployed
+  function contains the module (checked against the build's file traces). It
+  goes away with the Prisma 7 upgrade.
+- **`zod` <4.6.6** ([GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)).
+  No Zod 3 release carries the fix. This one was reachable: Zod 3 checks
+  `.max(100)` on a job's line items and then parses every item anyway, so a
+  signed-in user's 1 MB request body took ~10 s of CPU and ~1.5 GB of heap to
+  validate (measured on `jobSchema`). `cappedArray` in `lib/validation.ts`
+  ports the Zod 4.6.6 fix — an oversized list is refused before any item is
+  parsed — and `tests/job-integrity.test.ts` holds it there. The advisory stays
+  listed until the app moves to Zod 4. Installing Zod 4 and importing `zod/v3`
+  would not help: 4.6.6 left its `v3` code untouched.
 
 ---
 
