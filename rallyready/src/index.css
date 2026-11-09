@@ -219,6 +219,8 @@
   --animate-shine: shine 900ms var(--ease-out) 1;
   --animate-rise: rise var(--duration-base) var(--ease-out) 1;
   --animate-shimmer: shimmer 1.6s linear infinite;
+  /* Waits, then fades in: for things that should only be seen if they last. */
+  --animate-appear: appear var(--duration-base) var(--ease-out) 400ms both;
 
   /* The band of light that travels across a skeleton while it waits.
      Transform only, so it never repaints the block underneath it. */
@@ -253,6 +255,15 @@
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
     }
   }
 

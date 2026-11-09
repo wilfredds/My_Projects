@@ -49,7 +49,7 @@ npm run format
 ```
 
 `npm run verify` is the single gate. Prefer it over running the four
-individually. Baseline is **671 tests across 42 files, all passing** — if you
+individually. Baseline is **683 tests across 44 files, all passing** — if you
 see fewer, something is being skipped.
 
 ## What matters here
@@ -80,6 +80,19 @@ see fewer, something is being skipped.
   wording and `LANGUAGE_INTERVAL_FACTOR.en` is exactly 1. Anything shown on
   screen that quotes a call must be quoted in the same language, or the player
   translates mid-lunge.
+- **A session is what Start was pressed on.** The plan can change after the
+  runner first renders — the player's level comes from a query, and until it
+  resolves it reads as beginner. `useDrillRunner` used to build its cursor
+  once, from that first render, so a drill opened straight from a link (a
+  reload, a challenge, the installed app reopening onto it) showed the
+  player's numbers and called corners at the beginner's pace beneath them:
+  1617ms apart under a screen that said 1.35s. Before Start the latest plan
+  wins; at Start it is frozen, and the screen describes the frozen one. The
+  runner page records the config, level and mode it started with
+  (`ranWithRef`) and saves the session from that, because those numbers are
+  what a challenge replays on someone else's phone. `startedAt` is the moment
+  Start was pressed, not when the screen opened. `useDrillRunner.test.ts`
+  renders the real hook and checks which timeline the calls follow.
 - **Split-step timing is precise.** An optional metronome tick fires a
   configurable 0.2–0.7s _before_ each call. Timing code (`lib/timer`,
   `lib/audio`) is latency-sensitive; changes there need tests.
@@ -188,6 +201,27 @@ see fewer, something is being skipped.
   meant finding and editing three files and one was always missed. Build on the
   selector and override what your screen genuinely differs on — the benchmark
   turns the metronome off, because a test of pacing must not be paced.
+- **The first download is the core loop.** Train, drill setup, the runner,
+  the summary, the welcome and the challenge link are imported directly;
+  every other screen goes through `lazyScreen` in `App.tsx`. The chart
+  library alone was a third of the old single file, and only Progress and
+  Benchmark draw a chart — the cold open of Train on a throttled phone went
+  from 3.66s to 3.02s usable. Never make a screen a drill passes through
+  lazy. Splitting costs two things the single file got free, and
+  `lib/lazyScreen` pays for both: a page still running last week's build asks
+  for a screen file the service worker has deleted, so a failed download
+  reloads once (`shouldReloadForNewBuild` — never twice inside ten seconds,
+  never offline without a service worker, never when storage cannot remember
+  trying); and the old "once it opened, every screen works offline" promise
+  is kept by `prefetchScreens`, which `AppShell` starts on idle and cancels on
+  unmount — the runners render outside the shell, so nothing is evaluated on
+  the main thread mid-drill. The `Suspense` boundary sits *above* the keyed
+  screen in `AppShell`: a boundary that mounts fresh shows its fallback at
+  once, while this one keeps the previous screen up until the next arrives.
+  A screen that never downloaded is `ScreenNotLoadedError`, which the error
+  screen does not call a bug, and it only offers a reload when one can work.
+  The error screen also clears when the path changes, so the phone's Back
+  button gets you out of it.
 - **Motion comes from `lib/motion`.** Four durations, two easings, two springs
   and a set of shared variants, mirrored into CSS custom properties in
   `index.css` so a Tailwind `duration-*` class and a framer-motion transition
