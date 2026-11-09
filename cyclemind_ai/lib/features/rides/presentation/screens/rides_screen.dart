@@ -20,6 +20,8 @@ class RidesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Rides')),
       floatingActionButton: FloatingActionButton.extended(
+        // No hero animation: see dashboard_screen.dart.
+        heroTag: null,
         onPressed: () => context.push('/rides/new'),
         icon: const Icon(Icons.add),
         label: const Text('Log ride'),

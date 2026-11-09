@@ -18,6 +18,8 @@ class BikesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('My bikes')),
       floatingActionButton: FloatingActionButton.extended(
+        // No hero animation: see dashboard_screen.dart.
+        heroTag: null,
         onPressed: () => context.push('/bikes/new'),
         icon: const Icon(Icons.add),
         label: const Text('Add bike'),

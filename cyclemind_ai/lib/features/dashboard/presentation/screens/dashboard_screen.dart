@@ -35,6 +35,13 @@ class DashboardScreen extends ConsumerWidget {
       // ride is unreachable, which is exactly what happened when the Coach tab
       // was deleted and took the only entry point with it.
       floatingActionButton: FloatingActionButton.extended(
+        // No hero animation, on purpose. Every FAB had the default hero tag,
+        // so Flutter morphed unrelated buttons into each other between
+        // screens. That tripped a debug assertion (Home and Bikes keep both
+        // their FABs mounted in one IndexedStack) and, on the web, left a
+        // half-torn-down focusable copy that crashed focus handling on every
+        // Back. See test/back_navigation_focus_test.dart.
+        heroTag: null,
         onPressed: () => context.push('/rides/new'),
         icon: const Icon(Icons.add),
         label: const Text('Log ride'),
