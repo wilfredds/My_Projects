@@ -13,7 +13,15 @@
 if ('serviceWorker' in navigator) {
   let reloading = false;
 
+  // controllerchange also fires the very first time a worker claims a page
+  // that had none — i.e. every first-time visitor. Measured on the live site,
+  // that reloaded the onboarding screen ~1 s after it opened, wiping a rider
+  // level the user had already tapped. Only an update has stale files to
+  // replace, and an update is the only case where a controller already exists.
+  const hadController = !!navigator.serviceWorker.controller;
+
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController) return;
     // Guard against reload loops: controllerchange can fire more than once,
     // and a loop would be far worse than a stale cache.
     if (reloading) return;

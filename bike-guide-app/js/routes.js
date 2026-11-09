@@ -48,7 +48,7 @@ export function renderRouteCard(route, premiumUnlocked) {
         </div>
         <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:10px;"><i class="fa-regular fa-sun"></i> Best time: ${route.bestTime}</div>
         ${isLocked
-          ? `<button onclick="window.location.href='premium.html'" style="width:100%;padding:10px;background:linear-gradient(135deg,#f4722b,#ff9a5c);color:#fff;border:none;border-radius:50px;font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;">🔓 Unlock Premium — ₱79</button>`
+          ? `<button onclick="window.location.href='premium.html'" style="width:100%;padding:10px;background:linear-gradient(135deg,#f4722b,#ff9a5c);color:#fff;border:none;border-radius:50px;font-family:'Overpass',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;">🔓 Unlock Premium — ₱79</button>`
           : `<div style="display:flex;gap:8px;">
               <a href="${buildMapUrl(route)}" target="_blank" style="flex:1;display:block;text-align:center;padding:9px;background:#f0f7f4;color:#2d6a4f;border-radius:50px;font-size:0.78rem;font-weight:700;text-decoration:none;"><i class="fa-solid fa-map-pin"></i> View Map</a>
               <a href="${buildDirectionsUrl(route)}" target="_blank" style="flex:1;display:block;text-align:center;padding:9px;background:#2d6a4f;color:#fff;border-radius:50px;font-size:0.78rem;font-weight:700;text-decoration:none;"><i class="fa-solid fa-diamond-turn-right"></i> Directions</a>

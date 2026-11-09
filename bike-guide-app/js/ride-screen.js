@@ -126,7 +126,7 @@ function wireHazardPopups() {
     new maplibregl.Popup({ offset: 12, closeButton: false })
       .setLngLat(e.features[0].geometry.coordinates)
       .setHTML(
-        `<div style="font-family:Poppins,sans-serif;padding:2px 4px;">
+        `<div style="font-family:Overpass,sans-serif;padding:2px 4px;">
            <strong style="font-size:0.85rem;color:${pr.color};">${escapeHtml(pr.label)}</strong>
            ${pr.note ? `<div style="font-size:0.75rem;color:#555;margin-top:3px;max-width:200px;">${escapeHtml(pr.note)}</div>` : ''}
          </div>`)

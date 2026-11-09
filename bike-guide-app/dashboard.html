@@ -10,185 +10,205 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;500;600;700;800&family=Overpass+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
   <link href="css/system.css" rel="stylesheet">
   <style>
-    .hero-banner { padding: 20px 20px 28px; border-radius: 0 0 30px 30px; }
-    .greeting    { font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
-    .hero-name   { font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 12px; }
-    .stats-row   { display: flex; gap: 8px; flex-wrap: wrap; }
+    /* Home. One bold element — the guide-sign Start panel — and everything
+       else quiet: plain type on concrete, grouped lists, hairlines. Selectors
+       are scoped under .home so style.css's [data-theme="dark"] p rule
+       (specificity 0,1,1) cannot recolour them. */
+    .home { padding-bottom: 28px; }
 
-    .challenge-strip {
-      background: linear-gradient(135deg, #f4722b, #ff9a5c);
-      border-radius: 18px;
-      padding: 16px 18px;
-      margin: 0 20px 20px;
-      display: flex; align-items: center; gap: 14px;
-      cursor: pointer;
-      box-shadow: 0 6px 20px rgba(244,114,43,0.3);
+    .home .home-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 18px 6px;
     }
-    .challenge-strip .ch-icon { font-size: 2rem; color: #fff; }
-    .challenge-strip .ch-text .ch-title { font-size: 0.92rem; font-weight: 700; color: #fff; }
-    .challenge-strip .ch-text .ch-sub   { font-size: 0.72rem; color: rgba(255,255,255,0.8); }
-    .challenge-strip .ch-arrow { margin-left: auto; color: rgba(255,255,255,0.7); font-size: 1rem; }
-
-    .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px 20px; }
-
-    .record-strip {
-      display: flex; align-items: center; gap: 14px;
-      background: linear-gradient(135deg, #2d6a4f, #52b788);
-      border-radius: 18px; padding: 16px 18px; margin: 0 20px 20px;
-      text-decoration: none; color: #fff;
-      box-shadow: 0 8px 24px rgba(45,106,79,0.35);
+    .home .wordmark {
+      font-weight: 800; font-size: 1.32rem; letter-spacing: -0.02em; color: var(--ink);
     }
-    .record-strip .rec-pulse {
-      width: 46px; height: 46px; border-radius: 50%;
-      background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
-      font-size: 1.35rem; animation: pulseGreen 2.5s infinite;
+    .home .wordmark span { color: var(--sign); }
+    .home .top-actions { display: flex; gap: 8px; align-items: center; }
+    .home .top-actions .icon-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--surface); border: 1px solid var(--hairline);
+      color: var(--ink-2); font-weight: 700; font-size: 0.74rem;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
-    .record-strip .rec-title { font-size: 0.98rem; font-weight: 700; }
-    .record-strip .rec-sub { font-size: 0.72rem; color: rgba(255,255,255,0.85); }
+    .home .rider-badge {
+      background: transparent; color: var(--ink-3);
+      border: 1px solid var(--hairline); border-radius: 4px; box-shadow: none;
+      padding: 3px 7px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em;
+    }
 
-    .color-green  { background: linear-gradient(135deg, #2d6a4f, #52b788); }
-    .color-orange { background: linear-gradient(135deg, #f4722b, #ff9a5c); }
-    .color-blue   { background: linear-gradient(135deg, #2980b9, #6dd5fa); }
-    .color-purple { background: linear-gradient(135deg, #8e44ad, #c39bd3); }
-    .color-teal   { background: linear-gradient(135deg, #00897b, #4db6ac); }
-    .color-red    { background: linear-gradient(135deg, #c0392b, #e74c3c); }
-    .color-brown  { background: linear-gradient(135deg, #6d4c41, #a1887f); }
-    .color-indigo { background: linear-gradient(135deg, #283593, #5c6bc0); }
-    .color-lime   { background: linear-gradient(135deg, #558b2f, #9ccc65); }
-    .color-amber  { background: linear-gradient(135deg, #e65100, #ffa726); }
+    .home .greet { padding: 18px 18px 16px; }
+    .home .greet-date {
+      font-family: var(--font-num); font-size: 0.76rem; color: var(--ink-3);
+      margin: 0 0 4px; letter-spacing: 0;
+    }
+    .home .greet-line {
+      font-size: 1.85rem; font-weight: 800; letter-spacing: -0.03em;
+      line-height: 1.08; color: var(--ink); margin: 0;
+    }
+
+    /* The guide sign. White type on green inside a white inset border,
+       the way a DPWH directional sign is made. */
+    .home .sign-panel {
+      display: flex; align-items: center; gap: 16px;
+      margin: 0 18px; padding: 18px 18px;
+      background: var(--sign); color: var(--sign-ink);
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 3px var(--sign), inset 0 0 0 5px rgba(255,255,255,0.92);
+      text-decoration: none;
+    }
+    .home .sign-arrow { width: 44px; height: 44px; flex-shrink: 0; }
+    .home .sign-arrow svg { width: 100%; height: 100%; display: block; }
+    .home .sign-title {
+      display: block; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05;
+    }
+    .home .sign-sub {
+      display: block; font-size: 0.86rem; font-weight: 500; opacity: 0.88; margin-top: 3px;
+    }
+
+    .home .numbers {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      margin: 18px 18px 0;
+      border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline);
+    }
+    .home .n { padding: 13px 0 12px; }
+    .home .n + .n { padding-left: 14px; border-left: 1px solid var(--hairline); }
+    .home .n-val {
+      display: block; font-family: var(--font-num); font-weight: 600;
+      font-size: 1.5rem; line-height: 1.1; color: var(--ink); letter-spacing: -0.03em;
+    }
+    .home .n-val small { font-size: 0.9rem; color: var(--ink-4); font-weight: 500; }
+    .home .n-lab { display: block; font-size: 0.76rem; color: var(--ink-3); margin-top: 2px; }
+
+    /* Tip marked with the warning-sign diamond. */
+    .home .tip {
+      display: grid; grid-template-columns: 22px 1fr; gap: 14px;
+      margin: 18px 18px 0; padding: 14px 16px;
+      background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px;
+    }
+    .home .tip-diamond {
+      width: 15px; height: 15px; margin: 5px 0 0 3px;
+      background: var(--warn); transform: rotate(45deg);
+      border-radius: 2px; box-shadow: inset 0 0 0 1.5px var(--warn-ink);
+    }
+    .home .tip-head {
+      font-size: 0.76rem; font-weight: 700; color: var(--ink-3); margin: 0 0 3px; letter-spacing: 0;
+    }
+    .home .tip-body { font-size: 0.95rem; line-height: 1.5; color: var(--ink); margin: 0; }
+
+    .home .group { margin: 26px 18px 0; }
+    .home .group-title {
+      font-size: 0.8rem; font-weight: 700; color: var(--ink-3);
+      margin: 0 0 8px 2px; letter-spacing: 0; text-transform: none;
+    }
+    .home .rows {
+      background: var(--surface); border: 1px solid var(--hairline);
+      border-radius: 12px; overflow: hidden;
+    }
+    .home .row {
+      display: grid; grid-template-columns: 36px 1fr 14px; gap: 13px; align-items: center;
+      padding: 12px 14px; text-decoration: none; color: var(--ink);
+    }
+    .home .row + .row { border-top: 1px solid var(--hairline); }
+    .home .row-ic {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: var(--sunken); color: var(--sign);
+      display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+    }
+    .home .row-t { display: block; font-weight: 700; font-size: 0.97rem; color: var(--ink); line-height: 1.25; }
+    .home .row-s { display: block; font-size: 0.8rem; color: var(--ink-3); line-height: 1.35; margin-top: 1px; }
+    .home .row-go { color: var(--ink-4); font-size: 0.75rem; }
+    .home .row.is-key .row-ic { background: var(--sign); color: #fff; }
   </style>
 </head>
 <body>
-<div class="page-wrapper">
+<div class="page-wrapper home">
 
-  <!-- Top Bar -->
-  <div class="top-bar">
-    <span class="app-name"><i class="fa-solid fa-person-biking" style="color:#f4722b;margin-right:6px;"></i>RidePH</span>
+  <header class="home-bar">
+    <div class="wordmark">Ride<span>PH</span></div>
     <div class="top-actions">
       <span class="rider-badge" id="rider-badge">Beginner</span>
       <button class="icon-btn" id="lang-toggle" title="Switch language">EN</button>
     </div>
-  </div>
+  </header>
 
-  <!-- Hero Banner -->
-  <div class="hero-banner">
-    <p class="greeting" id="hero-date">&nbsp;</p>
-    <p class="hero-name" id="hero-greeting">Keep pedaling forward.</p>
-    <div class="stats-row" id="stats-row">
-      <span class="stat-pill"><i class="fa-solid fa-route"></i> <b id="num-rides">0</b> rides</span>
-      <span class="stat-pill"><i class="fa-solid fa-road"></i> <b id="num-km">0</b> km</span>
-      <span class="stat-pill"><i class="fa-solid fa-fire"></i> Day <b id="num-day">0</b> / 30</span>
-    </div>
-  </div>
+  <section class="greet">
+    <p class="greet-date" id="hero-date">&nbsp;</p>
+    <h1 class="greet-line" id="hero-greeting">Good morning.</h1>
+  </section>
 
-  <!-- Record Ride CTA -->
-  <a href="ride.html" class="record-strip">
-    <div class="rec-pulse"><i class="fa-solid fa-shield-heart"></i></div>
-    <div class="rec-text">
-      <div class="rec-title">Start Ride</div>
-      <div class="rec-sub">Voice hazard alerts · live share · GPS</div>
-    </div>
-    <i class="fa-solid fa-chevron-right" style="margin-left:auto;color:rgba(255,255,255,0.8);"></i>
+  <a href="ride.html" class="sign-panel">
+    <span class="sign-arrow" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 2.5 20 11h-5.2v10.5H9.2V11H4z" fill="currentColor"/></svg>
+    </span>
+    <span>
+      <span class="sign-title">Start ride</span>
+      <span class="sign-sub">Voice warnings for what's ahead</span>
+    </span>
   </a>
 
-  <!-- Daily Tip -->
-  <div class="tip-card" id="tip-card">
-    <div class="tip-label"><i class="fa-solid fa-lightbulb"></i> Daily Tip</div>
-    <p id="tip-text">Loading today's tip...</p>
-  </div>
+  <section class="numbers" aria-label="Your riding so far">
+    <div class="n"><span class="n-val" id="num-rides">0</span><span class="n-lab">rides</span></div>
+    <div class="n"><span class="n-val" id="num-km">0</span><span class="n-lab">km ridden</span></div>
+    <div class="n"><span class="n-val"><span id="num-day">0</span><small>/30</small></span><span class="n-lab">challenge</span></div>
+  </section>
 
-  <!-- Challenge Strip -->
-  <div class="challenge-strip" onclick="window.location.href='challenge.html'">
-    <i class="fa-solid fa-fire ch-icon"></i>
-    <div class="ch-text">
-      <div class="ch-title">30-Day Cycling Challenge</div>
-      <div class="ch-sub" id="challenge-sub">Start your challenge today!</div>
+  <section class="tip">
+    <span class="tip-diamond" aria-hidden="true"></span>
+    <div>
+      <p class="tip-head">Today's tip</p>
+      <p class="tip-body" id="tip-text">Loading today's tip...</p>
     </div>
-    <i class="fa-solid fa-chevron-right ch-arrow"></i>
-  </div>
+  </section>
 
-  <!-- Section: Protect -->
-  <div class="section-title">
-    <h2><i class="fa-solid fa-shield-halved" style="color:#c0392b;font-size:1rem;"></i> Protect</h2>
-  </div>
-  <div class="modules-grid stagger">
-    <a class="module-card" href="garage.html">
-      <div class="icon-wrap" style="background:linear-gradient(135deg,#1b4332,#40916c)"><i class="fa-solid fa-warehouse"></i></div>
-      <span class="card-label">My Garage</span>
-    </a>
-    <a class="module-card" href="stolen.html">
-      <div class="icon-wrap" style="background:linear-gradient(135deg,#b71c1c,#ef5350)"><i class="fa-solid fa-magnifying-glass"></i></div>
-      <span class="card-label">Serial Check</span>
-    </a>
-  </div>
+  <section class="group">
+    <h2 class="group-title">Protect your bike</h2>
+    <div class="rows">
+      <a class="row is-key" href="garage.html"><span class="row-ic"><i class="fa-solid fa-warehouse"></i></span><span class="row-txt"><span class="row-t">My garage</span><span class="row-s">Register your serial before anything happens</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+      <a class="row" href="stolen.html"><span class="row-ic"><i class="fa-solid fa-magnifying-glass"></i></span><span class="row-txt"><span class="row-t">Serial check</span><span class="row-s">Check a second-hand bike before you pay</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+    </div>
+  </section>
 
-  <!-- Section: Learn -->
-  <div class="section-title">
-    <h2><i class="fa-solid fa-book-open" style="color:#2d6a4f;font-size:1rem;"></i> Learn</h2>
-  </div>
-  <div class="modules-grid stagger">
-    <a class="module-card" href="knowledge.html">
-      <div class="icon-wrap color-green"><i class="fa-solid fa-bicycle"></i></div>
-      <span class="card-label">Bike Knowledge</span>
-    </a>
-    <a class="module-card" href="gear-guide.html">
-      <div class="icon-wrap color-blue"><i class="fa-solid fa-gears"></i></div>
-      <span class="card-label">Gear Guide</span>
-    </a>
-    <a class="module-card" href="maintenance.html">
-      <div class="icon-wrap color-brown"><i class="fa-solid fa-wrench"></i></div>
-      <span class="card-label">Maintenance</span>
-    </a>
-    <a class="module-card" href="safety.html">
-      <div class="icon-wrap color-red"><i class="fa-solid fa-shield-halved"></i></div>
-      <span class="card-label">Safety Gear</span>
-    </a>
-  </div>
+  <section class="group">
+    <h2 class="group-title">Ride</h2>
+    <div class="rows">
+      <a class="row" href="challenge.html"><span class="row-ic"><i class="fa-solid fa-flag-checkered"></i></span><span class="row-txt"><span class="row-t">30-day challenge</span><span class="row-s" id="challenge-sub">Start with an easy 20-minute spin</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+      <a class="row" href="routes.html"><span class="row-ic"><i class="fa-solid fa-map-location-dot"></i></span><span class="row-txt"><span class="row-t">Routes</span><span class="row-s">BGC, Marikina, Tagaytay and more</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+      <a class="row" href="tracker.html"><span class="row-ic"><i class="fa-solid fa-chart-line"></i></span><span class="row-txt"><span class="row-t">Ride log</span><span class="row-s">Your distance, speed and longest ride</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+    </div>
+  </section>
 
-  <!-- Section: Train -->
-  <div class="section-title">
-    <h2><i class="fa-solid fa-dumbbell" style="color:#f4722b;font-size:1rem;"></i> Train</h2>
-  </div>
-  <div class="modules-grid stagger">
-    <a class="module-card" href="warmup.html">
-      <div class="icon-wrap color-teal"><i class="fa-solid fa-person-running"></i></div>
-      <span class="card-label">Warm-Up</span>
-    </a>
-    <a class="module-card" href="diet.html">
-      <div class="icon-wrap color-lime"><i class="fa-solid fa-apple-whole"></i></div>
-      <span class="card-label">Diet & Nutrition</span>
-    </a>
-    <a class="module-card" href="tracker.html">
-      <div class="icon-wrap color-indigo"><i class="fa-solid fa-chart-line"></i></div>
-      <span class="card-label">Ride Tracker</span>
-    </a>
-    <a class="module-card" href="carbon.html">
-      <div class="icon-wrap color-lime"><i class="fa-solid fa-leaf"></i></div>
-      <span class="card-label">Carbon Tracker</span>
-    </a>
-  </div>
+  <section class="group">
+    <h2 class="group-title">Learn</h2>
+    <div class="rows">
+      <a class="row" href="gear-guide.html"><span class="row-ic"><i class="fa-solid fa-gears"></i></span><span class="row-txt"><span class="row-t">Gear guide</span><span class="row-s">Which of your gears to use, and when</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+      <a class="row" href="knowledge.html"><span class="row-ic"><i class="fa-solid fa-bicycle"></i></span><span class="row-txt"><span class="row-t">Bike basics</span><span class="row-s">Parts, types and how they work</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+      <a class="row" href="maintenance.html"><span class="row-ic"><i class="fa-solid fa-wrench"></i></span><span class="row-txt"><span class="row-t">Maintenance</span><span class="row-s">Fix it yourself, or ask Bike Doctor</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+      <a class="row" href="safety.html"><span class="row-ic"><i class="fa-solid fa-helmet-safety"></i></span><span class="row-txt"><span class="row-t">Safety gear</span><span class="row-s">What to wear, and where to buy it</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+    </div>
+  </section>
 
-  <!-- Section: Explore -->
-  <div class="section-title">
-    <h2><i class="fa-solid fa-compass" style="color:#2980b9;font-size:1rem;"></i> Explore</h2>
-  </div>
-  <div class="modules-grid stagger" style="margin-bottom:28px;">
-    <a class="module-card" href="routes.html">
-      <div class="icon-wrap color-orange"><i class="fa-solid fa-map-location-dot"></i></div>
-      <span class="card-label">PH Routes</span>
-    </a>
-    <a class="module-card" href="motivation.html">
-      <div class="icon-wrap color-purple"><i class="fa-solid fa-star"></i></div>
-      <span class="card-label">Motivation</span>
-    </a>
-  </div>
+  <section class="group">
+    <h2 class="group-title">Body</h2>
+    <div class="rows">
+      <a class="row" href="warmup.html"><span class="row-ic"><i class="fa-solid fa-person-running"></i></span><span class="row-txt"><span class="row-t">Warm-up & cool-down</span><span class="row-s">Timed routines you follow on screen</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+      <a class="row" href="diet.html"><span class="row-ic"><i class="fa-solid fa-bottle-water"></i></span><span class="row-txt"><span class="row-t">Food & water</span><span class="row-s">Fuel and hydration for the heat</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+    </div>
+  </section>
 
-  <!-- Bottom Nav -->
+  <section class="group">
+    <h2 class="group-title">More</h2>
+    <div class="rows">
+      <a class="row" href="carbon.html"><span class="row-ic"><i class="fa-solid fa-leaf"></i></span><span class="row-txt"><span class="row-t">Carbon saved</span><span class="row-s">Compared with a jeepney or a car</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+      <a class="row" href="motivation.html"><span class="row-ic"><i class="fa-solid fa-quote-left"></i></span><span class="row-txt"><span class="row-t">Motivation</span><span class="row-s">Quotes and tips for the hard days</span></span><i class="fa-solid fa-chevron-right row-go" aria-hidden="true"></i></a>
+    </div>
+  </section>
+
   <nav class="bottom-nav" id="bottom-nav"></nav>
 </div>
 
@@ -215,8 +235,7 @@
   // Personalised, time-aware greeting
   const hour = new Date().getHours();
   const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  const emoji = hour < 12 ? '🌅' : hour < 18 ? '☀️' : '🌙';
-  document.getElementById('hero-greeting').textContent = `${greet}, Rider! ${emoji}`;
+  document.getElementById('hero-greeting').textContent = `${greet}.`;
   document.getElementById('hero-date').textContent =
     new Date().toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric' });
 
@@ -227,7 +246,7 @@
     countUp($rides, cached.rides);
     countUp($km, cached.km, { decimals: 1 });
     countUp($day, cached.day);
-    if (cached.day > 0) document.getElementById('challenge-sub').textContent = `Day ${cached.day} complete! Keep going 🔥`;
+    if (cached.day > 0) document.getElementById('challenge-sub').textContent = `Day ${cached.day} done — keep going`;
   }
 
   // Pull down at the top of the page to re-pull stats — the gesture
@@ -256,7 +275,7 @@
       countUp($rides, snap.size);
       countUp($km, totalKm, { decimals: 1 });
       countUp($day, done);
-      if (done > 0) document.getElementById('challenge-sub').textContent = `Day ${done} complete! Keep going 🔥`;
+      if (done > 0) document.getElementById('challenge-sub').textContent = `Day ${done} done — keep going`;
 
       localStorage.setItem('dashStats', JSON.stringify({ rides: snap.size, km: +totalKm.toFixed(1), day: done }));
     } catch (_) { /* offline — cached values already shown */ }

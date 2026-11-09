@@ -510,3 +510,161 @@ button:active, a.module-card:active, .card-tap:active,
 .safe-field::placeholder, .check-row input::placeholder {
   color: var(--ink-4); opacity: 1; font-weight: 400; letter-spacing: 0;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   SIGNAGE — the visual language, layered last so it wins.
+
+   Replaces the earlier pass, which still read as generated: a rainbow of
+   gradient icon tiles, stacked gradient banners, glows, bounce, emoji.
+   The source material is Philippine road signage instead:
+     · guide signs  — white type on green, with a white inset border
+     · warning signs — black on amber, diamond-shaped
+   Typeface is Overpass, an open-source descendant of Highway Gothic,
+   the road-sign alphabet; Overpass Mono carries speed and distance.
+   Surfaces are concrete and asphalt: flat, hairline-divided. Colour is
+   spent on two things only — the green of a sign and the amber of a
+   warning — never on decoration.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --sign:      #0B5E3B;
+  --sign-deep: #074529;
+  --sign-ink:  #FFFFFF;
+  --warn:      #F4B400;
+  --warn-ink:  #16130A;
+  --stop:      #C8301E;
+
+  --canvas:   #EDEFEC;   /* concrete */
+  --surface:  #FFFFFF;
+  --raised:   #FFFFFF;
+  --sunken:   #E3E7E3;
+  --hairline: #D6DBD6;
+  --ink:   #121614;
+  --ink-2: #3D4742;
+  --ink-3: #65716B;
+  --ink-4: #949F99;
+  --brand: var(--sign);
+  --brand-lift: #12754B;
+
+  --font-main: 'Overpass', 'Helvetica Neue', Arial, sans-serif;
+  --font-num:  'Overpass Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+[data-theme="dark"] {
+  --sign:      #12814F;
+  --sign-deep: #0B5E3B;
+  --canvas:   #0D100F;   /* asphalt */
+  --surface:  #161A18;
+  --raised:   #181D1A;
+  --sunken:   #1E2421;
+  --hairline: #2A312D;
+  --ink:   #EBEFEC;
+  --ink-2: #B3BCB7;
+  --ink-3: #848F89;
+  --ink-4: #5D6762;
+  --brand: #2FA36B;
+  --brand-lift: #3DBB7E;
+}
+
+body, button, input, select, textarea { font-family: var(--font-main); }
+body { background: var(--canvas); letter-spacing: 0; }
+.page-wrapper { background: var(--canvas); }
+.num, .stat-card .sv, .stat .v, .metric .v, .sum-hero, .sum-cell .v {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Content shows at rest. Hiding cards until they scroll into view was
+   decoration that cost readability (and blanked full-page captures). */
+.reveal, .reveal.revealed { opacity: 1 !important; transform: none !important; }
+.stagger > * { animation: none; }
+
+/* Calm, uniform press feedback — no bounce. */
+button:active, a.module-card:active, .card-tap:active, .chip-btn:active,
+.list-row:active, .haz-opt:active, .safe-row:active, .row:active {
+  transform: scale(0.985);
+  transition: transform 80ms linear;
+}
+
+/* ── Top bar: a flat guide sign ── */
+:root .top-bar {
+  background: var(--sign);
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.14);
+  padding: 14px 18px;
+}
+:root .top-bar .app-name { font-weight: 700; font-size: 1.06rem; letter-spacing: -0.01em; }
+:root .top-bar .app-name i { color: rgba(255,255,255,0.85) !important; }
+:root .top-bar .icon-btn {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.45);
+  border-radius: 8px;
+  width: 36px; height: 36px;
+  font-weight: 700; font-size: 0.74rem;
+}
+:root .rider-badge {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.7);
+  border-radius: 4px;
+  box-shadow: none;
+  padding: 3px 8px;
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 0.06em;
+}
+
+/* ── Bottom nav: flat, sentence case, sign-plate Ride button ── */
+:root .bottom-nav {
+  background: var(--surface);
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  border-top: 1px solid var(--hairline);
+  box-shadow: none;
+}
+.bottom-nav .nav-item {
+  text-transform: none;
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0;
+  color: var(--ink-3);
+}
+.bottom-nav .nav-item i { font-size: 1.15rem; }
+.bottom-nav .nav-item.active { color: var(--sign); }
+.bottom-nav .nav-item.active i { transform: none; }
+.bottom-nav .nav-item.active::after {
+  top: 0; width: 26px; height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--sign);
+  box-shadow: none;
+  animation: none;
+}
+.bottom-nav .nav-fab i {
+  width: 52px; height: 52px; top: -20px;
+  border-radius: 14px;
+  background: var(--sign);
+  border: 3px solid var(--surface);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.85);   /* the sign's white border */
+  font-size: 1.2rem;
+}
+.bottom-nav .nav-fab.active i { transform: translateX(-50%); }
+.bottom-nav .nav-fab span { color: var(--sign); font-weight: 700; }
+
+/* ── Buttons: flat, no gradients, no glow ── */
+:root .btn-primary-green, :root .submit-btn, :root .start-routine-btn, :root .chatbot-btn {
+  background: var(--sign);
+  box-shadow: none;
+  border-radius: 10px;
+}
+:root .btn-orange { background: #E0620E; box-shadow: none; border-radius: 10px; }
+:root .chatbot-btn { border-radius: 14px; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.85); }
+
+/* ── Surfaces: one border, no stacked shadows ── */
+:root .card-base, :root .stat-card, :root .ride-item, :root .safety-card,
+:root .exercise-card, :root .route-card, :root .bike-card, :root .tip-card {
+  box-shadow: none !important;
+  border: 1px solid var(--hairline);
+  border-radius: 12px !important;
+}
+.stat-card::before { display: none; }
+
+/* Section headings in sentence case, not tracked-out capitals */
+.section-title h2 {
+  text-transform: none; letter-spacing: -0.01em;
+  font-size: 0.98rem; font-weight: 700; color: var(--ink);
+}
+.section-title::after { display: none; }

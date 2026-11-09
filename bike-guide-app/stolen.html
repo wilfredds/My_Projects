@@ -8,7 +8,7 @@
   <title>Stolen Bike Check — Kasama</title>
   <link rel="icon" href="assets/icons/favicon.ico">
   <link rel="manifest" href="manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;500;600;700;800&family=Overpass+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
   <link href="css/system.css" rel="stylesheet">
@@ -28,7 +28,7 @@
     .check-row { display: flex; gap: 9px; position: relative; z-index: 2; }
     .check-row input {
       flex: 1; min-width: 0; padding: 14px 16px; border: none; border-radius: 14px;
-      font-family: 'Poppins', sans-serif; font-size: 0.95rem; font-weight: 700;
+      font-family: 'Overpass', sans-serif; font-size: 0.95rem; font-weight: 700;
       letter-spacing: 1px; text-transform: uppercase; outline: none; color: #1a1a2e;
     }
     .check-row button {
@@ -39,13 +39,14 @@
     .check-row button:active { transform: scale(0.95); }
 
     .result { margin: 16px 20px 0; border-radius: 18px; padding: 17px 19px; display: none; }
-    .result.clean  { background: #e8f8f0; border-left: 4px solid #2ecc71; display: block; }
-    .result.stolen { background: #fdecea; border-left: 4px solid #c0392b; display: block; }
-    .result.info   { background: #f0f3f5; border-left: 4px solid #95a5a6; display: block; }
+    .result.clean  { background: var(--safe-bg, #e8f8f0); border-left: 4px solid var(--safe, #2ecc71); display: block; }
+    .result.stolen { background: var(--danger-bg, #fdecea); border-left: 4px solid var(--danger, #c0392b); display: block; }
+    .result.info   { background: var(--sunken, #f0f3f5); border-left: 4px solid var(--ink-4, #95a5a6); display: block; }
     .result h3 { font-size: 1rem; margin-bottom: 5px; }
     .result p  { font-size: 0.82rem; line-height: 1.6; margin: 0; }
-    .result.clean h3  { color: #1e8449; }
-    .result.stolen h3 { color: #a93226; }
+    .result.clean h3  { color: var(--safe, #1e8449); }
+    .result.stolen h3 { color: var(--danger, #a93226); }
+    .result p { color: var(--ink-2, #40524A); }
 
     .board-head { padding: 22px 20px 10px; }
     .board-head h3 { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
@@ -64,9 +65,9 @@
       font-size: 0.66rem; font-weight: 700; padding: 4px 10px; border-radius: 50px;
       background: #f0f3f5; color: #5a666f;
     }
-    .chip.good { background: #e8f8f0; color: #1e8449; }
+    .chip.good { background: var(--safe-bg, #e8f8f0); color: var(--safe, #1e8449); }
     .chip.ok   { background: #fff4e5; color: #b9770e; }
-    .chip.warn { background: #fdecea; color: #a93226; }
+    .chip.warn { background: var(--danger-bg, #fdecea); color: var(--danger, #a93226); }
     .bike-note { font-size: 0.78rem; color: #5a666f; line-height: 1.55; margin-top: 9px; }
     .bike-contact {
       margin-top: 11px; padding-top: 11px; border-top: 1px solid #f0f3f5;

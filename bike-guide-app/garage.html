@@ -8,18 +8,18 @@
   <title>My Garage — Kasama</title>
   <link rel="icon" href="assets/icons/favicon.ico">
   <link rel="manifest" href="manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;500;600;700;800&family=Overpass+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
   <link href="css/system.css" rel="stylesheet">
   <style>
     .why {
       margin: 16px 20px; padding: 15px 17px; border-radius: 16px;
-      background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+      background: var(--safe-bg, #e8f5e9);
       border-left: 4px solid #2d6a4f;
     }
-    .why h4 { font-size: 0.88rem; font-weight: 800; color: #1b4332; margin-bottom: 5px; }
-    .why p  { font-size: 0.79rem; color: #40605a; line-height: 1.6; margin: 0; }
+    .why h4 { font-size: 0.88rem; font-weight: 800; color: var(--brand, #1b4332); margin-bottom: 5px; }
+    .why p  { font-size: 0.79rem; color: var(--ink-2, #40605a); line-height: 1.6; margin: 0; }
 
     .bike-card {
       background: #fff; border-radius: 18px; margin: 0 20px 13px;
@@ -34,24 +34,24 @@
       display: inline-block; font-size: 0.64rem; font-weight: 800; padding: 4px 11px;
       border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 9px;
     }
-    .status-tag.owned  { background: #e8f8f0; color: #1e8449; }
-    .status-tag.stolen { background: #fdecea; color: #a93226; }
+    .status-tag.owned  { background: var(--safe-bg, #e8f8f0); color: var(--safe, #1e8449); }
+    .status-tag.stolen { background: var(--danger-bg, #fdecea); color: var(--danger, #a93226); }
     .card-actions { display: flex; gap: 8px; margin-top: 13px; }
     .card-btn {
       flex: 1; padding: 10px; border-radius: 12px; border: none; cursor: pointer;
-      font-family: 'Poppins', sans-serif; font-size: 0.77rem; font-weight: 700;
+      font-family: 'Overpass', sans-serif; font-size: 0.77rem; font-weight: 700;
       display: flex; align-items: center; justify-content: center; gap: 6px;
     }
-    .card-btn.danger  { background: #fdecea; color: #c0392b; }
+    .card-btn.danger  { background: var(--danger-bg, #fdecea); color: var(--danger, #c0392b); }
     .card-btn.neutral { flex: 0 0 52px; }
-    .card-btn.neutral { background: #f0f3f5; color: #5a666f; }
-    .card-btn.good    { background: #e8f8f0; color: #1e8449; }
+    .card-btn.neutral { background: var(--sunken, #f0f3f5); color: var(--ink-3, #5a666f); }
+    .card-btn.good    { background: var(--safe-bg, #e8f8f0); color: var(--safe, #1e8449); }
     .card-btn:active { transform: scale(0.97); }
 
     .add-btn {
       margin: 4px 20px 20px; width: calc(100% - 40px); padding: 15px;
       border: 2px dashed #b9c6cd; border-radius: 18px; background: transparent;
-      color: #5a666f; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700;
+      color: #5a666f; font-family: 'Overpass', sans-serif; font-size: 0.9rem; font-weight: 700;
       cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px;
     }
     .add-btn:active { background: #f4f6f8; }
@@ -67,7 +67,7 @@
     .fg label .req { color: #c0392b; }
     .fg input, .fg textarea {
       width: 100%; padding: 11px 14px; border: 1.5px solid #e2e7ea; border-radius: 12px;
-      font-family: 'Poppins', sans-serif; font-size: 0.86rem; outline: none; background: #fafbfc;
+      font-family: 'Overpass', sans-serif; font-size: 0.86rem; outline: none; background: #fafbfc;
     }
     .fg input:focus, .fg textarea:focus { border-color: #2d6a4f; background: #fff; }
     .fg .hint { font-size: 0.69rem; color: var(--ink-4, #9aa4ac); margin-top: 4px; line-height: 1.5; }
@@ -84,12 +84,12 @@
     .submit-btn {
       width: 100%; padding: 14px; border: none; border-radius: 50px;
       background: linear-gradient(135deg, #2d6a4f, #52b788); color: #fff;
-      font-family: 'Poppins', sans-serif; font-size: 0.93rem; font-weight: 700; cursor: pointer;
+      font-family: 'Overpass', sans-serif; font-size: 0.93rem; font-weight: 700; cursor: pointer;
       box-shadow: 0 6px 20px rgba(45,106,79,0.35); margin-top: 4px;
     }
     .submit-btn:disabled { opacity: 0.55; }
     .cancel-btn { width: 100%; padding: 11px; border: none; background: transparent;
-                  color: #8a929a; font-family: 'Poppins', sans-serif; font-size: 0.82rem;
+                  color: #8a929a; font-family: 'Overpass', sans-serif; font-size: 0.82rem;
                   font-weight: 600; cursor: pointer; margin-top: 6px; }
     .err { font-size: 0.78rem; color: #c0392b; margin-top: 9px; display: none; }
 
@@ -140,7 +140,7 @@
     .rs-actions { display: flex; gap: 9px; margin-top: 18px; }
     .rs-btn {
       flex: 1; padding: 14px; border: none; border-radius: 50px;
-      font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700;
+      font-family: 'Overpass', sans-serif; font-size: 0.9rem; font-weight: 700;
       cursor: pointer;
     }
     .rs-btn.go { background: linear-gradient(145deg, #E8574C, #C0392B); color: #fff;
