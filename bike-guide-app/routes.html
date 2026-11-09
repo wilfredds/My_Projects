@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PH Routes - RidePH</title>
+  <title>Routes - RidePH</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2d6a4f">
+  <meta name="theme-color" content="#0B5E3B">
   <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,85 +15,219 @@
   <link href="css/style.css" rel="stylesheet">
   <link href="css/system.css" rel="stylesheet">
   <style>
-    .filter-row { display:flex; gap:8px; padding:12px 20px 8px; overflow-x:auto; scrollbar-width:none; }
-    .filter-row::-webkit-scrollbar { display:none; }
-    .filter-btn { flex-shrink:0; padding:7px 16px; border-radius:50px; border:1.5px solid #ddd; background:#fff; font-family:'Overpass',sans-serif; font-size:0.78rem; font-weight:600; color:#666; cursor:pointer; transition:all 0.2s; }
-    .filter-btn.active { background:#2d6a4f; color:#fff; border-color:#2d6a4f; }
-    .routes-container { padding:8px 20px 20px; }
-    .route-count { font-size:0.78rem; color:#888; margin-bottom:12px; }
-    .premium-banner { background:linear-gradient(135deg,#f4722b,#ff9a5c); border-radius:16px; padding:16px 18px; margin:0 20px 16px; color:#fff; }
-    .premium-banner h4 { font-size:0.92rem; font-weight:700; margin-bottom:4px; }
-    .premium-banner p  { font-size:0.75rem; opacity:0.9; margin-bottom:10px; }
-    .premium-banner a  { background:rgba(255,255,255,0.25); color:#fff; padding:8px 18px; border-radius:50px; font-size:0.8rem; font-weight:700; text-decoration:none; display:inline-block; }
+    /* Routes. Same language as home: plain type on concrete, hairlines,
+       numbers in mono. Scoped under .rts / .route-sheet so style.css's
+       [data-theme="dark"] p rule cannot recolour anything. */
+    .rts { padding: 14px 18px 28px; }
+    .rts .intro { font-size: 0.9rem; line-height: 1.5; color: var(--ink-2); margin: 2px 2px 14px; }
+
+    .rts .seg {
+      display: flex; gap: 3px; padding: 3px; margin-bottom: 8px;
+      background: var(--sunken); border-radius: 10px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .rts .seg::-webkit-scrollbar { display: none; }
+    .rts .seg button {
+      flex: 1 0 auto; border: 0; background: transparent; color: var(--ink-3);
+      padding: 8px 6px; border-radius: 8px; white-space: nowrap; cursor: pointer;
+      font: inherit; font-size: 0.78rem; font-weight: 700;
+    }
+    .rts .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--hairline); }
+    .rts .count { font-size: 0.8rem; font-weight: 700; color: var(--ink-3); margin: 12px 2px 10px; letter-spacing: 0; }
+
+    .rts .rc {
+      background: var(--surface); border: 1px solid var(--hairline);
+      border-radius: 12px; padding: 14px 16px 16px; margin-bottom: 12px;
+    }
+    .rc-head { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
+    .rc-name { font-size: 1.08rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; color: var(--ink); margin: 0; }
+    .rc-place { font-size: 0.8rem; line-height: 1.35; color: var(--ink-3); margin: 3px 0 0; }
+    .rc-level {
+      flex-shrink: 0; margin-top: 2px; padding: 2px 7px 1px; border-radius: 4px;
+      border: 1.5px solid currentColor; background: transparent;
+      font-size: 0.66rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .lvl-beginner { color: var(--sign); }
+    .lvl-intermediate { color: #8A5D00; }
+    .lvl-advanced { color: var(--stop); }
+    [data-theme="dark"] .lvl-beginner { color: var(--brand); }
+    [data-theme="dark"] .lvl-intermediate { color: var(--warn); }
+    [data-theme="dark"] .lvl-advanced { color: #F0806C; }
+
+    .rc-nums {
+      display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 12px;
+      border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline);
+    }
+    .rc-nums > div { padding: 9px 0 8px; min-width: 0; }
+    .rc-nums > div + div { padding-left: 12px; border-left: 1px solid var(--hairline); }
+    .rc-nums .v {
+      display: block; white-space: nowrap; color: var(--ink);
+      font-family: var(--font-num); font-weight: 600; font-size: 1.06rem; letter-spacing: -0.02em;
+    }
+    .rc-nums .v small { font-size: 0.72rem; font-weight: 500; color: var(--ink-4); }
+    .rc-nums .l { display: block; font-size: 0.72rem; color: var(--ink-3); margin-top: 1px; }
+
+    .rc-profile { display: block; width: 100%; height: 30px; margin-top: 12px; }
+    .rc-profile .pa, .rs-profile .pa { fill: var(--sunken); }
+    .rc-profile .pl, .rs-profile .pl { fill: none; stroke: var(--ink-3); stroke-width: 1.5; }
+    .rc-cap { font-family: var(--font-num); font-size: 0.7rem; color: var(--ink-4); margin: 4px 0 0; letter-spacing: 0; }
+    .rc-desc { font-size: 0.9rem; line-height: 1.5; color: var(--ink-2); margin: 10px 0 0; }
+    .rc-tags { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 10px 0 0; padding: 0; }
+    .rc-tags li { font-size: 0.74rem; font-weight: 600; color: var(--ink-2); background: var(--sunken); padding: 3px 8px; border-radius: 5px; }
+    .rc-meta { font-size: 0.8rem; line-height: 1.5; color: var(--ink-3); margin: 10px 0 0; }
+    .rc-meta b { color: var(--ink-2); font-weight: 700; }
+    .rc-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .rc-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 11px 10px; border-radius: 10px; cursor: pointer; text-decoration: none;
+      border: 1px solid var(--hairline); background: var(--surface); color: var(--ink);
+      font: inherit; font-size: 0.86rem; font-weight: 700; line-height: 1.2; text-align: center;
+    }
+    .rc-btn.primary { background: var(--sign); border-color: var(--sign); color: #fff; }
+    .rc-btn i { font-size: 0.85rem; }
+
+    .rts .empty { text-align: center; color: var(--ink-3); font-size: 0.9rem; padding: 26px 0; margin: 0; }
+
+    .rts .locked { margin-top: 22px; }
+    .rts .locked-title { font-size: 0.8rem; font-weight: 700; color: var(--ink-3); margin: 0 0 8px 2px; letter-spacing: 0; text-transform: none; }
+    .rts .lk-rows { background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+    .lk-row { display: grid; grid-template-columns: 18px 1fr auto; gap: 12px; align-items: center; padding: 11px 14px; }
+    .lk-row + .lk-row { border-top: 1px solid var(--hairline); }
+    .lk-ic { color: var(--ink-4); font-size: 0.8rem; }
+    .lk-name { display: block; font-weight: 700; font-size: 0.92rem; color: var(--ink); line-height: 1.25; }
+    .lk-sub { display: block; font-size: 0.76rem; color: var(--ink-3); line-height: 1.3; margin-top: 1px; }
+    .lk-num { font-family: var(--font-num); font-size: 0.74rem; color: var(--ink-3); text-align: right; line-height: 1.35; white-space: nowrap; }
+    .rts .locked .rc-btn { margin-top: 10px; }
+
+    /* Full-screen route preview */
+    .route-sheet { position: fixed; inset: 0; z-index: 3000; background: var(--canvas); display: flex; flex-direction: column; }
+    .route-sheet[hidden] { display: none; }
+    .rs-head {
+      display: flex; align-items: center; gap: 12px;
+      padding: calc(10px + env(safe-area-inset-top)) 14px 10px;
+      background: var(--sign); color: #fff;
+    }
+    .rs-close {
+      flex-shrink: 0; width: 40px; height: 40px; border-radius: 8px; cursor: pointer;
+      border: 1.5px solid rgba(255,255,255,0.45); background: transparent; color: #fff; font-size: 1rem;
+    }
+    .rs-close:focus { outline: none; }
+    .rs-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    .rs-title { font-size: 1.05rem; font-weight: 800; line-height: 1.2; color: #fff; margin: 0; }
+    .rs-sub { font-size: 0.78rem; line-height: 1.3; color: rgba(255,255,255,0.86); margin: 2px 0 0; }
+    .rs-map { position: relative; height: 46vh; min-height: 240px; background: var(--sunken); }
+    .rs-map-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; margin: 0; font-size: 0.88rem; color: var(--ink-3); }
+    .rs-body { flex: 1; overflow-y: auto; padding: 4px 18px calc(22px + env(safe-area-inset-bottom)); }
+    .rs-chart { margin: 14px 0 0; }
+    .rs-chart-plot { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: stretch; }
+    .rs-chart-y { display: flex; flex-direction: column; justify-content: space-between; font-family: var(--font-num); font-size: 0.68rem; color: var(--ink-4); text-align: right; }
+    .rs-profile { display: block; width: 100%; height: 64px; }
+    .rs-chart figcaption { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; font-family: var(--font-num); font-size: 0.68rem; color: var(--ink-4); }
+    .rs-note { font-size: 0.76rem; line-height: 1.5; color: var(--ink-4); margin: 14px 0 0; }
+    .rs-pin {
+      padding: 4px 6px 3px; border-radius: 5px; color: #fff; white-space: nowrap;
+      font: 800 11px/1 var(--font-main); box-shadow: 0 0 0 2px #fff;
+    }
+    .rs-pin.start { background: #0B5E3B; }
+    .rs-pin.end { background: #121614; }
+    .maplibregl-ctrl-attrib { font-size: 9px; }
   </style>
 </head>
 <body>
 <div class="page-wrapper">
   <div class="top-bar">
-    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
-    <span class="app-name"><i class="fa-solid fa-map-location-dot" style="color:#f4722b;margin-right:6px;"></i>PH Routes</span>
+    <a href="dashboard.html" aria-label="Back to home" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name">Routes</span>
     <div class="top-actions"><span class="rider-badge" id="rider-badge"></span></div>
   </div>
 
-  <div class="filter-row" id="diff-filters">
-    <button class="filter-btn active" data-diff="all" onclick="setFilter('diff','all',this)">All</button>
-    <button class="filter-btn" data-diff="beginner" onclick="setFilter('diff','beginner',this)">🌱 Beginner</button>
-    <button class="filter-btn" data-diff="intermediate" onclick="setFilter('diff','intermediate',this)">🚴 Intermediate</button>
-    <button class="filter-btn" data-diff="advanced" onclick="setFilter('diff','advanced',this)">🏆 Advanced</button>
-  </div>
+  <main class="rts">
+    <p class="intro">Every ride below was measured on the actual roads. Tap <b>View route</b> to see the line on a map before you go.</p>
 
-  <div class="filter-row" id="region-filters">
-    <button class="filter-btn active" data-reg="all" onclick="setFilter('region','all',this)">All Regions</button>
-    <button class="filter-btn" onclick="setFilter('region','Metro Manila',this)">Metro Manila</button>
-    <button class="filter-btn" onclick="setFilter('region','Cavite',this)">Cavite</button>
-    <button class="filter-btn" onclick="setFilter('region','Luzon (North)',this)">North Luzon</button>
-    <button class="filter-btn" onclick="setFilter('region','Visayas',this)">Visayas</button>
-    <button class="filter-btn" onclick="setFilter('region','Mindanao',this)">Mindanao</button>
-  </div>
+    <div class="seg" id="diff-filters" role="group" aria-label="Difficulty">
+      <button type="button" data-diff="all" aria-pressed="true" aria-label="All levels">All</button>
+      <button type="button" data-diff="beginner" aria-pressed="false">Beginner</button>
+      <button type="button" data-diff="intermediate" aria-pressed="false">Intermediate</button>
+      <button type="button" data-diff="advanced" aria-pressed="false">Advanced</button>
+    </div>
+    <div class="seg" id="area-filters" role="group" aria-label="Area">
+      <button type="button" data-area="all" aria-pressed="true" aria-label="All areas">All</button>
+      <button type="button" data-area="Metro Manila" aria-pressed="false">Metro Manila</button>
+      <button type="button" data-area="Luzon" aria-pressed="false">Luzon</button>
+      <button type="button" data-area="Visayas" aria-pressed="false">Visayas</button>
+      <button type="button" data-area="Mindanao" aria-pressed="false">Mindanao</button>
+    </div>
 
-  <div class="premium-banner" id="premium-banner" style="display:none;">
-    <h4>🔒 Advanced Routes Locked</h4>
-    <p>Unlock Premium for ₱79 to access all advanced and epic Philippine routes.</p>
-    <a href="premium.html">Unlock Premium →</a>
-  </div>
-
-  <div class="routes-container">
-    <p class="route-count" id="route-count">Loading routes...</p>
+    <p class="count" id="route-count" aria-live="polite">Loading routes…</p>
     <div id="routes-list"></div>
-  </div>
+
+    <section class="locked" id="locked" hidden>
+      <h2 class="locked-title">Premium routes</h2>
+      <div class="lk-rows" id="locked-list"></div>
+      <a class="rc-btn primary" href="premium.html">Unlock Premium for ₱79</a>
+    </section>
+  </main>
 
   <nav class="bottom-nav" id="bottom-nav"></nav>
 </div>
 
+<div class="route-sheet" id="route-sheet" role="dialog" aria-modal="true" aria-labelledby="rs-title" hidden>
+  <div class="rs-head">
+    <button type="button" class="rs-close" id="rs-close" aria-label="Close route preview"><i class="fa-solid fa-xmark"></i></button>
+    <div>
+      <h2 class="rs-title" id="rs-title"></h2>
+      <p class="rs-sub" id="rs-sub"></p>
+    </div>
+  </div>
+  <div class="rs-map" id="rs-map"></div>
+  <div class="rs-body" id="rs-body"></div>
+</div>
+
 <script type="module">
   import { initPage, isPremium } from './js/app.js';
-  import { loadRoutes, filterRoutes, renderRouteCard } from './js/routes.js';
+  import { loadRoutes, filterRoutes, renderRouteCard, renderLockedRow, openRouteSheet, closeRouteSheet } from './js/routes.js';
   initPage('routes');
 
-  let activeFilters = { diff:'all', region:'all' };
-  let routesLoaded  = false;
+  const filters = { difficulty: 'all', area: 'all' };
 
-  window.setFilter = function(type, value, btn) {
-    activeFilters[type] = value;
-    const group = type === 'diff' ? 'diff-filters' : 'region-filters';
-    document.querySelectorAll(`#${group} .filter-btn`).forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderRoutes();
-  };
+  function bindSeg(id, attr, key) {
+    document.getElementById(id).addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      filters[key] = btn.dataset[attr];
+      document.querySelectorAll(`#${id} button`).forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+      render();
+    });
+  }
+  bindSeg('diff-filters', 'diff', 'difficulty');
+  bindSeg('area-filters', 'area', 'area');
 
-  function renderRoutes() {
-    const premium = isPremium();
-    const filtered = filterRoutes({ difficulty: activeFilters.diff, region: activeFilters.region, premiumUnlocked: premium });
-    const hasPremiumLocked = !premium;
-    document.getElementById('premium-banner').style.display = hasPremiumLocked ? 'block' : 'none';
-    document.getElementById('route-count').textContent = `${filtered.length} route${filtered.length !== 1 ? 's' : ''} found`;
-    document.getElementById('routes-list').innerHTML = filtered.length
-      ? filtered.map(r => renderRouteCard(r, premium)).join('')
-      : '<p style="text-align:center;color:#aaa;padding:30px 0;">No routes match your filters.</p>';
+  document.getElementById('routes-list').addEventListener('click', e => {
+    const btn = e.target.closest('[data-view]');
+    if (btn) openRouteSheet(btn.dataset.view);
+  });
+  document.getElementById('rs-close').addEventListener('click', closeRouteSheet);
+
+  function render() {
+    const { open, locked } = filterRoutes(filters, isPremium());
+    const n = open.length;
+    let count = `${n} route${n === 1 ? '' : 's'}`;
+    if (locked.length) count += ` · ${locked.length} more with Premium`;
+    document.getElementById('route-count').textContent = count;
+    document.getElementById('routes-list').innerHTML = n
+      ? open.map(renderRouteCard).join('')
+      : `<p class="empty">${locked.length ? 'Only Premium routes match these filters.' : 'No routes match these filters.'}</p>`;
+    const lockedBox = document.getElementById('locked');
+    lockedBox.hidden = !locked.length;
+    document.getElementById('locked-list').innerHTML = locked.map(renderLockedRow).join('');
   }
 
-  await loadRoutes();
-  renderRoutes();
+  try {
+    await loadRoutes();
+    render();
+  } catch (_) {
+    document.getElementById('route-count').textContent = "Couldn't load routes. Check your connection and try again.";
+  }
 </script>
 <script src="js/sw-register.js"></script>
 </body>
