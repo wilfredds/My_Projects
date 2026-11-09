@@ -668,3 +668,11 @@ button:active, a.module-card:active, .card-tap:active, .chip-btn:active,
   font-size: 0.98rem; font-weight: 700; color: var(--ink);
 }
 .section-title::after { display: none; }
+
+/* style.css sets the dark FAB border to var(--white) at (0,2,2), which in
+   dark mode is not the nav surface — it showed as a bright ring. Match the
+   nav instead, and use the lighter brand green for active labels on dark. */
+:root .bottom-nav .nav-fab i { border-color: var(--surface); }
+[data-theme="dark"] .bottom-nav .nav-item.active,
+[data-theme="dark"] .bottom-nav .nav-fab span { color: var(--brand); }
+[data-theme="dark"] .bottom-nav .nav-item.active::after { background: var(--brand); }

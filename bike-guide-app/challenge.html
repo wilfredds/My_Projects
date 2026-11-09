@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>30-Day Challenge - RidePH</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2d6a4f">
+  <meta name="theme-color" content="#0B5E3B">
   <script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,77 +15,112 @@
   <link href="css/style.css" rel="stylesheet">
   <link href="css/system.css" rel="stylesheet">
   <style>
-    .streak-banner {
-      background: linear-gradient(135deg,#f4722b,#ff9a5c);
-      padding:20px; margin-bottom:16px;
-      border-radius: 0 0 24px 24px;
+    /* Challenge. Same language as home: plain numbers on concrete, one
+       surface for today's ride, the calendar as a grid of plates. Scoped
+       under .chal so style.css's [data-theme="dark"] p rule cannot reach. */
+    .chal { padding: 18px 18px 28px; }
+    .chal .numbers {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline);
     }
-    .streak-num { font-size: 3rem; font-weight: 800; color:#fff; line-height:1; }
-    .streak-sub { font-size: 0.78rem; color:rgba(255,255,255,0.8); }
-    .progress-track { margin:0 20px 20px; background:#f0f0f0; border-radius:50px; height:10px; overflow:hidden; }
-    .progress-fill-ch { height:100%; background:linear-gradient(90deg,#2d6a4f,#52b788); border-radius:50px; transition:width 0.6s ease; }
-    .today-card { margin:0 20px 20px; background:#fff; border-radius:20px; box-shadow:0 8px 24px rgba(0,0,0,0.1); overflow:hidden; }
-    .today-header { background:linear-gradient(135deg,#2d6a4f,#52b788); padding:16px 20px; color:#fff; }
-    .today-header .day-label { font-size:0.72rem; opacity:0.8; text-transform:uppercase; letter-spacing:0.8px; }
-    .today-header .day-title { font-size:1.1rem; font-weight:700; }
-    .today-body { padding:16px 20px; }
-    .drills-list { list-style:none; margin:10px 0 16px; }
-    .drills-list li { font-size:0.8rem; color:#555; padding:5px 0; display:flex; gap:8px; align-items:flex-start; }
-    .drills-list li::before { content:'✓'; color:#2d6a4f; font-weight:700; flex-shrink:0; }
-    .meta-badges { display:flex; gap:8px; margin:8px 0 12px; flex-wrap:wrap; }
-    .meta-badge { background:#f0f7f4; color:#2d6a4f; font-size:0.7rem; font-weight:600; padding:5px 12px; border-radius:50px; }
-    .mark-done-btn { width:100%; padding:14px; background:linear-gradient(135deg,#2d6a4f,#52b788); color:#fff; border:none; border-radius:50px; font-family:'Overpass',sans-serif; font-size:0.95rem; font-weight:700; cursor:pointer; }
-    .mark-done-btn:disabled { background:#ccc; cursor:not-allowed; }
-    .calendar-section { padding:0 20px 20px; }
-    .calendar-title { font-size:0.9rem; font-weight:700; margin-bottom:12px; }
-    .challenge-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; }
+    .chal .n { padding: 13px 0 12px; }
+    .chal .n + .n { padding-left: 14px; border-left: 1px solid var(--hairline); }
+    .chal .n-val {
+      display: block; font-family: var(--font-num); font-weight: 600;
+      font-size: 1.5rem; line-height: 1.1; color: var(--ink); letter-spacing: -0.03em;
+    }
+    .chal .n-val small { font-size: 0.9rem; color: var(--ink-4); font-weight: 500; }
+    .chal .n-lab { display: block; font-size: 0.76rem; color: var(--ink-3); margin-top: 2px; }
+    .chal .track { height: 6px; margin-top: 12px; background: var(--sunken); border-radius: 3px; overflow: hidden; }
+    .chal .track-fill { height: 100%; background: var(--sign); border-radius: 3px; transition: width 0.4s linear; }
+    [data-theme="dark"] .chal .track-fill { background: var(--brand); }
+
+    .chal .today-card {
+      margin-top: 18px; background: var(--surface);
+      border: 1px solid var(--hairline); border-radius: 12px; padding: 16px 16px 16px;
+    }
+    .chal .day-label { font-family: var(--font-num); font-size: 0.76rem; color: var(--ink-3); margin: 0; letter-spacing: 0; }
+    .chal .day-title { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; color: var(--ink); margin: 3px 0 0; }
+    .chal .meta-badges { display: flex; gap: 14px; margin: 8px 0 0; flex-wrap: wrap; }
+    .chal .meta-badge { font-family: var(--font-num); font-size: 0.8rem; color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
+    .chal .meta-badge i { color: var(--ink-4); font-size: 0.75rem; }
+    .chal .today-desc { font-size: 0.92rem; line-height: 1.5; color: var(--ink-2); margin: 12px 0 0; }
+    .chal .drills-list { list-style: none; margin: 12px 0 16px; padding: 0; border-top: 1px solid var(--hairline); }
+    .chal .drills-list li {
+      display: grid; grid-template-columns: 18px 1fr; gap: 10px;
+      padding: 9px 0; border-bottom: 1px solid var(--hairline);
+      font-size: 0.9rem; line-height: 1.4; color: var(--ink);
+    }
+    .chal .drills-list li::before {
+      content: ''; width: 8px; height: 8px; margin: 6px 0 0 4px;
+      background: var(--warn); transform: rotate(45deg); border-radius: 1px;
+    }
+    .chal .drills-list li.cta::before { display: none; }
+    .chal .drills-list a { color: var(--sign); font-weight: 700; }
+    [data-theme="dark"] .chal .drills-list a { color: var(--brand); }
+    .chal .mark-done-btn {
+      width: 100%; padding: 14px; border: 0; border-radius: 10px;
+      background: var(--sign); color: #fff; box-shadow: none;
+      font: inherit; font-size: 1rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .chal .mark-done-btn:disabled { background: var(--sunken); color: var(--ink-3); cursor: not-allowed; }
+
+    .chal .calendar-title { font-size: 0.8rem; font-weight: 700; color: var(--ink-3); margin: 24px 0 8px 2px; letter-spacing: 0; text-transform: none; }
+    .chal .challenge-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+    .chal .day-cell {
+      border-radius: 8px; border: 1px solid var(--hairline);
+      background: var(--surface); color: var(--ink-3);
+      font-family: var(--font-num); font-weight: 600; box-shadow: none; animation: none;
+    }
+    .chal .day-cell.done { background: var(--sign); border-color: var(--sign); color: #fff; box-shadow: none; }
+    .chal .day-cell.today { background: var(--surface); border: 2px solid var(--ink); color: var(--ink); box-shadow: none; animation: none; }
+    .chal .day-cell.locked { background: var(--sunken); border-color: transparent; color: var(--ink-4); opacity: 1; }
+    .chal .day-cell.locked::after { color: var(--ink-4); }
+    .chal .legend { display: flex; gap: 16px; margin: 10px 2px 0; font-size: 0.76rem; color: var(--ink-3); }
+    .chal .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .chal .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
   </style>
 </head>
 <body>
 <div class="page-wrapper">
   <div class="top-bar">
-    <a href="dashboard.html" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
-    <span class="app-name"><i class="fa-solid fa-fire" style="color:#f4722b;margin-right:6px;"></i>30-Day Challenge</span>
+    <a href="dashboard.html" aria-label="Back to home" style="color:#fff;margin-right:12px;"><i class="fa-solid fa-arrow-left"></i></a>
+    <span class="app-name">30-day challenge</span>
     <div class="top-actions"><span class="rider-badge" id="rider-badge"></span></div>
   </div>
 
-  <div class="streak-banner">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div>
-        <div class="streak-num" id="streak-num">0</div>
-        <div class="streak-sub">days completed 🔥</div>
-      </div>
-      <div style="margin-left:auto;text-align:right;">
-        <div style="font-size:0.78rem;color:rgba(255,255,255,0.8);">Progress</div>
-        <div style="font-size:1rem;font-weight:700;color:#fff;" id="progress-label">0 / 30</div>
-      </div>
-    </div>
-    <div class="progress-track" style="margin:12px 0 0;">
-      <div class="progress-fill-ch" id="progress-bar" style="width:0%;"></div>
-    </div>
+  <main class="chal">
+  <div class="numbers">
+    <div class="n"><span class="n-val" id="progress-label">0<small>/30</small></span><span class="n-lab">days done</span></div>
+    <div class="n"><span class="n-val" id="streak-num">0</span><span class="n-lab">day streak</span></div>
+    <div class="n"><span class="n-val" id="days-left">30</span><span class="n-lab">to go</span></div>
+  </div>
+  <div class="track" role="progressbar" aria-label="Challenge progress" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" id="progress-track">
+    <div class="track-fill" id="progress-bar" style="width:0%;"></div>
   </div>
 
-  <!-- Today's Workout -->
-  <div class="today-card" id="today-card">
-    <div class="today-header">
-      <div class="day-label" id="today-label">TODAY — DAY 1</div>
-      <div class="day-title" id="today-title">Loading...</div>
-    </div>
-    <div class="today-body">
-      <div class="meta-badges" id="meta-badges"></div>
-      <p id="today-desc" style="font-size:0.82rem;color:#555;margin-bottom:10px;"></p>
-      <ul class="drills-list" id="drills-list"></ul>
-      <button class="mark-done-btn" id="mark-done-btn" onclick="markToday()">
-        <i class="fa-solid fa-flag-checkered"></i> Mark as Done
-      </button>
-    </div>
-  </div>
+  <!-- Today's ride -->
+  <section class="today-card" id="today-card">
+    <p class="day-label" id="today-label">Today · Day 1</p>
+    <h2 class="day-title" id="today-title">Easy 20-minute spin</h2>
+    <div class="meta-badges" id="meta-badges"></div>
+    <p class="today-desc" id="today-desc"></p>
+    <ul class="drills-list" id="drills-list"></ul>
+    <button class="mark-done-btn" id="mark-done-btn" onclick="markToday()">Mark today as done</button>
+  </section>
 
   <!-- Calendar -->
-  <div class="calendar-section">
-    <p class="calendar-title">Your 30-Day Journey</p>
+  <section>
+    <p class="calendar-title">All 30 days</p>
     <div class="challenge-grid" id="challenge-grid"></div>
-  </div>
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--sign)"></i>Done</span>
+      <span><i style="border:2px solid var(--ink)"></i>Today</span>
+      <span><i style="background:var(--sunken)"></i>Premium</span>
+    </div>
+  </section>
+  </main>
 
   <nav class="bottom-nav" id="bottom-nav"></nav>
 </div>
@@ -121,8 +156,10 @@
     const done  = Object.values(dayStatus).filter(d => d.completed).length;
     const streak = getStreakCount(dayStatus);
     document.getElementById('streak-num').textContent = streak;
-    document.getElementById('progress-label').textContent = `${done} / 30`;
+    document.getElementById('progress-label').innerHTML = `${done}<small>/30</small>`;
+    document.getElementById('days-left').textContent = 30 - done;
     document.getElementById('progress-bar').style.width = `${(done/30)*100}%`;
+    document.getElementById('progress-track').setAttribute('aria-valuenow', done);
 
     // Find next incomplete day
     currentDay = 1;
@@ -134,25 +171,25 @@
 
     const plan = CHALLENGE_PLAN[currentDay - 1];
     const isLocked = plan.premium && !isPremium();
-    document.getElementById('today-label').textContent = `TODAY — DAY ${currentDay}`;
-    document.getElementById('today-title').textContent = isLocked ? '🔒 Premium Content' : plan.title;
-    document.getElementById('today-desc').textContent  = isLocked ? 'Unlock Premium (₱79) to access Days 16–30 of the challenge.' : plan.desc;
+    document.getElementById('today-label').textContent = `Today · Day ${currentDay}`;
+    document.getElementById('today-title').textContent = isLocked ? 'Days 16–30 are Premium' : plan.title;
+    document.getElementById('today-desc').textContent  = isLocked ? 'You have finished the free half of the plan. The second half builds to longer rides and climbs.' : plan.desc;
     document.getElementById('meta-badges').innerHTML   = isLocked ? '' :
-      `<span class="meta-badge"><i class="fa-regular fa-clock"></i> ${plan.duration}</span>
-       <span class="meta-badge"><i class="fa-solid fa-route"></i> ${plan.distance}</span>`;
+      `<span class="meta-badge"><i class="fa-regular fa-clock" aria-hidden="true"></i>${plan.duration}</span>
+       <span class="meta-badge"><i class="fa-solid fa-route" aria-hidden="true"></i>${plan.distance}</span>`;
     document.getElementById('drills-list').innerHTML   = isLocked
-      ? `<li><a href="premium.html" style="color:#f4722b;font-weight:700;">→ Unlock Premium for ₱79 to continue</a></li>`
+      ? `<li class="cta"><a href="premium.html">Unlock Premium for ₱79</a></li>`
       : plan.drills.map(d => `<li>${d}</li>`).join('');
 
     const btn = document.getElementById('mark-done-btn');
     const key = `day_${String(currentDay).padStart(2,'0')}`;
     if (dayStatus[key]?.completed) {
-      btn.textContent = '✓ Completed!'; btn.disabled = true;
+      btn.textContent = 'Done for today'; btn.disabled = true;
     } else if (isLocked) {
-      btn.textContent = '🔒 Premium Required'; btn.disabled = true;
+      btn.textContent = 'Premium required'; btn.disabled = true;
     } else {
       btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-flag-checkered"></i> Mark as Done';
+      btn.textContent = 'Mark today as done';
     }
 
     // Calendar
@@ -174,25 +211,25 @@
     const btn = document.getElementById('mark-done-btn');
     const completedDay = currentDay;
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Saving';
     try {
       await markDayComplete(completedDay);
       await render();
-      // 🎉 Celebrate the completed day
+      // Celebrate the completed day
       confetti();
       const streak = getStreakCount(dayStatus);
       const card = document.getElementById('today-card');
       if (card) { card.classList.remove('celebrate'); void card.offsetWidth; card.classList.add('celebrate'); }
       if (completedDay === 30) {
         confetti({ count: 160, duration: 4000 });
-        toast('🏆 Challenge complete! You are a cyclist now!', { type: 'success', duration: 4000 });
+        toast('All 30 days done. Challenge complete.', { type: 'success', duration: 4000 });
       } else {
-        toast(`Day ${completedDay} done! ${streak}-day streak 🔥`, { type: 'success' });
+        toast(`Day ${completedDay} done. Streak: ${streak} ${streak === 1 ? 'day' : 'days'}.`, { type: 'success' });
       }
     } catch (_) {
       toast('Could not save. Check your connection.', { type: 'error' });
       btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-flag-checkered"></i> Mark as Done';
+      btn.textContent = 'Mark today as done';
     }
   };
 
