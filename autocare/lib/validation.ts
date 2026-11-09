@@ -3,15 +3,25 @@ import { PASSWORD_RULES } from './password';
 import { localeCodes } from '@/i18n/locales';
 
 /**
- * Every mutation in AutoCare validates its input with one of these schemas —
- * on the client (for instant, friendly feedback) and again on the server (which
- * never trusts the client). Error messages are message-catalog keys so the UI
- * can show them in the user's own language.
+ * Every mutation in AutoCare validates its input with one of these schemas on
+ * the server, which never trusts the client. Error messages are message-catalog
+ * keys so the UI can show them in the user's own language.
+ *
+ * Only server code imports this file, and under Zod 4 that matters: building an
+ * object schema probes `new Function`, which the production CSP reports as a
+ * violation even though Zod catches it. Before importing a schema into a client
+ * component, put `z.config({ jitless: true })` above the schemas below.
  */
 
-/** A money field arriving from a form: "", "0", "1,250.50", 1250.5 — all fine. */
+/**
+ * A money field arriving from a form: "", "0", "1,250.50", 1250.5 — all fine.
+ * Anything that is not a finite number is refused as `errors.invalidNumber`.
+ * Zod 4's `z.number()` refuses Infinity on its own, so a number sent as a
+ * number (only a hand-built request does that) fails at the union rather than
+ * in the pipe, which is why both carry the key.
+ */
 export const money = z
-  .union([z.string(), z.number()])
+  .union([z.string(), z.number()], { error: 'errors.invalidNumber' })
   .transform((v) => {
     if (typeof v === 'number') return v;
     const cleaned = v.replace(/[₱,\s]/g, '').trim();
@@ -20,8 +30,7 @@ export const money = z
   })
   .pipe(
     z
-      .number({ invalid_type_error: 'errors.invalidNumber' })
-      .finite('errors.invalidNumber')
+      .number({ error: 'errors.invalidNumber' })
       .min(0, 'errors.negativeNumber')
       .max(99_999_999, 'errors.invalidNumber'),
   );
@@ -100,7 +109,7 @@ export type ServiceInput = z.infer<typeof serviceSchema>;
 export const jobPartSchema = z.object({
   partName: z.string().trim().min(1, 'errors.partNameRequired').max(120),
   quantity: z.coerce
-    .number({ invalid_type_error: 'errors.invalidNumber' })
+    .number({ error: 'errors.invalidNumber' })
     .int('errors.invalidNumber')
     .min(1, 'errors.quantityMin')
     .max(10_000),
@@ -112,38 +121,6 @@ export const jobServiceSchema = z.object({
   serviceName: z.string().trim().min(1, 'errors.serviceNameRequired').max(120),
   price: money,
 });
-
-/**
- * `z.array(item).max(max)`, except that an oversized array is refused before a
- * single item is parsed.
- *
- * Zod 3 checks `.max()` and then parses every item anyway, keeping an issue
- * for each one that fails (GHSA-mrhx-c7xc-m3w5). Measured against `jobSchema`:
- * one 1 MB Server Action body of empty objects in `parts` cost ~10 s of CPU and
- * ~1.5 GB of heap. Zod 4.6.6 fixed it by failing the size check first and
- * parsing nothing; this is the same rule for Zod 3. `fatal` ends the parse
- * there, as upstream does, so nothing after it — the discount check below —
- * ever reads the raw, unparsed array.
- *
- * Once the app is on Zod >= 4.6.6, go back to plain `z.array(item).max(max)`.
- */
-function cappedArray<T extends z.ZodTypeAny>(item: T, max: number) {
-  return z
-    .unknown()
-    .superRefine((value, ctx) => {
-      if (Array.isArray(value) && value.length > max) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.too_big,
-          type: 'array',
-          maximum: max,
-          inclusive: true,
-          exact: false,
-          fatal: true,
-        });
-      }
-    })
-    .pipe(z.array(item).max(max));
-}
 
 export const jobSchema = z
   .object({
@@ -173,8 +150,12 @@ export const jobSchema = z
       .nullable()
       .or(z.literal('').transform(() => null)),
     notes: optionalText(2000),
-    parts: cappedArray(jobPartSchema, 100).default([]),
-    services: cappedArray(jobServiceSchema, 100).default([]),
+    // GHSA-mrhx-c7xc-m3w5: from Zod 4.6.6, a list over its `.max()` is refused
+    // before a single item is parsed, and nothing after it — the discount check
+    // below — reads the raw list. Zod does that only for size checks at the
+    // front of the chain, so keep `.max()` first on these two.
+    parts: z.array(jobPartSchema).max(100).default([]),
+    services: z.array(jobServiceSchema).max(100).default([]),
   })
   // NOTE: subtotal / total / balance / status are deliberately absent. They are
   // never accepted from the client — the server always recomputes them with
@@ -188,7 +169,7 @@ export const jobSchema = z
 
     if (data.discount > gross + 0.001) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['discount'],
         message: 'errors.discountTooHigh',
       });
@@ -232,6 +213,11 @@ export const changeOwnPasswordSchema = z.object({
 
 // ---------------------------------------------------------------- settings
 
+// Zod 4 rewrote this regex. It accepts exactly the addresses Zod 3's
+// `z.string().email()` did — checked against every string up to seven
+// characters on an alphabet built to probe each rule, plus a 3M-string sample.
+const emailAddress = z.email();
+
 export const shopSettingsSchema = z.object({
   name: z.string().trim().min(1, 'errors.requiredField').max(120),
   address: z.string().trim().min(1, 'errors.requiredField').max(300),
@@ -242,7 +228,7 @@ export const shopSettingsSchema = z.object({
     .max(120)
     .optional()
     .transform((v) => (v === '' ? undefined : v))
-    .refine((v) => v === undefined || z.string().email().safeParse(v).success, 'errors.requiredField'),
+    .refine((v) => v === undefined || emailAddress.safeParse(v).success, 'errors.requiredField'),
   footer: optionalText(300),
 });
 export type ShopSettingsInput = z.infer<typeof shopSettingsSchema>;

@@ -4,7 +4,7 @@
  */
 
 import assert from 'node:assert/strict';
-import { jobSchema } from '../lib/validation.ts';
+import { jobSchema, fieldErrors } from '../lib/validation.ts';
 import { computeJobTotals, toDecimalString } from '../lib/calc.ts';
 
 let passed = 0;
@@ -131,12 +131,51 @@ check('money fields tolerate what people actually type', () => {
   assert.equal(parsed.expenses, 0);
 });
 
+check('a money field that is not a finite number is refused as errors.invalidNumber', () => {
+  // Infinity must never reach the money maths. Zod 4's z.number() refuses it on
+  // its own, so the key has to sit on the schema's `error` — `.finite()` is a
+  // no-op there and would silently drop it. A number sent as a number rather
+  // than text only comes from a hand-built request, and is refused the same.
+  for (const laborCharge of ['abc', 'Infinity', Infinity]) {
+    const label = `${typeof laborCharge} ${String(laborCharge)}`;
+    const result = jobSchema.safeParse({
+      customerId: 'c1',
+      vehicleId: 'v1',
+      laborCharge,
+      services: [],
+      parts: [],
+    });
+    assert.equal(result.success, false, `${label} must not parse as money`);
+    if (!result.success) {
+      assert.equal(fieldErrors(result.error).laborCharge, 'errors.invalidNumber', label);
+    }
+  }
+});
+
+check('a part quantity that is not a whole number is refused as errors.invalidNumber', () => {
+  // `quantity` is coerced, so text, a fraction and a missing value all arrive
+  // as numbers that the schema must refuse, each with the catalog key.
+  const parts: Record<string, unknown>[] = [
+    { partName: 'Filter', quantity: 'abc', unitPrice: '75' },
+    { partName: 'Filter', quantity: '2.5', unitPrice: '75' },
+    { partName: 'Filter', unitPrice: '75' },
+  ];
+  for (const part of parts) {
+    const label = JSON.stringify(part);
+    const result = jobSchema.safeParse({ customerId: 'c1', vehicleId: 'v1', parts: [part], services: [] });
+    assert.equal(result.success, false, `${label} must be refused`);
+    if (!result.success) {
+      assert.equal(fieldErrors(result.error)['parts.0.quantity'], 'errors.invalidNumber', label);
+    }
+  }
+});
+
 /**
  * Each issue as "code @ path". The count is asserted first, on its own: a
  * failing deepEqual between thousands of issues and the two expected builds a
  * diff that alone can exhaust memory, so the failure message must stay cheap.
  */
-function assertIssues(issues: { code: string; path: (string | number)[] }[], expected: string[]) {
+function assertIssues(issues: { code: string; path: PropertyKey[] }[], expected: string[]) {
   assert.equal(issues.length, expected.length, `expected ${expected.length} issue(s), got ${issues.length}`);
   assert.deepEqual(
     issues.map((i) => `${i.code} @ ${i.path.join('.')}`),
@@ -177,6 +216,19 @@ check('an oversized list stops the parse, so nothing reads its raw items', () =>
   assert.equal(result.success, false);
   if (!result.success) {
     assertIssues(result.error.issues, ['too_big @ parts']);
+  }
+});
+
+check('a line item that is not an object is refused, not thrown on', () => {
+  // The under-the-cap twin of the test above. An item that fails its own type
+  // check ends the parse as well, so the discount sum never reads a null item.
+  const parse = () =>
+    jobSchema.safeParse({ customerId: 'c1', vehicleId: 'v1', parts: [null], services: [] });
+  assert.doesNotThrow(parse);
+  const result = parse();
+  assert.equal(result.success, false);
+  if (!result.success) {
+    assertIssues(result.error.issues, ['invalid_type @ parts.0']);
   }
 });
 

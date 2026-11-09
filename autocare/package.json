@@ -10,7 +10,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test tests/calc.test.ts",
+    "test": "node --import tsx --test tests/calc.test.ts tests/validation.test.ts",
     "test:db": "tsx tests/job-integrity.test.ts && tsx tests/security.test.ts && tsx tests/access-control.test.ts",
     "test:all": "npm run test && npm run test:db",
     "seed": "tsx prisma/seed.ts",
@@ -25,7 +25,6 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@hookform/resolvers": "3.9.1",
     "@prisma/client": "6.19.3",
     "@radix-ui/react-alert-dialog": "1.1.6",
     "@radix-ui/react-dialog": "1.1.6",
@@ -52,7 +51,7 @@
     "sonner": "1.7.2",
     "tailwind-merge": "2.6.0",
     "tailwindcss-animate": "1.0.7",
-    "zod": "3.24.1"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/bcryptjs": "2.4.6",

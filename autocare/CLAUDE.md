@@ -12,7 +12,7 @@ Tailwind · Radix/shadcn · next-intl · Zod · react-hook-form
 ```bash
 npm run lint        # next lint
 npm run typecheck   # tsc --noEmit
-npm test            # money maths only, no database
+npm test            # money maths and input schemas, no database
 npm run test:db     # job integrity, security, access control — needs PostgreSQL
 npm run test:all    # both
 npm run build       # prisma generate && next build
@@ -83,3 +83,7 @@ It is path-filtered to `autocare/**`, and uses `npm ci`.
   the ESLint CLI. It is noise; lint still passes.
 - Prisma warns that `package.json#prisma` config is deprecated and will be
   removed in Prisma 7. Worth migrating to `prisma.config.ts` eventually.
+- **Zod stays on the server.** Zod 4 probes `new Function` when it builds an
+  object schema, and the production CSP reports that as a violation. Read the
+  header of `lib/validation.ts` before importing a schema into a client
+  component.

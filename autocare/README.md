@@ -429,18 +429,19 @@ record, so it follows them to a new device. URLs stay clean — there is no
 ## Tests
 
 ```bash
-npm test        # money maths — no database needed
+npm test        # money maths and input schemas — no database needed
 npm run test:db # job integrity + security + access control — needs DATABASE_URL
 npm run test:all
 npm run typecheck
 ```
 
-48 assertions in four files, all against real code:
+53 assertions in five files, all against real code:
 
 | File | What it proves |
 | --- | --- |
 | `tests/calc.test.ts` (11) | `lib/calc.ts`: rounding, the status rule, float drift, negative input |
-| `tests/job-integrity.test.ts` (9) | the client cannot dictate a total — the server recomputes it; an oversized line-item list is refused before it is parsed |
+| `tests/validation.test.ts` (2) | the shop email accepts and refuses the same addresses it did before Zod 4 rewrote its regex |
+| `tests/job-integrity.test.ts` (12) | the client cannot dictate a total — the server recomputes it; text, Infinity and fractions are refused with their message keys; an oversized line-item list is refused before it is parsed |
 | `tests/security.test.ts` (11) | the real lockout, audit and hashing code, against a live database |
 | `tests/access-control.test.ts` (17) | session revocation, soft delete and restore, the capability map |
 
@@ -494,7 +495,7 @@ override would pull the older version back in.
 
 ### What `npm audit --omit=dev` still reports
 
-Two advisories, listed as four entries. Neither has a fix short of a major
+One advisory, listed as three entries. It has no fix short of a major
 upgrade:
 
 - **`deepmerge-ts` <8** ([GHSA-ggr8-5vv4-36mx](https://github.com/advisories/GHSA-ggr8-5vv4-36mx)),
@@ -506,15 +507,17 @@ upgrade:
   The crash needs a cyclic object, which JSON cannot express, and no deployed
   function contains the module (checked against the build's file traces). It
   goes away with the Prisma 7 upgrade.
-- **`zod` <4.6.6** ([GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)).
-  No Zod 3 release carries the fix. This one was reachable: Zod 3 checks
-  `.max(100)` on a job's line items and then parses every item anyway, so a
-  signed-in user's 1 MB request body took ~10 s of CPU and ~1.5 GB of heap to
-  validate (measured on `jobSchema`). `cappedArray` in `lib/validation.ts`
-  ports the Zod 4.6.6 fix — an oversized list is refused before any item is
-  parsed — and `tests/job-integrity.test.ts` holds it there. The advisory stays
-  listed until the app moves to Zod 4. Installing Zod 4 and importing `zod/v3`
-  would not help: 4.6.6 left its `v3` code untouched.
+
+`zod` <4.6.6 ([GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5))
+was listed here until the move to Zod 4.6.7. It was reachable: Zod 3 checks
+`.max(100)` on a job's line items and then parses every item anyway, so a
+signed-in user's 1 MB request body took ~10 s of CPU and ~1.5 GB of heap to
+validate. From 4.6.6 an oversized list is refused before a single item is
+parsed, and the same body takes ~3 ms. Zod only does that while `.max()` is the
+first check on the array, so the comment on `parts` and `services` in
+`lib/validation.ts` and the oversized-list tests in
+`tests/job-integrity.test.ts` keep it there. (Zod 4's `zod/v3` entry point
+would not have helped: 4.6.6 left that code untouched.)
 
 ---
 
