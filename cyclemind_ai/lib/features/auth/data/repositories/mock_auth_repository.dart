@@ -5,12 +5,17 @@ import 'package:cyclemind_ai/core/providers/mock_store.dart';
 import 'package:cyclemind_ai/core/utils/result.dart';
 import 'package:cyclemind_ai/features/auth/domain/entities/app_user.dart';
 import 'package:cyclemind_ai/features/auth/domain/repositories/auth_repository.dart';
+import 'package:uuid/uuid.dart';
 
 /// In-memory [AuthRepository] used when `USE_MOCKS=true`.
 ///
-/// Accepts any credentials and returns the seeded demo user, so reviewers can
-/// explore the whole app without a backend. Profile edits mutate the shared
-/// [MockStore].
+/// Signing IN accepts any credentials and returns the seeded demo user, so a
+/// reviewer sees the populated demo. Signing UP mints a brand-new identity
+/// with an empty garage.
+///
+/// This repository is the single source of truth for who is signed in.
+/// [MockStore] holds data only — it deliberately has no user setter, because
+/// one let a signed-up user's profile edit overwrite the demo identity.
 class MockAuthRepository implements AuthRepository {
   final _controller = StreamController<AppUser?>.broadcast();
   AppUser? _current;
@@ -28,9 +33,8 @@ class MockAuthRepository implements AuthRepository {
   Future<Result<AppUser>> signInWithEmail({
     required String email,
     required String password,
-  }) async {
-    return _completeSignIn();
-  }
+  }) =>
+      _completeSignIn();
 
   @override
   Future<Result<AppUser>> signUpWithEmail({
@@ -38,12 +42,13 @@ class MockAuthRepository implements AuthRepository {
     required String password,
     required String displayName,
   }) async {
-    await MockStore.instance.ensureLoaded();
-    final user = MockStore.instance.user.copyWith(
+    // A fresh uuid, NOT the seed user's id. Reusing it was what made a new
+    // sign-up inherit the previous user's bikes and rides.
+    final user = AppUser(
+      id: 'mock-${const Uuid().v4()}',
       email: email,
-      profile: MockStore.instance.user.profile.copyWith(displayName: displayName),
+      profile: UserProfile(displayName: displayName),
     );
-    MockStore.instance.user = user;
     _current = user;
     _controller.add(user);
     return Success(user);
@@ -54,7 +59,6 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<Result<AppUser>> updateProfile(AppUser user) async {
-    MockStore.instance.user = user;
     _current = user;
     _controller.add(user);
     return Success(user);
@@ -62,8 +66,12 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<Result<void>> signOut() async {
+    // Order matters: clear the session FIRST so every stream sees an empty
+    // userId and goes quiet, then wipe the store. Resetting first would let a
+    // listener observe a half-cleared store.
     _current = null;
     _controller.add(null);
+    await MockStore.instance.reset();
     return const Success(null);
   }
 
@@ -71,7 +79,7 @@ class MockAuthRepository implements AuthRepository {
     await Future<void>.delayed(const Duration(milliseconds: 300));
     try {
       await MockStore.instance.ensureLoaded();
-      _current = MockStore.instance.user;
+      _current = MockStore.instance.seedUser;
       _controller.add(_current);
       return Success(_current!);
     } catch (_) {

@@ -29,6 +29,15 @@ class AppConstants {
   static const String tipsAsset = 'assets/data/tips.json';
   static const String troubleshootingAsset = 'assets/data/troubleshooting.json';
   static const String mockSeedAsset = 'assets/data/mock_seed.json';
+
+  /// Upper bound on a bike's odometer. Mirrored by `numIn(d.totalMileageKm,
+  /// 0, 500000)` in firestore.rules and enforced by the mock, so the three
+  /// cannot drift apart unnoticed.
+  static const double maxOdometerKm = 500000;
+
+  /// Upper bound on a single ride's distance. Mirrors `numIn(d.distance,
+  /// 0, 2000)` in firestore.rules.
+  static const double maxRideDistanceKm = 2000;
 }
 
 /// Rider experience level.

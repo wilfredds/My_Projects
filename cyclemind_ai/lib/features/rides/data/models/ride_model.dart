@@ -20,6 +20,7 @@ class RideModel {
       cadence: (map['cadence'] as num?)?.toInt(),
       heartRate: (map['heartRate'] as num?)?.toInt(),
       power: (map['power'] as num?)?.toInt(),
+      odometerDeltaKm: (map['odometerDeltaKm'] as num?)?.toDouble(),
     );
   }
 
@@ -36,5 +37,6 @@ class RideModel {
         'cadence': ride.cadence,
         'heartRate': ride.heartRate,
         'power': ride.power,
+        'odometerDeltaKm': ride.odometerDeltaKm,
       };
 }

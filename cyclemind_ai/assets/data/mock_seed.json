@@ -17,7 +17,7 @@
       "tires": "Continental GP5000 28c",
       "totalMileageKm": 4200,
       "components": [
-        {"id": "c1", "type": "Chain", "brand": "Shimano", "installedAtKm": 2000, "lifespanKm": 3000},
+        {"id": "c1", "type": "Chain", "brand": "Shimano", "installedAtKm": 1850, "lifespanKm": 3000},
         {"id": "c2", "type": "Cassette", "brand": "Shimano", "installedAtKm": 0, "lifespanKm": 9000},
         {"id": "c3", "type": "Brake Pads", "brand": "SwissStop", "installedAtKm": 3800, "lifespanKm": 1500},
         {"id": "c4", "type": "Tires", "brand": "Continental", "installedAtKm": 1500, "lifespanKm": 5000}

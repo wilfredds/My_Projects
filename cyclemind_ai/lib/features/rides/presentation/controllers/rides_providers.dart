@@ -5,6 +5,7 @@ import 'package:cyclemind_ai/features/rides/data/repositories/firebase_rides_rep
 import 'package:cyclemind_ai/features/rides/data/repositories/mock_rides_repository.dart';
 import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
 import 'package:cyclemind_ai/features/rides/domain/repositories/rides_repository.dart';
+import 'package:cyclemind_ai/features/rides/domain/usecases/log_ride.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Convenience: the signed-in user's id (empty when signed out).
@@ -27,3 +28,11 @@ final ridesStreamProvider = StreamProvider<List<Ride>>((ref) {
   if (userId.isEmpty) return const Stream.empty();
   return ref.watch(ridesRepositoryProvider).watchRides(userId);
 });
+
+/// Logs a ride and advances its bike's odometer, atomically.
+final logRideProvider = Provider<LogRide>(
+    (ref) => LogRide(ref.watch(ridesRepositoryProvider)));
+
+/// Deletes a ride, crediting back exactly what it added.
+final deleteRideProvider = Provider<DeleteRide>(
+    (ref) => DeleteRide(ref.watch(ridesRepositoryProvider)));

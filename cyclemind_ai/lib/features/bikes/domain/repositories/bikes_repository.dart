@@ -8,7 +8,15 @@ abstract interface class BikesRepository {
 
   Future<Result<Bike>> addBike(Bike bike);
 
-  Future<Result<Bike>> updateBike(Bike bike);
+  /// Replaces a bike's tracked components.
+  ///
+  /// Deliberately CANNOT touch `totalMileageKm`. The previous `updateBike`
+  /// wrote the whole document from a possibly-stale snapshot, so adding a
+  /// component silently rolled the odometer back to whatever the screen last
+  /// read. Narrowing the interface makes that impossible by construction
+  /// rather than by convention: only logging or deleting a ride moves the
+  /// odometer.
+  Future<Result<Bike>> setComponents(String bikeId, List<BikeComponent> components);
 
   Future<Result<void>> deleteBike(String bikeId);
 

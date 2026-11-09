@@ -15,7 +15,7 @@ export const ALLOWED = {
   users: ['email', 'profile', 'goals', 'preferences'],
   bikes: ['userId', 'name', 'frame', 'groupset', 'tires', 'totalMileageKm', 'imageUrl', 'components'],
   rides: ['userId', 'bikeId', 'title', 'startedAt', 'distance', 'elevation', 'avgSpeed',
-    'durationSec', 'calories', 'cadence', 'heartRate', 'power'],
+    'durationSec', 'calories', 'cadence', 'heartRate', 'power', 'odometerDeltaKm'],
   maintenance_logs: ['userId', 'bikeId', 'component', 'mileageAtService', 'status', 'serviceDate', 'notes'],
   ai_reports: ['userId', 'bikeId', 'type', 'imageUrl', 'healthScore', 'riskLevel', 'summary',
     'recommendations', 'createdAt'],
@@ -67,6 +67,8 @@ export const aRide = (uid = 'alice', over = {}) => ({
   cadence: null,
   heartRate: null,
   power: null,
+  // Null = this ride moved no odometer (no bike, or it predates accounting).
+  odometerDeltaKm: null,
   ...over,
 });
 

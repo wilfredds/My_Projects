@@ -20,6 +20,7 @@ class Ride extends Equatable {
     this.heartRate,
     this.power,
     this.title = 'Ride',
+    this.odometerDeltaKm,
   });
 
   final String id;
@@ -35,6 +36,21 @@ class Ride extends Equatable {
   final int? heartRate;
   final int? power;
   final String title;
+
+  /// Kilometres this ride added to its bike's odometer, or null when it added
+  /// none — no bike was selected, or the ride predates odometer accounting.
+  ///
+  /// NOT derivable from `bikeId` + `distanceKm`. Seeded and pre-existing rides
+  /// have both and were never applied to any odometer, because the stored
+  /// mileage was a lump figure that already included them. This field is the
+  /// "was actually counted" marker, and because it is written in the same
+  /// atomic batch as the increment it can never disagree with it. Deleting a
+  /// ride subtracts exactly this, so a legacy ride deletes with no effect.
+  ///
+  /// NOTE: [copyWith] uses the `?? this.x` idiom and therefore cannot set this
+  /// back to null. Construct the Ride with its final delta; never try to
+  /// "correct" it afterwards.
+  final double? odometerDeltaKm;
 
   Duration get duration => Duration(seconds: durationSec);
 
@@ -52,6 +68,7 @@ class Ride extends Equatable {
     int? heartRate,
     int? power,
     String? title,
+    double? odometerDeltaKm,
   }) {
     return Ride(
       id: id ?? this.id,
@@ -67,6 +84,7 @@ class Ride extends Equatable {
       heartRate: heartRate ?? this.heartRate,
       power: power ?? this.power,
       title: title ?? this.title,
+      odometerDeltaKm: odometerDeltaKm ?? this.odometerDeltaKm,
     );
   }
 
@@ -85,5 +103,6 @@ class Ride extends Equatable {
         heartRate,
         power,
         title,
+        odometerDeltaKm,
       ];
 }

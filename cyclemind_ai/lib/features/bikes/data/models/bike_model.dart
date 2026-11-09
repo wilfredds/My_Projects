@@ -31,6 +31,12 @@ class BikeModel {
         'components': bike.components.map(_componentToMap).toList(),
       };
 
+  /// Components only, for a field-scoped update that must not touch
+  /// `totalMileageKm`.
+  static List<Map<String, dynamic>> componentsToMaps(
+          List<BikeComponent> components) =>
+      components.map(_componentToMap).toList();
+
   static BikeComponent _componentFromMap(Map<String, dynamic> c) =>
       BikeComponent(
         id: c['id'] as String? ?? '',

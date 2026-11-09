@@ -35,12 +35,20 @@ class FirebaseBikesRepository implements BikesRepository {
   }
 
   @override
-  Future<Result<Bike>> updateBike(Bike bike) async {
+  Future<Result<Bike>> setComponents(
+    String bikeId,
+    List<BikeComponent> components,
+  ) async {
     try {
-      await _bikes.doc(bike.id).set(BikeModel.toMap(bike), SetOptions(merge: true));
-      return Success(bike);
+      // Field-scoped update: `totalMileageKm` is absent from the payload, so
+      // the stored value carries through untouched.
+      await _bikes.doc(bikeId).update(
+        {'components': BikeModel.componentsToMaps(components)},
+      );
+      final snap = await _bikes.doc(bikeId).get();
+      return Success(BikeModel.fromMap(bikeId, snap.data() ?? const {}));
     } catch (_) {
-      return Failure(const ServerFailure());
+      return Failure(const ServerFailure('Could not update the components.'));
     }
   }
 

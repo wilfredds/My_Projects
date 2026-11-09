@@ -375,3 +375,27 @@ describe('attack: unknown collections', () => {
     await assertFails(getDoc(doc(alice, 'anything/y')));
   });
 });
+
+// --------------------------------------------------- odometerDeltaKm bounds
+
+describe('rides: odometerDeltaKm', () => {
+  it('accepts a valid delta, and null for an untracked ride', async () => {
+    await assertSucceeds(setDoc(doc(alice, 'rides/d1'),
+      aRide('alice', { bikeId: 'b1', odometerDeltaKm: 42.5 })));
+    await assertSucceeds(setDoc(doc(alice, 'rides/d2'),
+      aRide('alice', { odometerDeltaKm: null })));
+  });
+
+  it('rejects a negative, oversized or non-numeric delta', async () => {
+    await assertFails(setDoc(doc(alice, 'rides/d3'), aRide('alice', { odometerDeltaKm: -1 })));
+    await assertFails(setDoc(doc(alice, 'rides/d4'), aRide('alice', { odometerDeltaKm: 2001 })));
+    await assertFails(setDoc(doc(alice, 'rides/d5'), aRide('alice', { odometerDeltaKm: '42' })));
+  });
+
+  it('still accepts a legacy ride: bikeId set, delta null', async () => {
+    // Rides written before odometer accounting carry a bike but no delta.
+    // They must stay valid, which is why the rules do not tie the two together.
+    await assertSucceeds(setDoc(doc(alice, 'rides/d6'),
+      aRide('alice', { bikeId: 'bike-1', odometerDeltaKm: null })));
+  });
+});

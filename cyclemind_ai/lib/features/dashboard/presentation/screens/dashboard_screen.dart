@@ -4,8 +4,10 @@ import 'package:cyclemind_ai/features/auth/presentation/controllers/auth_control
 import 'package:cyclemind_ai/features/bikes/presentation/controllers/bikes_providers.dart';
 import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
 import 'package:cyclemind_ai/features/rides/presentation/controllers/rides_providers.dart';
+import 'package:cyclemind_ai/features/rides/presentation/widgets/ride_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 /// Home dashboard: recent mileage and bike health.
 ///
@@ -24,6 +26,14 @@ class DashboardScreen extends ConsumerWidget {
     final week = _weekStats(rides);
 
     return Scaffold(
+      // The single most important affordance in the app: without it, logging a
+      // ride is unreachable, which is exactly what happened when the Coach tab
+      // was deleted and took the only entry point with it.
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push('/rides/new'),
+        icon: const Icon(Icons.add),
+        label: const Text('Log ride'),
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -76,6 +86,35 @@ class DashboardScreen extends ConsumerWidget {
                     : reminders.first.message),
               ),
             ),
+            const SizedBox(height: 20),
+
+            SectionHeader(
+              title: 'Recent rides',
+              trailing: TextButton(
+                onPressed: () => context.push('/rides'),
+                child: const Text('See all'),
+              ),
+            ),
+            if (rides.isEmpty)
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.directions_bike),
+                  title: const Text('No rides yet'),
+                  subtitle: const Text(
+                      'Log a ride to move your odometer and get maintenance '
+                      'reminders.'),
+                  onTap: () => context.push('/rides/new'),
+                ),
+              )
+            else
+              for (final r in rides.take(3))
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: RideTile(ride: r),
+                ),
+
+            // Clearance so the FAB never covers the last card.
+            const SizedBox(height: 80),
           ],
         ),
       ),

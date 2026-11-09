@@ -26,3 +26,13 @@ final remindersProvider = Provider<List<MaintenanceReminder>>((ref) {
   final bikes = ref.watch(bikesStreamProvider).valueOrNull ?? const [];
   return const GenerateReminders().call(bikes);
 });
+
+/// Bike id -> display name, for labelling rides.
+///
+/// Lives here rather than in rides_providers because this file already imports
+/// that one (for [currentUserIdProvider]); the reverse direction would be an
+/// import cycle.
+final bikeNamesProvider = Provider<Map<String, String>>((ref) {
+  final bikes = ref.watch(bikesStreamProvider).valueOrNull ?? const [];
+  return {for (final b in bikes) b.id: b.name};
+});

@@ -122,17 +122,29 @@ class BikeDetailScreen extends ConsumerWidget {
     );
 
     if (added != true) return;
-    final updated = current.copyWith(components: [
+    final components = [
       ...current.components,
       BikeComponent(
         id: const Uuid().v4(),
         type: type.text.trim(),
         brand: brand.text.trim(),
+        // "Installed at today's odometer reading" — correct as written. It
+        // only looked broken while the odometer was frozen.
         installedAtKm: current.totalMileageKm,
         lifespanKm: double.tryParse(lifespan.text) ?? 3000,
       ),
-    ]);
-    await ref.read(bikesRepositoryProvider).updateBike(updated);
+    ];
+    // setComponents, NOT updateBike: the old call wrote the whole document
+    // from a possibly-stale snapshot, so adding a component silently rolled
+    // the odometer back to whatever this screen last read.
+    final result =
+        await ref.read(bikesRepositoryProvider).setComponents(current.id, components);
+    if (!context.mounted) return;
+    result.fold(
+      (f) => ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(f.message))),
+      (_) {},
+    );
   }
 }
 
