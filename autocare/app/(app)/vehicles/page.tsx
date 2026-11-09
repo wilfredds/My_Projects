@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/misc';
+import { RowList } from '@/components/ui/card';
+import { Plate } from '@/components/ui/plate';
 import { VehicleFormDialog } from '@/components/forms/vehicle-form';
 
 export const metadata = { title: 'Vehicles — AutoCare' };
@@ -21,9 +23,10 @@ export default async function VehiclesPage({
 }) {
   await requirePageUser();
   const { q } = await searchParams;
-  const [t, tcom] = await Promise.all([
+  const [t, tcom, td] = await Promise.all([
     getTranslations('vehicles'),
     getTranslations('common'),
+    getTranslations('dashboard'),
   ]);
 
   const where: Prisma.VehicleWhereInput = q
@@ -50,7 +53,7 @@ export default async function VehiclesPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1>{t('title')}</h1>
           <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
@@ -58,8 +61,8 @@ export default async function VehiclesPage({
         <VehicleFormDialog customers={customers} />
       </div>
 
-      <form className="rounded-xl border-2 border-border bg-muted/30 p-5">
-        <Field label={tcom('search')} htmlFor="vehicle-search">
+      <form className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+        <Field label={t('searchPlaceholder')} htmlFor="vehicle-search">
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <Search
@@ -69,12 +72,12 @@ export default async function VehiclesPage({
               <Input
                 id="vehicle-search"
                 name="q"
+                type="search"
                 defaultValue={q ?? ''}
-                placeholder={t('searchPlaceholder')}
                 className="pl-14"
               />
             </div>
-            <Button type="submit" size="default">
+            <Button type="submit" variant="secondary">
               <Search aria-hidden />
               <span>{tcom('search')}</span>
             </Button>
@@ -85,39 +88,42 @@ export default async function VehiclesPage({
       {vehicles.length === 0 ? (
         <EmptyState title={q ? tcom('noResults') : t('empty')} icon={<Car className="size-12" />} />
       ) : (
-        <ul className="space-y-3">
-          {vehicles.map((vehicle) => (
-            <li
-              key={vehicle.id}
-              className="flex flex-wrap items-center justify-between gap-4 rounded-lg border-2 border-border bg-background p-4"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-lg font-bold">{vehicle.plateNumber}</p>
-                <p className="truncate text-base text-muted-foreground">
-                  {describeVehicle(vehicle).replace(`${vehicle.plateNumber} — `, '') || '—'}
-                </p>
-                <Link
-                  href={`/customers/${vehicle.customer.id}`}
-                  className="text-base font-semibold text-primary underline underline-offset-4 hover:no-underline"
-                >
-                  {vehicle.customer.fullName}
-                </Link>
-              </div>
-              <VehicleFormDialog
-                customers={customers}
-                initial={{
-                  id: vehicle.id,
-                  customerId: vehicle.customerId,
-                  plateNumber: vehicle.plateNumber,
-                  make: vehicle.make ?? '',
-                  model: vehicle.model ?? '',
-                  year: vehicle.year ? String(vehicle.year) : '',
-                  color: vehicle.color ?? '',
-                }}
-              />
-            </li>
-          ))}
-        </ul>
+        <RowList>
+          {vehicles.map((vehicle) => {
+            const details = describeVehicle(vehicle).replace(`${vehicle.plateNumber} — `, '');
+            const hasDetails = details && details !== vehicle.plateNumber;
+            return (
+              <li key={vehicle.id} className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 px-5 py-4 sm:px-6">
+                <div className="min-w-0 flex-1 basis-56">
+                  <Plate>{vehicle.plateNumber}</Plate>
+                  <p className="mt-2 text-lg">{hasDetails ? details : tcom('notSet')}</p>
+                  <p className="mt-0.5 text-base text-muted-foreground">
+                    <Link
+                      href={`/customers/${vehicle.customer.id}`}
+                      className="font-semibold text-primary-strong underline underline-offset-4 hover:no-underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
+                    >
+                      {vehicle.customer.fullName}
+                    </Link>
+                    {' · '}
+                    {td('jobsCount', { count: vehicle._count.jobs })}
+                  </p>
+                </div>
+                <VehicleFormDialog
+                  customers={customers}
+                  initial={{
+                    id: vehicle.id,
+                    customerId: vehicle.customerId,
+                    plateNumber: vehicle.plateNumber,
+                    make: vehicle.make ?? '',
+                    model: vehicle.model ?? '',
+                    year: vehicle.year ? String(vehicle.year) : '',
+                    color: vehicle.color ?? '',
+                  }}
+                />
+              </li>
+            );
+          })}
+        </RowList>
       )}
     </div>
   );

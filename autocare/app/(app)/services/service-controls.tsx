@@ -170,7 +170,7 @@ export function ServiceRowActions({ service }: { service: ServiceValues & { id: 
         <span>{service.isActive ? t('toggleOff') : t('toggleOn')}</span>
       </Button>
 
-      <Button variant="outline" size="compact" onClick={() => setConfirmOpen(true)}>
+      <Button variant="destructive" size="compact" onClick={() => setConfirmOpen(true)}>
         <Trash2 aria-hidden />
         <span>{tcom('delete')}</span>
       </Button>

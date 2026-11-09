@@ -223,10 +223,15 @@ export const localeSchema = z.object({
 
 export const jobFilterSchema = z.object({
   q: z.string().trim().max(120).optional(),
-  status: z.enum(['PAID', 'UNPAID', 'PARTIAL']).optional(),
+  /**
+   * A job status, or OWED for "anything not fully paid" (unpaid + part-paid),
+   * which is what the home screen's "still owed" figure adds up. An unknown
+   * value is ignored rather than failing the page.
+   */
+  status: z.enum(['PAID', 'UNPAID', 'PARTIAL', 'OWED']).optional().catch(undefined),
   from: z.string().trim().optional(),
   to: z.string().trim().optional(),
-  page: z.coerce.number().int().min(1).default(1),
+  page: z.coerce.number().int().min(1).default(1).catch(1),
 });
 
 export const dateRangeSchema = z.object({

@@ -35,13 +35,17 @@ const ICONS: Record<string, LucideIcon> = {
 /**
  * Navigation entries: a large icon with a text label beside it, always.
  * Each row is 64px tall so it is comfortable to tap.
+ *
+ * The current page is marked with an orange bar and a pale orange fill rather
+ * than a solid orange block — solid orange is kept for the one main action on
+ * each screen, so the menu never competes with "Record a job".
  */
 export function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
   const pathname = usePathname();
   const t = useTranslations('nav');
 
   return (
-    <nav className="flex flex-col gap-2" aria-label={t('menu')}>
+    <nav className="flex flex-col gap-1" aria-label={t('menu')}>
       {items.map((item) => {
         const Icon = ICONS[item.icon] ?? Home;
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -52,14 +56,17 @@ export function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?:
             onClick={onNavigate}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex min-h-tap items-center gap-4 rounded-lg px-4 py-3 text-lg font-semibold',
+              'flex min-h-tap items-center gap-4 rounded-lg border-l-[6px] px-4 py-3 text-lg font-semibold',
               'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring',
               active
-                ? 'bg-primary text-primary-foreground'
-                : 'text-foreground hover:bg-accent hover:text-accent-foreground',
+                ? 'border-primary bg-primary-tint text-foreground'
+                : 'border-transparent text-foreground hover:bg-accent',
             )}
           >
-            <Icon className="size-7 shrink-0" aria-hidden />
+            <Icon
+              className={cn('size-7 shrink-0', active ? 'text-primary-strong' : 'text-muted-foreground')}
+              aria-hidden
+            />
             <span>{t(item.labelKey)}</span>
           </Link>
         );

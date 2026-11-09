@@ -8,8 +8,8 @@ export default async function NotFound() {
   const t = await getTranslations('errors');
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-      <div className="w-full max-w-lg space-y-6 rounded-xl border-2 border-border bg-background p-8 text-center">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="w-full max-w-lg space-y-6 rounded-2xl border border-border bg-card p-6 text-center sm:p-8">
         <span className="mx-auto flex size-20 items-center justify-center rounded-full bg-muted text-muted-foreground">
           <SearchX className="size-11" aria-hidden />
         </span>

@@ -8,6 +8,7 @@ import { intlTagFor } from '@/i18n/locales';
 import { decimalToNumber } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/misc';
+import { RowList } from '@/components/ui/card';
 import { ServiceFormDialog, ServiceRowActions } from './service-controls';
 
 export const metadata = { title: 'Services — AutoCare' };
@@ -30,7 +31,7 @@ export default async function ServicesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1>{t('title')}</h1>
           <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
@@ -39,7 +40,7 @@ export default async function ServicesPage() {
       </div>
 
       {!editable ? (
-        <p className="rounded-lg border-2 border-border bg-muted/40 p-4 text-lg text-muted-foreground">
+        <p className="rounded-2xl border border-border bg-card p-4 text-lg sm:p-5">
           {t('readOnlyNote')}
         </p>
       ) : null}
@@ -47,21 +48,21 @@ export default async function ServicesPage() {
       {services.length === 0 ? (
         <EmptyState title={t('empty')} icon={<Wrench className="size-12" />} />
       ) : (
-        <ul className="space-y-3">
+        <RowList>
           {services.map((service) => (
             <li
               key={service.id}
-              className="flex flex-wrap items-center justify-between gap-4 rounded-lg border-2 border-border bg-background p-4"
+              className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-5 py-4 sm:px-6"
             >
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-lg font-bold">{service.name}</p>
-                <p className="money text-muted-foreground">
+              <div className="min-w-0 flex-1 basis-56">
+                <p className="text-lg font-semibold leading-snug [overflow-wrap:anywhere]">{service.name}</p>
+                <p className="money mt-0.5">
                   {formatPeso(decimalToNumber(service.defaultPrice), tag)}
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <Badge variant={service.isActive ? 'paid' : 'muted'}>
+                <Badge variant={service.isActive ? 'outline' : 'muted'}>
                   {service.isActive ? t('active') : t('inactive')}
                 </Badge>
                 {editable ? (
@@ -77,7 +78,7 @@ export default async function ServicesPage() {
               </div>
             </li>
           ))}
-        </ul>
+        </RowList>
       )}
     </div>
   );

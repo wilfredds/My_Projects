@@ -5,7 +5,10 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { formatPeso } from '@/lib/calc';
 import { intlTagFor } from '@/i18n/locales';
 
-/** Monthly income, last 12 months (P1 nice-to-have). */
+/**
+ * Monthly income, last 12 months. Bars are the one orange in the chart; the
+ * current month is the right-most bar, so the eye lands on "now" last.
+ */
 export function MonthlyIncomeChart({ data }: { data: { label: string; value: number }[] }) {
   const tag = intlTagFor(useLocale());
 
@@ -32,9 +35,10 @@ export function MonthlyIncomeChart({ data }: { data: { label: string; value: num
           <Tooltip
             cursor={{ fill: 'hsl(var(--accent))' }}
             contentStyle={{
-              borderRadius: '0.625rem',
-              border: '2px solid hsl(var(--border))',
+              borderRadius: '0.75rem',
+              border: '1px solid hsl(var(--border))',
               fontSize: '1.125rem',
+              fontWeight: 600,
             }}
             formatter={(value: number) => formatPeso(value, tag)}
           />

@@ -16,7 +16,7 @@ const Switch = React.forwardRef<
       'peer inline-flex h-10 w-[4.5rem] shrink-0 cursor-pointer items-center rounded-full border-2',
       'border-transparent transition-colors focus-visible:outline-none focus-visible:ring-4',
       'focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
-      'data-[state=checked]:bg-success data-[state=unchecked]:bg-muted-foreground/40',
+      'data-[state=checked]:bg-primary data-[state=unchecked]:bg-input',
       className,
     )}
     {...props}
@@ -66,7 +66,7 @@ export function BigCheckbox({
       htmlFor={id}
       className={cn(
         'flex min-h-tap cursor-pointer items-center gap-4 rounded-lg border-2 p-4 transition-colors',
-        checked ? 'border-primary bg-primary/5' : 'border-border hover:bg-accent',
+        checked ? 'border-primary bg-primary-tint' : 'border-input bg-card hover:bg-accent',
       )}
     >
       <input
@@ -92,7 +92,7 @@ export function EmptyState({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-border p-12 text-center">
+    <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-border px-6 py-10 text-center">
       {icon ? <div className="text-muted-foreground">{icon}</div> : null}
       <p className="text-xl text-muted-foreground">{title}</p>
       {action}

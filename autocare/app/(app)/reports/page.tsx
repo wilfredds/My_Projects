@@ -7,7 +7,7 @@ import { intlTagFor } from '@/i18n/locales';
 import { notDeleted } from '@/lib/jobs';
 import { decimalToNumber, formatDate, startOfDay, endOfDay } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, StatCard } from '@/components/ui/card';
+import { Card, Ledger, LedgerRow, RowList } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/misc';
 import { MonthlyIncomeChart } from '../dashboard/monthly-chart';
 import { ReportRangePicker } from './range-picker';
@@ -24,7 +24,11 @@ export default async function ReportsPage({
   await requirePageAdmin();
 
   const params = await searchParams;
-  const [t, locale] = await Promise.all([getTranslations('reports'), getLocale()]);
+  const [t, td, locale] = await Promise.all([
+    getTranslations('reports'),
+    getTranslations('dashboard'),
+    getLocale(),
+  ]);
   const tag = intlTagFor(locale);
 
   const now = new Date();
@@ -78,11 +82,21 @@ export default async function ReportsPage({
     });
 
   // ---- most-used spare parts --------------------------------------------
-  const partTotals = new Map<string, { quantity: number; times: number; amount: number }>();
+  // Grouped case-insensitively ("Oil Filter" and "oil filter" are one part),
+  // but shown with the spelling it was first recorded under.
+  const partTotals = new Map<
+    string,
+    { name: string; quantity: number; times: number; amount: number }
+  >();
   for (const job of jobs) {
     for (const part of job.parts) {
       const key = part.partName.trim().toLowerCase();
-      const entry = partTotals.get(key) ?? { quantity: 0, times: 0, amount: 0 };
+      const entry = partTotals.get(key) ?? {
+        name: part.partName.trim(),
+        quantity: 0,
+        times: 0,
+        amount: 0,
+      };
       entry.quantity += part.quantity;
       entry.times += 1;
       entry.amount += decimalToNumber(part.lineTotal);
@@ -121,115 +135,104 @@ export default async function ReportsPage({
         defaultTo={to.toISOString().slice(0, 10)}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label={t('totalIncome')} value={formatPeso(totalIncome, tag)} tone="success" />
-        <StatCard label={t('totalBilled')} value={formatPeso(totalBilled, tag)} />
-        <StatCard
+      <Ledger>
+        <LedgerRow label={t('totalIncome')} value={formatPeso(totalIncome, tag)} emphasis />
+        <LedgerRow label={t('totalBilled')} value={formatPeso(totalBilled, tag)} />
+        <LedgerRow
           label={t('outstanding')}
           value={formatPeso(outstanding, tag)}
-          tone={outstanding > 0 ? 'warning' : 'default'}
+          tone={outstanding > 0 ? 'owed' : 'default'}
         />
-        <StatCard label={t('jobCount')} value={String(jobs.length)} />
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        <Button asChild variant="outline" size="lg">
-          <a href={`/api/export?format=csv&from=${params.from ?? ''}&to=${params.to ?? ''}`}>
-            <Download aria-hidden />
-            <span>{t('exportCsv')}</span>
-          </a>
-        </Button>
-        <Button asChild variant="outline" size="lg">
-          <a href="/api/export?format=json">
-            <Download aria-hidden />
-            <span>{t('exportJson')}</span>
-          </a>
-        </Button>
-      </div>
-      <p className="-mt-6 text-base text-muted-foreground">{t('exportHint')}</p>
+        <LedgerRow label={t('jobCount')} value={String(jobs.length)} />
+      </Ledger>
 
       {jobs.length === 0 ? (
         <EmptyState title={t('empty')} />
       ) : (
         <>
-          <Card className="p-6">
+          <Card className="p-5 sm:p-6">
             <h2 className="mb-4">{t('monthlyIncome')}</h2>
             <MonthlyIncomeChart data={monthlyRows} />
           </Card>
 
-          <ReportTable
+          <ReportList
             title={t('dailyIncome')}
-            headers={[t('title'), t('totalIncome')]}
-            rows={dailyRows.map(([day, amount]) => [
-              formatDate(new Date(day), tag),
-              formatPeso(amount, tag),
-            ])}
+            rows={dailyRows.map(([day, amount]) => ({
+              label: formatDate(new Date(day), tag),
+              value: formatPeso(amount, tag),
+            }))}
           />
 
-          <ReportTable
+          <ReportList
             title={t('topParts')}
-            headers={[t('partName'), t('quantityUsed'), t('timesUsed'), t('revenue')]}
-            rows={topParts.map(([name, data]) => [
-              name,
-              String(data.quantity),
-              String(data.times),
-              formatPeso(data.amount, tag),
-            ])}
+            rows={topParts.map(([, data]) => ({
+              label: data.name,
+              meta: `${t('quantityUsed')}: ${data.quantity} · ${t('timesUsed')}: ${data.times}`,
+              value: formatPeso(data.amount, tag),
+            }))}
           />
 
-          <ReportTable
+          <ReportList
             title={t('topCustomers')}
-            headers={[t('title'), t('jobCount'), t('revenue')]}
-            rows={topCustomers.map((c) => [c.name, String(c.jobs), formatPeso(c.revenue, tag)])}
+            rows={topCustomers.map((c) => ({
+              label: c.name,
+              meta: td('jobsCount', { count: c.jobs }),
+              value: formatPeso(c.revenue, tag),
+            }))}
           />
         </>
       )}
+
+      <section className="space-y-3 border-t border-border pt-6">
+        <h2>{t('export')}</h2>
+        <p className="text-lg text-muted-foreground">{t('exportHint')}</p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <Button asChild variant="outline" size="lg">
+            <a href={`/api/export?format=csv&from=${params.from ?? ''}&to=${params.to ?? ''}`}>
+              <Download aria-hidden />
+              <span>{t('exportCsv')}</span>
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <a href="/api/export?format=json">
+              <Download aria-hidden />
+              <span>{t('exportJson')}</span>
+            </a>
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }
 
-function ReportTable({
+/**
+ * A report as ruled lines — name on the left, amount on the right, any extra
+ * figures on a second line. No table, so nothing scrolls sideways on a phone.
+ */
+function ReportList({
   title,
-  headers,
   rows,
 }: {
   title: string;
-  headers: string[];
-  rows: string[][];
+  rows: { label: string; meta?: string; value: string }[];
 }) {
   return (
     <section className="space-y-3">
       <h2>{title}</h2>
-      <div className="overflow-x-auto rounded-xl border-2 border-border">
-        <table className="w-full min-w-[32rem]">
-          <thead className="bg-muted">
-            <tr>
-              {headers.map((header, i) => (
-                <th
-                  key={header}
-                  className={`p-4 text-lg font-bold ${i === 0 ? 'text-left' : 'text-right'}`}
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y-2 divide-border">
-            {rows.map((row, index) => (
-              <tr key={index}>
-                {row.map((cell, i) => (
-                  <td
-                    key={i}
-                    className={`p-4 text-lg ${i === 0 ? 'text-left' : 'text-right tabular-nums font-semibold'}`}
-                  >
-                    {cell}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <RowList>
+        {rows.map((row, index) => (
+          <li
+            key={`${row.label}-${index}`}
+            className="flex min-h-tap flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-3 sm:px-6"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block text-lg [overflow-wrap:anywhere]">{row.label}</span>
+              {row.meta ? <span className="block text-base text-muted-foreground">{row.meta}</span> : null}
+            </span>
+            <span className="num ml-auto text-money font-bold">{row.value}</span>
+          </li>
+        ))}
+      </RowList>
     </section>
   );
 }

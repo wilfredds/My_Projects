@@ -3,60 +3,77 @@
 @tailwind utilities;
 
 /**
- * AutoCare theme — orange and deep navy.
+ * AutoCare theme — one orange, workshop neutrals.
  *
- * Orange is the owner's colour, so it carries every primary action. Navy is
- * its partner: it does the reading work (ink, headings, the nav rail) because
- * a page of orange text is exhausting, while orange stays reserved for "this
- * is the thing to press". Surfaces are a warm off-white rather than pure grey
- * so the orange sits in a warm family instead of fighting a cold one.
+ * Orange (kahel) is the owner's favourite colour, so it is the ONLY chromatic
+ * colour that means "do this": every screen has at most one filled orange
+ * button, and that button is the next thing to press. Everything else is a
+ * workshop neutral — tyre-black ink, concrete page, white work surfaces — so
+ * nothing competes with it. The only other colours are the three money states
+ * (paid, unpaid, partly paid), and those only ever appear on money.
  *
- * Every pairing below was measured against WCAG 2.1 AA — 18/18 pass, with body
- * text at 17.5:1 and the orange button at 4.76:1. The ratios are listed so a
- * future edit can be re-checked rather than eyeballed. If you change a value,
- * re-run the contrast check before shipping it.
+ * The signature is the meter: the running total is drawn like the amount
+ * window on a fuel pump, because the whole point of the app is that the total
+ * is counted for you, never typed. See `.meter` below.
+ *
+ * Every pairing is measured, not eyeballed — run `node scripts/check-contrast.mjs`
+ * after changing any value here. It reads this file and fails on any pair
+ * below WCAG 2.1 AA, including the 3:1 rule for input and button edges.
  */
 @layer base {
   :root {
     /* surfaces ------------------------------------------------- */
-    --background: 30 40% 99%; /* warm off-white */
-    --foreground: 222 47% 11%; /* navy ink            17.54:1 */
+    --background: 150 7% 95%; /* semento — concrete page */
+    --foreground: 45 7% 11%; /* gulong — tyre-black ink */
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%; /*                 17.90:1 */
+    --card-foreground: 45 7% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 45 7% 11%;
 
-    --muted: 30 30% 95%;
-    --muted-foreground: 222 16% 38%; /*                 6.69:1 */
+    --muted: 140 6% 90%;
+    --muted-foreground: 90 5% 33%; /* abo — secondary text */
 
-    /* the two brand colours ------------------------------------ */
-    --primary: 22 92% 40%; /* ORANGE                     4.76:1 on white */
+    /* the one colour ------------------------------------------- */
+    --primary: 17 88% 40%; /* kahel */
     --primary-foreground: 0 0% 100%;
+    --primary-strong: 15 79% 34%; /* orange used as small text, and hover */
+    --primary-tint: 26 100% 95%; /* a chosen option's wash */
 
-    --secondary: 222 47% 20%; /* NAVY                   14.27:1 */
+    /* Kept as a name so older class names still resolve; it is ink now, not
+       navy. Secondary BUTTONS are outlined (see button.tsx), never filled. */
+    --secondary: 45 7% 11%;
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 28 90% 94%; /* pale orange wash */
-    --accent-foreground: 22 85% 25%; /*                  8.39:1 */
+    --accent: 140 6% 92%; /* hover wash on neutral controls */
+    --accent-foreground: 45 7% 11%;
 
-    /* state ---------------------------------------------------- */
-    --destructive: 0 72% 38%; /*                         7.47:1 */
-    --destructive-foreground: 0 0% 100%;
-
-    --success: 152 68% 24%; /*                           6.92:1 */
+    /* money states — used on money and nowhere else ------------ */
+    --success: 143 64% 24%; /* bayad — paid */
     --success-foreground: 0 0% 100%;
+    --success-tint: 137 37% 93%;
 
-    --warning: 30 95% 28%; /*                            6.97:1 */
+    --destructive: 4 76% 40%; /* utang — unpaid, and destroying things */
+    --destructive-foreground: 0 0% 100%;
+    --destructive-tint: 3 75% 95%;
+
+    --warning: 31 89% 29%; /* kulang — partly paid */
     --warning-foreground: 0 0% 100%;
+    --warning-tint: 39 85% 92%;
+
+    /* the meter ------------------------------------------------ */
+    --meter: 45 7% 11%;
+    --meter-window: 40 9% 6%;
+    --meter-label: 42 9% 72%;
+    --meter-accent: 27 96% 61%; /* the ₱ sign and live dot on the dark panel */
 
     /* lines and focus ------------------------------------------ */
-    --border: 28 25% 84%;
-    --input: 28 25% 76%;
-    --ring: 22 92% 45%; /* orange focus ring, impossible to miss */
+    --border: 135 5% 83%; /* guhit — card edges, dividers */
+    --input: 132 2% 47%; /* gilid — field and button edges (3:1 rule) */
+    --ring: 17 88% 40%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
     /* One shared easing so every motion in the app feels related. */
     --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
@@ -73,17 +90,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
-    /* 18px base body text — the smallest text anywhere in the app. */
-    @apply text-base antialiased;
-    font-family:
-      system-ui,
-      -apple-system,
-      'Segoe UI',
-      Roboto,
-      'Helvetica Neue',
-      Arial,
-      sans-serif;
+    @apply bg-background font-sans text-base text-foreground antialiased;
   }
 
   /* A focus ring that is impossible to miss, on every focusable thing. */
@@ -91,47 +98,95 @@
     @apply outline-none ring-4 ring-ring ring-offset-2 ring-offset-background;
   }
 
+  /* Headings are set in the condensed face: it carries the shop's voice, and
+     condensed letters let a long Filipino heading stay on one line. */
+  h1,
+  h2,
+  h3 {
+    @apply font-display text-foreground;
+    text-wrap: balance;
+  }
   h1 {
-    @apply text-3xl font-extrabold tracking-tight text-secondary;
+    @apply text-3xl font-bold leading-[1.1] tracking-[-0.01em];
   }
   h2 {
-    @apply text-2xl font-bold text-secondary;
+    @apply text-2xl font-bold leading-tight;
   }
   h3 {
-    @apply text-xl font-bold text-secondary;
+    @apply text-xl font-semibold leading-tight;
   }
 
   /* Never render a number in a proportional face — columns must line up. */
   .tabular-nums {
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums lining-nums;
   }
 }
 
 @layer components {
+  /** Any figure: the condensed face, tabular, never wrapping mid-number. */
+  .num {
+    @apply font-display tabular-nums;
+    white-space: nowrap;
+  }
+
   /** A peso figure anywhere in the app: 24px, bold, tabular. */
   .money {
-    @apply text-money tabular-nums;
+    @apply num text-money;
   }
 
-  /** The live grand total in the wizard and on the receipt: 36px. */
+  /** The grand total outside the meter (receipt): 36px. */
   .grand-total {
-    @apply text-total tabular-nums;
+    @apply num text-total;
   }
 
-  /** Sticky footer holding the running total, always visible in the wizard. */
+  /** Small all-caps labels above a value: "KABUUAN", "HAKBANG 3 SA 7". */
+  .eyebrow {
+    @apply font-display text-base font-semibold uppercase text-muted-foreground;
+    letter-spacing: 0.08em;
+  }
+
+  /**
+   * A licence plate. Plates are how a shop names a car, so wherever a vehicle
+   * appears it is drawn as one: white plate, dark rim, a thin inner rim like
+   * the pressed edge of a real plate. Kept quiet on purpose — the meter is the
+   * one loud thing in this design.
+   */
+  .plate {
+    @apply inline-flex items-center rounded-[0.375rem] border-2 border-foreground bg-card px-2.5 py-0.5;
+    @apply font-display text-lg font-semibold uppercase leading-snug text-foreground;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    box-shadow: inset 0 0 0 2px hsl(var(--card)), inset 0 0 0 3px hsl(var(--foreground) / 0.3);
+  }
+
+  /**
+   * The meter — the running total, drawn like a fuel pump's amount window.
+   * A dark panel, a recessed window, big white condensed digits, an orange
+   * peso sign. It ticks when the number changes (see total-bump).
+   */
+  .meter {
+    @apply rounded-2xl bg-[hsl(var(--meter))] p-3 text-white;
+  }
+  .meter-window {
+    @apply rounded-xl bg-[hsl(var(--meter-window))] px-4 py-3;
+    box-shadow:
+      inset 0 2px 6px rgb(0 0 0 / 0.55),
+      inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  }
+  .meter-label {
+    @apply font-display text-base font-semibold uppercase text-[hsl(var(--meter-label))];
+    letter-spacing: 0.1em;
+  }
+  .meter-digits {
+    @apply num block text-meter font-bold text-white;
+  }
+  .meter-peso {
+    @apply mr-1 text-[hsl(var(--meter-accent))];
+  }
+
+  /** Sticky footer that holds the meter in the wizard and the edit screen. */
   .total-bar {
-    @apply sticky bottom-0 z-30 border-t-4 border-primary bg-background/95 backdrop-blur;
-    box-shadow: 0 -12px 28px -18px hsl(var(--foreground) / 0.4);
-  }
-
-  /** The warm gradient used on the login panel and the dashboard hero. */
-  .brand-gradient {
-    background-image: linear-gradient(
-      135deg,
-      hsl(var(--primary)) 0%,
-      hsl(14 88% 44%) 55%,
-      hsl(var(--secondary)) 100%
-    );
+    @apply sticky bottom-0 z-30 bg-background/95 backdrop-blur;
   }
 }
 
@@ -140,14 +195,14 @@
  * Animation is here to explain what changed, never to decorate. Three rules:
  *   1. Nothing lasts longer than 400ms — an elderly user should never be
  *      waiting on an effect to finish before they can tap.
- *   2. Movement is small (8–12px). Big slides are disorienting.
+ *   2. Movement is small (a few px). Big slides are disorienting.
  *   3. Everything collapses to nothing under prefers-reduced-motion, below.
  */
 @layer utilities {
   @keyframes rise {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(8px);
     }
     to {
       opacity: 1;
@@ -166,11 +221,8 @@
 
   @keyframes pop {
     0% {
-      transform: scale(0.92);
+      transform: scale(0.94);
       opacity: 0;
-    }
-    60% {
-      transform: scale(1.03);
     }
     100% {
       transform: scale(1);
@@ -178,64 +230,53 @@
     }
   }
 
-  /** A soft pulse on the running total whenever the number changes. */
+  /**
+   * The meter tick: the new amount drops into the window from just above,
+   * the way a pump's figures roll over. Small and quick — it says "this
+   * changed" without making anyone wait.
+   */
   @keyframes total-bump {
     0% {
-      transform: scale(1);
-    }
-    35% {
-      transform: scale(1.06);
+      transform: translateY(-0.18em);
+      opacity: 0.35;
     }
     100% {
-      transform: scale(1);
-    }
-  }
-
-  /** Sweeps once across the primary button to draw the eye to it. */
-  @keyframes sheen {
-    from {
-      transform: translateX(-120%);
-    }
-    to {
-      transform: translateX(220%);
+      transform: translateY(0);
+      opacity: 1;
     }
   }
 
   .animate-rise {
-    animation: rise 0.42s var(--ease-out-soft) both;
+    animation: rise 0.36s var(--ease-out-soft) both;
   }
   .animate-fade-in {
-    animation: fade-in 0.32s var(--ease-out-soft) both;
+    animation: fade-in 0.3s var(--ease-out-soft) both;
   }
   .animate-pop {
-    animation: pop 0.34s var(--ease-out-soft) both;
+    animation: pop 0.28s var(--ease-out-soft) both;
   }
   .animate-total-bump {
-    animation: total-bump 0.36s var(--ease-out-soft);
+    animation: total-bump 0.22s var(--ease-out-soft);
   }
 
   /** Press feedback: every button dips slightly when tapped. */
   .press {
     transition:
       transform 0.12s var(--ease-out-soft),
-      box-shadow 0.2s var(--ease-out-soft),
-      background-color 0.2s var(--ease-out-soft);
+      background-color 0.18s var(--ease-out-soft),
+      border-color 0.18s var(--ease-out-soft);
   }
   .press:active {
-    transform: translateY(1px) scale(0.99);
+    transform: translateY(1px);
   }
 
-  /** Cards and rows lift a little on hover — desktop affordance only. */
+  /** Tappable rows: the edge darkens on hover — desktop affordance only. */
   .lift {
-    transition:
-      transform 0.2s var(--ease-out-soft),
-      box-shadow 0.2s var(--ease-out-soft),
-      border-color 0.2s var(--ease-out-soft);
+    transition: border-color 0.18s var(--ease-out-soft);
   }
   @media (hover: hover) {
     .lift:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 30px -18px hsl(var(--foreground) / 0.45);
+      border-color: hsl(var(--input));
     }
   }
 }
@@ -305,7 +346,8 @@
     page-break-inside: auto;
   }
 
-  .receipt-sheet tr {
+  .receipt-sheet tr,
+  .receipt-sheet li {
     page-break-inside: avoid;
   }
 

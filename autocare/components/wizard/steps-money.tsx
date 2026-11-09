@@ -8,7 +8,7 @@ import { MoneyInput, Textarea } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
 import { Badge, statusVariant } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/misc';
-import { cn } from '@/lib/utils';
+import { cn, formatDate } from '@/lib/utils';
 import { formatPeso, computeLineTotal, type JobTotals } from '@/lib/calc';
 import { intlTagFor } from '@/i18n/locales';
 import type { DraftPart, DraftService, JobDraft, MechanicOption } from './wizard-types';
@@ -66,22 +66,17 @@ export function ChargesStep({
       {mechanics.length > 0 ? (
         <Field label={tj('mechanic')} hint={tcom('optional')} htmlFor="mechanic">
           <div className="flex flex-wrap gap-3">
-            <Button
-              variant={draft.mechanicId === null ? 'default' : 'outline'}
-              size="default"
-              onClick={() => onChange({ mechanicId: null })}
-            >
+            <Choice active={draft.mechanicId === null} onClick={() => onChange({ mechanicId: null })}>
               <span>{tcom('none')}</span>
-            </Button>
+            </Choice>
             {mechanics.map((mechanic) => (
-              <Button
+              <Choice
                 key={mechanic.id}
-                variant={draft.mechanicId === mechanic.id ? 'default' : 'outline'}
-                size="default"
+                active={draft.mechanicId === mechanic.id}
                 onClick={() => onChange({ mechanicId: mechanic.id })}
               >
                 <span>{mechanic.name}</span>
-              </Button>
+              </Choice>
             ))}
           </div>
         </Field>
@@ -160,34 +155,31 @@ export function PaymentStep({
       <Field label={tj('paymentMethod')} hint={tcom('optional')}>
         <div className="grid gap-3 sm:grid-cols-3">
           {methods.map(({ value, icon: Icon }) => (
-            <Button
+            <Choice
               key={value}
-              variant={draft.paymentMethod === value ? 'default' : 'outline'}
               size="lg"
+              active={draft.paymentMethod === value}
               onClick={() =>
                 onChange({ paymentMethod: draft.paymentMethod === value ? '' : value })
               }
-              aria-pressed={draft.paymentMethod === value}
             >
               <Icon aria-hidden />
               <span>{tj(`method_${value}` as never)}</span>
-            </Button>
+            </Choice>
           ))}
         </div>
       </Field>
 
       {/* Derived figures — shown, never typed. */}
-      <div className="space-y-4 rounded-lg border-2 border-border bg-muted/40 p-5">
-        <div className="flex items-center justify-between gap-4">
+      <div className="space-y-4 rounded-2xl border border-border bg-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <span className="text-lg font-semibold text-muted-foreground">{tj('balance')}</span>
-          <span
-            className={cn('money', totals.balance > 0 ? 'text-destructive' : 'text-success')}
-          >
+          <span className={cn('money ml-auto font-bold', totals.balance > 0 && 'text-destructive')}>
             {formatPeso(totals.balance, tag)}
           </span>
         </div>
         <Separator />
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <span className="text-lg font-semibold text-muted-foreground">{tj('status')}</span>
           <Badge variant={statusVariant(totals.status)}>
             {tj(`status_${totals.status}` as never)}
@@ -237,10 +229,10 @@ export function ReviewStep({
     <div className="space-y-8">
       <h2 className="text-xl font-bold">{t('reviewQuestion')}</h2>
 
-      <dl className="space-y-4 rounded-lg border-2 border-border p-5">
+      <dl className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <div>
           <dt className="text-base font-semibold text-muted-foreground">{tj('customer')}</dt>
-          <dd className="text-xl font-bold">{customerName}</dd>
+          <dd className="text-xl font-bold [overflow-wrap:anywhere]">{customerName}</dd>
         </div>
         <div>
           <dt className="text-base font-semibold text-muted-foreground">{tj('vehicle')}</dt>
@@ -248,7 +240,8 @@ export function ReviewStep({
         </div>
         <div>
           <dt className="text-base font-semibold text-muted-foreground">{tj('date')}</dt>
-          <dd className="text-lg">{draft.date}</dd>
+          {/* The draft holds "2026-11-09"; read it as a local date, not UTC. */}
+          <dd className="text-lg">{draft.date ? formatDate(`${draft.date}T00:00:00`, tag) : ''}</dd>
         </div>
         {mechanicName ? (
           <div>
@@ -278,11 +271,11 @@ export function ReviewStep({
         }))}
       />
 
-      <div className="space-y-3 rounded-lg border-2 border-border p-5">
+      <div className="space-y-3 rounded-2xl border border-border bg-card p-5">
         {rows.map((row) => (
-          <div key={row.label} className="flex items-center justify-between gap-4">
+          <div key={row.label} className="flex items-baseline justify-between gap-4">
             <span className="text-lg text-muted-foreground">{row.label}</span>
-            <span className="text-lg font-semibold tabular-nums">{row.value}</span>
+            <span className="num text-xl font-semibold">{row.value}</span>
           </div>
         ))}
 
@@ -302,26 +295,24 @@ export function ReviewStep({
 
         <Separator />
 
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-xl font-bold">{tj('total')}</span>
-          <span className="grand-total text-primary">{formatPeso(totals.total, tag)}</span>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <span className="font-display text-xl font-bold uppercase tracking-wide">{tj('total')}</span>
+          <span className="grand-total ml-auto font-bold">{formatPeso(totals.total, tag)}</span>
         </div>
 
         <Separator />
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-baseline justify-between gap-4">
           <span className="text-lg text-muted-foreground">{tj('amountPaid')}</span>
-          <span className="money text-success">{formatPeso(totals.amountPaid, tag)}</span>
+          <span className="money font-semibold">{formatPeso(totals.amountPaid, tag)}</span>
         </div>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-baseline justify-between gap-4">
           <span className="text-lg text-muted-foreground">{tj('balance')}</span>
-          <span
-            className={cn('money', totals.balance > 0 ? 'text-destructive' : 'text-success')}
-          >
+          <span className={cn('money font-bold', totals.balance > 0 && 'text-destructive')}>
             {formatPeso(totals.balance, tag)}
           </span>
         </div>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <span className="text-lg text-muted-foreground">{tj('status')}</span>
           <Badge variant={statusVariant(totals.status)}>
             {tj(`status_${totals.status}` as never)}
@@ -330,7 +321,7 @@ export function ReviewStep({
       </div>
 
       {draft.notes.trim() ? (
-        <div className="rounded-lg border-2 border-border p-5">
+        <div className="rounded-2xl border border-border bg-card p-5">
           <p className="text-base font-semibold text-muted-foreground">{tj('notes')}</p>
           <p className="mt-1 whitespace-pre-wrap text-lg">{draft.notes}</p>
         </div>
@@ -354,16 +345,46 @@ function ReviewLines({
       {lines.length === 0 ? (
         <p className="text-lg text-muted-foreground">{empty}</p>
       ) : (
-        <ul className="divide-y-2 divide-border rounded-lg border-2 border-border">
+        <ul className="divide-y divide-border rounded-2xl border border-border bg-card">
           {lines.map((line) => (
-            <li key={line.key} className="flex items-center justify-between gap-4 p-4">
-              <span className="min-w-0 flex-1 truncate text-lg">{line.label}</span>
-              <span className="text-lg font-semibold tabular-nums">{line.amount}</span>
+            <li key={line.key} className="flex items-baseline justify-between gap-4 p-4 sm:px-5">
+              <span className="min-w-0 flex-1 text-lg [overflow-wrap:anywhere]">{line.label}</span>
+              <span className="num text-xl font-semibold">{line.amount}</span>
             </li>
           ))}
         </ul>
       )}
     </div>
+  );
+}
+
+/**
+ * A pick-one option (mechanic, payment method). Chosen shows as an orange edge
+ * on a pale orange fill with a tick — not a solid orange button, which would
+ * look like the "Next" button and compete with it.
+ */
+function Choice({
+  active,
+  onClick,
+  size = 'default',
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  size?: 'default' | 'lg';
+  children: React.ReactNode;
+}) {
+  return (
+    <Button
+      variant="outline"
+      size={size}
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(active && 'border-primary bg-primary-tint hover:bg-primary-tint')}
+    >
+      {children}
+      {active ? <Check aria-hidden strokeWidth={3} className="text-primary-strong" /> : null}
+    </Button>
   );
 }
 

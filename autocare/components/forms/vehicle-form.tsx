@@ -92,8 +92,10 @@ export function VehicleFormDialog({
 
   return (
     <>
+      {/* On a customer's page "Record a job" is the orange button, so adding a
+          vehicle there is outlined rather than competing with it. */}
       <Button
-        variant={isEdit ? 'outline' : 'default'}
+        variant={isEdit || lockedCustomerId ? 'outline' : 'default'}
         size={isEdit ? 'compact' : 'lg'}
         onClick={() => {
           setValues(initial ?? empty);

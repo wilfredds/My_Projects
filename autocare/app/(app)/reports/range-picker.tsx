@@ -68,7 +68,7 @@ export function ReportRangePicker({
   ];
 
   return (
-    <section className="space-y-5 rounded-xl border-2 border-border bg-muted/30 p-5">
+    <section className="space-y-5 rounded-2xl border border-border bg-card p-4 sm:p-5">
       <h2 className="text-xl font-bold">{t('dateRange')}</h2>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

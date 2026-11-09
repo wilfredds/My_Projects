@@ -7,12 +7,28 @@ import { LogOut, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from './language-switcher';
 import { NavLinks } from './nav-links';
+import { ShopMark } from './shop-mark';
 import type { NavItem } from '@/lib/rbac';
 import { signOutAction } from '@/app/actions/sign-out';
 
+function LogoutButton({ className }: { className?: string }) {
+  const t = useTranslations('common');
+  return (
+    <form action={signOutAction} className={className}>
+      <Button type="submit" variant="outline" size="compact" className="w-full">
+        <LogOut aria-hidden />
+        <span>{t('logout')}</span>
+      </Button>
+    </form>
+  );
+}
+
 /**
- * The persistent top bar: shop name, language switch, and a Log out button that
- * is reachable from every single screen.
+ * The persistent top bar: shop name, language and a labelled Log out button.
+ *
+ * On a phone the bar holds only the Menu button and the shop name, so the name
+ * is never cut off; language and Log out move into the menu, each still with
+ * its words. From a tablet up, they sit in the bar itself.
  */
 export function TopBar({
   shopName,
@@ -23,18 +39,17 @@ export function TopBar({
   userName: string;
   navItems: NavItem[];
 }) {
-  const t = useTranslations('common');
   const tn = useTranslations('nav');
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   return (
-    <header className="app-header sticky top-0 z-40 border-b-2 border-border bg-background">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
+    <header className="app-header sticky top-0 z-40 border-b border-t-4 border-b-border border-t-primary bg-card">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:gap-4">
         {/* Mobile menu toggle — labelled, never a bare icon. */}
         <Button
           variant="outline"
           size="compact"
-          className="lg:hidden"
+          className="shrink-0 lg:hidden"
           onClick={() => setMenuOpen((v) => !v)}
           aria-expanded={menuOpen}
           aria-controls="mobile-nav"
@@ -45,30 +60,28 @@ export function TopBar({
 
         <Link
           href="/dashboard"
-          className="min-w-0 flex-1 rounded-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
+          className="min-w-0 flex-1 rounded-lg py-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
         >
-          <span className="block truncate text-xl font-extrabold leading-tight">{shopName}</span>
+          <span className="block font-display text-xl font-bold uppercase leading-tight tracking-wide [text-wrap:balance]">
+            <ShopMark name={shopName} />
+          </span>
           <span className="block truncate text-base text-muted-foreground">{userName}</span>
         </Link>
 
-        <div className="hidden sm:block">
+        <div className="hidden shrink-0 sm:block">
           <LanguageSwitcher signedIn />
         </div>
 
-        <form action={signOutAction}>
-          <Button type="submit" variant="outline" size="compact">
-            <LogOut aria-hidden />
-            <span className="hidden sm:inline">{t('logout')}</span>
-          </Button>
-        </form>
+        <LogoutButton className="hidden shrink-0 sm:block" />
       </div>
 
       {menuOpen ? (
-        <div id="mobile-nav" className="border-t-2 border-border bg-muted/40 p-4 lg:hidden">
-          <div className="mb-4 sm:hidden">
-            <LanguageSwitcher signedIn />
-          </div>
+        <div id="mobile-nav" className="border-t border-border bg-background px-4 pb-5 pt-4 lg:hidden">
           <NavLinks items={navItems} onNavigate={() => setMenuOpen(false)} />
+          <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:hidden">
+            <LanguageSwitcher signedIn />
+            <LogoutButton />
+          </div>
         </div>
       ) : null}
     </header>

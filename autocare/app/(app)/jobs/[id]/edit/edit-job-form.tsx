@@ -123,7 +123,7 @@ export function EditJobForm({
 
   return (
     <div className="space-y-10">
-      <section className="space-y-5 rounded-xl border-2 border-border p-5">
+      <section className="space-y-5 rounded-2xl border border-border bg-card p-5">
         <div>
           <p className="text-base font-semibold text-muted-foreground">{tj('customer')}</p>
           <p className="text-xl font-bold">{customerName}</p>
@@ -176,7 +176,7 @@ export function EditJobForm({
             <span>{tcom('cancel')}</span>
           </Link>
         </Button>
-        <Button variant="success" size="lg" className="sm:flex-[2]" onClick={save} disabled={saving}>
+        <Button size="lg" className="sm:flex-[2]" onClick={save} disabled={saving}>
           <Save aria-hidden />
           <span>{saving ? tcom('saving') : tcom('save')}</span>
         </Button>

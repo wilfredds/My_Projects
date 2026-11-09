@@ -2,11 +2,12 @@
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
-import { Search, UserPlus, Check, Car, Pencil } from 'lucide-react';
+import { Search, UserPlus, Check, Car, Pencil, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
 import { EmptyState } from '@/components/ui/misc';
+import { Plate } from '@/components/ui/plate';
 import { cn } from '@/lib/utils';
 import { describeVehicle } from '@/lib/jobs';
 import type { CustomerOption, VehicleOption } from './wizard-types';
@@ -63,13 +64,13 @@ export function CustomerStep({
     return (
       <div className="space-y-6">
         <h2 className="text-xl font-bold">{t('customerSelected')}</h2>
-        <div className="rounded-xl border-2 border-success bg-success/5 p-6">
+        <div className="rounded-2xl border-2 border-primary bg-primary-tint p-5 sm:p-6">
           <div className="flex items-start gap-4">
-            <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-success text-success-foreground">
-              <Check className="size-8" aria-hidden />
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <Check className="size-7" aria-hidden strokeWidth={3} />
             </span>
             <div className="min-w-0">
-              <p className="text-2xl font-bold">{selected.fullName}</p>
+              <p className="text-2xl font-bold [overflow-wrap:anywhere]">{selected.fullName}</p>
               {selected.phone ? (
                 <p className="text-lg text-muted-foreground">{selected.phone}</p>
               ) : null}
@@ -173,27 +174,41 @@ export function CustomerStep({
       {matches.length === 0 ? (
         <EmptyState title={t('customerNoResults')} />
       ) : (
-        <ul className="space-y-3">
+        <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
           {matches.map((customer) => (
             <li key={customer.id}>
               <button
                 type="button"
                 onClick={() => onSelect(customer)}
                 className={cn(
-                  'flex min-h-tap w-full items-center justify-between gap-4 rounded-lg border-2 border-border',
-                  'bg-background px-5 py-4 text-left hover:border-primary hover:bg-accent',
-                  'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring',
+                  'flex min-h-tap w-full items-center gap-4 px-5 py-4 text-left hover:bg-accent',
+                  'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-ring',
                 )}
               >
-                <span className="min-w-0">
-                  <span className="block truncate text-xl font-bold">{customer.fullName}</span>
-                  <span className="block truncate text-base text-muted-foreground">
-                    {[customer.phone, `${customer.vehicles.length} ${customer.vehicles.length === 1 ? '🚗' : '🚗'}`]
-                      .filter(Boolean)
-                      .join(' · ')}
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xl font-semibold leading-snug [overflow-wrap:anywhere]">
+                    {customer.fullName}
                   </span>
+                  {customer.phone ? (
+                    <span className="block text-base text-muted-foreground">{customer.phone}</span>
+                  ) : null}
+                  {customer.vehicles.length > 0 ? (
+                    <span className="mt-2 flex flex-wrap gap-2">
+                      {customer.vehicles.slice(0, 3).map((v) => (
+                        <Plate key={v.id} className="text-base">
+                          {v.plateNumber}
+                        </Plate>
+                      ))}
+                      {customer.vehicles.length > 3 ? (
+                        <span className="self-center text-base font-semibold text-muted-foreground">
+                          +{customer.vehicles.length - 3}
+                        </span>
+                      ) : null}
+                    </span>
+                  ) : null}
                 </span>
-                <Check className="size-6 shrink-0 text-muted-foreground" aria-hidden />
+                {/* An arrow, not a tick: nothing is chosen until the row is tapped. */}
+                <ChevronRight className="size-7 shrink-0 text-muted-foreground" aria-hidden />
               </button>
             </li>
           ))}
@@ -312,6 +327,7 @@ export function VehicleStep({
       <ul className="space-y-3">
         {vehicles.map((vehicle) => {
           const active = vehicle.id === selectedId;
+          const details = describeVehicle(vehicle).replace(`${vehicle.plateNumber} — `, '');
           return (
             <li key={vehicle.id}>
               <button
@@ -319,25 +335,20 @@ export function VehicleStep({
                 onClick={() => onSelect(vehicle.id)}
                 aria-pressed={active}
                 className={cn(
-                  'flex min-h-tap w-full items-center gap-4 rounded-lg border-2 px-5 py-4 text-left',
+                  'flex min-h-tap w-full items-center gap-4 rounded-2xl border-2 px-5 py-4 text-left',
                   'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring',
                   active
-                    ? 'border-success bg-success/5'
-                    : 'border-border bg-background hover:border-primary hover:bg-accent',
+                    ? 'border-primary bg-primary-tint'
+                    : 'border-border bg-card hover:border-input',
                 )}
               >
-                <Car
-                  className={cn('size-8 shrink-0', active ? 'text-success' : 'text-muted-foreground')}
-                  aria-hidden
-                />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-xl font-bold">{vehicle.plateNumber}</span>
-                  <span className="block truncate text-base text-muted-foreground">
-                    {describeVehicle(vehicle).replace(`${vehicle.plateNumber} — `, '') ||
-                      tcom('none')}
+                  <Plate className="text-xl">{vehicle.plateNumber}</Plate>
+                  <span className="mt-2 block text-lg text-muted-foreground">
+                    {details && details !== vehicle.plateNumber ? details : tcom('none')}
                   </span>
                 </span>
-                {active ? <Check className="size-7 shrink-0 text-success" aria-hidden /> : null}
+                <SelectedMark active={active} />
               </button>
             </li>
           );
@@ -349,5 +360,23 @@ export function VehicleStep({
         <span>{t('vehicleNew')}</span>
       </Button>
     </div>
+  );
+}
+
+/**
+ * The tick on a chosen option: a solid orange disc with a white check when
+ * chosen, an empty ring when not — so "chosen" never depends on colour alone.
+ */
+export function SelectedMark({ active }: { active: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'flex size-9 shrink-0 items-center justify-center rounded-full border-2',
+        active ? 'border-primary bg-primary text-primary-foreground' : 'border-input bg-card',
+      )}
+    >
+      {active ? <Check className="size-6" strokeWidth={3} /> : null}
+    </span>
   );
 }

@@ -76,25 +76,27 @@ export function ServicesStep({
               onClick={() => toggleCatalog(service)}
               aria-pressed={active}
               className={cn(
-                'flex min-h-[5.5rem] items-center gap-4 rounded-lg border-2 px-5 py-4 text-left',
+                'flex min-h-[5.5rem] items-center gap-4 rounded-2xl border-2 px-5 py-4 text-left',
                 'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring',
-                active
-                  ? 'border-success bg-success/10'
-                  : 'border-border bg-background hover:border-primary hover:bg-accent',
+                active ? 'border-primary bg-primary-tint' : 'border-border bg-card hover:border-input',
               )}
             >
               <span
                 className={cn(
-                  'flex size-12 shrink-0 items-center justify-center rounded-full',
-                  active ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground',
+                  'flex size-12 shrink-0 items-center justify-center rounded-full border-2',
+                  active
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-transparent bg-muted text-muted-foreground',
                 )}
                 aria-hidden
               >
-                {active ? <Check className="size-7" /> : <Wrench className="size-6" />}
+                {active ? <Check className="size-7" strokeWidth={3} /> : <Wrench className="size-6" />}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-lg font-bold">{service.name}</span>
-                <span className="block text-money text-muted-foreground">
+                <span className="block text-lg font-semibold leading-snug [overflow-wrap:anywhere]">
+                  {service.name}
+                </span>
+                <span className="num block text-xl font-semibold text-muted-foreground">
                   {formatPeso(service.defaultPrice, tag)}
                 </span>
               </span>
@@ -104,7 +106,7 @@ export function ServicesStep({
       </div>
 
       {showCustom ? (
-        <div className="space-y-5 rounded-lg border-2 border-primary bg-primary/5 p-5">
+        <div className="space-y-5 rounded-2xl border-2 border-primary bg-primary-tint p-5">
           <Field label={t('servicesCustomName')} htmlFor="custom-service-name">
             <Input
               id="custom-service-name"
@@ -160,16 +162,13 @@ export function ServicesStep({
         {services.length === 0 ? (
           <EmptyState title={t('servicesNone')} />
         ) : (
-          <ul className="space-y-3">
+          <ul className="divide-y divide-border rounded-2xl border border-border bg-card">
             {services.map((service) => (
-              <li
-                key={service.key}
-                className="flex flex-wrap items-center gap-4 rounded-lg border-2 border-border bg-background p-4"
-              >
-                <span className="min-w-0 flex-1 truncate text-lg font-semibold">
+              <li key={service.key} className="flex flex-wrap items-center gap-x-4 gap-y-3 p-4 sm:px-5">
+                <span className="min-w-0 flex-1 basis-full text-lg font-semibold [overflow-wrap:anywhere] sm:basis-0">
                   {service.serviceName}
                 </span>
-                <div className="w-40">
+                <div className="w-44 flex-1 sm:flex-none">
                   <MoneyInput
                     aria-label={`${service.serviceName} — ${t('servicesCustomPrice')}`}
                     value={service.price}
@@ -226,10 +225,7 @@ export function PartsStep({
       ) : (
         <ul className="space-y-5">
           {parts.map((part, index) => (
-            <li
-              key={part.key}
-              className="space-y-5 rounded-lg border-2 border-border bg-background p-5"
-            >
+            <li key={part.key} className="space-y-5 rounded-2xl border border-border bg-card p-5">
               <Field label={t('partsName')} htmlFor={`${part.key}-name`}>
                 <Input
                   id={`${part.key}-name`}
@@ -257,7 +253,7 @@ export function PartsStep({
                 </Field>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-4 border-t-2 border-border pt-4">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
                 <p className="text-lg">
                   <span className="text-muted-foreground">{t('partsLineTotal')}: </span>
                   {/* Auto-computed — there is no input for this figure. */}

@@ -10,9 +10,10 @@ import { intlTagFor } from '@/i18n/locales';
 import { decimalToNumber, formatDate } from '@/lib/utils';
 import { describeVehicle, notDeleted } from '@/lib/jobs';
 import { Button } from '@/components/ui/button';
-import { Card, StatCard } from '@/components/ui/card';
-import { Badge, statusVariant } from '@/components/ui/badge';
+import { Card, Ledger, LedgerRow, RowList } from '@/components/ui/card';
+import { Plate } from '@/components/ui/plate';
 import { EmptyState } from '@/components/ui/misc';
+import { JobList, JobRow } from '@/components/jobs/job-row';
 import { CustomerFormDialog } from '@/components/forms/customer-form';
 import { VehicleFormDialog } from '@/components/forms/vehicle-form';
 import { DeleteCustomerButton } from './delete-customer-button';
@@ -39,6 +40,9 @@ export default async function CustomerDetailPage({
   const customer = await prisma.customer.findUnique({
     where: { id },
     include: {
+      // Counts trashed jobs too: those still hold the customer's receipts, and
+      // the delete action refuses while any exist.
+      _count: { select: { jobs: true } },
       vehicles: { orderBy: { plateNumber: 'asc' } },
       jobs: {
         where: notDeleted,
@@ -56,13 +60,13 @@ export default async function CustomerDetailPage({
   return (
     <div className="space-y-8">
       <div>
-        <Button asChild variant="ghost" size="compact">
+        <Button asChild variant="ghost" size="compact" className="-ml-2">
           <Link href="/customers">
             <ArrowLeft aria-hidden />
             <span>{tcom('back')}</span>
           </Link>
         </Button>
-        <h1 className="mt-2">{customer.fullName}</h1>
+        <h1 className="mt-2 [overflow-wrap:anywhere]">{customer.fullName}</h1>
         <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-lg text-muted-foreground">
           {customer.phone ? (
             <span className="flex items-center gap-2">
@@ -79,8 +83,8 @@ export default async function CustomerDetailPage({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <Button asChild size="lg" variant="success">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <Button asChild size="lg">
           <Link href={`/jobs/new?customer=${customer.id}`}>
             <PlusCircle aria-hidden />
             <span>{tnav('newJob')}</span>
@@ -96,24 +100,17 @@ export default async function CustomerDetailPage({
             notes: customer.notes ?? '',
           }}
         />
-        {can.deleteCustomers(user.role) ? (
-          <DeleteCustomerButton
-            customerId={customer.id}
-            customerName={customer.fullName}
-            jobCount={customer.jobs.length}
-          />
-        ) : null}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label={t('jobCount')} value={String(customer.jobs.length)} />
-        <StatCard label={t('totalSpent')} value={formatPeso(totalSpent, tag)} tone="success" />
-        <StatCard
+      <Ledger>
+        <LedgerRow label={t('jobCount')} value={String(customer.jobs.length)} />
+        <LedgerRow label={t('totalSpent')} value={formatPeso(totalSpent, tag)} />
+        <LedgerRow
           label={tj('balance')}
           value={formatPeso(outstanding, tag)}
-          tone={outstanding > 0 ? 'warning' : 'default'}
+          tone={outstanding > 0 ? 'owed' : 'default'}
         />
-      </div>
+      </Ledger>
 
       {customer.notes ? (
         <Card className="p-5">
@@ -131,34 +128,36 @@ export default async function CustomerDetailPage({
         {customer.vehicles.length === 0 ? (
           <EmptyState title={t('noVehicles')} />
         ) : (
-          <ul className="space-y-3">
-            {customer.vehicles.map((vehicle) => (
-              <li
-                key={vehicle.id}
-                className="flex flex-wrap items-center justify-between gap-4 rounded-lg border-2 border-border bg-background p-4"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-lg font-bold">{vehicle.plateNumber}</span>
-                  <span className="block truncate text-base text-muted-foreground">
-                    {describeVehicle(vehicle).replace(`${vehicle.plateNumber} — `, '') ||
-                      tcom('notSet')}
+          <RowList>
+            {customer.vehicles.map((vehicle) => {
+              const details = describeVehicle(vehicle).replace(`${vehicle.plateNumber} — `, '');
+              return (
+                <li
+                  key={vehicle.id}
+                  className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-5 py-4 sm:px-6"
+                >
+                  <span className="min-w-0 flex-1 basis-48">
+                    <Plate>{vehicle.plateNumber}</Plate>
+                    <span className="mt-2 block text-lg">
+                      {details && details !== vehicle.plateNumber ? details : tcom('notSet')}
+                    </span>
                   </span>
-                </span>
-                <VehicleFormDialog
-                  lockedCustomerId={customer.id}
-                  initial={{
-                    id: vehicle.id,
-                    customerId: customer.id,
-                    plateNumber: vehicle.plateNumber,
-                    make: vehicle.make ?? '',
-                    model: vehicle.model ?? '',
-                    year: vehicle.year ? String(vehicle.year) : '',
-                    color: vehicle.color ?? '',
-                  }}
-                />
-              </li>
-            ))}
-          </ul>
+                  <VehicleFormDialog
+                    lockedCustomerId={customer.id}
+                    initial={{
+                      id: vehicle.id,
+                      customerId: customer.id,
+                      plateNumber: vehicle.plateNumber,
+                      make: vehicle.make ?? '',
+                      model: vehicle.model ?? '',
+                      year: vehicle.year ? String(vehicle.year) : '',
+                      color: vehicle.color ?? '',
+                    }}
+                  />
+                </li>
+              );
+            })}
+          </RowList>
         )}
       </section>
 
@@ -167,31 +166,35 @@ export default async function CustomerDetailPage({
         {customer.jobs.length === 0 ? (
           <EmptyState title={t('noJobs')} />
         ) : (
-          <ul className="space-y-3">
+          <JobList>
             {customer.jobs.map((job) => (
               <li key={job.id}>
-                <Link
+                <JobRow
                   href={`/jobs/${job.id}`}
-                  className="flex min-h-tap flex-wrap items-center justify-between gap-4 lift rounded-lg border-2 border-border bg-background p-4 hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
-                >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-lg font-bold">{job.jobNumber}</span>
-                    <span className="block truncate text-base text-muted-foreground">
-                      {job.vehicle.plateNumber} · {formatDate(job.date, tag)}
-                    </span>
-                  </span>
-                  <span className="flex items-center gap-4">
-                    <span className="money">{formatPeso(decimalToNumber(job.total), tag)}</span>
-                    <Badge variant={statusVariant(job.status)}>
-                      {tj(`status_${job.status}` as never)}
-                    </Badge>
-                  </span>
-                </Link>
+                  plate={job.vehicle.plateNumber}
+                  date={formatDate(job.date, tag)}
+                  jobNumber={job.jobNumber}
+                  amount={formatPeso(decimalToNumber(job.total), tag)}
+                  status={job.status}
+                  statusLabel={tj(`status_${job.status}` as never)}
+                />
               </li>
             ))}
-          </ul>
+          </JobList>
         )}
       </section>
+
+      {/* Removing a customer is only possible while they have no jobs on record
+          (their receipts would be orphaned), so the button only appears then. */}
+      {can.deleteCustomers(user.role) && customer._count.jobs === 0 ? (
+        <div className="border-t border-border pt-6">
+          <DeleteCustomerButton
+            customerId={customer.id}
+            customerName={customer.fullName}
+            jobCount={customer._count.jobs}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

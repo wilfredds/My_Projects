@@ -27,11 +27,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen flex-col">
       <TopBar shopName={shop.name} userName={user.name} navItems={navItems} />
 
-      <div className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-4 py-6">
+      <div className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-4 pb-6 pt-5 sm:pt-8">
         {/* Persistent side navigation on large screens; the top bar holds the
             same links behind a labelled Menu button on small ones. */}
         <aside className="no-print hidden w-64 shrink-0 lg:block">
-          <div className="sticky top-24">
+          <div className="sticky top-28">
             <NavLinks items={navItems} />
           </div>
         </aside>
@@ -39,14 +39,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <main className="min-w-0 flex-1 pb-8">{children}</main>
       </div>
 
-      <footer className="app-footer no-print border-t-2 border-border bg-muted/40">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-6">
+      <footer className="app-footer no-print border-t border-border bg-card">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-4">
           <p className="text-base text-muted-foreground">
             {t('copyright', { year: new Date().getFullYear(), shopName: shop.name })}
           </p>
           <Link
             href="/policy"
-            className="min-h-tap rounded-lg px-4 py-3 text-base font-semibold text-primary underline underline-offset-4 hover:no-underline focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
+            className="inline-flex min-h-tap items-center rounded-lg text-base font-semibold text-primary-strong underline underline-offset-4 hover:no-underline focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
           >
             {t('rules')}
           </Link>

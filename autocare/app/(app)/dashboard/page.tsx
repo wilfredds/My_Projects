@@ -9,9 +9,9 @@ import { intlTagFor } from '@/i18n/locales';
 import { notDeleted } from '@/lib/jobs';
 import { decimalToNumber, startOfDay, endOfDay, formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, StatCard } from '@/components/ui/card';
-import { Badge, statusVariant } from '@/components/ui/badge';
+import { Card, Ledger, LedgerRow } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/misc';
+import { JobList, JobRow } from '@/components/jobs/job-row';
 import { MonthlyIncomeChart } from './monthly-chart';
 import { DeniedNotice } from './denied-notice';
 
@@ -49,7 +49,11 @@ export default async function DashboardPage({
       _sum: { amountPaid: true },
       where: { ...notDeleted, date: { gte: monthStart, lte: todayEnd } },
     }),
-    prisma.job.aggregate({ _sum: { balance: true }, where: { ...notDeleted, status: { not: 'PAID' } } }),
+    prisma.job.aggregate({
+      _sum: { balance: true },
+      _count: { _all: true },
+      where: { ...notDeleted, status: { not: 'PAID' } },
+    }),
     prisma.job.findMany({
       where: notDeleted,
       orderBy: { date: 'desc' },
@@ -86,6 +90,8 @@ export default async function DashboardPage({
     };
   });
 
+  const owed = decimalToNumber(unpaid._sum.balance);
+
   return (
     <div className="space-y-8">
       {params.denied === '1' ? <DeniedNotice /> : null}
@@ -95,40 +101,40 @@ export default async function DashboardPage({
         <p className="animate-rise mt-1 text-lg text-muted-foreground">{formatDate(now, tag)}</p>
       </div>
 
-      {/* The single largest, most prominent control on the screen. */}
-      <Button asChild size="hero" variant="hero" className="animate-pop">
-        <Link href="/jobs/new">
-          <PlusCircle aria-hidden />
-          <span>{t('recordNewJob')}</span>
-        </Link>
-      </Button>
-      <p className="-mt-4 text-lg text-muted-foreground">{t('recordNewJobHint')}</p>
+      <div className="grid items-start gap-6 lg:grid-cols-2">
+        {/* The single largest, most prominent control on the screen — and the
+            only solid orange one. */}
+        <div className="space-y-3">
+          <Button asChild size="hero" variant="hero" className="animate-pop">
+            <Link href="/jobs/new">
+              <PlusCircle aria-hidden />
+              <span>{t('recordNewJob')}</span>
+            </Link>
+          </Button>
+          <p className="text-lg text-muted-foreground">{t('recordNewJobHint')}</p>
+        </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label={t('todayJobs')} value={String(todayJobs)} />
-        <StatCard
-          label={t('todayIncome')}
-          value={formatPeso(decimalToNumber(todayMoney._sum.amountPaid), tag)}
-          tone="success"
-        />
-        <StatCard
-          label={t('monthIncome')}
-          value={formatPeso(decimalToNumber(monthMoney._sum.amountPaid), tag)}
-          tone="success"
-        />
-        <StatCard
-          label={t('unpaidTotal')}
-          value={formatPeso(decimalToNumber(unpaid._sum.balance), tag)}
-          tone="warning"
-        />
+        {/* Today's figures as ruled lines, like the page of his notebook. */}
+        <Ledger>
+          <LedgerRow
+            label={t('todayIncome')}
+            hint={t('jobsCount', { count: todayJobs })}
+            value={formatPeso(decimalToNumber(todayMoney._sum.amountPaid), tag)}
+            emphasis
+          />
+          <LedgerRow
+            label={t('monthIncome')}
+            value={formatPeso(decimalToNumber(monthMoney._sum.amountPaid), tag)}
+          />
+          <LedgerRow
+            label={t('unpaidTotal')}
+            hint={t('jobsCount', { count: unpaid._count._all })}
+            value={formatPeso(owed, tag)}
+            tone={owed > 0 ? 'owed' : 'default'}
+            href={owed > 0 ? '/jobs?status=OWED' : undefined}
+          />
+        </Ledger>
       </div>
-
-      {can.viewReports(user.role) ? (
-        <Card className="p-6">
-          <h2 className="mb-4">{t('monthlyChart')}</h2>
-          <MonthlyIncomeChart data={chartData} />
-        </Card>
-      ) : null}
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -144,34 +150,31 @@ export default async function DashboardPage({
         {recentJobs.length === 0 ? (
           <EmptyState title={t('noJobsYet')} />
         ) : (
-          <ul className="space-y-3">
+          <JobList>
             {recentJobs.map((job) => (
               <li key={job.id}>
-                <Link
+                <JobRow
                   href={`/jobs/${job.id}`}
-                  className="flex min-h-tap flex-wrap items-center justify-between gap-4 lift rounded-lg border-2 border-border bg-background p-4 hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
-                >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-lg font-bold">
-                      {job.customer.fullName}
-                    </span>
-                    <span className="block truncate text-base text-muted-foreground">
-                      {job.vehicle.plateNumber} · {job.jobNumber} ·{' '}
-                      {formatDate(job.date, tag)}
-                    </span>
-                  </span>
-                  <span className="flex items-center gap-4">
-                    <span className="money">{formatPeso(decimalToNumber(job.total), tag)}</span>
-                    <Badge variant={statusVariant(job.status)}>
-                      {tj(`status_${job.status}` as never)}
-                    </Badge>
-                  </span>
-                </Link>
+                  plate={job.vehicle.plateNumber}
+                  customer={job.customer.fullName}
+                  date={formatDate(job.date, tag)}
+                  jobNumber={job.jobNumber}
+                  amount={formatPeso(decimalToNumber(job.total), tag)}
+                  status={job.status}
+                  statusLabel={tj(`status_${job.status}` as never)}
+                />
               </li>
             ))}
-          </ul>
+          </JobList>
         )}
       </section>
+
+      {can.viewReports(user.role) ? (
+        <Card className="p-5 sm:p-6">
+          <h2 className="mb-4">{t('monthlyChart')}</h2>
+          <MonthlyIncomeChart data={chartData} />
+        </Card>
+      ) : null}
     </div>
   );
 }

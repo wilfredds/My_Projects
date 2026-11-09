@@ -529,8 +529,24 @@ tests/
   (`text-base`, `text-money`, `text-total`).
 - Every interactive element at least 64px tall — the `min-h-tap` token; the
   `Button` component has no icon-only variant, so buttons always carry a label.
-- WCAG AA contrast — the colour tokens at the top of `app/globals.css`, with
-  the measured ratios written next to them.
+- WCAG AA contrast — the colour tokens at the top of `app/globals.css`.
+  `node scripts/check-contrast.mjs` measures every pairing the theme uses
+  (text 4.5:1, field/button edges and focus ring 3:1) and exits non-zero if
+  any falls short. Run it after touching a colour.
+- One orange action per screen — orange is the owner's colour and means "press
+  this next"; everything else is ink-on-white or outlined. Green, red and amber
+  appear only on money (paid / unpaid / partly paid), and every status badge
+  carries an icon too, so it never relies on colour alone.
+- The running total is the meter (`components/ui/meter.tsx`): a dark panel with
+  big white digits, like a fuel pump. Plates are drawn as plates
+  (`components/ui/plate.tsx`), and lists of jobs share one row layout
+  (`components/jobs/job-row.tsx`) so a long customer name is never squeezed.
+- Fonts are self-hosted from npm (`@fontsource/…`) because the CSP allows only
+  `font-src 'self'`: IBM Plex Sans Condensed for headings and figures,
+  Atkinson Hyperlegible Next for body text. Money is always set in Plex
+  Condensed (the `.num` / `.money` classes) because it has the peso sign (₱);
+  Atkinson does not, so the body stack lists Plex Condensed second to catch a
+  stray ₱ in running text instead of dropping to a system font mid-number.
 - Confirmation before every delete — `components/ui/confirm-dialog.tsx`, which
   offers two full-width buttons reading "Yes, delete it" / "No, keep it".
 
