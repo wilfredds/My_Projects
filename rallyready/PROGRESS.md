@@ -29,10 +29,12 @@ the way.
 | 17 — Playing the app as a player | ✅ Done |
 | 18 — Playing it as a player ten weeks in | ✅ Done |
 | 19 — What a QA engineer found | ✅ Done |
-| **20 — Does every control do what it says** | ✅ **Done — ready for review** |
+| 20 — Does every control do what it says | ✅ Done |
+| **21 — On the phone they actually have** | ✅ **Done — ready for review** |
 
-All twenty phases are built. `npm run verify` is green: 0 type errors, 0 lint
-errors/warnings, 671 unit tests passing across 42 files, production build clean.
+All twenty-one phases are built. `npm run verify` is green: 0 type errors, 0
+lint errors/warnings, 683 unit tests passing across 44 files, production build
+clean.
 
 Earlier phases, one line each — the detail is in the git history:
 
@@ -44,6 +46,83 @@ Earlier phases, one line each — the detail is in the git history:
 - **4** — the periodiser, four built-in programs, and today's session on Train.
 - **5** — the technique reference and one filterable library over everything.
 
+
+---
+
+## Phase 21 — on the phone they actually have
+
+The players this is for are on mid-range Android phones over mobile data. So
+the app was measured on one: Chrome with the CPU slowed four times and the
+network at Lighthouse's "slow 4G", against the previous build served side by
+side, six alternating runs each.
+
+### Opening it
+
+The whole app was one 1.3 MB file, and a third of it was the chart library
+that only Progress and Benchmark use. Every other screen paid for it on the
+first open. Now the core loop (Train, setup, the runner, the summary, the
+welcome, the challenge link) is the first download, and the rest arrive when
+opened.
+
+| Cold open of Train, median of 6 | Before | After |
+| ------------------------------- | ------ | ----- |
+| Usable                          | 3.66s  | 3.02s |
+| First paint                     | 3.08s  | 2.33s |
+| JavaScript before usable        | 390 KB | 256 KB |
+
+Splitting broke two things the single file did for free, and both are fixed
+and tested in a real browser:
+
+- **A phone on last week's build** asks for a screen file the update has
+  deleted. It reloads once, then says the screen did not load. Never in a
+  loop, and never offline into the browser's own "no internet" page.
+- **Offline after one visit.** One file meant every screen worked once the
+  page had opened. The other screens are now fetched in the background after
+  the first one is up, and that stops the moment a drill starts.
+
+The error screen no longer calls a missed download a bug, only offers "Try
+again" when it can work, and clears when the phone's Back button is pressed.
+
+### The caller's timing: sound
+
+Calls fire from the screen-refresh loop off a precomputed timeline, so the
+question was whether a slow phone makes them late. It does not. At normal
+speed, 4× and 6× slower CPU, no call was skipped, the average gap was within
+5ms of its set pace, and the worst single gap was off by 18.5ms — about one
+screen frame. Both builds measured the same.
+
+### What did not hold: a drill opened directly ran at beginner pace
+
+Measuring the timing found it. The same drill called every 1350ms when
+started from its setup screen, and every 1617ms when opened straight from a
+link — under a screen that said 1.35s. The player's level loads a moment
+after the screen opens, and until then it reads as beginner. The runner
+built its call cursor once, from that first render, so the screen updated to
+the player's numbers and the calls kept the beginner's. Train's Start, a
+program day, Go again, a library card and a challenge all open the runner
+directly.
+
+The plan now stays live until Start and is frozen at Start. The session is
+saved from what Start was pressed on — those numbers are what a challenge
+replays on a friend's phone, and the old build saved 1350ms for a drill that
+had called at 1617ms. And `startedAt` is now when Start was pressed: the old
+build logged a session 6.56 seconds early for a player who had sat on the
+ready screen for six.
+
+### Verified
+
+`npm run verify`: 683 tests across 44 files, no type or lint errors, clean
+build. Twelve new: the reload rule and the background fetch (each checked
+against a deliberate break of the code it guards), and the runner hook
+rendered for real, which failed on the old code. In the browser: the
+functional passes (39 + 36 + 19 + 3 + 6), 23 checks on the split (installed
+and offline, offline with nothing saved, a deleted file, a slow screen, Back,
+a drill running), the timing at three speeds, and the visual audit at 0
+contrast failures, overflow, clipping and console errors.
+
+The build still warns that the main file is over 500 KB (514 KB). That is the
+app's own content, which the core screens need; splitting it would put a wait
+inside the drill flow.
 
 ---
 

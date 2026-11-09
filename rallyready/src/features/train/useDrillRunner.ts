@@ -80,14 +80,35 @@ interface UseDrillRunnerOptions {
   onComplete: (summary: RunnerSummary, timeline: Timeline) => void
 }
 
-export function useDrillRunner({ plan, preferences, onComplete }: UseDrillRunnerOptions) {
-  const timeline = useMemo(() => buildTimeline(plan), [plan])
+export function useDrillRunner({
+  plan: latestPlan,
+  preferences,
+  onComplete,
+}: UseDrillRunnerOptions) {
+  const latestTimeline = useMemo(() => buildTimeline(latestPlan), [latestPlan])
+
+  /*
+   * The session is whatever is on screen when Start is pressed, and nothing
+   * after that.
+   *
+   * The plan can change after this hook first renders: the player's level
+   * comes from a query, and until it resolves the level reads as beginner. The
+   * cursor used to be built once, from that first render — so a drill opened
+   * straight from a link (a reload, a shared challenge, the installed app
+   * reopening onto it) showed the player's own numbers and called corners at
+   * the beginner's pace underneath them: 2.0s apart under a screen that said
+   * 1.35s. Before Start, the latest plan wins. At Start it is frozen, because a
+   * session that changes under somebody mid-round is worse than either.
+   */
+  const [started, setStarted] = useState<{ plan: DrillPlan; timeline: Timeline } | null>(null)
+  const plan = started?.plan ?? latestPlan
+  const timeline = started?.timeline ?? latestTimeline
 
   const [status, setStatus] = useState<RunnerStatus>('idle')
   const [metrics, setMetrics] = useState<RunnerMetrics>(IDLE_METRICS)
 
   const clockRef = useRef(new DrillClock())
-  const cursorRef = useRef(createCursor(timeline))
+  const cursorRef = useRef(createCursor(latestTimeline))
   const wakeLockRef = useRef(new WakeLockManager())
   const finishedRef = useRef(false)
 
@@ -299,10 +320,14 @@ export function useDrillRunner({ plan, preferences, onComplete }: UseDrillRunner
     finishedRef.current = false
     answeredRef.current = []
     skippedRoundsRef.current = 0
-    cursorRef.current.reset()
+    // A fresh cursor over the plan as it is now, not the one this hook was
+    // first rendered with.
+    cursorRef.current = createCursor(latestTimeline)
+    activeRef.current = { corner: null, number: 0, at: 0, span: latestPlan.intervalMs }
+    setStarted({ plan: latestPlan, timeline: latestTimeline })
     clockRef.current.start(performance.now())
     setStatus('running')
-  }, [])
+  }, [latestPlan, latestTimeline])
 
   const pause = useCallback(() => {
     if (!clockRef.current.isStarted || clockRef.current.isPaused) return

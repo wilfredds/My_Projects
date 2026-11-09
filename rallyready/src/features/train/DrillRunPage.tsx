@@ -34,14 +34,14 @@ import {
   METRIC_SEED,
   METRIC_WORK_SEC,
 } from '@/lib/data/stats'
-import type { Drill } from '@/lib/data/types'
+import type { Drill, SkillLevel } from '@/lib/data/types'
 import { cornerIdsForLayout } from '@/lib/timer/corners'
-import { estimateDurationSec, isCircuit, planFromConfig } from '@/lib/timer/plan'
+import { estimateDurationSec, isCircuit, planFromConfig, type DrillConfig } from '@/lib/timer/plan'
 import { CircuitBoard } from '@/features/conditioning/components/CircuitBoard'
 import { patternById } from '@/lib/timer/patterns'
 import { STROKES } from '@/lib/timer/strokes'
 import { randomSeed } from '@/lib/timer/rng'
-import type { BlockPhase } from '@/lib/timer/types'
+import type { BlockPhase, DrillMode } from '@/lib/timer/types'
 import { formatCompactDuration, formatDuration, pluralize } from '@/lib/utils'
 import { selectCuePreferences, useCueStore } from '@/store/cueStore'
 import { useUiStore } from '@/store/uiStore'
@@ -134,6 +134,17 @@ function Runner({ drill }: { drill: Drill }) {
   const [quitOpen, setQuitOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const startedAtRef = useRef<Date>(new Date())
+  /*
+   * What Start was pressed on. The session is saved from this, not from the
+   * settings as they are when it ends: the level can arrive after the screen
+   * opens, and these numbers are what a challenge replays on somebody else's
+   * phone — they have to be the drill that was run.
+   */
+  const ranWithRef = useRef<{
+    config: DrillConfig
+    level: SkillLevel
+    mode: DrillMode | null
+  } | null>(null)
 
   // One seed per mount: the session is reproducible, but a fresh visit is a
   // fresh drill. Re-rolling on every render would rebuild the timeline mid-run.
@@ -166,6 +177,8 @@ function Runner({ drill }: { drill: Drill }) {
         return
       }
 
+      const ran = ranWithRef.current
+      const ranConfig = ran?.config ?? config
       try {
         const session = await repositories.sessions.create(
           {
@@ -182,17 +195,20 @@ function Runner({ drill }: { drill: Drill }) {
             { metricKey: METRIC_COMPLETED, metricValue: summary.completed ? 1 : 0 },
             // Recorded per session so the badge engine can count Deception work
             // without having to know what the drill is configured like today.
-            { metricKey: METRIC_DECEPTION, metricValue: drillMode === 'deception' ? 1 : 0 },
+            {
+              metricKey: METRIC_DECEPTION,
+              metricValue: (ran?.mode ?? drillMode) === 'deception' ? 1 : 0,
+            },
             // What it would take to replay this session exactly on another
             // phone. Recorded here rather than reconstructed later, because the
             // settings can be changed afterwards and a challenge that does not
             // match what you actually did is worse than no challenge.
             { metricKey: METRIC_SEED, metricValue: seed },
-            { metricKey: METRIC_ROUNDS, metricValue: config?.rounds ?? 0 },
-            { metricKey: METRIC_WORK_SEC, metricValue: config?.workSec ?? 0 },
-            { metricKey: METRIC_REST_SEC, metricValue: config?.restSec ?? 0 },
-            { metricKey: METRIC_INTERVAL_MS, metricValue: config?.intervalMs ?? 0 },
-            { metricKey: METRIC_LEVEL, metricValue: levelIndex(training.level) },
+            { metricKey: METRIC_ROUNDS, metricValue: ranConfig?.rounds ?? 0 },
+            { metricKey: METRIC_WORK_SEC, metricValue: ranConfig?.workSec ?? 0 },
+            { metricKey: METRIC_REST_SEC, metricValue: ranConfig?.restSec ?? 0 },
+            { metricKey: METRIC_INTERVAL_MS, metricValue: ranConfig?.intervalMs ?? 0 },
+            { metricKey: METRIC_LEVEL, metricValue: levelIndex(ran?.level ?? training.level) },
           ],
         )
         navigate(`/session/${session.id}`, { replace: true })
@@ -426,7 +442,17 @@ function Runner({ drill }: { drill: Drill }) {
                   </>
                 )}
               </div>
-              <Button size="xl" className="w-full" onClick={() => void runner.start()}>
+              <Button
+                size="xl"
+                className="w-full"
+                onClick={() => {
+                  // When the drill began, not when this screen opened: a player
+                  // who sat on it for three minutes did not train for them.
+                  startedAtRef.current = new Date()
+                  ranWithRef.current = { config, level: training.level, mode: drillMode }
+                  void runner.start()
+                }}
+              >
                 <Play className="fill-current" />
                 Start drill
               </Button>
