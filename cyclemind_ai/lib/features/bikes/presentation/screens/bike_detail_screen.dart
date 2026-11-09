@@ -212,6 +212,11 @@ class _ComponentTile extends StatelessWidget {
                 else
                   FilledButton.tonalIcon(
                     onPressed: onReplace,
+                    // The theme gives FilledButtons `Size.fromHeight(52)`, an
+                    // INFINITE minimum width, for full-width form buttons. In
+                    // this Row that swallowed the km text and pushed the
+                    // button off screen, exactly when the part was due.
+                    style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
                     icon: replaceIcon,
                     label: replaceLabel,
                   ),
