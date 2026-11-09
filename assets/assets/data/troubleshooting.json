@@ -1,0 +1,154 @@
+[
+  {
+    "id": "squeaky_brakes",
+    "keywords": ["squeak", "squeaky", "brake noise", "brakes noisy", "brake sound", "brake squeal"],
+    "title": "Squeaky Brakes",
+    "response": "Squeaky brakes are usually caused by contaminated brake pads or rotors. Here's how to fix it:",
+    "steps": [
+      "Spray the rotor (disc) with isopropyl alcohol (70%+) and wipe clean with a dry cloth",
+      "Check if the brake pads are glazed (shiny surface) — if so, lightly sand them with fine sandpaper",
+      "Make sure the caliper is aligned — it should not rub the rotor on one side only",
+      "Bed in your brakes: find a safe area and do 10 firm stops from moderate speed to condition new pads"
+    ],
+    "urgency": "medium",
+    "icon": "fa-circle-exclamation"
+  },
+  {
+    "id": "gear_slipping",
+    "keywords": ["slip", "slipping", "skip", "chain skip", "gear skip", "ghost shifting", "shifting problem", "gear problem"],
+    "title": "Gear Slipping / Chain Skip",
+    "response": "Chain skipping or gear slipping is usually a cable tension or chain wear issue.",
+    "steps": [
+      "Shift to the middle gear and pedal — if it skips, turn the barrel adjuster (on the derailleur) counter-clockwise by half turns until smooth",
+      "Check if your chain is worn using a chain checker tool — if worn past 0.75%, replace the chain",
+      "Inspect the cassette cogs for shark-fin shaped teeth — that means the cassette needs replacing too",
+      "Check that the derailleur hanger is not bent — even a slight bend causes persistent skipping"
+    ],
+    "urgency": "medium",
+    "icon": "fa-gears"
+  },
+  {
+    "id": "flat_tire",
+    "keywords": ["flat", "flat tire", "puncture", "deflated", "tire flat", "patay na gulong"],
+    "title": "Flat Tire",
+    "response": "A flat tire is the most common roadside issue. With the right tools, you can fix it in under 10 minutes.",
+    "steps": [
+      "Remove the wheel: open the quick release or unscrew the thru-axle and disengage the brake if needed",
+      "Use tire levers to pry one side of the tire off the rim — never use a screwdriver, it damages the tube",
+      "Pull out the inner tube and inflate it slightly to find the puncture — listen/feel for the leak",
+      "Patch the tube with a patch kit (sandpaper the area, apply vulcanizing cement, press patch) OR replace with a spare tube",
+      "Before re-inserting the tube, check the inside of the tire with your fingers for the object that caused the flat",
+      "Re-seat the tire, inflate to correct pressure (MTB: 35–50 PSI), and reinstall the wheel"
+    ],
+    "urgency": "high",
+    "icon": "fa-circle-dot"
+  },
+  {
+    "id": "chain_fell_off",
+    "keywords": ["chain fell", "chain off", "chain drop", "nahulog chain", "chain dropped"],
+    "title": "Chain Fell Off",
+    "response": "A dropped chain is frustrating but easy to fix with your hands (yes, it gets dirty).",
+    "steps": [
+      "Stay calm — stop pedaling immediately when you feel the chain drop",
+      "Shift the rear derailleur to the easiest cog (largest) to create slack in the chain",
+      "Lift the chain back onto the smallest front chainring (inner ring) by hand while slowly turning the pedals",
+      "Once back on, shift through the gears slowly to confirm the chain is seated properly",
+      "If the chain drops frequently, your front derailleur limit screws need adjustment — visit a local bike shop"
+    ],
+    "urgency": "medium",
+    "icon": "fa-link-slash"
+  },
+  {
+    "id": "creaking_noise",
+    "keywords": ["creak", "creaking", "noise when pedaling", "clicking", "clunking", "ingay"],
+    "title": "Creaking / Clicking Noise",
+    "response": "Creaking noises while pedaling are almost always a loose or dry component. Finding the source is key.",
+    "steps": [
+      "Check your pedals first — tighten them with a pedal wrench (left pedal is reverse-threaded, righty = lefty for removal)",
+      "Check the bottom bracket — grab the cranks and try to wiggle them side to side. Any play = worn BB",
+      "Check seat post: remove, clean, apply grease or carbon paste, re-insert and tighten to spec",
+      "Check handlebar stem bolts — tighten all bolts evenly in a star pattern",
+      "If creak persists, bring to a bike shop — creaking can hide serious problems"
+    ],
+    "urgency": "medium",
+    "icon": "fa-volume-high"
+  },
+  {
+    "id": "brakes_not_working",
+    "keywords": ["brakes not working", "brake weak", "brake soft", "brakes spongy", "can't stop", "mahina brakes"],
+    "title": "Weak or Spongy Brakes",
+    "response": "If your brakes feel spongy or require a lot of lever pull, your brake pads may be worn or your hydraulic system has air bubbles.",
+    "steps": [
+      "Check brake pad thickness — if less than 1mm of pad material remains, replace immediately",
+      "For mechanical disc brakes: tighten the cable barrel adjuster on the brake lever until braking is firm",
+      "For hydraulic disc brakes: if the lever feels mushy/spongy, you likely need a brake bleed — visit a shop",
+      "Check for any leaks in hydraulic brake lines — any mineral oil (or DOT fluid) dripping = urgent repair",
+      "NEVER ride with brakes you don't trust — safety first"
+    ],
+    "urgency": "high",
+    "icon": "fa-hand"
+  },
+  {
+    "id": "derailleur_bent",
+    "keywords": ["derailleur bent", "hanger bent", "derailleur hit", "crash", "alignment", "di makapag-shift"],
+    "title": "Derailleur / Hanger Bent",
+    "response": "A bent derailleur hanger is common after a fall or impact and causes phantom shifting problems.",
+    "steps": [
+      "Look from behind the bike — the rear derailleur should hang perfectly parallel to the wheel",
+      "If it angles inward or outward, the hanger is bent. Do NOT ride — a bent hanger can snap the derailleur into the spokes",
+      "Derailleur hanger alignment tools exist for the DIY fix, but for beginners, bring to a bike shop immediately",
+      "Derailleur hangers are cheap sacrificial parts (₱100–₱400) — always carry one on long rides",
+      "If the derailleur itself is bent (not just the hanger), it may need replacement"
+    ],
+    "urgency": "high",
+    "icon": "fa-wrench"
+  },
+  {
+    "id": "tire_pressure",
+    "keywords": ["tire pressure", "how much air", "PSI", "pressure", "inflate", "pump", "gulong presyur"],
+    "title": "Tire Pressure Guide",
+    "response": "Correct tire pressure dramatically affects ride comfort, speed, and puncture resistance.",
+    "steps": [
+      "MTB on trails: 25–35 PSI (lower = more grip on loose ground)",
+      "MTB on paved roads: 35–50 PSI (higher = less rolling resistance, faster)",
+      "Road bikes: 80–110 PSI depending on tire width and rider weight",
+      "General rule: heavier rider = slightly higher pressure",
+      "Check tire sidewall — it will show the MIN and MAX PSI for that specific tire",
+      "Check pressure before EVERY ride — tires naturally lose 5–10 PSI per week"
+    ],
+    "urgency": "low",
+    "icon": "fa-gauge"
+  },
+  {
+    "id": "saddle_pain",
+    "keywords": ["saddle pain", "sore butt", "seat pain", "uncomfortable", "masakit puwet", "chamois"],
+    "title": "Saddle Pain / Sore Sit Bones",
+    "response": "Saddle discomfort is the #1 complaint from new cyclists. It gets better as your body adapts, but a proper setup helps enormously.",
+    "steps": [
+      "Make sure your saddle height is correct: at the bottom of the pedal stroke, your leg should be almost fully extended (5–10 degree bend)",
+      "Start with shorter rides (30–45 min) and gradually increase — sit bones need 2–4 weeks to toughen up",
+      "Invest in padded cycling shorts (bib shorts are best) — even a cheap pair makes a huge difference",
+      "Apply chamois cream to the chamois pad inside your shorts before long rides",
+      "Saddle tilt matters: slight downward nose tilt can relieve perineal pressure",
+      "If pain persists after 4 weeks of riding, consider a saddle fitting at a local bike shop"
+    ],
+    "urgency": "low",
+    "icon": "fa-person-biking"
+  },
+  {
+    "id": "chain_lube",
+    "keywords": ["chain lube", "lubricate", "chain maintenance", "dry chain", "chain oil", "mantinansa chain"],
+    "title": "Chain Lubrication",
+    "response": "A well-lubed chain is a quiet, efficient chain. Here's how to do it right.",
+    "steps": [
+      "Clean the chain first using a chain cleaning tool + degreaser, or wipe with a dry cloth for light maintenance",
+      "Apply lubricant drop by drop to each chain link's inner rollers while slowly backpedaling",
+      "Use WET lube for rainy conditions; DRY lube for dry/dusty conditions",
+      "After applying, let it soak for 5 minutes, then wipe off all excess lube with a dry rag — excess attracts dirt",
+      "Re-lube every 100–150 km (dry conditions) or after every ride in rain",
+      "In the Philippines, wet lube is recommended most of the year due to humidity and occasional rain"
+    ],
+    "urgency": "low",
+    "icon": "fa-oil-can"
+  }
+]
