@@ -76,9 +76,9 @@ class FirebaseRidesRepository implements RidesRepository {
   Future<Result<void>> deleteRide(Ride ride) async {
     final delta = ride.odometerDeltaKm;
     final creditsBack = ride.bikeId != null && delta != null && delta != 0;
+    final rideRef = _db.collection(AppConstants.ridesCollection).doc(ride.id);
     try {
-      final batch = _db.batch();
-      batch.delete(_db.collection(AppConstants.ridesCollection).doc(ride.id));
+      final batch = _db.batch()..delete(rideRef);
       if (creditsBack) {
         batch.update(
           _db.collection(AppConstants.bikesCollection).doc(ride.bikeId!),
@@ -89,15 +89,21 @@ class FirebaseRidesRepository implements RidesRepository {
       return const Success(null);
     } on FirebaseException catch (e) {
       // The bike was deleted after this ride was logged, so there is no
-      // odometer left to credit back. Remove the ride alone rather than
-      // leaving it permanently undeletable. Narrowed to not-found so a
-      // permission error is never silently downgraded.
-      if (e.code == 'not-found' && creditsBack) {
+      // odometer left to credit back. The batch's bike update is then DENIED,
+      // not not-found: the rules evaluate `update` against a null `resource`,
+      // ownsStored() errors, and the whole batch is rejected
+      // (firestore-tests/premise.test.js C10a). This used to wait for
+      // not-found, which never came, so such a ride could never be deleted.
+      //
+      // permission-denied also covers real refusals, such as a decrement
+      // that would take the odometer below zero (C6). So delete the ride alone
+      // only once the server confirms the bike is gone. Otherwise its km
+      // would stay on a bike that still exists, silently and for good (C10d).
+      if (creditsBack &&
+          e.code == 'permission-denied' &&
+          await _bikeIsGone(ride)) {
         try {
-          await _db
-              .collection(AppConstants.ridesCollection)
-              .doc(ride.id)
-              .delete();
+          await rideRef.delete();
           return const Success(null);
         } catch (_) {
           return Failure(const ServerFailure('Could not delete the ride.'));
@@ -106,6 +112,26 @@ class FirebaseRidesRepository implements RidesRepository {
       return Failure(const ServerFailure('Could not delete the ride.'));
     } catch (_) {
       return Failure(const ServerFailure('Could not delete the ride.'));
+    }
+  }
+
+  /// True only when the SERVER confirms that [ride]'s bike no longer exists.
+  ///
+  /// A direct `get()` can't answer this: the rules deny reading a deleted
+  /// bike exactly as they deny reading someone else's (C10b). The owner's own
+  /// bikes query is allowed, and a bike missing from it is gone. Read from
+  /// the server, never the cache, which may still hold the deleted bike. Any
+  /// failure answers false: when in doubt, refuse the delete rather than
+  /// drop the odometer credit.
+  Future<bool> _bikeIsGone(Ride ride) async {
+    try {
+      final mine = await _db
+          .collection(AppConstants.bikesCollection)
+          .where('userId', isEqualTo: ride.userId)
+          .get(const GetOptions(source: Source.server));
+      return mine.docs.every((d) => d.id != ride.bikeId);
+    } catch (_) {
+      return false;
     }
   }
 }

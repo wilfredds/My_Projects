@@ -60,11 +60,7 @@ class RideTile extends ConsumerWidget {
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Delete this ride?'),
-            content: Text(ride.odometerDeltaKm != null
-                ? 'Its ${ride.distanceKm.toStringAsFixed(1)} km will be taken '
-                    'back off the bike\'s odometer.'
-                : 'This ride never added to an odometer, so nothing else '
-                    'changes.'),
+            content: Text(rideDeleteConsequence(ride, names)),
             actions: [
               TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
@@ -89,4 +85,20 @@ class RideTile extends ConsumerWidget {
       child: tile,
     );
   }
+}
+
+/// What deleting [ride] will do to an odometer, said before the rider
+/// confirms. It used to promise to take the km off "the bike's odometer"
+/// even when that bike had been deleted.
+String rideDeleteConsequence(Ride ride, Map<String, String> bikeNames) {
+  final delta = ride.odometerDeltaKm;
+  if (delta == null) {
+    return 'This ride never added to an odometer, so nothing else changes.';
+  }
+  final bike = bikeNames[ride.bikeId];
+  if (bike == null) {
+    return 'Its bike has been deleted, so there is no odometer to update.';
+  }
+  return 'Its ${delta.toStringAsFixed(1)} km will be taken back off '
+      '$bike\'s odometer.';
 }

@@ -35,5 +35,11 @@ abstract interface class RidesRepository {
   /// carried by the ride. A ride written before odometer accounting carries
   /// null and so deletes without touching the odometer — which is what stops
   /// deleting a seeded ride from subtracting distance that was never added.
+  ///
+  /// A ride whose bike has since been deleted has no odometer left to credit,
+  /// and is deleted alone. Implementations must CONFIRM the bike is gone
+  /// before doing that. Never infer it from a failed write: a refusal can
+  /// also mean the bike exists and the decrement was denied, and deleting
+  /// the ride alone then would leave its km on that odometer for good.
   Future<Result<void>> deleteRide(Ride ride);
 }

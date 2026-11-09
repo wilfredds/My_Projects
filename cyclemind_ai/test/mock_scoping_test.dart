@@ -12,7 +12,9 @@ import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart
 import 'package:cyclemind_ai/features/bikes/domain/usecases/generate_reminders.dart';
 import 'package:cyclemind_ai/features/bikes/domain/usecases/replace_component.dart';
 import 'package:cyclemind_ai/features/rides/data/repositories/mock_rides_repository.dart';
+import 'package:cyclemind_ai/features/rides/domain/entities/ride.dart';
 import 'package:cyclemind_ai/features/rides/domain/usecases/log_ride.dart';
+import 'package:cyclemind_ai/features/rides/presentation/widgets/ride_tile.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Proves the cross-user leak is closed.
@@ -127,6 +129,63 @@ void main() {
   });
 
   group('demo loop', _demoLoopTests);
+
+  group('deleting a ride whose bike was deleted', () {
+    // In production this ride was undeletable: the repository waited for a
+    // `not-found` that Firestore never sends (it sends permission-denied; see
+    // firestore-tests/premise.test.js C10). The mock always handled it, which
+    // is why the demo never showed the bug. This pins the shared behaviour.
+    test('the ride is removed, and no other odometer moves', () async {
+      final uid = store.seedUser.id;
+      final rides = MockRidesRepository();
+      Bike bike(String id) => store.bikes.firstWhere((b) => b.id == id);
+
+      final logged = await LogRide(rides).call(
+        rideId: 'r-new',
+        userId: uid,
+        title: 'Before the bike was sold',
+        distanceKm: 42,
+        elevationM: 0,
+        durationSec: 3600,
+        bike: bike('bike-1'),
+      );
+      final ride = logged.valueOrNull!.ride;
+      expect(ride.odometerDeltaKm, 42);
+      final trailKm = bike('bike-2').totalMileageKm;
+
+      await MockBikesRepository().deleteBike('bike-1');
+      final deleted = await DeleteRide(rides).call(ride);
+
+      expect(deleted.isSuccess, isTrue);
+      expect(store.rides.any((r) => r.id == 'r-new'), isFalse);
+      expect(bike('bike-2').totalMileageKm, trailKm);
+    });
+
+    test('the confirm dialog says what will really happen', () {
+      Ride rideOn(String? bikeId, double? delta) => Ride(
+            id: 'r',
+            userId: 'u',
+            bikeId: bikeId,
+            startedAt: DateTime(2026),
+            distanceKm: 42,
+            elevationM: 0,
+            avgSpeedKmh: 21,
+            durationSec: 7200,
+            calories: 900,
+            odometerDeltaKm: delta,
+          );
+      const names = {'bike-1': 'Roadie'};
+
+      expect(rideDeleteConsequence(rideOn('bike-1', 42), names),
+          "Its 42.0 km will be taken back off Roadie's odometer.");
+      // It used to promise an odometer update for a bike that no longer
+      // exists.
+      expect(rideDeleteConsequence(rideOn('sold', 42), names),
+          'Its bike has been deleted, so there is no odometer to update.');
+      expect(rideDeleteConsequence(rideOn('bike-1', null), names),
+          'This ride never added to an odometer, so nothing else changes.');
+    });
+  });
 
   group('the reported leak, end to end', () {
     test('a new sign-up gets an empty garage, not the previous user\'s',

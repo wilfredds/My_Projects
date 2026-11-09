@@ -231,7 +231,10 @@ service cloud.firestore {
     // ================================================================= rides
     // create: addRide -> batch.set(doc(clientId)), with the odometer increment
     // update: NO call site anywhere. Denied outright (invariant 5b).
-    // delete: deleteRide -> batch.delete, with the matching decrement
+    // delete: deleteRide -> batch.delete, with the matching decrement. If the
+    //         ride's bike was deleted, that batch is DENIED (update against a
+    //         null resource), so the app confirms the bike is gone via the
+    //         owner's bikes query and deletes the ride alone. premise C10.
     // list:   watchRides/getRides -> where('userId','==',uid)
     //                                .orderBy('startedAt', desc)
     //

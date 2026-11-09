@@ -11,7 +11,7 @@
 import { readFileSync } from 'node:fs';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import {
-  doc, setDoc, getDoc, getDocs, collection, writeBatch, increment,
+  doc, setDoc, getDoc, getDocs, deleteDoc, collection, query, where, writeBatch, increment,
 } from 'firebase/firestore';
 import { beforeAll, afterAll, beforeEach, describe, it, expect } from 'vitest';
 import { aBike, aRide, aLog } from './fixtures.js';
@@ -212,5 +212,101 @@ describe('C9: what does str(v, 80) count?', () => {
     // rules do not count UTF-8 bytes; this pins it.
     await seedRoadie();
     await assertSucceeds(replaceBatch(alice, { log: { component: '😀'.repeat(40) } }).commit());
+  });
+});
+
+// ------------------------------------------------------------------------
+// C10: deleting a ride whose bike has since been deleted.
+//
+// FirebaseRidesRepository.deleteRide used to fall back to a ride-only delete
+// on `not-found`. That branch could never run. An update to a missing bike is
+// evaluated against a null `resource`, ownsStored() errors, and the whole
+// batch is rejected with PERMISSION-DENIED. The ride became undeletable.
+//
+// permission-denied also covers real refusals (C6), so the fallback must not
+// fire on the error code alone: it first confirms the bike is gone.
+
+/** The Dart fallback, replayed step for step. Returns which path ran. */
+async function deleteRideLikeTheApp(db, uid, rideId, bikeId, delta) {
+  const b = writeBatch(db);
+  b.delete(doc(db, `rides/${rideId}`));
+  b.update(doc(db, `bikes/${bikeId}`), { totalMileageKm: increment(-delta) });
+  try {
+    await b.commit();
+    return 'batch';
+  } catch (e) {
+    if (e.code !== 'permission-denied') return 'failed';
+    const mine = await getDocs(query(collection(db, 'bikes'), where('userId', '==', uid)));
+    if (mine.docs.some((d) => d.id === bikeId)) return 'refused';
+    await deleteDoc(doc(db, `rides/${rideId}`));
+    return 'ride-only';
+  }
+}
+
+async function exists(path) {
+  let found;
+  await env.withSecurityRulesDisabled(async (c) => {
+    found = (await getDoc(doc(c.firestore(), path))).exists();
+  });
+  return found;
+}
+
+describe('C10: deleting a ride whose bike was deleted', () => {
+  it('C10a the ride+decrement batch fails with permission-denied, NOT not-found', async () => {
+    await seed((db) => setDoc(doc(db, 'rides/r1'),
+      aRide('alice', { bikeId: 'gone', odometerDeltaKm: 42 })));
+    const b = writeBatch(alice);
+    b.delete(doc(alice, 'rides/r1'));
+    b.update(doc(alice, 'bikes/gone'), { totalMileageKm: increment(-42) });
+
+    const err = await b.commit().then(() => null, (e) => e);
+    expect(err?.code).toBe('permission-denied');
+    expect(await exists('rides/r1')).toBe(true); // atomic: nothing applied
+  });
+
+  it('C10b a direct get() cannot tell "deleted" from "not yours": both are denied', async () => {
+    await seed((db) => setDoc(doc(db, 'bikes/bobs'), aBike('bob')));
+    await assertFails(getDoc(doc(alice, 'bikes/gone')));
+    await assertFails(getDoc(doc(alice, 'bikes/bobs')));
+  });
+
+  it("C10c once the owner's own bikes query confirms the bike is gone, the ride is deleted alone", async () => {
+    await seed(async (db) => {
+      await setDoc(doc(db, 'bikes/other'), aBike('alice', { totalMileageKm: 4200 }));
+      await setDoc(doc(db, 'rides/r1'), aRide('alice', { bikeId: 'gone', odometerDeltaKm: 42 }));
+    });
+
+    expect(await deleteRideLikeTheApp(alice, 'alice', 'r1', 'gone', 42)).toBe('ride-only');
+    expect(await exists('rides/r1')).toBe(false);
+    await env.withSecurityRulesDisabled(async (c) => {
+      const other = await getDoc(doc(c.firestore(), 'bikes/other'));
+      expect(other.data().totalMileageKm).toBe(4200); // no other odometer touched
+    });
+  });
+
+  it('C10d if the bike still EXISTS, a denied batch is not downgraded: the ride survives', async () => {
+    // Over-subtraction (C6) is denied for a bike that exists. Deleting the
+    // ride alone there would leave its km on that odometer for good.
+    await seed(async (db) => {
+      await setDoc(doc(db, 'bikes/b1'), aBike('alice', { totalMileageKm: 10 }));
+      await setDoc(doc(db, 'rides/r1'), aRide('alice', { bikeId: 'b1', odometerDeltaKm: 42 }));
+    });
+
+    expect(await deleteRideLikeTheApp(alice, 'alice', 'r1', 'b1', 42)).toBe('refused');
+    expect(await exists('rides/r1')).toBe(true);
+  });
+
+  it('C10e the normal case is still one atomic batch that credits the km back', async () => {
+    await seed(async (db) => {
+      await setDoc(doc(db, 'bikes/b1'), aBike('alice', { totalMileageKm: 142 }));
+      await setDoc(doc(db, 'rides/r1'), aRide('alice', { bikeId: 'b1', odometerDeltaKm: 42 }));
+    });
+
+    expect(await deleteRideLikeTheApp(alice, 'alice', 'r1', 'b1', 42)).toBe('batch');
+    expect(await exists('rides/r1')).toBe(false);
+    await env.withSecurityRulesDisabled(async (c) => {
+      const bike = await getDoc(doc(c.firestore(), 'bikes/b1'));
+      expect(bike.data().totalMileageKm).toBe(100);
+    });
   });
 });
