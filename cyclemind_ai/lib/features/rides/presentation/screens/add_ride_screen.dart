@@ -1,5 +1,8 @@
 import 'package:cyclemind_ai/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:cyclemind_ai/features/bikes/domain/entities/bike.dart';
+// For MaintenanceStatusX.label used in the snackbar. Extensions are not
+// transitively visible, so the defining library must be imported here.
+import 'package:cyclemind_ai/features/bikes/domain/entities/maintenance_log.dart';
 import 'package:cyclemind_ai/features/bikes/presentation/controllers/bikes_providers.dart';
 import 'package:cyclemind_ai/features/rides/domain/usecases/log_ride.dart';
 import 'package:cyclemind_ai/features/rides/presentation/controllers/rides_providers.dart';

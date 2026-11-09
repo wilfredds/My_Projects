@@ -36,7 +36,12 @@ jobs:
 
       - name: Generate platform folders (web)
         working-directory: cyclemind_ai
-        run: flutter create . --platforms web
+        # `flutter create` also scaffolds the default counter widget test,
+        # which references MyApp and does not compile against this app's
+        # CycleMindApp. Remove it so `flutter test` runs only our suites.
+        run: |
+          flutter create . --platforms web
+          rm -f test/widget_test.dart
 
       - name: Install dependencies
         working-directory: cyclemind_ai
