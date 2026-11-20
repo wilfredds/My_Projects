@@ -1,0 +1,31 @@
+{
+  "@@locale": "fil",
+  "appTitle": "Ride Doctor",
+
+  "todayTitle": "Ngayon",
+  "todayEmptyTitle": "Wala pang nakaplano",
+  "todayEmptyBody": "Dito lalabas ang iyong session sa araw-araw, heat check, at countdown sa karera.",
+
+  "settingsTitle": "Mga Setting",
+  "settingsAppearance": "Itsura",
+  "themeSystem": "Sundin ang device",
+  "themeLight": "Maliwanag",
+  "themeDark": "Madilim",
+  "settingsLanguage": "Wika",
+  "languageDevice": "Sundin ang device",
+  "languageEnglish": "English",
+  "languageFilipino": "Filipino",
+  "settingsDeveloper": "Developer",
+  "designPreviewTitle": "Preview ng disenyo",
+
+  "confidenceMeasured": "Nasukat",
+  "confidenceEstimated": "Tinantiya",
+  "confidenceRough": "Humigit-kumulang",
+  "whyButton": "Bakit?",
+
+  "heatNotHazardous": "Hindi mapanganib",
+  "heatCaution": "Pag-iingat",
+  "heatExtremeCaution": "Matinding pag-iingat",
+  "heatDanger": "Panganib",
+  "heatExtremeDanger": "Matinding panganib"
+}

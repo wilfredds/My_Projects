@@ -1,0 +1,71 @@
+name: ride_doctor
+description: "Ride Doctor - a personal cycling coach that diagnoses, trains and race-preps riders."
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.14.0
+  flutter: ">=3.50.0"
+
+# Dependency policy: a package is added in the phase that first uses it, never
+# earlier. An unused dependency is an unverified dependency - it can break the
+# build without any of our code exercising it. See docs/DECISIONS.md (ADR-0003).
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management + compile-safe dependency injection.
+  flutter_riverpod: ^3.5.0
+
+  # Declarative, deep-linkable navigation.
+  go_router: ^18.1.4
+
+  # Message formatting for the generated localizations.
+  intl: ^0.20.3
+
+  # Material Design widgets. Since Flutter 3.47 these live in their own package;
+  # `package:flutter/material.dart` is deprecated. See ADR-0002.
+  material_ui: ^1.11.1
+
+  # @immutable for framework-free domain classes.
+  meta: ^1.17.0
+
+  riverpod_annotation: ^4.0.8
+
+dev_dependencies:
+  # Code generation (providers now; freezed and drift join in Phase 1).
+  build_runner: ^2.17.1
+
+  flutter_test:
+    sdk: flutter
+
+  riverpod_generator: ^4.0.10
+
+  # Strict lint set.
+  very_good_analysis: ^11.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Runs `flutter gen-l10n` automatically on `flutter pub get` / build.
+  generate: true
+
+  # Bundled (not downloaded at runtime) so the app is fully offline-first.
+  # Both families are SIL Open Font License 1.1 - see assets/fonts/OFL-*.txt.
+  fonts:
+    - family: Barlow
+      fonts:
+        - asset: assets/fonts/Barlow-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Barlow-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Barlow-SemiBold.ttf
+          weight: 600
+    - family: Barlow Condensed
+      fonts:
+        - asset: assets/fonts/BarlowCondensed-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/BarlowCondensed-Bold.ttf
+          weight: 700
