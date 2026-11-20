@@ -1,0 +1,47 @@
+# Ride Doctor
+
+A personal cycling coach for Android, built with Flutter: it connects a rider's
+symptom to its likely cause, one fix to try, and a re-test — across body, bike
+setup, ride data and weather. Built first for riders in the Philippines (hot,
+humid, rainy), designed for riders anywhere.
+
+**Status:** Phase 0 (foundation) is built. The app launches to a placeholder
+"Today" screen with light/dark themes and English/Filipino. No rider data is
+collected yet.
+
+## Run it
+
+You need Flutter 3.50.1 (stable) and an Android device or emulator.
+
+```bash
+cd ride_doctor
+flutter pub get
+dart run build_runner build
+flutter run
+```
+
+Then check it:
+
+```bash
+flutter analyze
+flutter test --coverage && dart run tool/check_coverage.dart
+```
+
+No Flutter installed? Every CI run uploads a debug APK you can install
+directly: open the latest **Ride Doctor CI** run on GitHub → *Artifacts* →
+`ride-doctor-debug-apk`.
+
+## Where things are
+
+| Read this | For |
+|---|---|
+| [`PROMPT.md`](PROMPT.md) | The full product spec and phase plan |
+| [`CLAUDE.md`](CLAUDE.md) | Commands, architecture rules, conventions, "never do" rules |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Why each technical choice was made |
+| [`docs/SCIENCE.md`](docs/SCIENCE.md) | Every formula, its source and its limits |
+| [`docs/PRIVACY.md`](docs/PRIVACY.md) | Draft privacy policy |
+
+Ride Doctor is an educational tool, not a medical device.
+
+Fonts: Barlow and Barlow Condensed, SIL Open Font License 1.1
+(`assets/fonts/OFL-*.txt`).

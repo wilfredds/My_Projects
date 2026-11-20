@@ -1,6 +1,6 @@
 # CorruptionReportSystem — repository guide
 
-This repository is a **monorepo of eight unrelated projects**. Despite the
+This repository is a **monorepo of nine unrelated projects**. Despite the
 repository name, most of the code here has nothing to do with corruption
 reporting — the name is historical. There is no shared build, no workspace
 tooling, and no dependency between projects. Treat each directory as its own
@@ -16,6 +16,7 @@ codebase and work inside it.
 | `hiroshi-grill/` | Restaurant reservation app (client work) | Next.js 16, TypeScript, Supabase | Yes — full |
 | `portfolio/` | Personal portfolio site | Static HTML/CSS/JS | No build step |
 | `flare/` | Full-stack build for a client-supplied Figma design (client work) | Next.js 16, TypeScript, Firebase (Auth + Firestore) | Yes — full |
+| `ride_doctor/` | Cycling coach app: diagnoses, trains and race-preps riders | Flutter, Riverpod, go_router (drift + SQLCipher from Phase 1) | Analyze + test, after installing the SDK — see below |
 
 Each project has its own `CLAUDE.md` (or, for `portfolio/`, a `README.md`)
 with specifics. Read that one before working in it.
@@ -44,10 +45,14 @@ CLAUDE_CODE_REMOTE=true ./.claude/hooks/session-start.sh
 
 ### Known environment limits
 
-- **No Flutter or Dart SDK.** `cyclemind_ai` cannot be built, run or tested
-  here. Its CI builds it via `.github/workflows/deploy-web.yml`. Change its
-  Dart source by reading carefully — you cannot verify it locally, so say so
-  rather than claiming a change is tested.
+- **No Flutter or Dart SDK is preinstalled**, and the hook does not install
+  one (it is a 1.5 GB download). For `ride_doctor`, run
+  `source ride_doctor/tool/setup_remote_flutter.sh` to install the pinned SDK
+  for the session; `flutter analyze` and `flutter test` then work. There is
+  still no Android SDK or emulator, so nothing can be run on a device here.
+  `cyclemind_ai` has no such script and no committed platform folders: treat
+  it as unverifiable locally, and say so rather than claiming a change is
+  tested. Its CI builds it via `.github/workflows/deploy-web.yml`.
 - **Docker is installed but its daemon is not running.** `autocare`'s
   `docker-compose.yml` will not work. The hook starts PostgreSQL directly
   instead.
@@ -84,6 +89,7 @@ Every project now has a workflow, each path-filtered to its own directory:
 | `deploy-web.yml` | builds `cyclemind_ai` for web and publishes to Pages |
 | `deploy-bike-guide.yml` | publishes `bike-guide-app/` to Pages under `/bike-guide-app/` |
 | `flare-ci.yml` | lint, typecheck, 87 tests, build |
+| `ride-doctor-ci.yml` | format, analyze, 83 tests, coverage thresholds, secret scan, Android debug build (uploads the APK). Runs on every push to any branch, unlike the others |
 
 Known coverage gaps, so nobody assumes more than is there:
 
@@ -100,6 +106,11 @@ Known coverage gaps, so nobody assumes more than is there:
   against the Firebase emulators (`cd flare && npm run emulators`, then
   `npm run seed`), but nothing asserts them in CI. The learner-facing screens
   are still placeholder markup pending Figma access.
+
+- **`ride_doctor` has never been run on a device from this environment.** Its
+  widget tests drive the real app in a test harness, and CI compiles the
+  Android build, but notifications, sensors and anything timing-related need a
+  real phone.
 
 Note that `node --check` does **not** validate syntax: it exits 0 on a
 syntactically invalid file. `.github/scripts/check-static-js.mjs` uses
