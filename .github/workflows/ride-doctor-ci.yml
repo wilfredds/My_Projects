@@ -1,0 +1,129 @@
+name: Ride Doctor CI
+
+# Quality gate for the Ride Doctor Flutter app: formatting, static analysis,
+# tests with coverage thresholds, a secret scan, and an Android debug build.
+#
+# Runs on every push to any branch (not only main), because this project's
+# rule is "CI must pass before a phase is marked done" and phases are built on
+# feature branches. Only runs when something under ride_doctor/ changes - the
+# other projects in this repository are unrelated and have their own workflow.
+
+on:
+  push:
+    paths:
+      - "ride_doctor/**"
+      - ".github/workflows/ride-doctor-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch makes the older run pointless.
+concurrency:
+  group: ride-doctor-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned so CI, tool/setup_remote_flutter.sh and local machines agree.
+  # Bump deliberately, in its own commit.
+  FLUTTER_VERSION: "3.50.1"
+
+defaults:
+  run:
+    working-directory: ride_doctor
+
+jobs:
+  verify:
+    name: Format, analyze, test, coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      # Also runs gen-l10n (pubspec.yaml has `generate: true`).
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build
+
+      # Only files we wrote: generated code is not committed, so `git ls-files`
+      # skips it without needing an exclude list that could drift.
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed $(git ls-files '*.dart')
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test with coverage
+        run: flutter test --coverage
+
+      - name: Enforce coverage thresholds
+        run: dart run tool/check_coverage.dart
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Scans the files of this project only (not the other projects, and not
+      # git history). Fails the job if anything that looks like a credential
+      # is found; findings are redacted in the log.
+      - name: Scan ride_doctor/ for secrets
+        working-directory: .
+        run: |
+          docker run --rm -v "$PWD/ride_doctor:/scan:ro" \
+            ghcr.io/gitleaks/gitleaks:v8.21.2 \
+            dir /scan --redact --no-banner --verbose
+
+  build-android:
+    name: Android debug build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      # Download from the run's summary page to install on a phone.
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ride-doctor-debug-apk
+          path: ride_doctor/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
