@@ -1,0 +1,8 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # ISO-8601 text instead of unix seconds: readable in an export, keeps
+          # sub-second precision, and is what a Postgres mirror will expect.
+          store_date_time_values_as_text: true

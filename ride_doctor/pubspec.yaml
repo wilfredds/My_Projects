@@ -11,6 +11,7 @@ environment:
 # earlier. An unused dependency is an unverified dependency - it can break the
 # build without any of our code exercising it. See docs/DECISIONS.md (ADR-0003).
 dependencies:
+  drift: ^2.35.4
   flutter:
     sdk: flutter
   flutter_localizations:
@@ -20,6 +21,8 @@ dependencies:
   flutter_riverpod: ^3.5.0
 
   # Declarative, deep-linkable navigation.
+  flutter_secure_storage: ^11.2.0
+  freezed_annotation: ^3.1.0
   go_router: ^18.1.4
 
   # Message formatting for the generated localizations.
@@ -32,15 +35,21 @@ dependencies:
   # @immutable for framework-free domain classes.
   meta: ^1.17.0
 
+  path: ^1.9.0
+  path_provider: ^2.1.6
   riverpod_annotation: ^4.0.8
+  sqlite3: ^3.9.1
+  uuid: ^4.6.0
 
 dev_dependencies:
   # Code generation (providers now; freezed and drift join in Phase 1).
   build_runner: ^2.17.1
 
+  drift_dev: ^2.35.3
   flutter_test:
     sdk: flutter
 
+  freezed: ^4.0.3
   riverpod_generator: ^4.0.10
 
   # Strict lint set.
@@ -69,3 +78,12 @@ flutter:
           weight: 600
         - asset: assets/fonts/BarlowCondensed-Bold.ttf
           weight: 700
+
+# Native build options (Dart "hooks"). This makes package:sqlite3 bundle
+# SQLite3 Multiple Ciphers - SQLite with encryption built in - instead of plain
+# SQLite, on every platform including the machine that runs the tests.
+# See docs/DECISIONS.md, ADR-0005.
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlite3mc
