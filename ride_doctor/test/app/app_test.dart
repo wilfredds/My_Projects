@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:ride_doctor/app/theme/app_palette.dart';
-import 'package:ride_doctor/app/theme/app_theme.dart';
 import 'package:ride_doctor/features/dev/presentation/design_preview_screen.dart';
 import 'package:ride_doctor/features/settings/presentation/settings_screen.dart';
 import 'package:ride_doctor/features/today/presentation/today_screen.dart';
@@ -106,25 +104,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Settings'), findsOneWidget);
-    });
-  });
-
-  group('design preview', () {
-    testWidgets('switching palette re-themes the app', (tester) async {
-      await pumpApp(tester);
-      await openDesignPreview(tester);
-      expect(
-        themeOf(tester, DesignPreviewScreen).colorScheme.primary,
-        AppTheme.colorScheme(AppPalette.hiVis, Brightness.light).primary,
-      );
-
-      await tester.tap(find.text('B - Monsoon'));
-      await tester.pumpAndSettle();
-
-      expect(
-        themeOf(tester, DesignPreviewScreen).colorScheme.primary,
-        AppTheme.colorScheme(AppPalette.monsoon, Brightness.light).primary,
-      );
     });
   });
 

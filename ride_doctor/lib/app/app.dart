@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:ride_doctor/app/l10n/app_locales.dart';
 import 'package:ride_doctor/app/router/app_router.dart';
-import 'package:ride_doctor/app/theme/app_palette.dart';
 import 'package:ride_doctor/app/theme/app_theme.dart';
 import 'package:ride_doctor/features/settings/domain/app_settings.dart';
 import 'package:ride_doctor/features/settings/presentation/settings_controller.dart';
@@ -14,14 +13,13 @@ class RideDoctorApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsControllerProvider);
-    final palette = ref.watch(palettePreviewProvider);
     final languageCode = settings.languageCode;
 
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       routerConfig: ref.watch(appRouterProvider),
-      theme: AppTheme.build(palette, Brightness.light),
-      darkTheme: AppTheme.build(palette, Brightness.dark),
+      theme: AppTheme.build(Brightness.light),
+      darkTheme: AppTheme.build(Brightness.dark),
       themeMode: switch (settings.themeMode) {
         AppThemeMode.system => ThemeMode.system,
         AppThemeMode.light => ThemeMode.light,

@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:ride_doctor/app/theme/app_palette.dart';
+import 'package:ride_doctor/app/theme/brand_colors.dart';
 import 'package:ride_doctor/app/theme/heat_risk_colors.dart';
 
 /// Builds the app's Material 3 themes.
@@ -13,9 +13,9 @@ abstract final class AppTheme {
   /// a larger size, and long Filipino headings wrap less.
   static const displayFont = 'Barlow Condensed';
 
-  static ColorScheme colorScheme(AppPalette palette, Brightness brightness) {
+  static ColorScheme colorScheme(Brightness brightness) {
     final scheme = ColorScheme.fromSeed(
-      seedColor: palette.seed,
+      seedColor: BrandColors.seed,
       brightness: brightness,
       // Material's "medium contrast" level. The default (0.0) is tuned for
       // indoor screens; raising it widens the gap between text and surface
@@ -24,18 +24,18 @@ abstract final class AppTheme {
     );
     return switch (brightness) {
       Brightness.dark => scheme.copyWith(
-        primary: palette.accent,
-        onPrimary: palette.onAccent,
+        primary: BrandColors.accent,
+        onPrimary: BrandColors.onAccent,
       ),
       Brightness.light => scheme.copyWith(
-        primaryContainer: palette.accent,
-        onPrimaryContainer: palette.onAccent,
+        primaryContainer: BrandColors.accent,
+        onPrimaryContainer: BrandColors.onAccent,
       ),
     };
   }
 
-  static ThemeData build(AppPalette palette, Brightness brightness) {
-    final scheme = colorScheme(palette, brightness);
+  static ThemeData build(Brightness brightness) {
+    final scheme = colorScheme(brightness);
     const minButtonSize = Size(64, 52);
     const buttonShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(14)),

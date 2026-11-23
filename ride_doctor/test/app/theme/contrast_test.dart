@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:ride_doctor/app/theme/app_palette.dart';
 import 'package:ride_doctor/app/theme/app_theme.dart';
 import 'package:ride_doctor/app/theme/heat_risk_colors.dart';
 
@@ -19,46 +18,44 @@ double contrast(Color a, Color b) {
 const minTextContrast = 4.5;
 
 void main() {
-  for (final palette in AppPalette.values) {
-    for (final brightness in Brightness.values) {
-      group('${palette.name} ${brightness.name}', () {
-        final s = AppTheme.colorScheme(palette, brightness);
-        final pairs = <String, (Color, Color)>{
-          'onPrimary on primary': (s.onPrimary, s.primary),
-          'onPrimaryContainer on primaryContainer': (
-            s.onPrimaryContainer,
-            s.primaryContainer,
-          ),
-          'onSecondary on secondary': (s.onSecondary, s.secondary),
-          'onSecondaryContainer on secondaryContainer': (
-            s.onSecondaryContainer,
-            s.secondaryContainer,
-          ),
-          'onTertiary on tertiary': (s.onTertiary, s.tertiary),
-          'onError on error': (s.onError, s.error),
-          'onSurface on surface': (s.onSurface, s.surface),
-          'onSurfaceVariant on surface': (s.onSurfaceVariant, s.surface),
-          'onSurface on surfaceContainer': (s.onSurface, s.surfaceContainer),
-          'onSurfaceVariant on surfaceContainer': (
-            s.onSurfaceVariant,
-            s.surfaceContainer,
-          ),
-          // Primary is also used as a text/icon colour (section headings).
-          'primary on surface': (s.primary, s.surface),
-          'error on surface': (s.error, s.surface),
-        };
+  for (final brightness in Brightness.values) {
+    group(brightness.name, () {
+      final s = AppTheme.colorScheme(brightness);
+      final pairs = <String, (Color, Color)>{
+        'onPrimary on primary': (s.onPrimary, s.primary),
+        'onPrimaryContainer on primaryContainer': (
+          s.onPrimaryContainer,
+          s.primaryContainer,
+        ),
+        'onSecondary on secondary': (s.onSecondary, s.secondary),
+        'onSecondaryContainer on secondaryContainer': (
+          s.onSecondaryContainer,
+          s.secondaryContainer,
+        ),
+        'onTertiary on tertiary': (s.onTertiary, s.tertiary),
+        'onError on error': (s.onError, s.error),
+        'onSurface on surface': (s.onSurface, s.surface),
+        'onSurfaceVariant on surface': (s.onSurfaceVariant, s.surface),
+        'onSurface on surfaceContainer': (s.onSurface, s.surfaceContainer),
+        'onSurfaceVariant on surfaceContainer': (
+          s.onSurfaceVariant,
+          s.surfaceContainer,
+        ),
+        // Primary is also used as a text/icon colour (section headings).
+        'primary on surface': (s.primary, s.surface),
+        'error on surface': (s.error, s.surface),
+      };
 
-        for (final MapEntry(key: name, value: (foreground, background))
-            in pairs.entries) {
-          test('$name is at least $minTextContrast:1', () {
-            expect(
-              contrast(foreground, background),
-              greaterThanOrEqualTo(minTextContrast),
-            );
-          });
-        }
-      });
-    }
+      for (final MapEntry(key: name, value: (foreground, background))
+          in pairs.entries) {
+        test('$name is at least $minTextContrast:1', () {
+          expect(
+            contrast(foreground, background),
+            greaterThanOrEqualTo(minTextContrast),
+          );
+        });
+      }
+    });
   }
 
   group('heat risk badges', () {
@@ -81,13 +78,11 @@ void main() {
     }
 
     test('every theme carries the heat colours', () {
-      for (final palette in AppPalette.values) {
-        for (final brightness in Brightness.values) {
-          expect(
-            AppTheme.build(palette, brightness).extension<HeatRiskColors>(),
-            isNotNull,
-          );
-        }
+      for (final brightness in Brightness.values) {
+        expect(
+          AppTheme.build(brightness).extension<HeatRiskColors>(),
+          isNotNull,
+        );
       }
     });
   });

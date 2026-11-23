@@ -13,8 +13,8 @@ final class Tone {
 
 /// Colours for the five PAGASA heat-index categories.
 ///
-/// These are semantic, not brand: they are identical under every palette and
-/// in light and dark mode, because a warning must look the same wherever it
+/// These are semantic, not brand: they are identical in light and dark
+/// mode, because a warning must look the same wherever it
 /// appears. Each badge is a filled shape carrying its own text colour, so it
 /// does not depend on the surface behind it. Colour is never the only signal -
 /// a badge always shows an icon and the category name too.

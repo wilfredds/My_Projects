@@ -1,6 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:ride_doctor/app/theme/app_palette.dart';
 import 'package:ride_doctor/app/theme/heat_risk_colors.dart';
 import 'package:ride_doctor/l10n/l10n.dart';
 
@@ -8,14 +6,14 @@ import 'package:ride_doctor/l10n/l10n.dart';
 /// from, on one screen, in the active theme and language.
 ///
 /// This is a developer tool. Labels that only describe the design system
-/// itself (palette and colour-role names, the sample value) are deliberately
+/// itself (colour-role names, the sample value) are deliberately
 /// hard-coded English - the one exception to the "no hard-coded strings" rule.
 /// Everything a rider will actually read comes from the ARB files.
-class DesignPreviewScreen extends ConsumerWidget {
+class DesignPreviewScreen extends StatelessWidget {
   const new({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
@@ -27,31 +25,6 @@ class DesignPreviewScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
-            RadioGroup<AppPalette>(
-              groupValue: ref.watch(palettePreviewProvider),
-              onChanged: (palette) {
-                if (palette != null) {
-                  ref.read(palettePreviewProvider.notifier).select(palette);
-                }
-              },
-              child: const Column(
-                children: [
-                  RadioListTile(
-                    value: AppPalette.hiVis,
-                    contentPadding: EdgeInsets.zero,
-                    title: Text('A - Hi-Vis'),
-                    subtitle: Text('Asphalt + safety lime'),
-                  ),
-                  RadioListTile(
-                    value: AppPalette.monsoon,
-                    contentPadding: EdgeInsets.zero,
-                    title: Text('B - Monsoon'),
-                    subtitle: Text('Deep teal'),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
             const _SampleNumberCard(),
             const SizedBox(height: 16),
             Wrap(
