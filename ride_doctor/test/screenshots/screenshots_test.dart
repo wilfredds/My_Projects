@@ -12,6 +12,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'package:ride_doctor/features/race_prep/domain/race_event.dart';
+
 import '../helpers/pump_app.dart';
 
 const _enabled = bool.fromEnvironment('SCREENSHOTS');
@@ -121,6 +123,68 @@ void main() {
       await _shoot(tester, 'why-$mode');
     });
   }
+
+  testWidgets('race prep', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    await pumpApp(
+      tester,
+      bike: testBike,
+      prepare: seedRaces([
+        testRace(),
+        testRace(
+          id: 'far',
+          name: 'Tagaytay Road Race',
+          type: RaceType.roadRace,
+          startsIn: const Duration(days: 70),
+        ),
+        testRace(
+          id: 'past',
+          name: 'First Crit',
+          startsIn: const Duration(days: -3),
+        ),
+      ]),
+    );
+    await _shoot(tester, 'race-today-dark');
+    await _tapIcon(tester, Icons.flag_outlined);
+    await _shoot(tester, 'race-list-dark');
+  });
+
+  testWidgets('race detail, full length', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    await pumpApp(
+      tester,
+      size: const Size(412, 3600),
+      prepare: seedRaces([testRace()]),
+    );
+    await _tapIcon(tester, Icons.flag_outlined);
+    await tapText(tester, 'Cavite Crit');
+    await tapText(tester, 'Shift before the corner');
+    await _shoot(tester, 'race-detail-full-dark');
+  });
+
+  testWidgets('long build plan and debrief', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    await pumpApp(
+      tester,
+      size: const Size(412, 1500),
+      prepare: seedRaces([
+        testRace(startsIn: const Duration(days: 84)),
+        testRace(
+          id: 'past',
+          name: 'First Crit',
+          startsIn: const Duration(days: -3),
+        ),
+      ]),
+    );
+    await _tapIcon(tester, Icons.flag_outlined);
+    await tapText(tester, 'Cavite Crit');
+    await _shoot(tester, 'race-long-build-dark');
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    await tapText(tester, 'First Crit');
+    await tapButton(tester, 'Add your debrief');
+    await _shoot(tester, 'race-debrief-dark');
+  });
 
   testWidgets('today for a brand-new rider, in Filipino', (tester) async {
     await pumpApp(

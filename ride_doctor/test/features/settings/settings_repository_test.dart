@@ -72,7 +72,7 @@ void main() {
         tables.keys,
         containsAll(database.allTables.map((table) => table.actualTableName)),
       );
-      expect(export['schemaVersion'], 1);
+      expect(export['schemaVersion'], database.schemaVersion);
       expect(export['exportedAt'], '2026-11-23T08:00:00.000Z');
     });
 

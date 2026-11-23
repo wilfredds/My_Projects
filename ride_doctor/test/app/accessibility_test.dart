@@ -1,10 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:ride_doctor/core/database/app_database.dart';
 import 'package:ride_doctor/features/calculators/presentation/my_numbers_screen.dart';
 import 'package:ride_doctor/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:ride_doctor/features/profile/presentation/edit_bike_screen.dart';
 import 'package:ride_doctor/features/profile/presentation/edit_rider_screen.dart';
 import 'package:ride_doctor/features/profile/presentation/profile_screen.dart';
+import 'package:ride_doctor/features/race_prep/presentation/debrief_screen.dart';
+import 'package:ride_doctor/features/race_prep/presentation/race_detail_screen.dart';
+import 'package:ride_doctor/features/race_prep/presentation/race_form_screen.dart';
+import 'package:ride_doctor/features/race_prep/presentation/races_screen.dart';
 import 'package:ride_doctor/features/settings/presentation/privacy_screen.dart';
 import 'package:ride_doctor/features/settings/presentation/settings_screen.dart';
 import 'package:ride_doctor/features/today/presentation/today_screen.dart';
@@ -122,6 +127,30 @@ Future<void> _walkApp(
   await check();
   await _back(tester);
 
+  // Races: the list, the empty form with its error messages showing, an
+  // upcoming race with a skill card opened, then a past race and its debrief.
+  await _tap(tester, find.byIcon(Icons.flag_outlined));
+  expect(find.byType(RacesScreen), findsOneWidget);
+  await check();
+  await _tap(tester, find.byType(FloatingActionButton));
+  expect(find.byType(RaceFormScreen), findsOneWidget);
+  await _tap(tester, find.byType(FilledButton).last);
+  await check();
+  await _back(tester);
+  await _tap(tester, find.byType(ListTile).first);
+  expect(find.byType(RaceDetailScreen), findsOneWidget);
+  await _tap(tester, find.byType(ExpansionTile).first);
+  await check();
+  await _back(tester);
+  await _tap(tester, find.byType(ListTile).last);
+  await check();
+  await _tap(tester, find.byType(FilledButton).first);
+  expect(find.byType(DebriefScreen), findsOneWidget);
+  await _tap(tester, find.byType(FilledButton).last);
+  await check();
+  await _back(tester);
+  await _back(tester);
+
   await _tap(tester, find.byIcon(Icons.today_outlined));
   await _tap(tester, find.byIcon(Icons.settings_outlined));
   expect(find.byType(SettingsScreen), findsOneWidget);
@@ -138,6 +167,13 @@ Future<void> _walkApp(
   await check();
   await _tap(tester, find.byType(TextButton).last);
 }
+
+/// One race five days out and one three days ago, so both the countdown and
+/// the debrief paths are on screen.
+final Future<void> Function(AppDatabase) _twoRaces = seedRaces([
+  testRace(),
+  testRace(id: 'past', name: 'First Crit', startsIn: const Duration(days: -3)),
+]);
 
 void main() {
   for (final locale in const [Locale('en'), Locale('fil')]) {
@@ -165,6 +201,7 @@ void main() {
           rider: testRider.copyWith(ftpWatts: 180, lthrBpm: 170, inseamMm: 760),
           bike: testBike,
           readinessYes: true,
+          prepare: _twoRaces,
         );
         await _walkApp(tester, () async {});
       });
@@ -177,6 +214,7 @@ void main() {
           size: _narrow,
           textScale: 2,
           deviceLocales: [locale],
+          prepare: _twoRaces,
         );
         await _walkApp(tester, () async {});
       });
@@ -206,6 +244,7 @@ void main() {
           deviceLocales: [locale],
           rider: testRider.copyWith(ftpWatts: 180, inseamMm: 760),
           bike: testBike,
+          prepare: _twoRaces,
         );
         await _walkApp(tester, () async {
           expect(undersizedTapTargets(tester), isEmpty);

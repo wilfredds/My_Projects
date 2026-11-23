@@ -79,7 +79,7 @@ void main() {
         null,
       ),
     );
-    await pumpApp(tester, bike: testBike);
+    final database = await pumpApp(tester, bike: testBike);
     await openPrivacy(tester);
 
     await tapButton(tester, 'Export my data');
@@ -91,7 +91,9 @@ void main() {
     expect(clipboard, contains('"rider_profiles"'));
     expect(clipboard, contains('"consent_records"'));
     expect(clipboard, contains('"chainrings": "34,50"'));
-    expect(clipboard, contains('"schemaVersion": 1'));
+    expect(clipboard, contains('"schemaVersion": ${database.schemaVersion}'));
+    // Tables added in later phases are exported without anyone listing them.
+    expect(clipboard, contains('"race_events"'));
   });
 
   testWidgets('cancelling the delete confirmation deletes nothing', (

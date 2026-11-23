@@ -13,11 +13,14 @@ import 'package:ride_doctor/features/profile/data/drift_garage_repository.dart';
 import 'package:ride_doctor/features/profile/data/drift_rider_repository.dart';
 import 'package:ride_doctor/features/profile/domain/bike.dart';
 import 'package:ride_doctor/features/profile/domain/rider_profile.dart';
+import 'package:ride_doctor/features/race_prep/data/drift_race_repository.dart';
+import 'package:ride_doctor/features/race_prep/domain/race_event.dart';
 
 import 'test_database.dart';
 
 /// "Now" in every widget test: fixed, so ages and dates never drift.
-final testNow = DateTime.utc(2026, 11, 23, 8);
+// Local time, like the real clock: race starts are wall-clock times.
+final testNow = DateTime(2026, 11, 23, 8);
 
 /// A rider straight out of onboarding: essentials only.
 const testRider = RiderProfile(
@@ -153,8 +156,17 @@ Future<void> enterField(WidgetTester tester, String label, String text) async {
   await tester.pumpAndSettle();
 }
 
+/// Lets any "Saved" message finish and disappear. It sits over the bottom of
+/// the screen for four seconds and swallows taps on whatever is under it.
+Future<void> _clearSnackBars(WidgetTester tester) async {
+  if (find.byType(SnackBar).evaluate().isEmpty) return;
+  await tester.pump(const Duration(seconds: 5));
+  await tester.pumpAndSettle();
+}
+
 /// Scrolls to a widget showing [text] and taps it.
 Future<void> tapText(WidgetTester tester, String text) async {
+  await _clearSnackBars(tester);
   final target = find.text(text);
   await tester.ensureVisible(target.first);
   await tester.pumpAndSettle();
@@ -165,6 +177,7 @@ Future<void> tapText(WidgetTester tester, String text) async {
 /// Scrolls to the button labelled [label] and presses it. Use this rather
 /// than [tapText] when a heading on the same screen has the same words.
 Future<void> tapButton(WidgetTester tester, String label) async {
+  await _clearSnackBars(tester);
   final button = find.ancestor(
     of: find.text(label),
     matching: find.bySubtype<ButtonStyleButton>(),
@@ -174,3 +187,31 @@ Future<void> tapButton(WidgetTester tester, String label) async {
   await tester.tap(button);
   await tester.pumpAndSettle();
 }
+
+/// A criterium starting [startsIn] after [testNow] (negative: in the past).
+RaceEvent testRace({
+  String id = 'race-1',
+  String name = 'Cavite Crit',
+  RaceType type = RaceType.criterium,
+  Duration startsIn = const Duration(days: 5),
+  bool reconAllowed = true,
+}) => RaceEvent(
+  id: id,
+  name: name,
+  type: type,
+  startsAt: testNow.add(startsIn),
+  reconAllowed: reconAllowed,
+);
+
+/// Stores [races] before the app starts; pass to pumpApp's `prepare`.
+Future<void> Function(AppDatabase) seedRaces(List<RaceEvent> races) =>
+    (database) async {
+      final repository = DriftRaceRepository(
+        database,
+        clock: () => testNow,
+        newId: sequentialIds(),
+      );
+      for (final race in races) {
+        await repository.saveRace(race);
+      }
+    };
