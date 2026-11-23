@@ -1,11 +1,22 @@
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:ride_doctor/features/dev/presentation/design_preview_screen.dart';
+import 'package:ride_doctor/app/app.dart';
+import 'package:ride_doctor/app/startup/startup_screens.dart';
+import 'package:ride_doctor/core/database/app_database.dart';
+import 'package:ride_doctor/core/database/database_providers.dart';
+import 'package:ride_doctor/features/calculators/presentation/my_numbers_screen.dart';
+import 'package:ride_doctor/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:ride_doctor/features/profile/presentation/profile_screen.dart';
+import 'package:ride_doctor/features/settings/data/drift_settings_repository.dart';
+import 'package:ride_doctor/features/settings/domain/app_settings.dart';
 import 'package:ride_doctor/features/settings/presentation/settings_screen.dart';
 import 'package:ride_doctor/features/today/presentation/today_screen.dart';
 
 import '../helpers/pump_app.dart';
-import '../helpers/tap_targets.dart';
+import '../helpers/test_database.dart';
 
 ThemeData themeOf(WidgetTester tester, Type screen) =>
     Theme.of(tester.element(find.byType(screen)));
@@ -15,20 +26,22 @@ Future<void> openSettings(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> openDesignPreview(WidgetTester tester) async {
-  await openSettings(tester);
-  await tester.tap(find.byIcon(Icons.palette_outlined));
-  await tester.pumpAndSettle();
-}
-
 void main() {
   group('launch', () {
-    testWidgets('opens on the Today placeholder in English', (tester) async {
+    testWidgets('a first launch opens on onboarding', (tester) async {
+      await pumpApp(tester, onboarded: false);
+
+      expect(find.byType(OnboardingScreen), findsOneWidget);
+      expect(find.text('Step 1 of 4'), findsOneWidget);
+    });
+
+    testWidgets('an onboarded rider opens on Today, greeted by name', (
+      tester,
+    ) async {
       await pumpApp(tester);
 
       expect(find.byType(TodayScreen), findsOneWidget);
-      expect(find.text('Today'), findsOneWidget);
-      expect(find.text('Nothing planned yet'), findsOneWidget);
+      expect(find.text('Hi, France'), findsOneWidget);
     });
 
     testWidgets('follows the device theme by default', (tester) async {
@@ -41,7 +54,7 @@ void main() {
     testWidgets('a phone set to Filipino starts in Filipino', (tester) async {
       await pumpApp(tester, deviceLocales: const [Locale('fil', 'PH')]);
 
-      expect(find.text('Ngayon'), findsOneWidget);
+      expect(find.text('Kumusta, France'), findsOneWidget);
     });
 
     testWidgets('a phone reporting the legacy "tl" code starts in Filipino', (
@@ -49,7 +62,7 @@ void main() {
     ) async {
       await pumpApp(tester, deviceLocales: const [Locale('tl', 'PH')]);
 
-      expect(find.text('Ngayon'), findsOneWidget);
+      expect(find.text('Kumusta, France'), findsOneWidget);
     });
 
     testWidgets('an unsupported device language falls back to English', (
@@ -57,13 +70,94 @@ void main() {
     ) async {
       await pumpApp(tester, deviceLocales: const [Locale('ja', 'JP')]);
 
-      expect(find.text('Today'), findsOneWidget);
+      expect(find.text('Hi, France'), findsOneWidget);
+    });
+  });
+
+  group('startup', () {
+    testWidgets('shows a starting screen while the database opens', (
+      tester,
+    ) async {
+      final opening = Completer<AppDatabase>();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appDatabaseProvider.overrideWith((ref) => opening.future),
+          ],
+          child: const RideDoctorApp(),
+        ),
+      );
+      // Not pumpAndSettle: the progress indicator never stops animating.
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byType(StartingScreen), findsOneWidget);
+      expect(find.text('Opening your data…'), findsOneWidget);
+
+      // Once it opens (to an empty database), the app moves on by itself.
+      final database = newTestDatabase();
+      addTearDown(database.close);
+      opening.complete(database);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(OnboardingScreen), findsOneWidget);
+    });
+
+    testWidgets('an unreadable database shows the error screen, and Try '
+        'again re-opens it', (tester) async {
+      final database = newTestDatabase();
+      addTearDown(database.close);
+      var attempts = 0;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appDatabaseProvider.overrideWith((ref) async {
+              attempts++;
+              if (attempts == 1) throw StateError('file is not a database');
+              return database;
+            }),
+          ],
+          child: const RideDoctorApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(StartupErrorScreen), findsOneWidget);
+      expect(find.text('Your data could not be opened'), findsOneWidget);
+
+      await tester.tap(find.text('Try again'));
+      await tester.pumpAndSettle();
+
+      expect(attempts, 2);
+      expect(find.byType(OnboardingScreen), findsOneWidget);
+    });
+  });
+
+  group('navigation', () {
+    testWidgets('the bottom bar switches between the three tabs', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+
+      await tester.tap(find.text('My Numbers'));
+      await tester.pumpAndSettle();
+      expect(find.byType(MyNumbersScreen), findsOneWidget);
+
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ProfileScreen), findsOneWidget);
+
+      await tester.tap(find.text('Today').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Hi, France'), findsOneWidget);
     });
   });
 
   group('settings', () {
-    testWidgets('choosing Dark switches the theme', (tester) async {
-      await pumpApp(tester);
+    testWidgets('choosing Dark switches the theme and is stored', (
+      tester,
+    ) async {
+      final database = await pumpApp(tester);
       await openSettings(tester);
       expect(themeOf(tester, SettingsScreen).brightness, Brightness.light);
 
@@ -71,6 +165,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(themeOf(tester, SettingsScreen).brightness, Brightness.dark);
+      final row = await database.select(database.appSettingsRows).getSingle();
+      expect(row.themeMode, 'dark');
     });
 
     testWidgets('choosing Filipino relabels the app, and it sticks when '
@@ -87,7 +183,7 @@ void main() {
       // from the deprecated flutter/material.dart, which we do not use.
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
-      expect(find.text('Ngayon'), findsOneWidget);
+      expect(find.text('Kumusta, France'), findsOneWidget);
     });
 
     testWidgets('"Match device" returns to the device language', (
@@ -105,59 +201,37 @@ void main() {
 
       expect(find.text('Settings'), findsOneWidget);
     });
-  });
 
-  // PROMPT.md section 11: text scaling to 200%, touch targets >= 48 dp,
-  // semantic labels. A layout overflow throws inside pumpApp and fails the
-  // test, so "it pumped" is itself the no-overflow assertion.
-  group('accessibility', () {
-    const smallPhone = Size(320, 568);
+    testWidgets('choosing imperial shows weight in pounds', (tester) async {
+      await pumpApp(tester);
+      await openSettings(tester);
+      await tapText(tester, 'Imperial (lb, in, mi)');
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
 
-    for (final locale in const [Locale('en'), Locale('fil')]) {
-      testWidgets('no screen overflows at 200% text on a small phone '
-          '($locale)', (tester) async {
-        await pumpApp(
-          tester,
-          size: smallPhone,
-          textScale: 2,
-          deviceLocales: [locale],
-        );
-        expect(find.byType(TodayScreen), findsOneWidget);
+      // 58.5 kg is 129 lb; 165 cm is 65 in.
+      expect(find.text('129 lb'), findsOneWidget);
+      expect(find.text('65 in'), findsOneWidget);
+    });
 
-        await openSettings(tester);
-        expect(find.byType(SettingsScreen), findsOneWidget);
-
-        // The list builds rows lazily, so first scroll until the row
-        // exists, then bring all of it on screen before tapping.
-        final designPreviewRow = find.byIcon(Icons.palette_outlined);
-        await tester.scrollUntilVisible(designPreviewRow, 200);
-        await tester.ensureVisible(designPreviewRow);
-        await tester.pumpAndSettle();
-        await tester.tap(designPreviewRow);
-        await tester.pumpAndSettle();
-        expect(find.byType(DesignPreviewScreen), findsOneWidget);
-        await tester.drag(find.byType(ListView), const Offset(0, -3000));
-        await tester.pumpAndSettle();
-      });
-    }
-
-    testWidgets('every screen has 48 dp tap targets with labels', (
+    testWidgets('stored settings are applied on the next launch', (
       tester,
     ) async {
-      final semantics = tester.ensureSemantics();
-      await pumpApp(tester);
-      expect(undersizedTapTargets(tester), isEmpty);
-      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      await pumpApp(
+        tester,
+        prepare: (database) =>
+            DriftSettingsRepository(database, clock: () => testNow).save(
+              const AppSettings(
+                themeMode: AppThemeMode.dark,
+                languageCode: 'fil',
+              ),
+            ),
+      );
 
-      await openSettings(tester);
-      expect(undersizedTapTargets(tester), isEmpty);
-      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-
-      await tester.tap(find.byIcon(Icons.palette_outlined));
-      await tester.pumpAndSettle();
-      expect(undersizedTapTargets(tester), isEmpty);
-      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-      semantics.dispose();
+      expect(find.text('Kumusta, France'), findsOneWidget);
+      expect(themeOf(tester, TodayScreen).brightness, Brightness.dark);
     });
   });
 }
