@@ -315,7 +315,7 @@ export function SettingsForm({
         </h2>
 
         <Field label={t('myLanguage')}>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {locales.map((option) => {
               const active = locale === option.code;
               return (

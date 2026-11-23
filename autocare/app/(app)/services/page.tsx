@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/misc';
 import { RowList } from '@/components/ui/card';
 import { ServiceFormDialog, ServiceRowActions } from './service-controls';
+import { PageHeader } from '@/components/ui/page-header';
 
 export const metadata = { title: 'Services — AutoCare' };
 export const dynamic = 'force-dynamic';
@@ -31,16 +32,14 @@ export default async function ServicesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1>{t('title')}</h1>
-          <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
-        </div>
-        {editable ? <ServiceFormDialog /> : null}
-      </div>
+      <PageHeader
+        title={t('title')}
+        description={t('subtitle')}
+        actions={editable ? <ServiceFormDialog /> : undefined}
+      />
 
       {!editable ? (
-        <p className="rounded-2xl border border-border bg-card p-4 text-lg sm:p-5">
+        <p className="rounded-2xl border border-border bg-card shadow-surface p-4 text-lg sm:p-5">
           {t('readOnlyNote')}
         </p>
       ) : null}

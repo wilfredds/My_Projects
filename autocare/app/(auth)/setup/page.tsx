@@ -34,7 +34,7 @@ export default async function SetupPage() {
         </div>
 
         {state === 'needs-code' ? (
-          <div className="mt-8 flex items-start gap-4 rounded-2xl border border-border bg-card p-6">
+          <div className="mt-8 flex items-start gap-4 rounded-2xl border border-border bg-card shadow-surface p-6">
             <KeyRound aria-hidden className="mt-1 size-7 shrink-0 text-primary-strong" />
             <div className="space-y-2">
               <h2 className="text-xl">{t('lockedTitle')}</h2>

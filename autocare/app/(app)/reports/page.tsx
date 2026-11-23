@@ -11,6 +11,7 @@ import { Card, Ledger, LedgerRow, RowList } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/misc';
 import { MonthlyIncomeChart } from '../dashboard/monthly-chart';
 import { ReportRangePicker } from './range-picker';
+import { PageHeader } from '@/components/ui/page-header';
 
 export const metadata = { title: 'Reports — AutoCare' };
 export const dynamic = 'force-dynamic';
@@ -125,10 +126,7 @@ export default async function ReportsPage({
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1>{t('title')}</h1>
-        <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
-      </div>
+      <PageHeader title={t('title')} description={t('subtitle')} />
 
       <ReportRangePicker
         defaultFrom={from.toISOString().slice(0, 10)}

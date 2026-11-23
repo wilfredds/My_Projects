@@ -13,7 +13,7 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
       type={type}
       ref={ref}
       className={cn(
-        'flex min-h-tap w-full rounded-lg border-2 border-input bg-card px-4 py-3 text-lg',
+        'flex min-h-tap w-full rounded-lg border-[1.5px] border-input bg-card px-4 py-3 text-lg shadow-control',
         'text-foreground placeholder:text-muted-foreground',
         'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring focus-visible:border-primary',
         'disabled:cursor-not-allowed disabled:opacity-60',
@@ -56,7 +56,7 @@ const Textarea = React.forwardRef<
   <textarea
     ref={ref}
     className={cn(
-      'flex min-h-[8rem] w-full rounded-lg border-2 border-input bg-card px-4 py-3 text-lg',
+      'flex min-h-[8rem] w-full rounded-lg border-[1.5px] border-input bg-card px-4 py-3 text-lg shadow-control',
       'text-foreground placeholder:text-muted-foreground',
       'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring focus-visible:border-primary',
       'disabled:cursor-not-allowed disabled:opacity-60',

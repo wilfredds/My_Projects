@@ -71,7 +71,8 @@
     "footerNote": "Only staff of {shopName} may use this system.",
     "setupTitle": "This is a new install",
     "setupBody": "There are no accounts yet. Set up the shop first.",
-    "setupButton": "Set up the shop"
+    "setupButton": "Set up the shop",
+    "tagline": "You take care of the cars. AutoCare takes care of the numbers."
   },
   "dashboard": {
     "title": "Home",
@@ -471,7 +472,8 @@
   },
   "footer": {
     "rules": "Rules of Use",
-    "copyright": "© {year} {shopName}"
+    "copyright": "© {year} {shopName}",
+    "poweredBy": "Powered by AutoCare"
   },
   "trash": {
     "title": "Trash",

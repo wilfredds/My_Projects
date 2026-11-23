@@ -135,7 +135,7 @@
     text-wrap: balance;
   }
   h1 {
-    @apply text-3xl font-bold leading-[1.1] tracking-[-0.01em];
+    @apply text-3xl font-bold leading-[1.08] tracking-[-0.015em] sm:text-[2.5rem];
   }
   h2 {
     @apply text-2xl font-bold leading-tight;

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { LogOut, Menu, X } from 'lucide-react';
+import { LogOut, Menu, UserRound, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from './language-switcher';
 import { NavLinks } from './nav-links';
@@ -65,12 +65,13 @@ export function TopBar({
           href="/dashboard"
           className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
         >
-          <ShopLogo name={shopName} logo={shopLogo} className="hidden sm:flex" />
+          <ShopLogo name={shopName} logo={shopLogo} className="size-10 text-base sm:size-12 sm:text-lg" />
           <span className="min-w-0">
-            <span className="block font-display text-xl font-bold uppercase leading-tight tracking-wide [text-wrap:balance]">
+            <span className="block font-display text-lg font-bold uppercase leading-tight tracking-wide [text-wrap:balance] sm:text-xl">
               <ShopMark name={shopName} />
             </span>
-            <span className="block truncate text-base text-muted-foreground">{userName}</span>
+            {/* On a phone the name of who is signed in moves into the menu. */}
+            <span className="hidden truncate text-base text-muted-foreground sm:block">{userName}</span>
           </span>
         </Link>
 
@@ -83,6 +84,10 @@ export function TopBar({
 
       {menuOpen ? (
         <div id="mobile-nav" className="border-t border-border bg-background px-4 pb-5 pt-4 lg:hidden">
+          <p className="mb-3 flex items-center gap-2 px-1 text-base text-muted-foreground sm:hidden">
+            <UserRound aria-hidden className="size-5" />
+            <span className="truncate">{userName}</span>
+          </p>
           <NavLinks items={navItems} onNavigate={() => setMenuOpen(false)} />
           <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:hidden">
             <LanguageSwitcher signedIn />

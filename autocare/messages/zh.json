@@ -71,7 +71,8 @@
     "footerNote": "本系统仅供 {shopName} 的员工使用。",
     "setupTitle": "这是全新安装",
     "setupBody": "目前还没有账号。请先设置店铺。",
-    "setupButton": "设置店铺"
+    "setupButton": "设置店铺",
+    "tagline": "车交给您，账交给 AutoCare。"
   },
   "dashboard": {
     "title": "首页",
@@ -471,7 +472,8 @@
   },
   "footer": {
     "rules": "使用守则",
-    "copyright": "© {year} {shopName}"
+    "copyright": "© {year} {shopName}",
+    "poweredBy": "由 AutoCare 提供支持"
   },
   "trash": {
     "title": "回收站",

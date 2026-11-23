@@ -43,6 +43,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-4">
           <p className="text-base text-muted-foreground">
             {t('copyright', { year: new Date().getFullYear(), shopName: shop.name })}
+            <span aria-hidden> · </span>
+            <span className="whitespace-nowrap">{t('poweredBy')}</span>
           </p>
           <Link
             href="/policy"

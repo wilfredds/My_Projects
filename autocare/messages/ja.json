@@ -71,7 +71,8 @@
     "footerNote": "{shopName}のスタッフ専用のシステムです。",
     "setupTitle": "新しいインストールです",
     "setupBody": "まだアカウントがありません。先にお店を設定してください。",
-    "setupButton": "お店を設定する"
+    "setupButton": "お店を設定する",
+    "tagline": "車のことはあなたに。計算は AutoCare に。"
   },
   "dashboard": {
     "title": "ホーム",
@@ -471,7 +472,8 @@
   },
   "footer": {
     "rules": "利用ルール",
-    "copyright": "© {year} {shopName}"
+    "copyright": "© {year} {shopName}",
+    "poweredBy": "Powered by AutoCare"
   },
   "trash": {
     "title": "ゴミ箱",

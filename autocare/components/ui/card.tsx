@@ -12,7 +12,7 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('rounded-2xl border border-border bg-card text-card-foreground', className)}
+      className={cn('rounded-2xl border border-border bg-card shadow-surface text-card-foreground', className)}
       {...props}
     />
   ),
@@ -75,7 +75,7 @@ export function Ledger({
   children: React.ReactNode;
 }) {
   return (
-    <section className={cn('rounded-2xl border border-border bg-card', className)}>
+    <section className={cn('rounded-2xl border border-border bg-card shadow-surface', className)}>
       {title ? (
         <h2 className="border-b border-border px-5 py-4 text-xl font-semibold sm:px-6">{title}</h2>
       ) : null}
@@ -153,7 +153,7 @@ export function RowList({ children, className }: { children: React.ReactNode; cl
   return (
     <ul
       className={cn(
-        'divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card',
+        'divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-surface',
         className,
       )}
     >

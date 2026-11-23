@@ -39,7 +39,7 @@ export function LanguageSwitcher({ signedIn }: { signedIn: boolean }) {
         disabled={pending}
         aria-label={t('language')}
         className={cn(
-          'inline-flex min-h-tap items-center gap-3 rounded-lg border-2 border-input bg-card',
+          'inline-flex min-h-tap items-center gap-3 rounded-lg border-[1.5px] border-input bg-card shadow-control',
           'px-4 py-2 text-base font-semibold hover:bg-accent',
           'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring',
           pending && 'opacity-60',

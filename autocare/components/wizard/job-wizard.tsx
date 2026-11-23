@@ -202,8 +202,11 @@ export function JobWizard({
             selectedId={draft.customerId}
             creating={busy}
             onSelect={(customer) => {
-              // Picking someone moves straight on — one tap, one step.
-              patch({ customerId: customer.id, vehicleId: null });
+              // Picking someone moves straight on — one tap, one step. Most
+              // customers have one car, so it is already chosen for them; the
+              // owner only has to look and press Next.
+              const only = customer.vehicles.length === 1 ? customer.vehicles[0]!.id : null;
+              patch({ customerId: customer.id, vehicleId: only });
               setStep('vehicle');
             }}
             onClear={() => patch({ customerId: null, vehicleId: null })}

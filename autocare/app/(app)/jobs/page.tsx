@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/misc';
 import { JobList, JobRow } from '@/components/jobs/job-row';
 import { JobFilters } from './job-filters';
+import { PageHeader } from '@/components/ui/page-header';
 
 export const metadata = { title: 'Jobs — AutoCare' };
 export const dynamic = 'force-dynamic';
@@ -86,18 +87,18 @@ export default async function JobsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1>{t('title')}</h1>
-          <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
-        </div>
-        <Button asChild size="lg" className="w-full sm:w-auto">
-          <Link href="/jobs/new">
-            <PlusCircle aria-hidden />
-            <span>{tnav('newJob')}</span>
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        title={t('title')}
+        description={t('subtitle')}
+        actions={
+          <Button asChild size="lg" className="w-full sm:w-auto">
+            <Link href="/jobs/new">
+              <PlusCircle aria-hidden />
+              <span>{tnav('newJob')}</span>
+            </Link>
+          </Button>
+        }
+      />
 
       <JobFilters />
 

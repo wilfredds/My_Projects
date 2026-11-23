@@ -71,7 +71,8 @@
     "footerNote": "Para lang po ito sa mga tao ng {shopName}.",
     "setupTitle": "Bagong install ito",
     "setupBody": "Wala pang account dito. I-set up muna ang shop.",
-    "setupButton": "I-set up ang shop"
+    "setupButton": "I-set up ang shop",
+    "tagline": "Kayo ang bahala sa sasakyan. Ang AutoCare ang bahala sa bilang."
   },
   "dashboard": {
     "title": "Home",
@@ -471,7 +472,8 @@
   },
   "footer": {
     "rules": "Patakaran sa Paggamit",
-    "copyright": "© {year} {shopName}"
+    "copyright": "© {year} {shopName}",
+    "poweredBy": "Pinapagana ng AutoCare"
   },
   "trash": {
     "title": "Basurahan",

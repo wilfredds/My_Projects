@@ -42,8 +42,11 @@ export const STARTER_SERVICES: { name: string; defaultPrice: string }[] = [
   { name: 'Carwash', defaultPrice: '250.00' },
 ];
 
+/** Only SETUP_CODE is read; tests pass a plain object. */
+type SetupEnv = Record<string, string | undefined>;
+
 /** The configured setup code, or null when setup is switched off. */
-export function configuredSetupCode(env: NodeJS.ProcessEnv = process.env): string | null {
+export function configuredSetupCode(env: SetupEnv = process.env): string | null {
   const code = env.SETUP_CODE?.trim();
   return code && code.length >= MIN_CODE_LENGTH ? code : null;
 }
@@ -64,7 +67,7 @@ export type SetupState = 'open' | 'needs-code' | 'done';
  */
 export async function setupState(
   db: Pick<PrismaClient, 'user'>,
-  env: NodeJS.ProcessEnv = process.env,
+  env: SetupEnv = process.env,
 ): Promise<SetupState> {
   const users = await db.user.count();
   if (users > 0) return 'done';
@@ -83,7 +86,7 @@ export type SetupResult =
 export async function performSetup(
   db: PrismaClient,
   input: SetupInput,
-  env: NodeJS.ProcessEnv = process.env,
+  env: SetupEnv = process.env,
 ): Promise<SetupResult> {
   const expected = configuredSetupCode(env);
   if (!expected) return { ok: false, reason: 'closed' };

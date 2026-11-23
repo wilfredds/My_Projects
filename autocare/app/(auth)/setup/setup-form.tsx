@@ -63,7 +63,7 @@ export function SetupForm() {
 
   if (done) {
     return (
-      <div className="mt-8 space-y-5 rounded-2xl border border-border bg-card p-6 sm:p-8">
+      <div className="mt-8 space-y-5 rounded-2xl border border-border bg-card shadow-surface p-6 sm:p-8">
         <span className="flex size-14 items-center justify-center rounded-full bg-primary-tint text-primary-strong">
           <CircleCheck aria-hidden className="size-8" />
         </span>
@@ -185,7 +185,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <fieldset className="space-y-5 rounded-2xl border border-border bg-card p-5 sm:p-6">
+    <fieldset className="space-y-5 rounded-2xl border border-border bg-card shadow-surface p-5 sm:p-6">
       <legend className="sr-only">{title}</legend>
       <div className="flex items-start gap-3">
         <span

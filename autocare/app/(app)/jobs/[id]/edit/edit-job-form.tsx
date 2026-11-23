@@ -123,7 +123,7 @@ export function EditJobForm({
 
   return (
     <div className="space-y-10">
-      <section className="space-y-5 rounded-2xl border border-border bg-card p-5">
+      <section className="space-y-5 rounded-2xl border border-border bg-card shadow-surface p-5">
         <div>
           <p className="text-base font-semibold text-muted-foreground">{tj('customer')}</p>
           <p className="text-xl font-bold">{customerName}</p>

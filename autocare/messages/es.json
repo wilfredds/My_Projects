@@ -71,7 +71,8 @@
     "footerNote": "Solo el personal de {shopName} puede usar este sistema.",
     "setupTitle": "Esta es una instalación nueva",
     "setupBody": "Todavía no hay cuentas. Configure primero el taller.",
-    "setupButton": "Configurar el taller"
+    "setupButton": "Configurar el taller",
+    "tagline": "Usted se ocupa de los autos. AutoCare se ocupa de las cuentas."
   },
   "dashboard": {
     "title": "Inicio",
@@ -471,7 +472,8 @@
   },
   "footer": {
     "rules": "Normas de uso",
-    "copyright": "© {year} {shopName}"
+    "copyright": "© {year} {shopName}",
+    "poweredBy": "Con la tecnología de AutoCare"
   },
   "trash": {
     "title": "Papelera",

@@ -23,7 +23,7 @@ export async function ReceiptView({ job, shop }: { job: SerializedJob; shop: Sho
   const peso = (v: number) => formatPeso(v, tag);
 
   return (
-    <article className="receipt-sheet mx-auto max-w-3xl rounded-2xl border border-border bg-card p-5 text-lg text-foreground sm:p-8">
+    <article className="receipt-sheet mx-auto max-w-3xl rounded-2xl border border-border bg-card shadow-surface p-5 text-lg text-foreground sm:p-8">
       <header className="flex flex-col items-center border-b-4 border-foreground pb-4 text-center">
         {shop.logo ? <ShopLogo name={shop.name} logo={shop.logo} className="mb-2 size-16" /> : null}
         <h1 className="text-2xl font-bold uppercase tracking-wide">{shop.name}</h1>

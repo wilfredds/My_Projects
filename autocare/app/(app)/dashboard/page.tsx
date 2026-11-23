@@ -10,6 +10,8 @@ import { notDeleted } from '@/lib/jobs';
 import { decimalToNumber, startOfDay, endOfDay, formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, Ledger, LedgerRow } from '@/components/ui/card';
+import { Meter } from '@/components/ui/meter';
+import { PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/misc';
 import { JobList, JobRow } from '@/components/jobs/job-row';
 import { MonthlyIncomeChart } from './monthly-chart';
@@ -96,14 +98,15 @@ export default async function DashboardPage({
     <div className="space-y-8">
       {params.denied === '1' ? <DeniedNotice /> : null}
 
-      <div>
-        <h1 className="animate-rise">{t('greeting', { name: user.name.split(' ')[0] })}</h1>
-        <p className="animate-rise mt-1 text-lg text-muted-foreground">{formatDate(now, tag)}</p>
-      </div>
+      <PageHeader
+        className="animate-rise"
+        eyebrow={formatDate(now, tag)}
+        title={t('greeting', { name: user.name.split(' ')[0] })}
+      />
 
       <div className="grid items-start gap-6 lg:grid-cols-2">
         {/* The single largest, most prominent control on the screen — and the
-            only solid orange one. */}
+            only solid one in the shop's colour. */}
         <div className="space-y-3">
           <Button asChild size="hero" variant="hero" className="animate-pop">
             <Link href="/jobs/new">
@@ -114,26 +117,33 @@ export default async function DashboardPage({
           <p className="text-lg text-muted-foreground">{t('recordNewJobHint')}</p>
         </div>
 
-        {/* Today's figures as ruled lines, like the page of his notebook. */}
-        <Ledger>
-          <LedgerRow
+        {/* Today's takings, counted like the window of a fuel pump. */}
+        <div className="space-y-3">
+          <Meter
             label={t('todayIncome')}
-            hint={t('jobsCount', { count: todayJobs })}
-            value={formatPeso(decimalToNumber(todayMoney._sum.amountPaid), tag)}
-            emphasis
+            amount={formatPeso(decimalToNumber(todayMoney._sum.amountPaid), tag)}
+            status={
+              <span className="rounded-full bg-white/10 px-3 py-1 text-base font-semibold text-white">
+                {t('jobsCount', { count: todayJobs })}
+              </span>
+            }
+            details={[
+              {
+                label: t('monthIncome'),
+                value: formatPeso(decimalToNumber(monthMoney._sum.amountPaid), tag),
+              },
+            ]}
           />
-          <LedgerRow
-            label={t('monthIncome')}
-            value={formatPeso(decimalToNumber(monthMoney._sum.amountPaid), tag)}
-          />
-          <LedgerRow
-            label={t('unpaidTotal')}
-            hint={t('jobsCount', { count: unpaid._count._all })}
-            value={formatPeso(owed, tag)}
-            tone={owed > 0 ? 'owed' : 'default'}
-            href={owed > 0 ? '/jobs?status=OWED' : undefined}
-          />
-        </Ledger>
+          <Ledger>
+            <LedgerRow
+              label={t('unpaidTotal')}
+              hint={t('jobsCount', { count: unpaid._count._all })}
+              value={formatPeso(owed, tag)}
+              tone={owed > 0 ? 'owed' : 'default'}
+              href={owed > 0 ? '/jobs?status=OWED' : undefined}
+            />
+          </Ledger>
+        </div>
       </div>
 
       <section className="space-y-4">

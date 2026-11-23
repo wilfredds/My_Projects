@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/ui/misc';
 import { RowList } from '@/components/ui/card';
 import { Plate } from '@/components/ui/plate';
 import { CustomerFormDialog } from '@/components/forms/customer-form';
+import { PageHeader } from '@/components/ui/page-header';
 
 export const metadata = { title: 'Customers — AutoCare' };
 export const dynamic = 'force-dynamic';
@@ -49,16 +50,16 @@ export default async function CustomersPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1>{t('title')}</h1>
-          <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
-        </div>
-        <CustomerFormDialog />
-      </div>
+      <PageHeader
+        title={t('title')}
+        description={t('subtitle')}
+        actions={
+          <CustomerFormDialog />
+        }
+      />
 
       {/* A plain GET form keeps search working even without JavaScript. */}
-      <form className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+      <form className="rounded-2xl border border-border bg-card shadow-surface p-4 sm:p-5">
         <Field label={t('searchPlaceholder')} htmlFor="customer-search">
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">

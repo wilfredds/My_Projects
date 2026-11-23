@@ -140,6 +140,8 @@ export function ReceiptPdf({
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           {/* A PNG data URL, checked on upload (lib/logo.ts). */}
+          {/* react-pdf's Image is not an HTML <img>; it has no alt attribute. */}
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
           {shop.logo ? <Image src={shop.logo} style={styles.logo} /> : null}
           <Text style={styles.shopName}>{shop.name.toUpperCase()}</Text>
           <Text style={styles.shopLine}>{shop.address}</Text>

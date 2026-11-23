@@ -78,7 +78,7 @@ export function PasswordFields({
                 aria-hidden
                 className={cn(
                   'flex size-7 shrink-0 items-center justify-center rounded-full',
-                  rule.ok ? 'bg-foreground text-card' : 'border-2 border-input bg-card text-muted-foreground',
+                  rule.ok ? 'bg-foreground text-card' : 'border-[1.5px] border-input bg-card text-muted-foreground',
                 )}
               >
                 {rule.ok ? <Check className="size-5" /> : <X className="size-5" />}
