@@ -17,20 +17,30 @@ part 'app_database.g.dart';
     Drivetrains,
     Sensors,
     AppSettingsRows,
+    RaceEvents,
+    RaceChecklistItems,
+    RaceDebriefs,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (migrator) => migrator.createAll(),
     onUpgrade: (migrator, from, to) async {
-      // Version 1 is the first schema, so there is nothing to upgrade from
-      // yet. Each future version adds an `if (from < n)` step here.
+      // One step per version, each guarded by `from`, so a phone that skipped
+      // several releases runs every step it missed, in order.
+      if (from < 2) {
+        // Version 2 (Phase 2) adds race prep. Only new tables: nothing that
+        // version 1 stored is touched.
+        await migrator.createTable(raceEvents);
+        await migrator.createTable(raceChecklistItems);
+        await migrator.createTable(raceDebriefs);
+      }
     },
     beforeOpen: (details) async {
       // SQLite ignores foreign keys unless asked, per connection.
