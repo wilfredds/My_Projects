@@ -89,7 +89,7 @@ Every project now has a workflow, each path-filtered to its own directory:
 | `deploy-web.yml` | builds `cyclemind_ai` for web and publishes to Pages |
 | `deploy-bike-guide.yml` | publishes `bike-guide-app/` to Pages under `/bike-guide-app/` |
 | `flare-ci.yml` | lint, typecheck, 87 tests, build |
-| `ride-doctor-ci.yml` | format, analyze, 331 tests, coverage thresholds, secret scan, Android debug build (uploads the APK). Runs on every push to any branch, unlike the others |
+| `ride-doctor-ci.yml` | format, analyze, 421 tests, coverage thresholds, secret scan, Android debug build (uploads the APK). Runs on every push to any branch, unlike the others |
 
 Known coverage gaps, so nobody assumes more than is there:
 

@@ -14,13 +14,15 @@ wins unless `docs/DECISIONS.md` records a deliberate change.
 | Phase | State |
 |---|---|
 | 0 — Foundation | Done. |
-| 1 — Profile, consents, calculation engine | **Built.** Awaiting the owner's review on a real phone. |
-| 2 — Race prep | Not started. Next. |
-| 3–7 | Not started. |
+| 1 — Profile, consents, calculation engine | Built, green in CI. Not yet seen on a real phone. |
+| 2 — Race prep | **Built.** Add a race, countdown mode, race-day timeline, checklist, skills library, debrief, history. |
+| 3 — Daily plan, notifications, weather | Not started. Next. Needs a real device to verify notifications. |
+| 4–7 | Not started. |
 
 Not yet verified by anyone: the app on a real device (only tests and CI
 builds), and the "onboarding in two minutes" target. Several science sources
-are still unverified — `docs/SCIENCE.md` ends with the open list.
+are still unverified, the readiness questions need medical review and the
+skills library needs a coach's review — `docs/SCIENCE.md` ends with the list.
 
 ## How we work (PROMPT.md section 0)
 
@@ -95,7 +97,8 @@ lib/
     app/      clock and id providers
     rules/    PURE DART diagnosis rule engine (Phase 4)
   features/<feature>/{data, domain, presentation}
-              onboarding, profile, calculators, settings, today, dev
+              onboarding, profile, calculators, race_prep, settings, today,
+              dev
   l10n/       app_en.arb (template), app_fil.arb
 test/         mirrors lib/
 tool/         check_coverage.dart, setup_remote_flutter.sh
@@ -117,8 +120,12 @@ docs/         DECISIONS.md, SCIENCE.md, PRIVACY.md
    the app. The rule is the pure function `redirectFor` in `app_router.dart`.
 7. Everything is stored and calculated in metric. Conversion happens only at
    the edges, through `DisplayUnits`.
-8. Changing a table: bump `schemaVersion`, add a migration step, add a test.
-   Never edit a released schema in place.
+8. Changing a table (ADR-0023): edit `tables.dart`, bump `schemaVersion`, add
+   an `if (from < n)` step in `app_database.dart`, then
+   `dart run drift_dev schema dump lib/core/database/app_database.dart drift_schemas/`
+   and `dart run drift_dev schema generate drift_schemas/ test/generated_migrations/`,
+   and extend `test/core/database/migration_test.dart`. Never edit a released
+   schema in place.
 
 ## Conventions
 
@@ -151,6 +158,15 @@ docs/         DECISIONS.md, SCIENCE.md, PRIVACY.md
   Large numbers are rich text: find them with `findRichText: true`.
 - In widget tests, take the app down before closing its database (pumpApp
   does). Closing it under a still-mounted app hangs the run when a test fails.
+- **Never use an ICU plural to mean "exactly one"** (`=1{...}`). Filipino's
+  "one" category covers 1, 2, 3, 5, 7... Choose exact cases in Dart
+  (ADR-0021).
+- **Above form fields, show things with `InlineError` or `Visibility`, never
+  `if`.** Inserting a sibling rebuilds the fields below and wipes their
+  validation messages (ADR-0022).
+- A "Saved" snack bar covers the bottom of the screen for four seconds. The
+  test helpers `tapText`/`tapButton` wait it out; a bare `tester.tap` after a
+  save may land on it instead.
 - Run `dart fix --apply` then `dart format lib test tool` before analysing.
 
 ## Never do

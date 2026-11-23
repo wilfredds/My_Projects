@@ -397,3 +397,96 @@ fonts, on demand. The images are git-ignored and are not compared in CI.
 three things tests did not: the debug ribbon covering a button, a disabled
 switch that read as "off", and two awkward labels. Pixel-comparison gating was
 rejected: it fails on harmless rendering differences between machines.
+
+---
+
+## ADR-0020 — A race start is a wall-clock time, with no time zone
+
+**Status:** Accepted (2026-11-23)
+
+**Context.** drift stores `DateTime` values as UTC instants. A race start is
+not an instant in the rider's head: it is "6:30 on the 14th, at the race".
+
+**Decision.** `race_events.starts_at_local` is text like
+`2027-03-14T06:30:00.000`, with no zone marker, and is compared with the
+phone's local clock.
+
+**Consequences.** A 6:30 start stays 6:30 if the phone's zone changes or the
+rider travels. It is wrong only for a rider looking at a race in another zone
+before travelling there, where the countdown can be off by the zone
+difference. ISO text also sorts chronologically, so the database orders races
+without parsing.
+
+---
+
+## ADR-0021 — No ICU plurals for exact counts
+
+**Status:** Accepted (2026-11-23)
+
+**Context.** "In N days" was first written as an ICU plural:
+`=0{Today} =1{Tomorrow} other{In N days}`. In Filipino it showed "Bukas"
+(tomorrow) for a race five days away. Plural categories are grammatical, not
+numeric, and Flutter maps `=1` onto the language's "one" category — which in
+Filipino covers 1, 2, 3, 5, 7, 8 and more.
+
+**Decision.** Exact cases (today, tomorrow, yesterday) are chosen in Dart with
+a `switch`; the ARB files hold only plain messages.
+
+**Consequences.** Correct in every language without knowing each one's plural
+rules. `test/features/race_prep/race_text_test.dart` checks every count from
+2 to 400 in both languages. Use an ICU plural only for genuine grammatical
+agreement, never to mean "exactly one".
+
+---
+
+## ADR-0022 — Keep the shape of a form's widget list stable
+
+**Status:** Accepted (2026-11-23). Extends ADR-0018.
+
+**Context.** On the race form, showing "Choose a date." with
+`if (missing) Text(...)` made the start-time field below it lose its own
+validation message. Inserting a widget shifts every later sibling by one
+position; Flutter matches children by position and type, so the fields below
+were destroyed and rebuilt with fresh, error-free state.
+
+**Decision.** Anything shown conditionally above form fields keeps its slot:
+`InlineError` for messages (renders nothing when there is none) and
+`Visibility` for optional groups of fields. Never `if` in that position.
+
+**Consequences.** Field state survives. The alternative, a `Key` on every
+field, also works but has to be remembered for each new field.
+
+---
+
+## ADR-0023 — Every released schema is frozen and its upgrade is tested
+
+**Status:** Accepted (2026-11-23)
+
+**Context.** Phase 2 is the first schema change (version 1 to 2). A wrong
+migration destroys data on riders' phones and cannot be taken back.
+
+**Decision.** Each version's schema is exported to `drift_schemas/` as JSON.
+`test/generated_migrations/` holds drift's generated snapshots of each
+version (committed: they are frozen history, not derived from current code).
+`migration_test.dart` upgrades from every old version to every newer one,
+checks the result is identical to a fresh install, and checks that a rider
+stored under version 1 is still there afterwards.
+
+**Consequences.** Adding a table or column now has a fixed recipe (in
+`CLAUDE.md`). The test fails if a step is forgotten; removing one
+`createTable` call was tried, and it failed.
+
+---
+
+## ADR-0024 — What Phase 2 leaves to later phases
+
+**Status:** Accepted (2026-11-23)
+
+- **Weather and heat in Race-Day mode** need the forecast, which arrives in
+  Phase 3. Until then the Heat check under My Numbers takes manual input.
+- **The build and taper phases show dates and one line of advice**, not daily
+  sessions. Generating sessions is Phase 3.
+- **The debrief is stored, not yet acted on.** It feeds the diagnosis engine
+  (Phase 4) and the plan generator (Phase 3).
+- **Skills are read, not tracked.** Self-rated skills and a skills plan were
+  not added; nothing would use them yet.

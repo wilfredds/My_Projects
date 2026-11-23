@@ -353,6 +353,68 @@ the app and is never a diagnosis.
 
 ---
 
+## 7.13 Taper
+
+**Rule.** With at least 8 weeks to a race the plan ends with a 14-day taper;
+with 2 to under 8 weeks, a 7-day taper. The advice shown: ride about half the
+usual volume and keep a few short hard efforts.
+
+**Source — Verified (abstract).** Bosquet L, Montpetit J, Arvisais D, Mujika
+I. Effects of tapering on performance: a meta-analysis. *Med Sci Sports
+Exerc.* 2007;39(8):1358-1365. doi:10.1249/mss.0b013e31806010e0. PMID 17762369.
+From 27 studies of competitive athletes: "A 2-wk taper during which training
+volume is exponentially reduced by 41-60% seems to be the most efficient
+strategy", "without any modification of either training intensity ... or
+frequency".
+
+**Limits and our choices.** The studies are of competitive athletes, not
+beginners, and across several sports. The 7-day taper for shorter build-ups
+is **our own shortening**, so that some time is left to build; the paper
+supports two weeks. The app currently states the taper as advice; it does not
+yet prescribe sessions (Phase 3).
+
+**Tests.** `test/features/race_prep/countdown_test.dart`.
+
+## Race prep: countdown modes and race-day timeline
+
+These are **planning conventions from the product spec, not study results.**
+
+**Countdown mode** (`countdown.dart`). 8 weeks or more: long build. 2 to under
+8 weeks: compressed build. 2 to under 14 days: race week. Under 48 hours: race
+day. After the start: race over. The boundaries are exact and tested on both
+sides. The 28-day build block inside a long build is our own choice.
+
+**Race-day timeline** (`race_day_timeline.dart`). Worked backward from the
+start time, each step at the middle of the spec's range:
+
+| Step | Minutes before the start | Spec range |
+|---|---|---|
+| Pre-race meal | 150 | 2–3 h before |
+| Arrive | 75 | 60–90 min before |
+| Register and pin number | 65 | — |
+| Ride the course (if allowed) | 50 | — |
+| Warm-up starts | 30 | 15–25 min long |
+| Warm-up ends; last drink and toilet | 10 | 5–10 min before |
+| Go to the line | 5 | — |
+
+Wake-up is 30 minutes before the meal, or 45 minutes before leaving home if
+that is earlier (a long drive). **`TODO(verify)`**: the meal timing against a
+sports-nutrition source, when 7.12 (fuelling) is done in Phase 3.
+
+**Skills and tactics library.** The 17 cards and their drills are **our own
+wording** of conventional coaching advice, shaped by the list in the spec.
+They cite no source and have not been reviewed by a qualified coach;
+that review should happen before release. Drills were chosen to be done
+alone, at low speed or on quiet roads.
+
+**Debrief.** "Dizziness" is treated as a red flag: it always produces "please
+see a doctor" and never training or bike-fit advice. The full red-flag list
+from the spec (chest pain, fainting, unusual breathlessness, palpitations,
+confusion in heat, sudden severe joint pain, swelling) arrives with the
+diagnosis engine in Phase 4; the debrief offers only the symptoms above.
+
+---
+
 ## Not yet implemented
 
 | Id | Topic | Phase |
@@ -360,7 +422,6 @@ the app and is never a diagnosis.
 | 7.9 | Training load (session RPE) | 3 |
 | 7.11 | Hydration and sweat rate | 3 |
 | 7.12 | Fuelling by duration | 3 |
-| 7.13 | Taper | 2 |
 
 ## Open verification list
 
@@ -374,3 +435,5 @@ Needs network access to the named site, or a person with the book:
 6. CdA for a rider on the hoods.
 7. Holmes 1994 full text for the knee-angle range (before Phase 6).
 8. A source for effort-to-W/kg defaults.
+9. A qualified coach's review of the skills library and drills.
+10. Pre-race meal timing against a sports-nutrition source.

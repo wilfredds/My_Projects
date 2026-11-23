@@ -3,9 +3,9 @@
 > **Draft, not legal advice.** Written in plain language so it can be checked
 > against what the app really does. Before any public release it needs review
 > against the Philippine Data Privacy Act of 2012 (RA 10173) and, for users
-> elsewhere, GDPR-style requirements. Last updated for Phase 1.
+> elsewhere, GDPR-style requirements. Last updated for Phase 2.
 
-## What the app does today (Phase 1)
+## What the app does today (Phase 2)
 
 This section is rewritten at the end of every phase to match the shipped code.
 
@@ -16,6 +16,11 @@ This section is rewritten at the end of every phase to match the shipped code.
 - Your bike: type, tyre size, measurements and gears. Which sensors you own.
 - Your choices on this page's permissions, each with its date and the version
   of the text you saw. Withdrawing adds a record; history is not rewritten.
+- Your races: name, type, date and start time, and any course details you
+  add; which checklist items you ticked; and your debrief after a race —
+  whether you finished, your place, where it was hardest, anything physical
+  you noticed, and your own note. The debrief is health-related information
+  and is covered by the same consent as your profile.
 - App settings: theme, language, units.
 
 **How it is protected**
