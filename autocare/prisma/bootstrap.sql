@@ -293,6 +293,33 @@ CREATE INDEX "Job_deletedAt_date_idx" ON "Job"("deletedAt", "date");
 -- AddForeignKey
 ALTER TABLE "Job" ADD CONSTRAINT "Job_deletedById_fkey" FOREIGN KEY ("deletedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
+-- ============================================================
+-- schema from prisma/migrations/20261123090000_shop_branding/migration.sql
+-- ============================================================
+
+-- Branding for shops that install AutoCare: TIN on the receipt, an accent
+-- colour, and a logo. Additive only — existing rows keep working unchanged
+-- and pick up the original orange ("kahel") accent.
+ALTER TABLE "ShopSetting" ADD COLUMN "tin" TEXT;
+ALTER TABLE "ShopSetting" ADD COLUMN "accent" TEXT NOT NULL DEFAULT 'kahel';
+ALTER TABLE "ShopSetting" ADD COLUMN "logo" TEXT;
+
+-- ============================================================
+-- schema from prisma/migrations/20261123120000_revoked_sessions/migration.sql
+-- ============================================================
+
+-- Logged-out sign-ins, so "Log out" is final (see lib/session.ts). New table only.
+CREATE TABLE "RevokedSession" (
+    "sid" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "RevokedSession_pkey" PRIMARY KEY ("sid")
+);
+
+CREATE INDEX "RevokedSession_expiresAt_idx" ON "RevokedSession"("expiresAt");
+
 
 -- ============================================================
 -- Prisma migration bookkeeping
@@ -314,6 +341,8 @@ CREATE TABLE IF NOT EXISTS "_prisma_migrations" (
 
 INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, '9c1897b7c93fc5ce4fdf68b6eb7f7100d92560dae9038f0e5e70255153252a45', now(), '20260805141346_init', now(), 1);
 INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, '4715f9e066040cfb865f4ea0a96de72fd3be64fa4025685a5d1b33480bb953b2', now(), '20260806123853_soft_delete_and_session_revocation', now(), 1);
+INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, '3959fe54284bb3c6921fa7dfef0e09544c598bc21340ce9cd4bd0f72762c6aa2', now(), '20261123090000_shop_branding', now(), 1);
+INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, 'c7b800db0826db0c778ddaf3c6832c937b3a557d44505f6c7e36a659ce3c4ad5', now(), '20261123120000_revoked_sessions', now(), 1);
 
 
 -- ============================================================
@@ -336,8 +365,8 @@ INSERT INTO "ShopSetting" ("id","name","address","phone","updatedAt") VALUES
 -- ============================================================
 
 INSERT INTO "User" ("id","name","username","passwordHash","role","locale","isActive","failedLoginAttempts","tokenVersion","mustChangePassword","createdAt","updatedAt") VALUES
-  ('seed-user-raul',   'RAUL V. SANTOS',            'raul',   '$2a$12$x4dXhyN8EHuL37aiCGk9yumcTMzznW3xEvqra6/1Ix3VmT9caP9JW',   'ADMIN', 'fil', true, 0, 0, true, now(), now()),
-  ('seed-user-france', 'Francis Wilfred Antiporda', 'france', '$2a$12$7UmLZDmmNmvNzUYUn6RTAezYT/fom1EF/t4uwH8QKlEM11oJkIpmC', 'ADMIN', 'fil', true, 0, 0, true, now(), now());
+  ('seed-user-raul',   'RAUL V. SANTOS',            'raul',   '$2a$12$BZgwNocjf.P.dD9FW/VjB.NOs8vrx4jBGj9EawjhdJC8QWJ51VRf6',   'ADMIN', 'fil', true, 0, 0, true, now(), now()),
+  ('seed-user-france', 'Francis Wilfred Antiporda', 'france', '$2a$12$9007GyLt2bX113uRO6MyuOPhRNeN4oP9DYMekSwpO6NLAXFFjfF2W', 'ADMIN', 'fil', true, 0, 0, true, now(), now());
 
 
 -- ============================================================

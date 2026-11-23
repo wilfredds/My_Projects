@@ -135,8 +135,13 @@ sa itim na kahon, parang metro ng gasolinahan.
    - **I-print** (ang orange na button) — para may papel na ibibigay sa customer
    - **I-download ang PDF** — para may kopya sa cellphone o para i-email
 
-Nasa resibo po ang pangalan ng shop, address, numero ninyo, ang lahat ng
-ginawa, ang mga piyesa, at ang kabuuan.
+Nasa resibo po ang logo at pangalan ng shop, address, numero ninyo, TIN (kung
+nailagay sa **Mga Setting**), ang lahat ng ginawa, ang mga piyesa, at ang
+kabuuan.
+
+> Sa ibaba ng resibo nakasulat po: *"Ito ay talaan ng trabaho, hindi opisyal na
+> resibo ng BIR."* Totoo po iyon — kung kailangan ng customer ng opisyal na
+> resibo, sa resibo pa rin po ng BIR ninyo isusulat.
 
 ---
 
@@ -169,9 +174,10 @@ Suki na po at ganoon din ang ginagawa tuwing buwan?
 
 ## 7. Palitan ang wika
 
-Sa itaas ng screen may button na may globo (🌐). Pindutin po ito para pumili ng
-wika. Puwede pong **Filipino**, **English**, at iba pa kung dayuhan ang
-customer.
+Pindutin po ang button na **Wika**, na may globo (🌐). Sa computer, nasa itaas
+po ito ng screen. Sa cellphone, pindutin muna ang **Menu** sa itaas — nandoon
+po ito sa ibaba ng listahan. Puwede pong **Filipino**, **English**, at iba pa
+kung dayuhan ang gumagamit.
 
 ---
 
@@ -181,7 +187,7 @@ customer.
 | --- | --- |
 | **Mga Ulat** | Magkano ang kinita ngayong araw, linggo, o buwan. Sino ang pinakamalaking customer. Anong piyesa ang madalas gamitin. |
 | **Mga User** | Gumawa ng account para sa katulong ninyo. Puwede rin ninyong i-off o palitan ang password nila. |
-| **Mga Setting** | Baguhin ang pangalan, address at numero ng shop na lumalabas sa resibo. |
+| **Mga Setting** | Baguhin ang pangalan, address, numero at TIN ng shop na lumalabas sa resibo. Dito rin po ang logo at kulay ng shop (basahin ang 8-B). |
 | **Talaan ng Ginawa** | Makikita ninyo ang lahat ng nangyari — sino ang nag-log in at sino ang nagbago ng ano. |
 | **Basurahan** | Nandito po ang mga trabahong nabura. **Puwede pong ibalik.** Basahin ang bilang 8-A sa ibaba. |
 
@@ -211,11 +217,32 @@ serbisyo at ang KABUUAN. Walang po mababago kahit isang piso.
 
 ---
 
+## 8-B. Logo at kulay ng shop
+
+Sa **Mga Setting**, sa itaas po, ang **Itsura ng inyong shop**:
+
+- **Logo** — pindutin ang **Pumili ng logo** at piliin ang larawan ng logo sa
+  cellphone (PNG, JPG o WebP). Kusa po itong pinapaliit. Lalabas ito sa itaas
+  ng bawat screen at sa resibo. Ayaw na? Pindutin ang **Alisin ang logo** —
+  ang mga unang letra ng shop po ang ipapakita.
+- **Kulay** — pindutin ang **Kahel**, **Asul**, **Lila**, o **Itim at ginto**.
+  Kusa pong magbabago ang kulay ng buong sistema. Kahel po ang nakasanayan
+  natin.
+
+> Wala pong berde, pula o dilaw sa pagpipilian — dahil sa AutoCare, ang mga
+> kulay na iyon ay para lang sa **bayad na**, **hindi pa bayad** at **parte pa
+> lang ang bayad**. Para hindi po malito.
+
+---
+
 ## 9. Mahalagang paalala tungkol sa seguridad
 
 1. **Huwag pong ipaalam ang password ninyo kahit kanino.**
 2. **Mag-log out po pagkatapos**, lalo na kung hiniram ninyo ang cellphone o
-   computer ng iba. Ang button na **Mag-log out** ay nasa itaas palagi.
+   computer ng iba. Sa computer, ang **Mag-log out** ay nasa itaas palagi. Sa
+   cellphone, pindutin muna ang **Menu** — nasa pinakababa po ito. Kapag
+   nag-log out kayo, tapos na po talaga — sa cellphone o computer lang na iyon;
+   hindi po nalalabas ang iba ninyong cellphone.
 3. Kusa pong nagla-log out ang sistema kapag **30 minutong** walang ginagawa.
 4. Kapag **5 beses na maling password**, magsasara ang account nang **15
    minuto**. Maghintay lang po, o tawagan si Francis para buksan ulit.

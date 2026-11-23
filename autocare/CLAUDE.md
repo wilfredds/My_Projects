@@ -1,8 +1,10 @@
 # AutoCare — working notes
 
-Job-management system for HI-OCTEN CAR CARE SERVICES. Replaces a paper
-notebook: the owner records a finished job across seven short screens, and the
-running total is always calculated, never typed.
+Job-management system for HI-OCTEN CAR CARE SERVICES, also installable for any
+other talyer or car-care shop (one install and one database per shop — see
+`INSTALL-NEW-SHOP.md`). Replaces a paper notebook: the owner records a finished
+job across seven short screens, and the running total is always calculated,
+never typed.
 
 **Stack:** Next.js (App Router) · TypeScript · Prisma · PostgreSQL · next-auth ·
 Tailwind · Radix/shadcn · next-intl · Zod · react-hook-form
@@ -12,12 +14,20 @@ Tailwind · Radix/shadcn · next-intl · Zod · react-hook-form
 ```bash
 npm run lint        # next lint
 npm run typecheck   # tsc --noEmit
-npm test            # money maths only, no database
-npm run test:db     # job integrity, security, access control — needs PostgreSQL
+npm test            # money maths and branding, no database
+npm run test:db     # job integrity, security, access control, setup — needs PostgreSQL
 npm run test:all    # both
 npm run build       # prisma generate && next build
+npm run test:e2e    # 27 Playwright tests against the built app — run build first
 npm run dev
+node scripts/check-contrast.mjs   # WCAG AA for every colour pairing × 4 accents
 ```
+
+`test:e2e` adds its own test accounts to the `.env` database and recreates a
+second, empty database (`<name>_e2e_fresh`) for the first-run setup tests. It
+starts `next start` on ports 3200 and 3201, so stop anything else using them.
+It uses the global Playwright 1.63.0 with the browsers in
+`/opt/pw-browsers` — never run `playwright install` here (CI does).
 
 Database:
 
@@ -57,6 +67,18 @@ installing. The hook copies `.env.example` if it is missing.
 - **Sessions are invalidated eagerly.** Deactivating, locking, or resetting a
   password kills live sessions immediately (`lib/session.ts`,
   `lib/auth-logic.ts`). Tests cover each path.
+- **Logout revokes one sign-in.** Each JWT carries a `sid`; logging out writes
+  it to `RevokedSession`, which `resolveSessionUser` checks. A refused cookie
+  is sent to `/api/session/end` (clears it, then `/login`) — not straight to
+  `/login`, which would loop because middleware still sees a cookie.
+- **No default accounts for other shops.** `lib/setup.ts` + `/setup` create
+  the first owner, only while the `User` table is empty and `SETUP_CODE` is
+  set. `npm run seed` and `prisma/bootstrap.sql` are HI-OCTEN's alone.
+- **Branding is per install, in `ShopSetting`:** `accent` (one of
+  `lib/branding.ts`'s four — green, red and amber are reserved for money
+  states), `logo` (a PNG data URL checked by `lib/logo.ts`) and `tin`. The
+  accent is applied as `<html data-accent>`; `app/globals.css` overrides the
+  primary tokens per accent. After touching a colour, run the contrast check.
 - **Soft delete.** Deleting a job hides it but preserves money history, and
   deleted jobs are excluded from revenue totals. Do not turn this into a hard
   delete.
@@ -74,8 +96,12 @@ installing. The hook copies `.env.example` if it is missing.
 ## CI
 
 `.github/workflows/autocare-ci.yml` runs lint, typecheck, `npm test`, migrate,
-seed, `npm run test:db` and build against a real PostgreSQL service container.
-It is path-filtered to `autocare/**`, and uses `npm ci`.
+seed, `npm run test:db`, build and `npm run test:e2e` against a real PostgreSQL
+service container. It is path-filtered to `autocare/**`, and uses `npm ci`.
+
+Vercel's production build (`npm run build:vercel`) runs `prisma migrate
+deploy`, so a merged migration applies itself to every shop's database. Keep
+migrations additive.
 
 ## Gotchas
 

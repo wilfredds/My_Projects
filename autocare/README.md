@@ -7,6 +7,11 @@ screens to record a finished job; the running total is calculated for him and
 can never be typed by hand. Every job can be printed or downloaded as a PDF
 receipt.
 
+It is not tied to HI-OCTEN. Each shop gets its own install and its own
+database, sets itself up on first visit, and carries its own name, logo, colour
+and TIN — see **[INSTALL-NEW-SHOP.md](INSTALL-NEW-SHOP.md)** for installing it
+at another talyer or car-care shop.
+
 ---
 
 ## Table of contents
@@ -35,7 +40,7 @@ receipt.
 | **Services** | admin edits, staff views | The catalog of repeatable services and their usual prices. |
 | **Reports** | admin | Daily and monthly income, most-used spare parts, top customers, CSV/JSON backup. |
 | **Users** | admin | Create staff accounts, turn them on and off, change passwords, unlock accounts. |
-| **Settings** | admin | The shop details printed on receipts, and your own language. |
+| **Settings** | admin | The shop's logo and colour, the details and TIN printed on receipts, and your own language. |
 | **Activity Log** | admin | Every login and every change anyone made. |
 
 ### Not built in v1 (by design)
@@ -154,6 +159,10 @@ their next login.
 
 ## Deploying to Vercel + Neon
 
+This is how HI-OCTEN's own copy is deployed, with its seeded owner accounts.
+**For any other shop, follow [INSTALL-NEW-SHOP.md](INSTALL-NEW-SHOP.md)
+instead** — it seeds nothing and uses the first-run setup page.
+
 Follow these in order. It takes about fifteen minutes.
 
 ### Step 1 — Create the database on Neon
@@ -213,8 +222,11 @@ git push
 
 ### Step 4 — Create the tables on Neon
 
-The deploy builds the app but does **not** create the tables. Pick whichever of
-these suits you — they produce exactly the same database.
+The production deploy creates the tables itself (`npm run build:vercel` runs
+`prisma migrate deploy` first), but it creates no accounts. Option B adds them
+to those tables. Option A is only for a database that is still completely
+empty — for example one you set up before deploying — because it creates the
+tables as well and fails if they already exist.
 
 **Option A — paste one file into Neon (no local setup needed).**
 
@@ -235,7 +247,8 @@ DATABASE_URL="<your Neon connection string>" npx prisma migrate deploy
 DATABASE_URL="<your Neon connection string>" npm run seed
 ```
 
-Write down the passwords the seed prints.
+Write down the passwords the seed prints. (`migrate deploy` is harmless if the
+deploy already applied everything — it reports "No pending migrations".)
 
 Either way, verify it worked by running this in the Neon SQL Editor — it should
 return two users and two jobs:
@@ -357,6 +370,8 @@ Arithmetic is done in whole centavos, so adding ten ₱0.07 lines gives exactly
 | Static security headers (HSTS, frame, isolation) | `next.config.mjs` |
 | Nonce-based Content-Security-Policy, built per request | `lib/security-headers.ts` + `middleware.ts` |
 | Immediate session revocation (`tokenVersion`) | `prisma/schema.prisma`, `lib/session.ts` |
+| Logging out revokes that sign-in for good (`RevokedSession`) | `auth.config.ts`, `app/actions/sign-out.ts`, `lib/session.ts` |
+| First-run setup, open only to an empty database holding a setup code | `lib/setup.ts`, `app/(auth)/setup/` |
 | Forced password change on first login | `mustChangePassword`, `middleware.ts`, `app/(app)/account/` |
 | Self-service password change | `app/(app)/account/` |
 | Recoverable delete (Trash) instead of destroying records | `lib/jobs.ts`, `app/(app)/trash/` |
@@ -397,6 +412,22 @@ A few things worth knowing:
   lockout, which lives in Postgres and is therefore shared. To make the IP
   limit global too, swap `hit()` in `lib/rate-limit.ts` for a Redis `INCR` —
   the signature is designed to stay the same.
+  The per-IP count is cleared by a successful login, so a shop where everyone
+  signs in from one Wi-Fi is not locked out by its own normal day — only
+  failures accumulate.
+- **Logging out is final.** Each sign-in carries its own id (`sid`) inside the
+  JWT. Logging out records that id in `RevokedSession`, which every request
+  checks, so even a cookie that a request still in flight writes back after
+  logout is refused. Only that device is signed out; the user's other phones
+  stay signed in. A refused cookie is sent to `/api/session/end`, which deletes
+  it and goes to the login page — without that, a revoked cookie would bounce
+  between the login page and the app forever.
+- **First-run setup cannot be reused.** `/setup` creates the first owner
+  account, and only while the database has no users at all; it checks that
+  inside a transaction holding a Postgres advisory lock, so two people
+  submitting at once cannot both succeed. It also needs `SETUP_CODE` (8+
+  characters) from the server's environment, so whoever finds a fresh install
+  first cannot claim it. Once an account exists the page is a 404.
 - **Passwords are never logged.** There is a test asserting no audit row ever
   contains one.
 - `bcryptjs` is used rather than the native `bcrypt` binding: it is the same
@@ -408,8 +439,10 @@ A few things worth knowing:
 ## Languages
 
 Filipino is the default; English, Spanish, Japanese, Korean and Chinese ship
-alongside it. All six catalogs are complete (432 keys each) — no UI text is
-hardcoded.
+alongside it. All six catalogs are complete (488 keys each) — no UI text is
+hardcoded. The PDF receipt is printed in Filipino, English or Spanish; the PDF
+font has no Chinese, Japanese or Korean characters, so those three get an
+English PDF (the on-screen and printed receipt stay in the reader's language).
 
 ### Adding another language
 
@@ -429,20 +462,42 @@ record, so it follows them to a new device. URLs stay clean — there is no
 ## Tests
 
 ```bash
-npm test        # money maths — no database needed
-npm run test:db # job integrity + security + access control — needs DATABASE_URL
+npm test         # money maths and branding — no database needed
+npm run test:db  # job integrity, security, access control, first-run setup — needs DATABASE_URL
 npm run test:all
 npm run typecheck
+npm run build && npm run test:e2e   # the whole app in a real browser
 ```
 
-45 assertions in four files, all against real code:
+62 checks in six files, all against real code:
 
 | File | What it proves |
 | --- | --- |
 | `tests/calc.test.ts` (11) | `lib/calc.ts`: rounding, the status rule, float drift, negative input |
+| `tests/branding.test.ts` (6) | accent names, the initials shown without a logo, and the logo checks (real PNG, size, dimensions) |
 | `tests/job-integrity.test.ts` (6) | the client cannot dictate a total — the server recomputes it |
 | `tests/security.test.ts` (11) | the real lockout, audit and hashing code, against a live database |
-| `tests/access-control.test.ts` (17) | session revocation, soft delete and restore, the capability map |
+| `tests/access-control.test.ts` (18) | session revocation (including per-device logout), soft delete and restore, the capability map |
+| `tests/setup.test.ts` (10) | first-run setup on a throwaway empty database: the code, the one-owner rule, two at once, starter services |
+
+### End-to-end tests
+
+`e2e/` holds 27 Playwright tests that use the built app the way the shop does
+— on a phone-sized screen in Filipino, plus a desktop pass — and fail on any
+browser error or blocked script. They cover logging in, lockout and logout; a
+job recorded through every wizard step, its receipt, PDF, edit, partial
+payment, delete and restore from Trash; customers and vehicles; services, staff
+accounts and a new staff member's first day; settings, logo and colour;
+reports and exports; the activity log; and a brand-new install set up from
+`/setup`.
+
+`npm run test:e2e` first runs `e2e/prepare.ts`, which adds its own test
+accounts to the database in `.env` and creates a second, empty database
+(`<name>_e2e_fresh`) for the setup tests, then starts two production servers
+(ports 3200 and 3201). Run `npm run build` first. It needs a local or CI
+database, never a shop's real one. A passing run deletes the customer, car and
+job it made, but leaves one test staff account behind, because accounts can
+only be turned off, never deleted.
 
 `tests/access-control.test.ts` is the one to read if you change anything about
 sessions or deleting: it asserts that disabling an account kills its live
@@ -455,8 +510,9 @@ brings it back unchanged.
 `.github/workflows/autocare-ci.yml` runs on every push to `main` and every pull
 request that touches `autocare/**`. It spins up a throwaway PostgreSQL service
 container and runs the whole sequence for real — lint, type-check, unit tests,
-`prisma migrate deploy`, seed, the database-backed tests, and the production
-build. Nothing is mocked or skipped.
+`prisma migrate deploy`, seed, the database-backed tests, the production
+build, and the end-to-end tests in Chromium. Nothing is mocked or skipped. If
+the end-to-end tests fail, the Playwright report is attached to the run.
 
 The workflow ignores changes to the other projects in this repository, and its
 `DATABASE_URL` / `AUTH_SECRET` are throwaway values scoped to the runner.
@@ -476,16 +532,27 @@ passwords with bcrypt at cost 12 — the plaintext is never written to the file.
 
 ### Dependency overrides
 
-`package.json` pins two transitive dependencies via `overrides`:
+`package.json` pins three transitive dependencies via `overrides`:
 
 | Package | Why |
 | --- | --- |
-| `sharp` → 0.35.3 | Next ships an older `sharp` for image optimization, which carries libvips CVEs. This app uses no images at all, but the override clears the advisory without a Next major bump. |
+| `sharp` → 0.35.5 | Next ships an older `sharp` for image optimization, which carries libvips CVEs. This app does not use Next's image optimizer (the logo is a small PNG shown with a plain `<img>`), but the override clears the advisory without a Next major bump. |
 | `postcss` → 8.5.25 | Next pins `postcss@8.4.31` internally, which has path-traversal and XSS advisories. 8.5.25 is the same major and is already what Tailwind and autoprefixer use here. |
+| `brace-expansion` → 1.1.22 (under `minimatch@3`) | ESLint 8's `minimatch@3` pulls in an older `brace-expansion` with a published advisory. 1.1.22 is the patched release of the same major. Development-only — it never ships to the server. |
 
-Both are same-major bumps. Re-check them when upgrading Next — if a later
+All are same-major bumps. Re-check them when upgrading Next — if a later
 release ships patched versions itself, the overrides can be dropped.
-`npm audit` currently reports zero vulnerabilities.
+
+`npm audit` still reports two findings, both fixed only in a new major
+version, so they are deliberately left for a planned upgrade:
+
+| Package | Advisory | Why it is acceptable for now |
+| --- | --- | --- |
+| `prisma` 6 (via `@prisma/config` → `effect`, `deepmerge-ts`) | ReDoS in `effect`'s schema regex; stack exhaustion in `deepmerge-ts` | Both sit in the Prisma *command-line tool's* config loader, which runs at build time on our own config. The app's runtime client does not use them, and no user input reaches them. Fixed in Prisma 7, which changes how the client is generated and configured. |
+| `zod` 3 | Memory exhaustion validating oversized constrained collections | This one is in the request path. It is bounded here: every array the server accepts has a `.max(100)`, and Next.js caps a Server Action body at 1 MB before Zod sees it. Fixed in Zod 4, which changes the error-message API that every schema and form here uses. |
+
+Upgrading either is a contained piece of work, but not a dependency bump — do
+it on its own branch, with `npm run test:all` and `npm run test:e2e`.
 
 ---
 
@@ -494,6 +561,7 @@ release ships patched versions itself, the overrides can be dropped.
 ```
 app/
   (auth)/login/          login page + its server action
+  (auth)/setup/          first-run setup for a new shop
   (app)/                 the signed-in shell (top bar, nav, footer)
     dashboard/           home screen
     jobs/                list, new (wizard), [id] detail, edit, print
@@ -505,6 +573,7 @@ app/
     auth/[...nextauth]/  Auth.js endpoints
     jobs/[id]/receipt/   PDF receipt
     export/              CSV / JSON backup
+    session/end/         clears a refused session cookie, then goes to /login
 components/
   ui/                    buttons, inputs, dialogs — all 64px+ tap targets
   wizard/                the New Job wizard and its steps
@@ -515,12 +584,15 @@ lib/
   session.ts  rbac.ts    authorization
   auth-logic.ts          login rules, lockout
   security-headers.ts    the per-request CSP and its nonce
+  setup.ts               first-run setup and the starter services
+  branding.ts  logo.ts   the shop's colour choices; the logo checks
   audit.ts  prisma.ts  settings.ts  jobs.ts  password.ts  rate-limit.ts
   pdf/receipt-pdf.tsx    the A4 PDF
 messages/                fil, en, es, ja, ko, zh
 i18n/                    locale registry + next-intl request config
 prisma/                  schema, migrations, seed
-tests/
+tests/                   unit and database tests
+e2e/                     Playwright tests of the whole app
 ```
 
 ### Elderly-first UI rules, and where they are enforced
