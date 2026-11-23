@@ -6,9 +6,12 @@ import 'package:ride_doctor/core/science/explained.dart';
 import 'package:ride_doctor/core/units/units.dart';
 
 /// Heat index in degrees Fahrenheit by the US National Weather Service
-/// procedure (SCIENCE.md 7.10). The published equation is in Fahrenheit, so it
-/// is implemented in Fahrenheit and converted at the edges - re-deriving the
-/// coefficients for Celsius would be a place to introduce errors for nothing.
+/// algorithm (SCIENCE.md 7.10), implemented step for step from the published
+/// port of the NWS online calculator (Anderson, Bell & Peng 2013).
+///
+/// The published equation is in Fahrenheit, so it is implemented in Fahrenheit
+/// and converted at the edges - re-deriving the coefficients for Celsius would
+/// be a place to introduce errors for nothing.
 double heatIndexF({
   required double temperatureF,
   required double humidityPercent,
@@ -23,11 +26,12 @@ double heatIndexF({
   final t = temperatureF;
   final rh = humidityPercent;
 
-  // Step 1: the simple formula, averaged with the air temperature. Below 80 F
-  // this is the answer.
+  // Cold: heat index is not defined; the algorithm reports the temperature.
+  if (t <= 40) return t;
+
+  // Step 1: the simple formula. In mild weather this is the answer.
   final simple = 0.5 * (t + 61.0 + ((t - 68.0) * 1.2) + (rh * 0.094));
-  final mild = (simple + t) / 2;
-  if (mild < 80) return mild;
+  if (simple <= 79) return simple;
 
   // Step 2: the full Rothfusz regression.
   var index =
@@ -42,7 +46,7 @@ double heatIndexF({
       0.00000199 * t * t * rh * rh;
 
   // Step 3: corrections at the humidity extremes.
-  if (rh < 13 && t >= 80 && t <= 112) {
+  if (rh <= 13 && t >= 80 && t <= 112) {
     index -= ((13 - rh) / 4) * math.sqrt((17 - (t - 95).abs()) / 17);
   } else if (rh > 85 && t >= 80 && t <= 87) {
     index += ((rh - 85) / 10) * ((87 - t) / 5);

@@ -53,20 +53,34 @@ void main() {
       );
     });
 
-    test('below 80 F the simple formula averaged with temperature applies', () {
+    test('in mild weather the simple formula applies', () {
+      // 0.5 x (70 + 61 + 2.4 + 4.7) = 69.05
       expect(
         heatIndexF(temperatureF: 70, humidityPercent: 50),
-        closeTo(69.53, 0.01),
+        closeTo(69.05, 0.01),
       );
       expect(
         heatIndexF(temperatureF: 75, humidityPercent: 80),
-        closeTo(75.48, 0.01),
+        closeTo(75.96, 0.01),
       );
-      // 80 F at 40% lands just under the switch-over, on the simple branch.
+    });
+
+    test('the regression takes over once the simple value passes 79 F', () {
+      // 78 F at 60%: simple value 78.32 - stays simple.
+      expect(
+        heatIndexF(temperatureF: 78, humidityPercent: 60),
+        closeTo(78.32, 0.01),
+      );
+      // 80 F at 40%: simple value 79.58 - over 79, so the regression: 79.93.
       expect(
         heatIndexF(temperatureF: 80, humidityPercent: 40),
-        closeTo(79.79, 0.01),
+        closeTo(79.93, 0.01),
       );
+    });
+
+    test('at or below 40 F the heat index is just the temperature', () {
+      expect(heatIndexF(temperatureF: 40, humidityPercent: 50), 40);
+      expect(heatIndexF(temperatureF: 35, humidityPercent: 90), 35);
     });
 
     test('more humidity never feels cooler in riding weather', () {
