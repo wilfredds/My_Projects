@@ -253,20 +253,27 @@ class _EditBikeScreenState extends ConsumerState<EditBikeScreen> {
                         _customTyre = _tyrePreset == null;
                       }),
                     ),
-                    if (_customTyre) ...[
-                      AppNumberField(
-                        controller: _rimDiameter,
-                        label: l10n.fieldRimDiameter,
-                        unit: 'mm',
-                        rule: ProfileLimits.beadSeatDiameterMm,
+                    // Visibility, not `if`: the fields below must keep their
+                    // position in this list (see InlineError).
+                    Visibility(
+                      visible: _customTyre,
+                      child: Column(
+                        children: [
+                          AppNumberField(
+                            controller: _rimDiameter,
+                            label: l10n.fieldRimDiameter,
+                            unit: 'mm',
+                            rule: ProfileLimits.beadSeatDiameterMm,
+                          ),
+                          AppNumberField(
+                            controller: _tyreWidth,
+                            label: l10n.fieldTyreWidth,
+                            unit: 'mm',
+                            rule: ProfileLimits.tyreWidthMm,
+                          ),
+                        ],
                       ),
-                      AppNumberField(
-                        controller: _tyreWidth,
-                        label: l10n.fieldTyreWidth,
-                        unit: 'mm',
-                        rule: ProfileLimits.tyreWidthMm,
-                      ),
-                    ],
+                    ),
                     AppNumberField(
                       controller: _rollOut,
                       label: l10n.fieldRollOut,
@@ -364,16 +371,7 @@ class _EditBikeScreenState extends ConsumerState<EditBikeScreen> {
                         child: Text(l10n.estimateCogsButton),
                       ),
                     ),
-                    if (_cassetteError != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          _cassetteError!,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.error,
-                          ),
-                        ),
-                      ),
+                    InlineError(_cassetteError),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: TextFormField(

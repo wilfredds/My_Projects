@@ -9,6 +9,10 @@ import 'package:ride_doctor/features/profile/data/profile_providers.dart';
 import 'package:ride_doctor/features/profile/presentation/edit_bike_screen.dart';
 import 'package:ride_doctor/features/profile/presentation/edit_rider_screen.dart';
 import 'package:ride_doctor/features/profile/presentation/profile_screen.dart';
+import 'package:ride_doctor/features/race_prep/presentation/debrief_screen.dart';
+import 'package:ride_doctor/features/race_prep/presentation/race_detail_screen.dart';
+import 'package:ride_doctor/features/race_prep/presentation/race_form_screen.dart';
+import 'package:ride_doctor/features/race_prep/presentation/races_screen.dart';
 import 'package:ride_doctor/features/settings/presentation/privacy_screen.dart';
 import 'package:ride_doctor/features/settings/presentation/settings_screen.dart';
 import 'package:ride_doctor/features/today/presentation/today_screen.dart';
@@ -26,7 +30,13 @@ abstract final class AppRoutes {
 
   static const today = '/';
   static const numbers = '/numbers';
+  static const races = '/races';
   static const profile = '/profile';
+
+  static const raceForm = '/race-form';
+  static String raceDetail(String id) => '/race/$id';
+  static String raceEdit(String id) => '/race/$id/edit';
+  static String raceDebrief(String id) => '/race/$id/debrief';
 
   static const editRider = '/edit-rider';
   static const editBike = '/edit-bike';
@@ -128,6 +138,14 @@ GoRouter appRouter(Ref ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: AppRoutes.races,
+                builder: (context, state) => const RacesScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: AppRoutes.profile,
                 builder: (context, state) => const ProfileScreen(),
               ),
@@ -136,6 +154,27 @@ GoRouter appRouter(Ref ref) {
         ],
       ),
       // Full-screen pages pushed over the tabs (no bottom bar while editing).
+      GoRoute(
+        path: AppRoutes.raceForm,
+        builder: (context, state) => const RaceFormScreen(),
+      ),
+      GoRoute(
+        path: '/race/:id',
+        builder: (context, state) =>
+            RaceDetailScreen(raceId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            builder: (context, state) =>
+                RaceFormScreen(raceId: state.pathParameters['id']),
+          ),
+          GoRoute(
+            path: 'debrief',
+            builder: (context, state) =>
+                DebriefScreen(raceId: state.pathParameters['id']!),
+          ),
+        ],
+      ),
       GoRoute(
         path: AppRoutes.editRider,
         builder: (context, state) => const EditRiderScreen(),

@@ -277,3 +277,36 @@ class LabelValue extends StatelessWidget {
     );
   }
 }
+
+/// An error message that takes its place in the layout even when there is
+/// nothing to say.
+///
+/// Why not `if (error != null) Text(error)`? Adding a widget to a list of
+/// children shifts every sibling after it by one position. Flutter matches
+/// old and new children by position and type, so the fields below get torn
+/// down and rebuilt - and a rebuilt form field has lost its own validation
+/// message. Keeping one widget here at all times keeps the list's shape
+/// stable. The same goes for anything shown conditionally above form fields:
+/// use `Visibility`, not `if`.
+class InlineError extends StatelessWidget {
+  const new(this.message, {super.key});
+
+  /// Null shows nothing but keeps the slot.
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    final message = this.message;
+    if (message == null) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        message,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.error,
+        ),
+      ),
+    );
+  }
+}

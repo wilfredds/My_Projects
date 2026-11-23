@@ -529,5 +529,260 @@
   "numbersClimbNeedsGears": "Add your tyre size and gears to see which gear to use.",
   "profileName": "Name",
   "profileBikeType": "Bike type",
-  "privacyHealthGranted": "Granted"
+  "privacyHealthGranted": "Granted",
+  "navRaces": "Races",
+  "racesEmptyTitle": "No races yet",
+  "racesEmptyBody": "Add a race to get a countdown, a race-day timeline, checklists and tactics.",
+  "racesAdd": "Add a race",
+  "racesUpcoming": "Coming up",
+  "racesPast": "Past races",
+  "raceInDays": "In {days} days",
+  "@raceInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "raceDaysAgo": "{days} days ago",
+  "@raceDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "raceResult": "Place {placing} of {fieldSize}",
+  "@raceResult": {
+    "placeholders": {
+      "placing": {
+        "type": "int"
+      },
+      "fieldSize": {
+        "type": "int"
+      }
+    }
+  },
+  "raceNoDebrief": "No debrief yet",
+  "raceTypeCriterium": "Criterium",
+  "raceTypeRoadRace": "Road race",
+  "raceTypeTimeTrial": "Time trial",
+  "raceTypeGravel": "Gravel",
+  "raceTypeMtbXc": "MTB cross-country",
+  "raceFormAddTitle": "Add a race",
+  "raceFormEditTitle": "Edit race",
+  "raceFieldName": "Race name",
+  "raceFieldType": "Type of race",
+  "raceFieldDate": "Date",
+  "raceFieldPickDate": "Choose date",
+  "raceFieldTime": "Start time",
+  "raceFieldTimeHint": "24-hour clock, for example 06:30",
+  "errorTime": "Enter a time like 06:30.",
+  "errorDateRequired": "Choose a date.",
+  "raceFormDetails": "Course details",
+  "raceFieldLocation": "Location",
+  "raceFieldDistance": "Distance",
+  "raceFieldDuration": "Duration",
+  "raceFieldLaps": "Laps",
+  "raceFieldLapLength": "Lap length",
+  "raceFieldCorners": "Corners per lap",
+  "raceFieldElevation": "Climbing",
+  "raceFieldCategory": "Category",
+  "raceFieldRules": "Rules and notes",
+  "raceFieldTravel": "Travel time to the venue",
+  "raceFieldRecon": "Riders can preview the course",
+  "raceEdit": "Edit race",
+  "raceDelete": "Delete race",
+  "raceDeleteConfirmTitle": "Delete this race?",
+  "raceDeleteConfirmBody": "Its checklist and debrief are deleted too.",
+  "raceStartsAt": "{date} at {time}",
+  "@raceStartsAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "modeLongBuildTitle": "Building toward race day",
+  "modeLongBuildBody": "Plenty of time. Build a base first, then add race-like efforts, then ease off for the last two weeks.",
+  "modeCompressedBuildTitle": "Short build",
+  "modeCompressedBuildBody": "A short build. Add a little race-like work each week, then ease off in the final week.",
+  "modeRaceWeekTitle": "Race week",
+  "modeRaceWeekBody": "No more fitness to gain now, only freshness. Keep rides short with a few brief hard efforts, sleep well, review your skills and sort out your logistics.",
+  "modeRaceDayTitle": "Race day",
+  "modeRaceDayBody": "Follow your timeline, tick your checklist, warm up, and remember the basics.",
+  "modeRaceOverTitle": "Race done",
+  "modeRaceOverBody": "Well done for racing. Take a few minutes to record how it went while you remember.",
+  "phaseBase": "Base",
+  "phaseBuild": "Build",
+  "phaseTaper": "Taper",
+  "phaseRange": "{from} to {to}",
+  "@phaseRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "phaseBaseBody": "Steady riding to build endurance.",
+  "phaseBuildBody": "Add efforts that feel like your race.",
+  "phaseTaperBody": "Ride about half your usual volume, but keep a few short hard efforts.",
+  "phaseTaperSource": "A two-week taper with 41 to 60 percent less volume and unchanged intensity gave the best results in a review of 27 studies (Bosquet et al., 2007).",
+  "raceTimelineTitle": "Race-day timeline",
+  "timelineWakeUp": "Wake up",
+  "timelinePreRaceMeal": "Eat your pre-race meal",
+  "timelineLeaveHome": "Leave home",
+  "timelineArrive": "Arrive at the venue",
+  "timelineRegistration": "Register and pin your number",
+  "timelineReconLaps": "Ride the course",
+  "timelineWarmUpStart": "Start your warm-up",
+  "timelineWarmUpEnd": "Finish warm-up with a few short hard efforts",
+  "timelineFinalBottleAndToilet": "Last drink and toilet",
+  "timelineLineUp": "Go to the start line",
+  "timelineRaceStart": "Race start",
+  "raceChecklistTitle": "Checklist",
+  "checklistProgress": "{done} of {total} ready",
+  "@checklistProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "checklistReset": "Untick all",
+  "checklistGroupBike": "Bike",
+  "checklistGroupKit": "Kit",
+  "checklistGroupDocuments": "Documents",
+  "checklistGroupNutrition": "Food and drink",
+  "checklistGroupTools": "Tools and spares",
+  "checkTyrePressure": "Tyres pumped to your race pressure",
+  "checkWheelsSecure": "Quick releases or thru-axles tight",
+  "checkBoltsTight": "Stem, bar and seatpost bolts tight",
+  "checkBrakesWork": "Both brakes bite firmly",
+  "checkGearsShift": "Every gear shifts cleanly",
+  "checkBarEndPlugs": "Bar-end plugs in place",
+  "checkHelmet": "Helmet",
+  "checkShoes": "Shoes",
+  "checkJerseyAndShorts": "Jersey and shorts",
+  "checkGlovesAndGlasses": "Gloves and glasses",
+  "checkSunscreen": "Sunscreen",
+  "checkIdentification": "ID",
+  "checkLicenceOrWaiver": "Licence or signed waiver",
+  "checkRaceNumberAndPins": "Race number and pins",
+  "checkBottlesFilled": "Bottles filled",
+  "checkRaceFood": "Food for the race",
+  "checkPreRaceMealPlanned": "Pre-race meal planned",
+  "checkSpareTube": "Spare tube",
+  "checkPumpOrInflator": "Pump or inflator",
+  "checkMultiTool": "Multi-tool",
+  "raceTacticsTitle": "Skills and tactics",
+  "skillDrillLabel": "Try this drill",
+  "skillHoldYourLineTitle": "Hold your line",
+  "skillHoldYourLineBody": "Ride a smooth, predictable path. The riders behind and beside you are trusting you not to swerve. Look well ahead, not at your front wheel.",
+  "skillHoldYourLineDrill": "On a quiet road, ride along the painted edge line for 200 metres without drifting off it. Repeat while taking a drink, then while glancing over your shoulder.",
+  "skillCorneringTitle": "Corner smoothly",
+  "skillCorneringBody": "Do your braking before the turn, not in it. Look through the corner to where you want to come out. Put your outside pedal down with your weight on it.",
+  "skillCorneringDrill": "In an empty car park, ride figure-eights around two bottles. Start wide and slow, then tighten the turns as it starts to feel easy.",
+  "skillShiftBeforeCornersTitle": "Shift before the corner",
+  "skillShiftBeforeCornersBody": "Change to an easier gear before you enter each corner. You come out spinning instead of grinding, so getting back up to speed costs less every lap.",
+  "skillShiftBeforeCornersDrill": "Pick a corner on a quiet loop. Every lap, shift one or two gears easier before it and accelerate out, seated, for ten pedal strokes.",
+  "skillNoOverlappingWheelsTitle": "Never overlap wheels",
+  "skillNoOverlappingWheelsBody": "Keep your front wheel behind the rear wheel of the rider ahead, never alongside it. If they move sideways and touch your front wheel, you are the one who falls.",
+  "skillNoOverlappingWheelsDrill": "On your next group ride, check your front wheel every few minutes. If it has crept alongside the wheel ahead, ease off and drop back behind it.",
+  "skillRidingInAPackTitle": "Stay relaxed in the pack",
+  "skillRidingInAPackBody": "Keep your elbows bent and your grip light, so a bump from another rider does not steer you. Cover your brakes and look past the rider in front.",
+  "skillRidingInAPackDrill": "On an empty road, ride a straight line with one hand, then shake out each arm in turn. A loose upper body keeps the bike steady.",
+  "skillStayInFrontThirdTitle": "Stay in the front third",
+  "skillStayInFrontThirdBody": "At the back, every corner stretches the group like an accordion: you brake harder and sprint harder than the riders at the front. Near the front the pace is smoother and you can see trouble coming.",
+  "skillStayInFrontThirdDrill": "On a group ride, count the riders ahead of you every few minutes. Move up a few places whenever you have slipped past halfway.",
+  "skillDroppedOrLappedTitle": "If you are dropped or lapped",
+  "skillDroppedOrLappedBody": "It happens to almost everyone in their first races. Keep riding steadily and hold your line. When the field comes to lap you, stay to one side and let them pass. If an official signals you to leave the course, do so safely.",
+  "skillDroppedOrLappedDrill": "Ride alone at a hard, steady effort for ten minutes. Being able to keep going on your own is what gets you to the finish.",
+  "skillPrimesTitle": "Primes",
+  "skillPrimesBody": "A prime (say “preem”) is a prize for winning one lap mid-race, announced with a bell. The pace jumps for that lap. In your first races, let others sprint for it and hold your position.",
+  "skillPrimesDrill": "On a quiet loop, ride one hard lap in the middle of a steady ride, then settle straight back to your steady pace without stopping.",
+  "skillDraftingTitle": "Use the draft",
+  "skillDraftingBody": "Riding close behind another rider shelters you from the wind and saves a lot of effort. Sit behind, not beside, and stay out of the wind until it matters.",
+  "skillDraftingDrill": "Ride into a headwind for five minutes, then turn round and feel the difference. In a group, that saving is yours whenever you sit on a wheel.",
+  "skillClimbPacingTitle": "Pace the climbs",
+  "skillClimbPacingBody": "Start each climb a little easier than feels necessary and hold a rhythm you can keep to the top. Shift early and keep your legs turning; a surge at the bottom is paid for before the summit.",
+  "skillClimbPacingDrill": "Ride the same 5 to 10 minute climb twice: once starting hard, once starting easy. Compare how the top felt.",
+  "skillEatAndDrinkEarlyTitle": "Eat and drink early",
+  "skillEatAndDrinkEarlyBody": "Start drinking in the first 15 minutes and eat before you feel hungry. Once you feel empty, it is too late to catch up.",
+  "skillEatAndDrinkEarlyDrill": "On every ride over an hour, practise taking out a bottle and food, eating, and putting them back while holding your line.",
+  "skillEvenPacingTitle": "Pace it evenly",
+  "skillEvenPacingBody": "The fastest time trial is usually an even one. The first minutes should feel almost too easy; start too hard and you lose far more at the end than you gained.",
+  "skillEvenPacingDrill": "Ride a fixed 10 minute route as a test. Aim to make the second half as fast as the first.",
+  "skillHoldThePositionTitle": "Hold your position",
+  "skillHoldThePositionBody": "A low, still upper body is free speed, but only if you can hold it. Choose the lowest position you can keep for the whole distance without rocking.",
+  "skillHoldThePositionDrill": "On an easy ride, hold your race position for 5 minutes at a time. Add a minute each week.",
+  "skillLooseSurfaceControlTitle": "Stay loose on loose ground",
+  "skillLooseSurfaceControlBody": "Let the bike move under you. Keep your arms and grip relaxed, brake in a straight line before corners, and avoid sudden steering on gravel or sand.",
+  "skillLooseSurfaceControlDrill": "On a quiet gravel road, practise braking firmly in a straight line, then ride gentle S-curves at walking pace.",
+  "skillSelfSufficiencyTitle": "Carry what you need",
+  "skillSelfSufficiencyBody": "On gravel you may be a long way from help. Carry a spare tube, a way to inflate it, a multi-tool, and enough water and food for longer than you expect to be out.",
+  "skillSelfSufficiencyDrill": "Before race day, fix a puncture at home against the clock, using only what you will carry.",
+  "skillStartEffortTitle": "Survive the start",
+  "skillStartEffortBody": "Cross-country races start very hard, to reach the first narrow trail in a good position. Expect it: go hard for the first minute or two, then settle to an effort you can hold.",
+  "skillStartEffortDrill": "After a good warm-up, do a 60 second hard start from standing, then ride 5 minutes steady without stopping. Repeat 3 times.",
+  "skillLookAheadTitle": "Look where you want to go",
+  "skillLookAheadBody": "Your bike follows your eyes. Look down the trail to your exit, not at the rock you want to avoid, and stand on level pedals over rough ground.",
+  "skillLookAheadDrill": "On an easy trail, say out loud what is coming two or three bike lengths ahead as you ride.",
+  "raceDebriefTitle": "Race debrief",
+  "debriefStart": "Add your debrief",
+  "debriefEdit": "Edit debrief",
+  "debriefFinished": "Did you finish?",
+  "debriefPlacing": "Your place",
+  "debriefFieldSize": "Riders in your race",
+  "debriefPlacingError": "Your place cannot be higher than the number of riders.",
+  "debriefDropped": "Did you lose the group?",
+  "droppedNotDropped": "No, I stayed with it",
+  "droppedEarlyOn": "Early on",
+  "droppedMidRace": "Mid-race",
+  "droppedNearTheEnd": "Near the end",
+  "debriefStruggles": "Where was it hardest?",
+  "struggleClimbs": "Climbs",
+  "struggleCorners": "Corners",
+  "strugglePositioning": "Staying near the front",
+  "struggleAccelerations": "Sudden accelerations",
+  "struggleSprint": "The sprint",
+  "strugglePacing": "Started too hard",
+  "struggleFuelling": "Food and drink",
+  "struggleHeat": "The heat",
+  "struggleMechanical": "A mechanical problem",
+  "struggleNerves": "Nerves",
+  "debriefSymptoms": "Anything physical you noticed?",
+  "symptomCramps": "Cramps",
+  "symptomBreathless": "Very out of breath",
+  "symptomPain": "Pain",
+  "symptomNumbness": "Numbness",
+  "symptomDizziness": "Dizziness",
+  "debriefWouldChange": "What would you change next time?",
+  "debriefSummaryFinished": "Finished",
+  "debriefSummaryDidNotFinish": "Did not finish",
+  "debriefRedFlagTitle": "Please see a doctor",
+  "debriefRedFlagBody": "Dizziness during hard effort should be checked by a doctor before you train hard or race again.",
+  "todayRaceOpen": "Open race plan",
+  "todayDebriefPrompt": "How did {name} go? Add your debrief while you remember.",
+  "@todayDebriefPrompt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "unitKm": "km",
+  "unitMetres": "m",
+  "raceToday": "Today",
+  "raceTomorrow": "Tomorrow",
+  "raceYesterday": "Yesterday"
 }
