@@ -4,7 +4,8 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Car, Save, Pencil } from 'lucide-react';
+import { Car, Save, Pencil, Trash2 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
@@ -22,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { saveVehicleAction } from '@/app/(app)/vehicles/actions';
+import { saveVehicleAction, deleteVehicleAction } from '@/app/(app)/vehicles/actions';
 
 export interface VehicleFormValues {
   id?: string;
@@ -38,13 +39,20 @@ export function VehicleFormDialog({
   initial,
   customers,
   lockedCustomerId,
+  canDelete = false,
 }: {
   initial?: VehicleFormValues;
   /** Omitted when the owner is already fixed (e.g. on a customer's page). */
   customers?: { id: string; fullName: string }[];
   lockedCustomerId?: string;
+  /**
+   * Show "Delete this vehicle" in the edit dialog. Pass true only for an ADMIN
+   * and a vehicle with no jobs — the server refuses anything else anyway.
+   */
+  canDelete?: boolean;
 }) {
   const t = useTranslations('vehicles');
+  const tj = useTranslations('jobs');
   const tcom = useTranslations('common');
   const router = useRouter();
 
@@ -66,6 +74,26 @@ export function VehicleFormDialog({
   const [pending, startTransition] = React.useTransition();
 
   const isEdit = Boolean(initial?.id);
+
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+
+  function remove() {
+    if (!initial?.id) return;
+    const id = initial.id;
+    startTransition(async () => {
+      const result = await deleteVehicleAction(id);
+      setConfirmOpen(false);
+      if (!result.ok) {
+        toast.error(
+          result.messageKey === 'vehicles.deleteBlocked' ? t('deleteBlockedShort') : tcom('unknownError'),
+        );
+        return;
+      }
+      toast.success(t('deleted'));
+      setOpen(false);
+      router.refresh();
+    });
+  }
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -196,9 +224,39 @@ export function VehicleFormDialog({
                 <span>{tcom('cancel')}</span>
               </Button>
             </DialogFooter>
+
+            {isEdit && canDelete ? (
+              // For a vehicle added by mistake. Kept apart from Save, and it
+              // asks first.
+              <div className="border-t border-border pt-5">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  className="w-full sm:w-auto"
+                  onClick={() => setConfirmOpen(true)}
+                  disabled={pending}
+                >
+                  <Trash2 aria-hidden />
+                  <span>{t('deleteButton')}</span>
+                </Button>
+              </div>
+            ) : null}
           </form>
         </DialogContent>
       </Dialog>
+
+      {isEdit && canDelete ? (
+        <ConfirmDialog
+          open={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          title={t('deleteTitle')}
+          description={t('deleteBody', { plate: initial?.plateNumber ?? '' })}
+          confirmLabel={tj('deleteConfirm')}
+          cancelLabel={tj('deleteCancel')}
+          onConfirm={remove}
+          pending={pending}
+        />
+      ) : null}
     </>
   );
 }

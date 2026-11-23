@@ -4,6 +4,7 @@ import { Search, Car } from 'lucide-react';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requirePageUser } from '@/lib/session';
+import { can } from '@/lib/rbac';
 import { describeVehicle } from '@/lib/jobs';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
@@ -22,7 +23,7 @@ export default async function VehiclesPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
-  await requirePageUser();
+  const user = await requirePageUser();
   const { q } = await searchParams;
   const [t, tcom, td] = await Promise.all([
     getTranslations('vehicles'),
@@ -111,6 +112,7 @@ export default async function VehiclesPage({
                 </div>
                 <VehicleFormDialog
                   customers={customers}
+                  canDelete={can.deleteCustomers(user.role) && vehicle._count.jobs === 0}
                   initial={{
                     id: vehicle.id,
                     customerId: vehicle.customerId,

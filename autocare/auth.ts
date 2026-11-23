@@ -5,7 +5,7 @@ import { authConfig } from './auth.config';
 import { verifyCredentials } from './lib/auth-logic';
 import { loginSchema } from './lib/validation';
 import { prisma } from './lib/prisma';
-import { hit } from './lib/rate-limit';
+import { hit, reset } from './lib/rate-limit';
 
 /**
  * The Node-runtime Auth.js instance: `authConfig` plus the Credentials
@@ -43,10 +43,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         } catch {
           ip = null;
         }
-        if (!hit(`authorize:${ip ?? 'unknown'}`).allowed) return null;
+        const limitKey = `authorize:${ip ?? 'unknown'}`;
+        if (!hit(limitKey).allowed) return null;
 
         const result = await verifyCredentials(parsed.data.username, parsed.data.password);
         if (!result.ok) return null;
+
+        // Only failures should count toward the limit. Without this, every
+        // successful sign-in also counted, and a shop whose staff share one
+        // internet connection was locked out after ten logins in five minutes
+        // — right password or not. The form's own limit already works this way.
+        reset(limitKey);
 
         const account = await prisma.user.findUnique({
           where: { id: result.user.id },

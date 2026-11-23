@@ -44,24 +44,30 @@ export interface SessionUser {
 export async function resolveSessionUser(
   id: string | undefined,
   tokenVersion: number | undefined,
+  sid?: string,
 ): Promise<SessionUser | null> {
   if (!id) return null;
 
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      username: true,
-      role: true,
-      locale: true,
-      isActive: true,
-      tokenVersion: true,
-      policyAcceptedAt: true,
-      mustChangePassword: true,
-      lockedUntil: true,
-    },
-  });
+  // This sign-in was logged out. Checked alongside the account itself.
+  const [revoked, user] = await Promise.all([
+    sid ? prisma.revokedSession.findUnique({ where: { sid }, select: { sid: true } }) : null,
+    prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        role: true,
+        locale: true,
+        isActive: true,
+        tokenVersion: true,
+        policyAcceptedAt: true,
+        mustChangePassword: true,
+        lockedUntil: true,
+      },
+    }),
+  ]);
+  if (revoked) return null;
 
   // Deleted, disabled, or locked out since the token was minted.
   if (!user || !user.isActive) return null;
@@ -90,8 +96,41 @@ export async function resolveSessionUser(
  */
 export async function getSessionUser(): Promise<SessionUser | null> {
   const session = await auth();
-  return resolveSessionUser(session?.user?.id, session?.user?.tokenVersion);
+  return resolveSessionUser(session?.user?.id, session?.user?.tokenVersion, session?.user?.sid);
 }
+
+/** How long a logged-out sign-in is remembered. Far longer than any session lives. */
+const REVOKED_KEEP_DAYS = 30;
+
+/**
+ * Record this sign-in as logged out, so its cookie is refused from now on —
+ * even a copy that a request still in flight sets again after logout.
+ * Also clears out entries old enough that their cookies are long dead.
+ */
+export async function revokeSession(sid: string | undefined, userId: string): Promise<void> {
+  if (!sid) return;
+  const now = new Date();
+  await prisma.$transaction([
+    prisma.revokedSession.upsert({
+      where: { sid },
+      create: {
+        sid,
+        userId,
+        expiresAt: new Date(now.getTime() + REVOKED_KEEP_DAYS * 24 * 60 * 60 * 1000),
+      },
+      update: {},
+    }),
+    prisma.revokedSession.deleteMany({ where: { expiresAt: { lt: now } } }),
+  ]);
+}
+
+/**
+ * Where a page sends a cookie that is no longer any good (logged out, account
+ * turned off, password reset). It clears the cookie, then shows the login
+ * page. Sending it straight to /login instead looped forever: the middleware
+ * saw a well-formed cookie and sent it back to the page.
+ */
+export const END_SESSION_PATH = '/api/session/end';
 
 /** Thrown by the `require*` helpers used inside server actions. */
 export class AuthorizationError extends Error {
@@ -109,7 +148,7 @@ export class AuthorizationError extends Error {
  */
 export async function requirePageUser(): Promise<SessionUser> {
   const user = await getSessionUser();
-  if (!user) redirect('/login');
+  if (!user) redirect(END_SESSION_PATH);
   return user;
 }
 

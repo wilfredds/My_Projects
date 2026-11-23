@@ -242,7 +242,9 @@
     "deleteBody": "ナンバー {plate} は完全に削除されます。元に戻せません。",
     "deleteBlocked": "この車両には{count}件の作業があるため削除できません。",
     "editTitle": "車両を編集",
-    "addTitle": "新しい車両"
+    "addTitle": "新しい車両",
+    "deleteButton": "この車両を削除",
+    "deleteBlockedShort": "この車両には作業記録があるため削除できません。"
   },
   "services": {
     "title": "サービス",

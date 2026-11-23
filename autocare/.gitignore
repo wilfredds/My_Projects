@@ -14,3 +14,8 @@ yarn-error.log*
 next-env.d.ts
 /prisma/*.db
 coverage/
+
+# Playwright end-to-end output
+/test-results/
+/playwright-report/
+/blob-report/

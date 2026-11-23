@@ -242,7 +242,9 @@
     "deleteBody": "Plate {plate} will be removed for good. This cannot be undone.",
     "deleteBlocked": "This vehicle has {count} job(s) on record and cannot be deleted.",
     "editTitle": "Edit vehicle",
-    "addTitle": "New vehicle"
+    "addTitle": "New vehicle",
+    "deleteButton": "Delete this vehicle",
+    "deleteBlockedShort": "This vehicle has jobs on record, so it cannot be deleted."
   },
   "services": {
     "title": "Services",

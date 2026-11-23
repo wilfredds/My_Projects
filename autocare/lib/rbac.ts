@@ -35,8 +35,9 @@ export const AUTHENTICATED_PREFIXES = [
 /**
  * Reachable without signing in. /setup is the first-run page of a fresh
  * install; it 404s as soon as any account exists (see lib/setup.ts).
+ * /api/session/end only clears a stale cookie and redirects to /login.
  */
-export const PUBLIC_PATHS = ['/login', '/policy', '/setup'] as const;
+export const PUBLIC_PATHS = ['/login', '/policy', '/setup', '/api/session/end'] as const;
 
 export function isAdminOnlyPath(pathname: string): boolean {
   return ADMIN_ONLY_PREFIXES.some(

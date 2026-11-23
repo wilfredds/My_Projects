@@ -246,6 +246,19 @@ model ShopSetting {
   updatedAt DateTime @updatedAt
 }
 
+/// A sign-in that has been logged out. Sessions are JWT cookies, which the
+/// server cannot recall; recording the sign-in's id here is what makes "Log
+/// out" final even if a request still in flight re-issues the cookie.
+/// Rows are deleted once expired (see lib/session.ts).
+model RevokedSession {
+  sid       String   @id
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
 /// Per-year counter backing the human-readable job number (JOB-2026-0001).
 /// Incremented inside the same transaction that creates the Job.
 model JobCounter {

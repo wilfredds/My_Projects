@@ -242,7 +242,9 @@
     "deleteBody": "Ang plakang {plate} ay tuluyang mawawala. Hindi na po ito maibabalik.",
     "deleteBlocked": "May {count} na trabaho ang sasakyang ito kaya hindi po ito puwedeng burahin.",
     "editTitle": "Baguhin ang sasakyan",
-    "addTitle": "Bagong sasakyan"
+    "addTitle": "Bagong sasakyan",
+    "deleteButton": "Burahin ang sasakyang ito",
+    "deleteBlockedShort": "May trabaho na po ang sasakyang ito kaya hindi ito puwedeng burahin."
   },
   "services": {
     "title": "Mga Serbisyo",

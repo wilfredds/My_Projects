@@ -242,7 +242,9 @@
     "deleteBody": "车牌 {plate} 将被永久删除，无法恢复。",
     "deleteBlocked": "这辆车有 {count} 张工单，不能删除。",
     "editTitle": "修改车辆",
-    "addTitle": "新车辆"
+    "addTitle": "新车辆",
+    "deleteButton": "删除这辆车",
+    "deleteBlockedShort": "这辆车已有工单记录，不能删除。"
   },
   "services": {
     "title": "服务项目",

@@ -242,7 +242,9 @@
     "deleteBody": "La matrícula {plate} se borrará para siempre. No se puede deshacer.",
     "deleteBlocked": "Este vehículo tiene {count} trabajo(s) registrados y no se puede eliminar.",
     "editTitle": "Editar vehículo",
-    "addTitle": "Vehículo nuevo"
+    "addTitle": "Vehículo nuevo",
+    "deleteButton": "Eliminar este vehículo",
+    "deleteBlockedShort": "Este vehículo tiene trabajos registrados, así que no se puede eliminar."
   },
   "services": {
     "title": "Servicios",
