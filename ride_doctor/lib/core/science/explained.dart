@@ -25,7 +25,6 @@ enum Formula {
 /// display).
 enum Quantity {
   ageYears,
-  heartRateBpm,
   restingHeartRateBpm,
   maxHeartRateBpm,
   lthrBpm,
@@ -37,9 +36,6 @@ enum Quantity {
   beadSeatDiameterMm,
   tyreWidthMm,
   circumferenceMm,
-  chainringTeeth,
-  cogTeeth,
-  speedKmh,
   gradePercent,
   temperatureC,
   humidityPercent,

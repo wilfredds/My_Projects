@@ -128,6 +128,15 @@ void main() {
       ]);
     });
 
+    test('cassetteFits says which ranges are possible', () {
+      expect(cassetteFits(smallest: 11, largest: 34, speeds: 10), isTrue);
+      expect(cassetteFits(smallest: 11, largest: 15, speeds: 5), isTrue);
+      expect(cassetteFits(smallest: 11, largest: 15, speeds: 6), isFalse);
+      expect(cassetteFits(smallest: 34, largest: 11, speeds: 10), isFalse);
+      expect(cassetteFits(smallest: 0, largest: 11, speeds: 5), isFalse);
+      expect(cassetteFits(smallest: 11, largest: 34, speeds: 1), isFalse);
+    });
+
     test('rejects impossible cassettes', () {
       expect(
         () => estimateCogs(smallest: 34, largest: 11, speeds: 10),

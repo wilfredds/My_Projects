@@ -59,6 +59,7 @@ abstract final class ProfileLimits {
   static const ridesPerWeek = NumberRule(min: 0, max: 14, whole: true);
   static const typicalRideMinutes = NumberRule(min: 10, max: 720, whole: true);
   static const hoursPerWeek = NumberRule(min: 0, max: 40);
+  static const beadSeatDiameterMm = NumberRule(min: 200, max: 700, whole: true);
   static const tyreWidthMm = NumberRule(min: 18, max: 130, whole: true);
   static const rollOutMm = NumberRule(min: 900, max: 2500);
   static const crankLengthMm = NumberRule(min: 140, max: 185);

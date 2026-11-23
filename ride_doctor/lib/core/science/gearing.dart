@@ -49,6 +49,19 @@ List<Gear> allGears({required List<int> chainrings, required List<int> cogs}) {
   return gears;
 }
 
+/// Whether a cassette with that range and number of cogs can exist: the
+/// range must go up, and there cannot be more cogs than there are tooth
+/// counts between the two ends.
+bool cassetteFits({
+  required int smallest,
+  required int largest,
+  required int speeds,
+}) =>
+    smallest > 0 &&
+    largest > smallest &&
+    speeds >= 2 &&
+    speeds <= largest - smallest + 1;
+
 /// A plausible set of cogs for a cassette known only by its range and speed
 /// count, e.g. "11-34, 10-speed".
 ///
@@ -62,11 +75,8 @@ List<int> estimateCogs({
   required int largest,
   required int speeds,
 }) {
-  if (smallest <= 0 || largest <= smallest) {
-    throw ArgumentError('need 0 < smallest < largest');
-  }
-  if (speeds < 2 || speeds > largest - smallest + 1) {
-    throw ArgumentError.value(speeds, 'speeds', 'does not fit that range');
+  if (!cassetteFits(smallest: smallest, largest: largest, speeds: speeds)) {
+    throw ArgumentError('no $speeds-speed cassette spans $smallest-$largest');
   }
   final step = math.pow(largest / smallest, 1 / (speeds - 1));
   final cogs = <int>[];

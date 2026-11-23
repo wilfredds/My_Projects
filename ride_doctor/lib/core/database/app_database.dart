@@ -20,7 +20,7 @@ part 'app_database.g.dart';
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  new(super.executor);
+  new(super.e);
 
   @override
   int get schemaVersion => 1;
@@ -35,6 +35,9 @@ class AppDatabase extends _$AppDatabase {
     beforeOpen: (details) async {
       // SQLite ignores foreign keys unless asked, per connection.
       await customStatement('PRAGMA foreign_keys = ON');
+      // Overwrite deleted rows with zeros instead of leaving them in the
+      // file's free space, so "delete" means the data is gone.
+      await customStatement('PRAGMA secure_delete = ON');
     },
   );
 
