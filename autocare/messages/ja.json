@@ -68,7 +68,10 @@
     "errorInactive": "このアカウントは停止されています。管理者にご連絡ください。",
     "errorTooMany": "試行回数が多すぎます。少し待ってからお試しください。",
     "errorGeneric": "ログインできませんでした。もう一度お試しください。",
-    "footerNote": "{shopName}のスタッフ専用のシステムです。"
+    "footerNote": "{shopName}のスタッフ専用のシステムです。",
+    "setupTitle": "新しいインストールです",
+    "setupBody": "まだアカウントがありません。先にお店を設定してください。",
+    "setupButton": "お店を設定する"
   },
   "dashboard": {
     "title": "ホーム",
@@ -339,7 +342,26 @@
     "mySection": "自分の設定",
     "myLanguage": "自分の言語",
     "saved": "設定を保存しました。",
-    "preview": "領収書の上部はこのように表示されます。"
+    "preview": "領収書の上部はこのように表示されます。",
+    "shopTin": "お店の TIN",
+    "brandSection": "お店の見た目",
+    "brandHint": "ロゴと色はすべての画面と領収書に表示されます。",
+    "logo": "ロゴ",
+    "logoChoose": "ロゴを選ぶ",
+    "logoRemove": "ロゴを削除",
+    "logoHint": "PNG、JPG、WebP の画像。自動で縮小されます。ロゴがない場合はお店の頭文字が表示されます。",
+    "logoSaved": "ロゴを保存しました。",
+    "logoRemoved": "ロゴを削除しました。",
+    "logoError_format": "その画像は読み込めません。PNG か JPG をお試しください。",
+    "logoError_size": "画像が大きすぎます。小さい画像をお試しください。",
+    "logoError_dimensions": "画像が大きすぎます。小さい画像をお試しください。",
+    "accent": "お店の色",
+    "accentHint": "主なボタンの色です。緑・赤・黄は支払い状況を表すため選べません。",
+    "accent_kahel": "オレンジ",
+    "accent_asul": "青",
+    "accent_lila": "紫",
+    "accent_itim": "黒と金",
+    "accentSaved": "色を変更しました。"
   },
   "audit": {
     "title": "操作履歴",
@@ -376,7 +398,8 @@
     "action_ACCEPT_POLICY": "ルールに同意",
     "action_RESTORE_JOB": "作業を元に戻した",
     "action_PURGE_JOB": "作業を完全に削除した",
-    "action_CHANGE_OWN_PASSWORD": "自分のパスワードを変更"
+    "action_CHANGE_OWN_PASSWORD": "自分のパスワードを変更",
+    "action_SHOP_SETUP": "お店を設定"
   },
   "receipt": {
     "title": "領収書",
@@ -402,7 +425,9 @@
     "notes": "メモ",
     "thankYou": "ご利用ありがとうございました。またお越しください！",
     "servedBy": "担当",
-    "printedOn": "印刷日"
+    "printedOn": "印刷日",
+    "tin": "TIN",
+    "notOfficial": "これは作業記録であり、BIR の正式な領収書ではありません。"
   },
   "policy": {
     "title": "利用ルール",
@@ -475,5 +500,29 @@
     "otherDevicesNote": "パスワードを変更すると、他のすべての端末からログアウトされます。この端末はログインしたままです。",
     "mustChangeTitle": "まずご自身のパスワードを設定してください",
     "mustChangeBody": "今のパスワードは別の人が決めたものです。ご自身だけが知るものに変えると、続けられます。"
+  },
+  "setup": {
+    "eyebrow": "新規インストール",
+    "title": "お店の設定",
+    "subtitle": "短い3つの手順です。終わればログインできます。",
+    "lockedTitle": "設定はロックされています",
+    "lockedBody": "AutoCare をインストールした方が、先にホスティング（例：Vercel）で SETUP_CODE を設定する必要があります。その方にお尋ねください。",
+    "codeSection": "設定コード",
+    "codeHint": "AutoCare をインストールした方から受け取ったコードです。",
+    "code": "設定コード",
+    "shopSection": "お店の情報",
+    "ownerSection": "あなたのアカウント",
+    "ownerHint": "あなたがオーナー（管理者）になります。スタッフは後から追加できます。",
+    "starterServices": "整備工場でよくあるサービスを追加する（後で変更できます）",
+    "submit": "AutoCare を始める",
+    "working": "設定中…",
+    "doneTitle": "お店の準備ができました！",
+    "doneBody": "ユーザー名 {username} と、選んだパスワードでログインしてください。",
+    "goToLogin": "ログインへ",
+    "errorTooMany": "試行回数が多すぎます。数分お待ちください。",
+    "errorCheckFields": "入力内容に直すところがあります。赤い表示をご確認ください。",
+    "errorCode": "設定コードが正しくありません。",
+    "errorDone": "このお店はすでに設定済みです。ログインしてください。",
+    "errorClosed": "設定はロックされています。"
   }
 }

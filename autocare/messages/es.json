@@ -68,7 +68,10 @@
     "errorInactive": "Esta cuenta está desactivada. Pida ayuda al administrador.",
     "errorTooMany": "Demasiados intentos. Espere un momento e inténtelo de nuevo.",
     "errorGeneric": "No pudimos iniciar su sesión. Inténtelo de nuevo.",
-    "footerNote": "Solo el personal de {shopName} puede usar este sistema."
+    "footerNote": "Solo el personal de {shopName} puede usar este sistema.",
+    "setupTitle": "Esta es una instalación nueva",
+    "setupBody": "Todavía no hay cuentas. Configure primero el taller.",
+    "setupButton": "Configurar el taller"
   },
   "dashboard": {
     "title": "Inicio",
@@ -339,7 +342,26 @@
     "mySection": "Mis preferencias",
     "myLanguage": "Mi idioma",
     "saved": "Sus ajustes fueron guardados.",
-    "preview": "Así se verá la parte superior de su recibo."
+    "preview": "Así se verá la parte superior de su recibo.",
+    "shopTin": "TIN del taller",
+    "brandSection": "La imagen de su taller",
+    "brandHint": "El logo y el color aparecen en todas las pantallas y en los recibos.",
+    "logo": "Logo",
+    "logoChoose": "Elegir un logo",
+    "logoRemove": "Quitar el logo",
+    "logoHint": "Una imagen PNG, JPG o WebP; se reduce automáticamente. Sin logo se muestran las iniciales del taller.",
+    "logoSaved": "Logo guardado.",
+    "logoRemoved": "Logo quitado.",
+    "logoError_format": "No se puede leer esa imagen. Pruebe con PNG o JPG.",
+    "logoError_size": "La imagen es demasiado grande. Pruebe con una más pequeña.",
+    "logoError_dimensions": "La imagen es demasiado grande. Pruebe con una más pequeña.",
+    "accent": "Color del taller",
+    "accentHint": "El color de los botones principales. No hay verde, rojo ni amarillo: esos indican pagado y pendiente.",
+    "accent_kahel": "Naranja",
+    "accent_asul": "Azul",
+    "accent_lila": "Violeta",
+    "accent_itim": "Negro y dorado",
+    "accentSaved": "Color cambiado."
   },
   "audit": {
     "title": "Registro de actividad",
@@ -376,7 +398,8 @@
     "action_ACCEPT_POLICY": "Aceptó las normas",
     "action_RESTORE_JOB": "Recuperó un trabajo",
     "action_PURGE_JOB": "Borró un trabajo definitivamente",
-    "action_CHANGE_OWN_PASSWORD": "Cambió su contraseña"
+    "action_CHANGE_OWN_PASSWORD": "Cambió su contraseña",
+    "action_SHOP_SETUP": "Se configuró el taller"
   },
   "receipt": {
     "title": "Recibo",
@@ -402,7 +425,9 @@
     "notes": "Notas",
     "thankYou": "Gracias por su confianza. ¡Vuelva pronto!",
     "servedBy": "Atendido por",
-    "printedOn": "Impreso el"
+    "printedOn": "Impreso el",
+    "tin": "TIN",
+    "notOfficial": "Este es un registro del trabajo, no un recibo oficial del BIR."
   },
   "policy": {
     "title": "Normas de uso",
@@ -475,5 +500,29 @@
     "otherDevicesNote": "Al cambiar su contraseña se cerrará la sesión en todos los demás teléfonos y ordenadores. Aquí seguirá con la sesión iniciada.",
     "mustChangeTitle": "Primero elija su propia contraseña",
     "mustChangeBody": "Otra persona eligió la contraseña que usa. Elija una que solo usted conozca y podrá continuar."
+  },
+  "setup": {
+    "eyebrow": "Instalación nueva",
+    "title": "Configure su taller",
+    "subtitle": "Son tres partes cortas. Al terminar podrá iniciar sesión.",
+    "lockedTitle": "La configuración está bloqueada",
+    "lockedBody": "Quien instaló AutoCare debe definir primero un SETUP_CODE en el alojamiento (por ejemplo, en Vercel). Pídaselo.",
+    "codeSection": "Código de configuración",
+    "codeHint": "Se lo dio la persona que instaló AutoCare.",
+    "code": "Código de configuración",
+    "shopSection": "Su taller",
+    "ownerSection": "Su cuenta",
+    "ownerHint": "Usted será el dueño (administrador). Puede añadir personal después.",
+    "starterServices": "Añadir los servicios habituales de un taller (se pueden cambiar)",
+    "submit": "Empezar con AutoCare",
+    "working": "Configurando…",
+    "doneTitle": "¡Su taller está listo!",
+    "doneBody": "Inicie sesión con el usuario {username} y la contraseña que eligió.",
+    "goToLogin": "Ir a iniciar sesión",
+    "errorTooMany": "Demasiados intentos. Espere unos minutos.",
+    "errorCheckFields": "Hay algo que corregir en el formulario. Vea las notas en rojo.",
+    "errorCode": "Ese código de configuración no es correcto.",
+    "errorDone": "Este taller ya está configurado. Inicie sesión.",
+    "errorClosed": "La configuración está bloqueada."
   }
 }

@@ -29,7 +29,10 @@ export default async function SettingsPage() {
           phone: shop.phone,
           email: shop.email ?? '',
           footer: shop.footer ?? '',
+          tin: shop.tin ?? '',
         }}
+        accent={shop.accent}
+        logo={shop.logo}
         myLocale={me?.locale ?? 'fil'}
       />
     </div>

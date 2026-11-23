@@ -4,6 +4,7 @@ import { getLocale, getMessages } from 'next-intl/server';
 import { SessionProvider } from 'next-auth/react';
 import { Toaster } from 'sonner';
 import { getLocaleDefinition } from '@/i18n/locales';
+import { getShopInfo } from '@/lib/settings';
 // Self-hosted fonts. The Content-Security-Policy allows fonts only from this
 // origin (`font-src 'self'`), so a Google Fonts link would be blocked; these
 // are bundled into /_next/static instead. Each file carries unicode-range
@@ -16,11 +17,14 @@ import '@fontsource/ibm-plex-sans-condensed/600.css';
 import '@fontsource/ibm-plex-sans-condensed/700.css';
 import './globals.css';
 
-export const metadata: Metadata = {
-  title: 'AutoCare',
-  description: 'Information management system for HI-OCTEN CAR CARE SERVICES',
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shop = await getShopInfo();
+  return {
+    title: 'AutoCare',
+    description: `Job records for ${shop.name}`,
+    robots: { index: false, follow: false },
+  };
+}
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -35,12 +39,12 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const locale = await getLocale();
-  const messages = await getMessages();
+  const [locale, messages, shop] = await Promise.all([getLocale(), getMessages(), getShopInfo()]);
   const def = getLocaleDefinition(locale);
 
   return (
-    <html lang={locale} dir={def.dir} suppressHydrationWarning>
+    // data-accent picks the shop's chosen colour (globals.css, lib/branding.ts).
+    <html lang={locale} dir={def.dir} data-accent={shop.accent} suppressHydrationWarning>
       <body className="min-h-screen bg-background text-foreground">
         <NextIntlClientProvider locale={locale} messages={messages}>
           {/* Lets client components refresh the JWT after a language change or

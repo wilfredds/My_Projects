@@ -32,7 +32,11 @@ export const AUTHENTICATED_PREFIXES = [
 ] as const;
 
 /** Pages that never require a session. */
-export const PUBLIC_PATHS = ['/login', '/policy'] as const;
+/**
+ * Reachable without signing in. /setup is the first-run page of a fresh
+ * install; it 404s as soon as any account exists (see lib/setup.ts).
+ */
+export const PUBLIC_PATHS = ['/login', '/policy', '/setup'] as const;
 
 export function isAdminOnlyPath(pathname: string): boolean {
   return ADMIN_ONLY_PREFIXES.some(

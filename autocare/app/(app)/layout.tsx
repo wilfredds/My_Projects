@@ -25,7 +25,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen flex-col">
-      <TopBar shopName={shop.name} userName={user.name} navItems={navItems} />
+      <TopBar shopName={shop.name} shopLogo={shop.logo} userName={user.name} navItems={navItems} />
 
       <div className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-4 pb-6 pt-5 sm:pt-8">
         {/* Persistent side navigation on large screens; the top bar holds the

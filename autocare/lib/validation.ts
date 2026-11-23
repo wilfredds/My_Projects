@@ -212,8 +212,36 @@ export const shopSettingsSchema = z.object({
     .transform((v) => (v === '' ? undefined : v))
     .refine((v) => v === undefined || z.string().email().safeParse(v).success, 'errors.requiredField'),
   footer: optionalText(300),
+  /** Philippine TIN, e.g. 123-456-789-000. Optional; digits, dashes and spaces. */
+  tin: z
+    .string()
+    .trim()
+    .max(30)
+    .optional()
+    .transform((v) => (v === '' ? undefined : v))
+    .refine((v) => v === undefined || /^[0-9][0-9 -]*$/.test(v), 'errors.invalidNumber'),
+  // The accent colour and logo are saved by their own actions, so saving the
+  // details here never resets them.
 });
 export type ShopSettingsInput = z.infer<typeof shopSettingsSchema>;
+
+// ------------------------------------------------------------------- setup
+
+/**
+ * First-run setup of a fresh install: the shop's details and its owner's
+ * account, in one form. See lib/setup.ts for when it is allowed at all.
+ */
+export const setupSchema = z.object({
+  code: z.string().min(1, 'errors.requiredField').max(200),
+  shopName: z.string().trim().min(1, 'errors.requiredField').max(120),
+  address: z.string().trim().min(1, 'errors.requiredField').max(300),
+  phone: z.string().trim().min(1, 'errors.requiredField').max(60),
+  ownerName: z.string().trim().min(1, 'errors.requiredField').max(120),
+  username: createUserSchema.shape.username,
+  password: passwordSchema,
+  starterServices: z.boolean().default(true),
+});
+export type SetupInput = z.infer<typeof setupSchema>;
 
 export const localeSchema = z.object({
   locale: z.enum(localeCodes as [string, ...string[]]),

@@ -12,6 +12,9 @@ import { ReceiptPdf, type ReceiptLabels } from '@/lib/pdf/receipt-pdf';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+/** Languages whose text the PDF's built-in fonts can draw. */
+const PDF_LOCALES = new Set(['fil', 'en', 'es']);
+
 /**
  * GET /api/jobs/<id>/receipt — the downloadable PDF receipt.
  *
@@ -26,12 +29,17 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
   const { id } = await params;
 
-  const [job, shop, tr, tj, locale] = await Promise.all([
+  // The PDF is set in Helvetica, which has no Japanese, Korean or Chinese
+  // glyphs — those would print as blanks. Readers of those languages get the
+  // PDF in English (the on-screen receipt stays in their language).
+  const userLocale = await getLocale();
+  const locale = PDF_LOCALES.has(userLocale) ? userLocale : 'en';
+
+  const [job, shop, tr, tj] = await Promise.all([
     prisma.job.findFirst({ where: { id, ...notDeleted }, include: jobInclude }),
     getShopInfo(),
-    getTranslations('receipt'),
-    getTranslations('job'),
-    getLocale(),
+    getTranslations({ locale, namespace: 'receipt' }),
+    getTranslations({ locale, namespace: 'job' }),
   ]);
 
   if (!job) {
@@ -67,6 +75,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     notes: tr('notes'),
     thankYou: tr('thankYou'),
     servedBy: tr('servedBy'),
+    tin: tr('tin'),
+    notOfficial: tr('notOfficial'),
   };
 
   const buffer = await renderToBuffer(

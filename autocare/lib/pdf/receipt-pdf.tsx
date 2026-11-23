@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
 import { formatPeso } from '@/lib/calc';
 import { formatDate } from '@/lib/utils';
 import { describeVehicle, type SerializedJob } from '@/lib/jobs';
@@ -17,7 +17,14 @@ import type { ShopInfo } from '@/lib/settings';
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 10, fontFamily: 'Helvetica', color: '#000' },
 
-  header: { borderBottomWidth: 2, borderBottomColor: '#000', paddingBottom: 10, marginBottom: 16 },
+  header: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#000',
+    paddingBottom: 10,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  logo: { width: 56, height: 56, objectFit: 'contain', marginBottom: 6 },
   shopName: { fontSize: 16, fontFamily: 'Helvetica-Bold', textAlign: 'center', letterSpacing: 0.5 },
   shopLine: { fontSize: 9, textAlign: 'center', marginTop: 3 },
 
@@ -70,6 +77,7 @@ const styles = StyleSheet.create({
   },
   thanks: { fontSize: 11, fontFamily: 'Helvetica-Bold' },
   footerLine: { fontSize: 9, marginTop: 3 },
+  notOfficial: { fontSize: 8, marginTop: 8, fontFamily: 'Helvetica-Oblique', color: '#444' },
 });
 
 /** Message keys the PDF needs, resolved by the caller so the PDF is translated. */
@@ -98,6 +106,8 @@ export interface ReceiptLabels {
   notes: string;
   thankYou: string;
   servedBy: string;
+  tin: string;
+  notOfficial: string;
 }
 
 /**
@@ -129,10 +139,17 @@ export function ReceiptPdf({
     >
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
+          {/* A PNG data URL, checked on upload (lib/logo.ts). */}
+          {shop.logo ? <Image src={shop.logo} style={styles.logo} /> : null}
           <Text style={styles.shopName}>{shop.name.toUpperCase()}</Text>
           <Text style={styles.shopLine}>{shop.address}</Text>
           <Text style={styles.shopLine}>{shop.phone}</Text>
           {shop.email ? <Text style={styles.shopLine}>{shop.email}</Text> : null}
+          {shop.tin ? (
+            <Text style={styles.shopLine}>
+              {labels.tin}: {shop.tin}
+            </Text>
+          ) : null}
         </View>
 
         <View style={styles.metaRow}>
@@ -246,6 +263,7 @@ export function ReceiptPdf({
               {labels.servedBy}: {job.mechanic?.name ?? job.createdBy?.name}
             </Text>
           ) : null}
+          <Text style={styles.notOfficial}>{labels.notOfficial}</Text>
         </View>
       </Page>
     </Document>

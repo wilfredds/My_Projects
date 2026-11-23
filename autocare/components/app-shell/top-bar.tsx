@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from './language-switcher';
 import { NavLinks } from './nav-links';
 import { ShopMark } from './shop-mark';
+import { ShopLogo } from './shop-logo';
 import type { NavItem } from '@/lib/rbac';
 import { signOutAction } from '@/app/actions/sign-out';
 
@@ -32,10 +33,12 @@ function LogoutButton({ className }: { className?: string }) {
  */
 export function TopBar({
   shopName,
+  shopLogo,
   userName,
   navItems,
 }: {
   shopName: string;
+  shopLogo: string | null;
   userName: string;
   navItems: NavItem[];
 }) {
@@ -60,12 +63,15 @@ export function TopBar({
 
         <Link
           href="/dashboard"
-          className="min-w-0 flex-1 rounded-lg py-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
         >
-          <span className="block font-display text-xl font-bold uppercase leading-tight tracking-wide [text-wrap:balance]">
-            <ShopMark name={shopName} />
+          <ShopLogo name={shopName} logo={shopLogo} className="hidden sm:flex" />
+          <span className="min-w-0">
+            <span className="block font-display text-xl font-bold uppercase leading-tight tracking-wide [text-wrap:balance]">
+              <ShopMark name={shopName} />
+            </span>
+            <span className="block truncate text-base text-muted-foreground">{userName}</span>
           </span>
-          <span className="block truncate text-base text-muted-foreground">{userName}</span>
         </Link>
 
         <div className="hidden shrink-0 sm:block">
