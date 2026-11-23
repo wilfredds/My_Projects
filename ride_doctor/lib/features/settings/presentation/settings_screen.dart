@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -42,7 +44,7 @@ class SettingsScreen extends ConsumerWidget {
             RadioGroup<AppThemeMode>(
               groupValue: settings.themeMode,
               onChanged: (mode) {
-                if (mode != null) controller.setThemeMode(mode);
+                if (mode != null) unawaited(controller.setThemeMode(mode));
               },
               child: Column(
                 children: [
@@ -65,7 +67,9 @@ class SettingsScreen extends ConsumerWidget {
             RadioGroup<_LanguageChoice>(
               groupValue: _LanguageChoice.fromCode(settings.languageCode),
               onChanged: (choice) {
-                if (choice != null) controller.setLanguageCode(choice.code);
+                if (choice != null) {
+                  unawaited(controller.setLanguageCode(choice.code));
+                }
               },
               child: Column(
                 children: [
@@ -84,12 +88,38 @@ class SettingsScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            _SectionHeader(l10n.settingsUnits),
+            RadioGroup<UnitSystem>(
+              groupValue: settings.unitSystem,
+              onChanged: (system) {
+                if (system != null) unawaited(controller.setUnitSystem(system));
+              },
+              child: Column(
+                children: [
+                  RadioListTile(
+                    value: UnitSystem.metric,
+                    title: Text(l10n.unitsMetric),
+                  ),
+                  RadioListTile(
+                    value: UnitSystem.imperial,
+                    title: Text(l10n.unitsImperial),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 32),
+            ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: Text(l10n.settingsPrivacy),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(AppRoutes.privacy),
+            ),
             _SectionHeader(l10n.settingsDeveloper),
             ListTile(
               leading: const Icon(Icons.palette_outlined),
               title: Text(l10n.designPreviewTitle),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.go(AppRoutes.designPreview),
+              onTap: () => context.push(AppRoutes.designPreview),
             ),
           ],
         ),

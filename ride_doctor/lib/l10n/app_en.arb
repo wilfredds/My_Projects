@@ -1,55 +1,533 @@
 {
   "@@locale": "en",
   "appTitle": "Ride Doctor",
-  "@appTitle": {"description": "The app name. Not translated."},
-
+  "@appTitle": {
+    "description": "The app name. Not translated."
+  },
   "todayTitle": "Today",
-  "@todayTitle": {"description": "Title of the home screen, which shows today's plan."},
-  "todayEmptyTitle": "Nothing planned yet",
-  "@todayEmptyTitle": {"description": "Heading shown on the home screen when there is no session for today."},
+  "@todayTitle": {
+    "description": "Title of the home screen, which shows today's plan."
+  },
   "todayEmptyBody": "Your daily session, heat check and race countdown will appear here.",
-  "@todayEmptyBody": {"description": "Explains what the empty home screen will show later."},
-
+  "@todayEmptyBody": {
+    "description": "Explains what the empty home screen will show later."
+  },
   "settingsTitle": "Settings",
-  "@settingsTitle": {"description": "Title of the settings screen, and the tooltip of the button that opens it."},
+  "@settingsTitle": {
+    "description": "Title of the settings screen, and the tooltip of the button that opens it."
+  },
   "settingsAppearance": "Appearance",
-  "@settingsAppearance": {"description": "Section heading for the light/dark theme choice."},
+  "@settingsAppearance": {
+    "description": "Section heading for the light/dark theme choice."
+  },
   "themeSystem": "Match device",
-  "@themeSystem": {"description": "Theme option: follow the phone's light/dark setting."},
+  "@themeSystem": {
+    "description": "Theme option: follow the phone's light/dark setting."
+  },
   "themeLight": "Light",
-  "@themeLight": {"description": "Theme option: always light."},
+  "@themeLight": {
+    "description": "Theme option: always light."
+  },
   "themeDark": "Dark",
-  "@themeDark": {"description": "Theme option: always dark."},
+  "@themeDark": {
+    "description": "Theme option: always dark."
+  },
   "settingsLanguage": "Language",
-  "@settingsLanguage": {"description": "Section heading for the app language choice."},
+  "@settingsLanguage": {
+    "description": "Section heading for the app language choice."
+  },
   "languageDevice": "Match device",
-  "@languageDevice": {"description": "Language option: follow the phone's language."},
+  "@languageDevice": {
+    "description": "Language option: follow the phone's language."
+  },
   "languageEnglish": "English",
-  "@languageEnglish": {"description": "Language name, always shown in English."},
+  "@languageEnglish": {
+    "description": "Language name, always shown in English."
+  },
   "languageFilipino": "Filipino",
-  "@languageFilipino": {"description": "Language name, always shown in Filipino."},
+  "@languageFilipino": {
+    "description": "Language name, always shown in Filipino."
+  },
   "settingsDeveloper": "Developer",
-  "@settingsDeveloper": {"description": "Section heading for tools used while building the app."},
+  "@settingsDeveloper": {
+    "description": "Section heading for tools used while building the app."
+  },
   "designPreviewTitle": "Design preview",
-  "@designPreviewTitle": {"description": "Title of the screen that shows the app's colours, type and components."},
-
+  "@designPreviewTitle": {
+    "description": "Title of the screen that shows the app's colours, type and components."
+  },
   "confidenceMeasured": "Measured",
-  "@confidenceMeasured": {"description": "Confidence label: the number comes from a sensor or a test the rider did."},
+  "@confidenceMeasured": {
+    "description": "Confidence label: the number comes from a sensor or a test the rider did."
+  },
   "confidenceEstimated": "Estimated",
-  "@confidenceEstimated": {"description": "Confidence label: the number comes from a formula."},
+  "@confidenceEstimated": {
+    "description": "Confidence label: the number comes from a formula."
+  },
   "confidenceRough": "Rough",
-  "@confidenceRough": {"description": "Confidence label: the number comes from weak or missing inputs."},
+  "@confidenceRough": {
+    "description": "Confidence label: the number comes from weak or missing inputs."
+  },
   "whyButton": "Why?",
-  "@whyButton": {"description": "Button that opens the explanation of how a number was calculated."},
-
+  "@whyButton": {
+    "description": "Button that opens the explanation of how a number was calculated."
+  },
   "heatNotHazardous": "Not hazardous",
-  "@heatNotHazardous": {"description": "PAGASA heat index category below 27 degrees C."},
+  "@heatNotHazardous": {
+    "description": "PAGASA heat index category below 27 degrees C."
+  },
   "heatCaution": "Caution",
-  "@heatCaution": {"description": "PAGASA heat index category 27 to 32 degrees C."},
+  "@heatCaution": {
+    "description": "PAGASA heat index category 27 to 32 degrees C."
+  },
   "heatExtremeCaution": "Extreme caution",
-  "@heatExtremeCaution": {"description": "PAGASA heat index category 33 to 41 degrees C."},
+  "@heatExtremeCaution": {
+    "description": "PAGASA heat index category 33 to 41 degrees C."
+  },
   "heatDanger": "Danger",
-  "@heatDanger": {"description": "PAGASA heat index category 42 to 51 degrees C."},
+  "@heatDanger": {
+    "description": "PAGASA heat index category 42 to 51 degrees C."
+  },
   "heatExtremeDanger": "Extreme danger",
-  "@heatExtremeDanger": {"description": "PAGASA heat index category 52 degrees C and above."}
+  "@heatExtremeDanger": {
+    "description": "PAGASA heat index category 52 degrees C and above."
+  },
+  "commonNext": "Next",
+  "commonBack": "Back",
+  "commonSave": "Save",
+  "commonCancel": "Cancel",
+  "commonEdit": "Edit",
+  "commonYes": "Yes",
+  "commonNo": "No",
+  "commonClose": "Close",
+  "commonRetry": "Try again",
+  "commonOptional": "Optional",
+  "commonSaved": "Saved",
+  "errorRequired": "Please fill this in.",
+  "errorNotANumber": "Please enter a number.",
+  "errorWholeNumber": "Please enter a whole number.",
+  "errorTooLow": "That looks too low. Enter {min} {unit} or more.",
+  "@errorTooLow": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "errorTooHigh": "That looks too high. Enter {max} {unit} or less.",
+  "@errorTooHigh": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "errorNameTooLong": "Use {max} characters or fewer.",
+  "@errorNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "errorTeeth": "Enter tooth counts from {min} to {max}, separated by commas, with no repeats.",
+  "@errorTeeth": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "errorCassetteRange": "That range and number of cogs do not fit together.",
+  "startingMessage": "Opening your data…",
+  "startupErrorTitle": "Your data could not be opened",
+  "startupErrorBody": "Ride Doctor keeps your data encrypted on this phone, and the encrypted file could not be read. This can happen if the phone's secure storage was reset.",
+  "startupErrorReset": "Delete local data and start over",
+  "navToday": "Today",
+  "navNumbers": "My Numbers",
+  "navProfile": "Profile",
+  "unitYears": "years",
+  "unitMinutes": "min",
+  "unitHours": "h",
+  "unitTeeth": "teeth",
+  "onboardingStep": "Step {current} of {total}",
+  "@onboardingStep": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingAboutTitle": "About you",
+  "onboardingAboutIntro": "A few basics so the numbers fit you. This takes about two minutes.",
+  "fieldName": "What should we call you?",
+  "fieldNameWhy": "Just for greetings. A nickname is fine.",
+  "fieldBirthYear": "Birth year",
+  "fieldBirthYearWhy": "Your age estimates your maximum heart rate.",
+  "fieldUnits": "Units",
+  "unitsMetric": "Metric (kg, cm, km)",
+  "unitsImperial": "Imperial (lb, in, mi)",
+  "fieldHeight": "Height",
+  "fieldHeightWhy": "Gives context for bike size.",
+  "fieldWeight": "Weight",
+  "fieldWeightWhy": "Used only for climbing physics and fuelling. Never for weight loss.",
+  "onboardingRidingTitle": "Your riding",
+  "onboardingRidingIntro": "This sets where your plan starts, so it builds from what you already do.",
+  "fieldBikeType": "Your bike",
+  "bikeRoad": "Road",
+  "bikeGravel": "Gravel",
+  "bikeMtb": "Mountain",
+  "bikeHybrid": "Hybrid",
+  "bikeConverted": "Converted",
+  "fieldGoal": "Main goal",
+  "goalFinishFirstRace": "Finish my first race",
+  "goalRaceFaster": "Race faster",
+  "goalRidePainFree": "Ride pain-free",
+  "goalBuildEndurance": "Build endurance",
+  "goalGeneralFitness": "General fitness",
+  "fieldYearsRiding": "Years riding",
+  "fieldRidesPerWeek": "Rides per week",
+  "fieldTypicalRide": "Typical ride length",
+  "fieldHoursPerWeek": "Hours you can ride per week",
+  "onboardingReadinessTitle": "Readiness check",
+  "onboardingReadinessIntro": "Seven quick questions, like the ones a gym or race organiser asks. They are not a diagnosis, and a “yes” never locks you out.",
+  "readinessHeartCondition": "Has a doctor ever said you have a heart condition or high blood pressure?",
+  "readinessChestPain": "Do you get pain or pressure in your chest, at rest, in daily life, or when you exercise?",
+  "readinessDizzinessOrFainting": "Have you fainted, or lost your balance from dizziness, in the last 12 months?",
+  "readinessChronicCondition": "Have you been diagnosed with another long-term condition, such as diabetes, asthma or a kidney problem?",
+  "readinessPrescribedMedication": "Are you taking prescribed medicine for a long-term condition?",
+  "readinessBoneOrJointProblem": "Do you have a bone, joint or muscle problem that hard exercise could make worse?",
+  "readinessToldToExerciseSupervised": "Has a doctor said you should only exercise under medical supervision?",
+  "readinessAdviceTitle": "Check with a doctor first",
+  "readinessAdviceBody": "You answered yes to at least one readiness question. We recommend talking to a doctor before hard training or racing. You can keep using Ride Doctor.",
+  "readinessUnanswered": "Please answer every question.",
+  "onboardingConsentTitle": "Your data, your choice",
+  "onboardingConsentIntro": "Ride Doctor keeps your data encrypted on this phone. Nothing is sent anywhere. You can change these any time in Settings.",
+  "consentHealthTitle": "Store my body and health information",
+  "consentHealthBody": "Your weight, height, readiness answers and anything you report about pain. Needed to create your profile.",
+  "consentLocationTitle": "Use my location",
+  "consentLocationBody": "For local weather and heat warnings. Not used yet: you will be asked again when weather arrives.",
+  "consentNotificationsTitle": "Send me reminders",
+  "consentNotificationsBody": "For your daily session. Not used yet: you will be asked again when daily plans arrive.",
+  "consentHealthRequired": "Ride Doctor cannot save a profile without this.",
+  "disclaimerTitle": "Not a medical device",
+  "disclaimerBody": "Ride Doctor is an educational tool. It does not diagnose or treat any condition. If you have chest pain, fainting, or unusual shortness of breath, stop and seek medical care.",
+  "onboardingFinish": "Finish",
+  "onboardingSaveError": "Your profile could not be saved. Please try again.",
+  "todayGreeting": "Hi, {name}",
+  "@todayGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todayNumbersTitle": "Your numbers are ready",
+  "todayNumbersBody": "Estimated maximum heart rate: {bpm} bpm. Open My Numbers for your zones and the reason behind each one.",
+  "@todayNumbersBody": {
+    "placeholders": {
+      "bpm": {
+        "type": "int"
+      }
+    }
+  },
+  "todayOpenNumbers": "Open My Numbers",
+  "todayBikePromptTitle": "Add your bike",
+  "todayBikePromptBody": "Tell me your tyre size and gears and I can show the cadence you will need on climbs.",
+  "todayAddBike": "Add bike details",
+  "todayComingTitle": "Coming next",
+  "numbersHeartTitle": "Heart rate",
+  "numbersMaxHr": "Maximum heart rate",
+  "numbersHrZones": "Heart-rate zones",
+  "zoneLabel": "Zone {label}",
+  "@zoneLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "zoneRange": "{lower} to {upper}",
+  "@zoneRange": {
+    "placeholders": {
+      "lower": {
+        "type": "int"
+      },
+      "upper": {
+        "type": "int"
+      }
+    }
+  },
+  "zoneAbove": "{lower} and above",
+  "@zoneAbove": {
+    "placeholders": {
+      "lower": {
+        "type": "int"
+      }
+    }
+  },
+  "zoneUpTo": "up to {upper}",
+  "@zoneUpTo": {
+    "placeholders": {
+      "upper": {
+        "type": "int"
+      }
+    }
+  },
+  "numbersPowerTitle": "Power",
+  "numbersPowerZones": "Power zones",
+  "numbersWattsPerKg": "Power to weight",
+  "numbersPowerPrompt": "Know your FTP? Add it to see your power zones.",
+  "numbersAddDetails": "Add to my details",
+  "numbersSaddleTitle": "Saddle height",
+  "numbersSaddleStart": "Starting point",
+  "numbersSaddleAdvice": "A starting point, not a target. Change 2 to 3 mm at a time and ride a few days before changing again.",
+  "numbersSaddlePrompt": "Add your inseam to get a saddle-height starting point.",
+  "numbersSaddleHigher": "Your saddle is {amount} {unit} higher than this starting point.",
+  "@numbersSaddleHigher": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "numbersSaddleLower": "Your saddle is {amount} {unit} lower than this starting point.",
+  "@numbersSaddleLower": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "numbersSaddleSame": "Your saddle matches this starting point.",
+  "numbersGearTitle": "Gears",
+  "numbersWheel": "Wheel circumference",
+  "numbersGearPrompt": "To calculate your climbing gears, tell me your tyre size, chainrings and cassette.",
+  "numbersGearSpeed": "Speed",
+  "numbersGearColumnGear": "Gear",
+  "numbersGearColumnCadence": "Cadence",
+  "numbersCogsEstimated": "Your middle cogs are estimated from the cassette range. Confirm them in your bike details for exact numbers.",
+  "numbersClimbTitle": "Climb check",
+  "numbersClimbGrade": "Gradient",
+  "numbersClimbEffort": "Effort",
+  "effortEasy": "Easy",
+  "effortSteady": "Steady",
+  "effortHard": "Hard",
+  "numbersClimbSpeed": "Expected speed",
+  "numbersClimbGear": "Best gear: {gear} at {cadence} rpm",
+  "@numbersClimbGear": {
+    "placeholders": {
+      "gear": {
+        "type": "String"
+      },
+      "cadence": {
+        "type": "int"
+      }
+    }
+  },
+  "numbersClimbGrind": "You will be grinding. Even your easiest gear turns only {cadence} rpm here.",
+  "@numbersClimbGrind": {
+    "placeholders": {
+      "cadence": {
+        "type": "int"
+      }
+    }
+  },
+  "numbersClimbGrindFix": "A {cog}-tooth largest cog, or a {chainring}-tooth small chainring, would let you spin at about 75 rpm.",
+  "@numbersClimbGrindFix": {
+    "placeholders": {
+      "cog": {
+        "type": "int"
+      },
+      "chainring": {
+        "type": "int"
+      }
+    }
+  },
+  "numbersHeatTitle": "Heat check",
+  "numbersHeatTemp": "Air temperature",
+  "numbersHeatHumidity": "Humidity",
+  "numbersHeatIndex": "Feels like",
+  "numbersHeatNote": "Enter today's forecast. Automatic weather comes in a later update.",
+  "heatAdviceNotHazardous": "Comfortable for riding.",
+  "heatAdviceCaution": "Fine for most rides. Drink regularly.",
+  "heatAdviceExtremeCaution": "Shorten hard efforts, drink regularly and take breaks in the shade.",
+  "heatAdviceDanger": "Ride early in the morning instead, or keep it short and easy indoors.",
+  "heatAdviceExtremeDanger": "Do not ride outdoors in this heat.",
+  "confidenceMeasuredBody": "From a sensor or a test you did.",
+  "confidenceEstimatedBody": "From a published formula, using what you told us.",
+  "confidenceRoughBody": "From default or assumed values. Treat it as a rough guide.",
+  "whyInputs": "What went in",
+  "whyHow": "How it is worked out",
+  "whyConfidence": "How sure is it?",
+  "whyImprove": "How to make it more accurate",
+  "whyLimits": "Good to know",
+  "whySource": "Source",
+  "sourceVerified": "Source checked",
+  "sourcePartly": "Source partly checked",
+  "sourceUnverified": "Source not yet checked",
+  "sourceNone": "No outside source. This is arithmetic.",
+  "formulaMeasuredMaxHrTitle": "Your measured maximum",
+  "formulaMeasuredMaxHrHow": "This is the maximum heart rate you entered from your own test or ride. A measured value beats any formula.",
+  "formulaTanakaMaxHrTitle": "Age-based estimate",
+  "formulaTanakaMaxHrHow": "Maximum heart rate is about 208 minus 0.7 times your age.",
+  "formulaTanakaMaxHrLimits": "This is an average for healthy adults. Your real maximum can be quite different, so treat zones built on it as a guide.",
+  "formulaFrielLthrZonesTitle": "Zones from your threshold heart rate",
+  "formulaFrielLthrZonesHow": "Each zone is a percentage of your lactate-threshold heart rate, using Joe Friel's cycling zones. Zone 5a starts at your threshold.",
+  "formulaFrielLthrZonesLimits": "Only as good as the test behind your threshold number. Retest every few months.",
+  "formulaKarvonenZonesTitle": "Zones from heart-rate reserve",
+  "formulaKarvonenZonesHow": "Your reserve is maximum minus resting heart rate. Each zone is your resting rate plus 50 to 100 percent of that reserve, in steps of 10.",
+  "formulaKarvonenZonesLimits": "The 10 percent bands are a common convention, not something measured on you.",
+  "formulaPercentMaxHrZonesTitle": "Zones from maximum heart rate",
+  "formulaPercentMaxHrZonesHow": "Each zone is 50 to 100 percent of your maximum heart rate, in steps of 10.",
+  "formulaPercentMaxHrZonesLimits": "The simplest method and the least personal. Adding your resting heart rate, or doing a threshold test, improves it.",
+  "formulaCogganPowerZonesTitle": "Power zones from FTP",
+  "formulaCogganPowerZonesHow": "Each level is a percentage of your FTP, the power you can hold for about an hour, using Andrew Coggan's levels.",
+  "formulaCogganPowerZonesLimits": "Depends on a recent FTP test.",
+  "formulaWattsPerKgTitle": "Power to weight",
+  "formulaWattsPerKgHow": "Your FTP divided by your body weight. It is what decides how fast you climb. Weight is used here only for physics.",
+  "formulaLemondSaddleHeightTitle": "Saddle-height starting point",
+  "formulaLemondSaddleHeightHow": "0.883 times your inseam, measured from the centre of the bottom bracket to the top of the saddle.",
+  "formulaLemondSaddleHeightLimits": "Studies show this formula suits average proportions best and often misses for others. Use it to get close, then adjust in small steps, or get a professional fit.",
+  "formulaEtrtoCircumferenceTitle": "Wheel size from the tyre label",
+  "formulaEtrtoCircumferenceHow": "Pi times the rim diameter plus twice the tyre width, using the ETRTO size printed on the tyre.",
+  "formulaEtrtoCircumferenceLimits": "Usually within 1 to 2 percent of the real value. A loaded tyre rolls slightly smaller.",
+  "formulaMeasuredCircumferenceTitle": "Your measured wheel size",
+  "formulaMeasuredCircumferenceHow": "The distance your bike travels in one wheel turn, as you measured it.",
+  "formulaGearCadenceTitle": "Cadence in a gear",
+  "formulaGearCadenceHow": "Each crank turn moves you chainring divided by cog, times the wheel circumference. Cadence is your speed divided by that distance.",
+  "formulaClimbPowerBalanceTitle": "Climb prediction",
+  "formulaClimbPowerBalanceHow": "Your power is balanced against gravity, rolling resistance and air drag to find your speed. That speed is then turned into a cadence for each gear.",
+  "formulaClimbPowerBalanceLimits": "Uses typical values for tyres and air drag, and a steady effort on a constant gradient. Real climbs vary.",
+  "formulaNwsHeatIndexTitle": "Heat index",
+  "formulaNwsHeatIndexHow": "Combines air temperature and humidity into how hot it feels, using the US National Weather Service equation, then sorts it into PAGASA's heat categories.",
+  "formulaNwsHeatIndexLimits": "It describes shade with a light wind. Direct sun feels hotter, and hard riding adds your own body heat.",
+  "improveMeasureMaxHr": "Enter a maximum heart rate you have actually reached in a hard effort.",
+  "improveMeasureRestingHr": "Add your resting heart rate. Count it for a minute just after waking.",
+  "improveDoLthrTest": "Do a threshold test: ride hard and steady, alone, for 30 minutes. Your threshold is your average heart rate over the last 20 minutes.",
+  "improveDoFtpTest": "Add your FTP from a power test.",
+  "improveRollOutWheel": "Measure your wheel: mark the tyre and the ground, roll one full turn while sitting on the bike, and measure the distance.",
+  "improveConfirmCogs": "Count the teeth on each cog and confirm them in your bike details.",
+  "improveGetProfessionalFit": "A professional bike fit measures your knee angle while you pedal.",
+  "improveUsePowerMeter": "A power meter measures your effort directly.",
+  "inputAgeYears": "Age",
+  "inputRestingHeartRateBpm": "Resting heart rate",
+  "inputMaxHeartRateBpm": "Maximum heart rate",
+  "inputLthrBpm": "Threshold heart rate",
+  "inputFtpWatts": "FTP",
+  "inputPowerWatts": "Power",
+  "inputMassKg": "Body weight",
+  "inputTotalMassKg": "Rider plus bike and kit",
+  "inputInseamMm": "Inseam",
+  "inputBeadSeatDiameterMm": "Rim diameter",
+  "inputTyreWidthMm": "Tyre width",
+  "inputCircumferenceMm": "Wheel circumference",
+  "inputGradePercent": "Gradient",
+  "inputTemperatureC": "Air temperature",
+  "inputHumidityPercent": "Humidity",
+  "profileRiderSection": "You",
+  "profileBikeSection": "Your bike",
+  "profileSensorsSection": "Sensors",
+  "profileSensorsHint": "Tick what you own. Sensors make your numbers more accurate.",
+  "sensorHrStrap": "Heart-rate strap",
+  "sensorCadence": "Cadence sensor",
+  "sensorSpeed": "Speed sensor",
+  "sensorPowerMeter": "Power meter",
+  "sensorBikeComputer": "Bike computer",
+  "sensorSmartwatch": "Smartwatch",
+  "profileEditRider": "Edit your details",
+  "profileEditBike": "Edit bike details",
+  "profileNoBike": "No bike details yet.",
+  "profileNotSet": "Not set",
+  "fieldSex": "Sex",
+  "fieldSexWhy": "Optional. Only used where a formula needs it.",
+  "sexFemale": "Female",
+  "sexMale": "Male",
+  "sexPreferNotToSay": "Prefer not to say",
+  "fieldInseam": "Inseam",
+  "fieldInseamWhy": "Stand against a wall with a book snug between your legs. Measure from the floor to the top of the book.",
+  "fieldRestingHr": "Resting heart rate",
+  "fieldRestingHrWhy": "Count your pulse for one minute just after waking.",
+  "fieldMaxHr": "Maximum heart rate (measured)",
+  "fieldMaxHrWhy": "Only if you have actually reached it. Leave empty to use the age estimate.",
+  "fieldFtp": "FTP",
+  "fieldFtpWhy": "From a power test, if you have a power meter.",
+  "fieldLthr": "Threshold heart rate (LTHR)",
+  "fieldLthrWhy": "From a 30-minute hard solo effort: your average over the last 20 minutes.",
+  "fieldTyreSize": "Tyre size",
+  "fieldTyreSizeWhy": "Printed on the tyre sidewall.",
+  "tyreSizeOther": "Other size",
+  "fieldRimDiameter": "Rim diameter (ETRTO)",
+  "fieldTyreWidth": "Tyre width",
+  "fieldRollOut": "Measured wheel circumference",
+  "fieldRollOutWhy": "Optional. More accurate than the tyre label.",
+  "fieldCrank": "Crank length",
+  "fieldCrankWhy": "Stamped on the inside of the crank arm.",
+  "fieldPedals": "Pedals",
+  "pedalsFlat": "Flat",
+  "pedalsClipless": "Clipless",
+  "fieldSaddleHeight": "Saddle height",
+  "fieldSaddleHeightWhy": "Centre of the bottom bracket to the top of the saddle.",
+  "fieldTyrePressure": "Tyre pressure",
+  "fieldChainrings": "Chainrings",
+  "fieldChainringsWhy": "Tooth counts, for example 34, 50. Printed on each chainring.",
+  "fieldCassetteSmallest": "Smallest cog",
+  "fieldCassetteLargest": "Largest cog",
+  "fieldCassetteSpeeds": "Number of cogs",
+  "fieldCassetteWhy": "A cassette marked 11-34 has an 11-tooth smallest and a 34-tooth largest cog.",
+  "estimateCogsButton": "Fill in cogs from this range",
+  "fieldCogs": "All cogs",
+  "fieldCogsWhy": "Tooth counts from smallest to largest. Correct them if you know your cogs.",
+  "fieldCogsConfirmed": "I have checked these cogs",
+  "settingsUnits": "Units",
+  "settingsPrivacy": "Privacy and your data",
+  "privacyStoredLocally": "Everything is stored encrypted on this phone. Nothing is sent anywhere.",
+  "privacyConsents": "Permissions you gave",
+  "privacyHealthNote": "To withdraw this, use Delete everything below. The app cannot keep a profile without it.",
+  "privacyExport": "Export my data",
+  "privacyExportBody": "A copy of everything stored about you, as JSON text.",
+  "privacyExportCopy": "Copy to clipboard",
+  "privacyExportCopied": "Copied",
+  "privacyDelete": "Delete everything",
+  "privacyDeleteBody": "Removes your profile, bike, answers and settings from this phone. This cannot be undone.",
+  "privacyDeleteConfirmTitle": "Delete everything?",
+  "privacyDeleteConfirm": "Delete",
+  "stepperIncrease": "Increase {what}",
+  "@stepperIncrease": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "stepperDecrease": "Decrease {what}",
+  "@stepperDecrease": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "numbersClimbNeedsGears": "Add your tyre size and gears to see which gear to use.",
+  "profileName": "Name",
+  "profileBikeType": "Bike type",
+  "privacyHealthGranted": "Granted"
 }

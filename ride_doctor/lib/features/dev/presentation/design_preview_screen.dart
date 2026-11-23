@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:ride_doctor/app/theme/heat_risk_colors.dart';
+import 'package:ride_doctor/app/widgets/heat_badge.dart';
+import 'package:ride_doctor/core/science/heat_index.dart';
 import 'package:ride_doctor/l10n/l10n.dart';
 
 /// A living style guide: the colours, type and components the app is built
@@ -17,7 +18,6 @@ class DesignPreviewScreen extends StatelessWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final heat = theme.extension<HeatRiskColors>()!;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.designPreviewTitle)),
@@ -43,33 +43,7 @@ class DesignPreviewScreen extends StatelessWidget {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: [
-                _HeatBadge(
-                  tone: heat.notHazardous,
-                  icon: Icons.check_circle_outline,
-                  label: l10n.heatNotHazardous,
-                ),
-                _HeatBadge(
-                  tone: heat.caution,
-                  icon: Icons.wb_sunny_outlined,
-                  label: l10n.heatCaution,
-                ),
-                _HeatBadge(
-                  tone: heat.extremeCaution,
-                  icon: Icons.thermostat,
-                  label: l10n.heatExtremeCaution,
-                ),
-                _HeatBadge(
-                  tone: heat.danger,
-                  icon: Icons.warning_amber_rounded,
-                  label: l10n.heatDanger,
-                ),
-                _HeatBadge(
-                  tone: heat.extremeDanger,
-                  icon: Icons.dangerous_outlined,
-                  label: l10n.heatExtremeDanger,
-                ),
-              ],
+              children: [for (final risk in HeatRisk.values) HeatBadge(risk)],
             ),
             const SizedBox(height: 24),
             Wrap(
@@ -161,41 +135,6 @@ class _SampleNumberCard extends StatelessWidget {
                 ),
                 TextButton(onPressed: () {}, child: Text(l10n.whyButton)),
               ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _HeatBadge extends StatelessWidget {
-  const new({required this.tone, required this.icon, required this.label});
-
-  final Tone tone;
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: tone.background,
-        borderRadius: const BorderRadius.all(Radius.circular(12)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 20, color: tone.foreground),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                label,
-                style: Theme.of(context).textTheme.labelLarge
-                    ?.copyWith(color: tone.foreground),
-              ),
             ),
           ],
         ),

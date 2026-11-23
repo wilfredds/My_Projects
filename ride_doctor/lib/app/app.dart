@@ -16,6 +16,8 @@ class RideDoctorApp extends ConsumerWidget {
     final languageCode = settings.languageCode;
 
     return MaterialApp.router(
+      // The debug ribbon sits on top of the app-bar action in the corner.
+      debugShowCheckedModeBanner: false,
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       routerConfig: ref.watch(appRouterProvider),
       theme: AppTheme.build(Brightness.light),

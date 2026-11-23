@@ -50,6 +50,8 @@ dev_dependencies:
     sdk: flutter
 
   freezed: ^4.0.3
+  path_provider_platform_interface: ^2.1.3
+  plugin_platform_interface: ^2.1.8
   riverpod_generator: ^4.0.10
 
   # Strict lint set.

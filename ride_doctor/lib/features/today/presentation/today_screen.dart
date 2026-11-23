@@ -1,17 +1,29 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:ride_doctor/app/router/app_router.dart';
+import 'package:ride_doctor/app/widgets/confidence_chip.dart';
+import 'package:ride_doctor/app/widgets/form_fields.dart';
+import 'package:ride_doctor/app/widgets/why_sheet.dart';
+import 'package:ride_doctor/features/calculators/presentation/my_numbers_provider.dart';
+import 'package:ride_doctor/features/onboarding/data/onboarding_providers.dart';
+import 'package:ride_doctor/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:ride_doctor/features/profile/data/profile_providers.dart';
 import 'package:ride_doctor/l10n/l10n.dart';
 
-/// The home screen. In Phase 0 it is an honest empty state; later phases add
-/// the session card, heat badge, race countdown and "Something hurts?" entry.
-class TodayScreen extends StatelessWidget {
+/// The home screen. For now it greets the rider, surfaces their first useful
+/// number, and points at the next thing to add. The session card, heat badge
+/// and race countdown join it in Phases 2 and 3.
+class TodayScreen extends ConsumerWidget {
   const new({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final profile = ref.watch(riderProfileProvider).value;
+    final numbers = ref.watch(myNumbersProvider);
+    final readiness = ref.watch(latestReadinessProvider).value;
 
     return Scaffold(
       appBar: AppBar(
@@ -22,35 +34,75 @@ class TodayScreen extends StatelessWidget {
             // icon-only button.
             tooltip: l10n.settingsTitle,
             icon: const Icon(Icons.settings_outlined),
-            onPressed: () => context.go(AppRoutes.settings),
+            onPressed: () => context.push(AppRoutes.settings),
           ),
         ],
       ),
       body: SafeArea(
-        // Scrollable so the text still fits at 200% text scale on a small
-        // phone instead of overflowing.
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 48),
-              Icon(
-                Icons.directions_bike,
-                size: 56,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(height: 24),
-              Text(l10n.todayEmptyTitle, style: theme.textTheme.headlineLarge),
-              const SizedBox(height: 12),
-              Text(
-                l10n.todayEmptyBody,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          children: [
+            if (profile != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
+                child: Text(
+                  l10n.todayGreeting(profile.displayName),
+                  style: theme.textTheme.headlineLarge,
                 ),
               ),
+            if (readiness?.anyYes ?? false) const ReadinessAdvice(),
+            if (numbers != null) ...[
+              SectionCard(
+                title: l10n.todayNumbersTitle,
+                children: [
+                  Text(
+                    l10n.todayNumbersBody(numbers.maxHr.value),
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      ConfidenceChip(numbers.maxHr.confidence),
+                      WhyButton(numbers.maxHr),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton(
+                    onPressed: () => context.go(AppRoutes.numbers),
+                    child: Text(l10n.todayOpenNumbers),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (!numbers.canCalculateGearing) ...[
+                SectionCard(
+                  title: l10n.todayBikePromptTitle,
+                  children: [
+                    PromptRow(
+                      text: l10n.todayBikePromptBody,
+                      actionLabel: l10n.todayAddBike,
+                      onPressed: () => context.push(AppRoutes.editBike),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
             ],
-          ),
+            SectionCard(
+              title: l10n.todayComingTitle,
+              children: [
+                Text(
+                  l10n.todayEmptyBody,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

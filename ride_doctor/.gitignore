@@ -58,3 +58,6 @@ app.*.map.json
 .env
 .env.*
 !.env.example
+
+# Rendered by test/screenshots (for review, not comparison).
+/test/screenshots/goldens/
