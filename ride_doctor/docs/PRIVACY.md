@@ -3,17 +3,50 @@
 > **Draft, not legal advice.** Written in plain language so it can be checked
 > against what the app really does. Before any public release it needs review
 > against the Philippine Data Privacy Act of 2012 (RA 10173) and, for users
-> elsewhere, GDPR-style requirements. Last updated for Phase 0.
+> elsewhere, GDPR-style requirements. Last updated for Phase 1.
 
-## What the app does today (Phase 0)
-
-- **Collects nothing.** There is no profile, no account and no database yet.
-- **Sends nothing.** The app makes no network requests. The release build
-  requests no Android permissions.
-- **Remembers nothing.** Theme and language choices are held in memory and
-  reset when the app closes.
+## What the app does today (Phase 1)
 
 This section is rewritten at the end of every phase to match the shipped code.
+
+**What is stored, and only on your phone**
+- Your profile: name or nickname, birth year, height, weight, riding habits
+  and goal; and, only if you add them, sex, inseam, heart-rate numbers and FTP.
+- Your answers to the seven readiness questions, and when you answered.
+- Your bike: type, tyre size, measurements and gears. Which sensors you own.
+- Your choices on this page's permissions, each with its date and the version
+  of the text you saw. Withdrawing adds a record; history is not rewritten.
+- App settings: theme, language, units.
+
+**How it is protected**
+- All of it is in one database encrypted on the device. The key is generated
+  on first launch and kept in Android's secure keystore.
+- The app is excluded from Android backup and device-to-device transfer.
+- Nothing is written until you finish setup and agree to health data being
+  stored. If you do not agree, nothing is saved.
+
+**What leaves the phone**
+- Nothing. The app makes no network requests and requests no Android
+  permissions. There is no account, no analytics and no crash reporting.
+
+**Location and reminders**
+- Setup asks whether you would allow them, and records your answer. Neither
+  is used yet: the app does not read your location or send notifications in
+  this version. You will be asked again, by Android, when those features exist.
+
+**Your rights, in the app (Settings → Privacy and your data)**
+- **Export:** shows everything stored as JSON text, with a copy button. Note
+  that anything copied to the clipboard can be read by other apps until it is
+  replaced.
+- **Delete everything:** removes every record and returns the app to its
+  first-run state. Deleted content is overwritten, not just unlinked.
+- **Withdraw:** location and reminder consent can be switched off any time.
+  Health-data consent is withdrawn by deleting everything, since the app
+  cannot keep a profile without it.
+
+**If the encryption key is lost** (for example the phone's secure storage is
+reset), the data cannot be recovered by anyone. The app will say so and offer
+to start over.
 
 ## What we are building toward
 
@@ -60,7 +93,11 @@ swelling: stop and seek medical care.
 ## Open items before release
 
 - Name the personal information controller and a contact for privacy requests.
-- Decide the age policy (minimum age, parental consent).
+- Decide the age policy (minimum age, parental consent). The app currently
+  accepts ages 13 to 100 as a placeholder.
+- Have a medical professional review the readiness questions and the
+  red-flag wording.
+- Replace clipboard export with a save-to-file flow.
 - Name every third party that receives any data, and why.
 - State retention periods.
 - Legal review.

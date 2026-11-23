@@ -13,17 +13,21 @@ wins unless `docs/DECISIONS.md` records a deliberate change.
 
 | Phase | State |
 |---|---|
-| 0 — Foundation | **Built.** Awaiting the owner's review and "go". |
-| 1 — Profile, consents, calculation engine | Not started. Plan agreed in outline; see ADR-0005 for the open database-encryption check. |
-| 2–7 | Not started. |
+| 0 — Foundation | Done. |
+| 1 — Profile, consents, calculation engine | **Built.** Awaiting the owner's review on a real phone. |
+| 2 — Race prep | Not started. Next. |
+| 3–7 | Not started. |
 
-Open decisions waiting on the owner: **palette A or B** (ADR-0006).
+Not yet verified by anyone: the app on a real device (only tests and CI
+builds), and the "onboarding in two minutes" target. Several science sources
+are still unverified — `docs/SCIENCE.md` ends with the open list.
 
 ## How we work (PROMPT.md section 0)
 
-- One phase at a time. At the end of a phase: stop, summarise, show how to run
-  and test it, list known gaps, and **wait for "go"**. Do not start the next
-  phase unprompted.
+- One phase at a time. At the end of a phase: summarise, show how to run and
+  test it, and list known gaps. On 2026-11-23 the owner asked for work to
+  continue through the phases without waiting for a "go" each time; still
+  finish, verify and report one phase before starting the next.
 - The owner is learning. Explain the *why* of each important decision in 2–4
   sentences — in chat and in code comments where the why is not obvious.
 - Log every architectural decision in `docs/DECISIONS.md`.
@@ -46,6 +50,10 @@ flutter analyze                      # must report "No issues found!"
 flutter test                         # all tests
 flutter test --coverage && dart run tool/check_coverage.dart   # coverage gate
 flutter build apk --debug
+
+# Render the screens to PNG (test/screenshots/goldens/, git-ignored) to look
+# at the UI without a phone:
+flutter test test/screenshots --dart-define=SCREENSHOTS=true --update-goldens
 ```
 
 Generated code (`*.g.dart`, `lib/l10n/generated/`) is **not committed**
@@ -79,11 +87,15 @@ Feature-first clean architecture (PROMPT.md section 5).
 
 ```
 lib/
-  app/        bootstrap, router, theme, locale wiring
+  app/        bootstrap, router, startup screens, theme, shared widgets
   core/
-    science/  PURE DART formulas + constants (arrives in Phase 1)
+    science/  PURE DART formulas, constants, sources
+    units/    PURE DART unit conversion and number formatting
+    database/ encrypted drift database, key storage
+    app/      clock and id providers
     rules/    PURE DART diagnosis rule engine (Phase 4)
   features/<feature>/{data, domain, presentation}
+              onboarding, profile, calculators, settings, today, dev
   l10n/       app_en.arb (template), app_fil.arb
 test/         mirrors lib/
 tool/         check_coverage.dart, setup_remote_flutter.sh
@@ -100,6 +112,13 @@ docs/         DECISIONS.md, SCIENCE.md, PRIVACY.md
    interface provided by Riverpod, so tests can replace it.
 4. Dependencies are added in the phase that first uses them (ADR-0003).
 5. The rule engine makes diagnoses. An LLM, if ever added, only rephrases.
+6. The rider-profile stream is the app's state machine: loading → starting
+   screen, error → startup-error screen, no profile → onboarding, profile →
+   the app. The rule is the pure function `redirectFor` in `app_router.dart`.
+7. Everything is stored and calculated in metric. Conversion happens only at
+   the edges, through `DisplayUnits`.
+8. Changing a table: bump `schemaVersion`, add a migration step, add a test.
+   Never edit a released schema in place.
 
 ## Conventions
 
@@ -120,6 +139,19 @@ docs/         DECISIONS.md, SCIENCE.md, PRIVACY.md
   Colour is never the only signal — pair it with an icon and a label.
 - Use `test/helpers/tap_targets.dart`, not `androidTapTargetGuideline`: the
   built-in matcher skips controls touching a screen edge, which is most of ours.
+- **A screen with a `Form` uses `ScrollingColumn`, never `ListView`** — a lazy
+  list drops off-screen fields, which then skip validation (ADR-0018). Use
+  `LabelValue` for "label ... value" lines; a `Row` overflows at large text.
+- A new formula needs, in the same change: the function returning
+  `Explained<T>`, its `Formula` value, title/how/limits strings in both ARB
+  files, an entry in `sources.dart` with an honest `SourceStatus`, an entry in
+  `docs/SCIENCE.md`, and tests against independently worked values.
+- Widget tests start the whole app with `pumpApp` (in-memory database, fixed
+  clock) and assert on what is in the database, not only on what is on screen.
+  Large numbers are rich text: find them with `findRichText: true`.
+- In widget tests, take the app down before closing its database (pumpApp
+  does). Closing it under a still-mounted app hangs the run when a test fails.
+- Run `dart fix --apply` then `dart format lib test tool` before analysing.
 
 ## Never do
 
@@ -142,22 +174,25 @@ From PROMPT.md sections 3 and 10. These are hard rules.
 - Never call the network over plain HTTP, or trust an API response unvalidated.
 - Never claim something works on a device when it was only run in tests.
 
-## Owner context (answers to PROMPT.md section 13, 2026-11-20)
+## Owner context (PROMPT.md section 13, answered 2026-11-20 and 2026-11-23)
 
-- New app, package `com.ridedoctor.app`. Stack in section 4 confirmed.
+- New app, package `com.ridedoctor.app`. Stack in section 4 confirmed, with
+  the owner leaving package-level choices to us.
+- Palette: **A, Hi-Vis** (ADR-0006).
 - Intent: **future startup** → Open-Meteo's free tier (non-commercial) cannot
   be the shipping weather source without a licence review (ADR-0007).
 - Phases 0–6 free and on-device; LLM budget decided at Phase 7.
 - English + Filipino from the start. The owner reviews Filipino wording,
-  especially safety and medical text.
+  especially safety and medical text. Not yet reviewed.
 - Sensors: none yet (planning to buy) → design for phone-only, `Estimated` and
   `Rough` confidence paths first.
 - Riding time available: stated as about 20 h/week. That is a ceiling, not a
   prescription — a beginner's plan must start from current load, not from 20 h.
-- Reference bike, to seed Phase 1 fixtures: road bike, frame size 48;
-  cassette 11-34; tyre 700×25C (ETRTO 25-622); crank 160 mm; flat pedals.
-  **Still unknown / to confirm:** chainring sizes for this bike; bike brand
-  (unclear in the voice note); first race date. The reported saddle height of
-  30 in (762 mm) is very unlikely as a bottom-bracket-to-saddle-top measurement
-  on a size-48 frame — probably measured from the floor. Ask for a re-measure
-  before using it.
+- The owner's first race is done: 10th of 10. A good first real input for the
+  Phase 2 debrief.
+- Reference bike (also `testBike` in `test/helpers/pump_app.dart`): road bike,
+  frame size 48; chainrings 34/50; cassette 11-34 (exact cogs and speed count
+  not confirmed); tyre 700×25C (ETRTO 25-622); crank 160 mm; flat pedals;
+  saddle height 30 in (762 mm), which the owner confirmed is measured from the
+  bottom bracket. That is high for a size-48 frame; the app will show how it
+  compares once the owner enters an inseam. Bike brand still unclear.

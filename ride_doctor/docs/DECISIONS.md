@@ -93,34 +93,51 @@ freezed models and drift tables) and `gen-l10n` produces
 
 ---
 
-## ADR-0005 — Database encryption route
+## ADR-0005 — Encrypt the database with SQLite3 Multiple Ciphers
 
-**Status:** Proposed — to be verified at the start of Phase 1
+**Status:** Accepted (2026-11-23)
 
 **Context.** The spec asks for drift + SQLCipher. The package that used to
 provide SQLCipher to Flutter apps, `sqlcipher_flutter_libs`, was marked
-end-of-life in February 2026 ("no longer does anything") after `sqlite3` 3.x
-moved to Dart build hooks. The `sqlite3` documentation states that on native
-platforms SQLCipher or SQLite3MultipleCiphers can be selected through its hook
-options instead.
+end-of-life in February 2026 after `sqlite3` 3.x moved to Dart build hooks.
+`sqlite3` now ships three prebuilt variants, chosen in `pubspec.yaml`: plain
+SQLite, SQLite3 Multiple Ciphers, and SQLCipher.
 
-**Decision (proposed).** Use `drift` on `sqlite3` 3.x with an encrypted build
-selected through the `sqlite3` hook options, the key generated on first launch
-and held in `flutter_secure_storage`. Choose between SQLCipher and
-SQLite3MultipleCiphers after reading the hook-options page and testing both on
-Android.
+**Decision.** `drift` on `sqlite3` 3.x with `source: sqlite3mc` (SQLite3
+Multiple Ciphers), not the SQLCipher variant. The key is 256 random bits from
+`Random.secure()`, generated on first launch and kept in the platform keystore
+through `flutter_secure_storage`.
 
-**Consequences / what Phase 1 must prove before this is Accepted.**
-- An encrypted database file is unreadable without the key (a test opens the
-  file without it and must fail).
-- The app builds for Android in CI with the encrypted variant.
-- Unit tests can run against the same schema on the host machine.
+**Why not the SQLCipher variant.** The package's own documentation lists
+sqlite3mc first and notes the SQLCipher build links OpenSSL on Android and
+"may include an older SQLite version". sqlite3mc is self-contained. The
+security property the spec is after — the file is unreadable without the key —
+is the same.
+
+**Proven by tests** (`test/core/database/database_opener_test.dart`,
+`test/main_test.dart`): the file has no SQLite header and no plaintext; it
+cannot be read without the key; a different key is rejected; a malformed
+stored key is refused rather than interpolated into SQL. Because the hook
+setting applies to every platform, the unit tests on a developer machine
+exercise the same encrypting library the phone uses.
+
+**Consequences.**
+- `openEncryptedDatabase` refuses to continue if the loaded SQLite has no
+  cipher (`PRAGMA cipher` returns nothing), instead of silently writing plain
+  text.
+- If the keystore is wiped the data is unrecoverable by design. The app shows
+  a startup error with "try again" and "delete local data and start over".
+- Android backup is disabled for the app (`allowBackup="false"` plus
+  data-extraction rules): a backed-up file could not be opened without the
+  key, which is never backed up.
+- The build downloads the prebuilt library from the `sqlite3` package's
+  GitHub releases, checked against sha256 hashes pinned in the package.
 
 ---
 
 ## ADR-0006 — Brand palette
 
-**Status:** Proposed — awaiting the owner's choice
+**Status:** Accepted (2026-11-23) — the owner chose A, Hi-Vis
 
 **Context.** The spec asks for a clean, sporty, distinctive Material 3 theme,
 designed outdoor-first, and for two palette options before committing. Both
@@ -140,11 +157,11 @@ contrast level rather than the indoor-tuned default.
 **Recommendation.** A — Hi-Vis. The product's hardest reading condition is a
 phone on handlebars in tropical sun, and A is the stronger answer to it.
 
-**Decision.** Pending. Until then A is the default.
+**Decision.** A — Hi-Vis.
 
-**Consequences once decided.** Delete the other `AppPalette` value, the
-`PalettePreview` provider and the palette switcher; `AppTheme.build` loses its
-palette argument. The design preview screen itself stays as a style guide.
+**Consequences.** The second palette, the `PalettePreview` provider and the
+switcher were deleted; colours now live in `brand_colors.dart`. The design
+preview screen stays as a style guide.
 
 ---
 
@@ -208,7 +225,7 @@ overall), written in Dart so it runs the same everywhere.
 
 ## ADR-0010 — Settings are in memory until the database exists
 
-**Status:** Accepted (2026-11-20); superseded when Phase 1 lands
+**Status:** Superseded by ADR-0011 (2026-11-23)
 
 **Context.** Phase 0 needs theme and language switching to prove the theme and
 localisation wiring. The spec stores settings in the encrypted `app_settings`
@@ -222,3 +239,161 @@ return there is no second storage mechanism to migrate away from, and no
 unencrypted file on disk. `AppSettings` deliberately uses its own
 `AppThemeMode` enum rather than Flutter's `ThemeMode`, so it is ready to be
 stored and exported without a UI dependency.
+
+---
+
+## ADR-0011 — Settings persist in the encrypted database
+
+**Status:** Accepted (2026-11-23). Supersedes ADR-0010.
+
+**Context.** The `app_settings` table now exists.
+
+**Decision.** `SettingsController` starts from the defaults so the first frame
+can be painted, then swaps in the stored settings. A change the rider makes
+before that load finishes is never overwritten by it.
+
+**Consequences.** One storage mechanism, encrypted like everything else.
+There is a brief moment at launch where the theme can be the default before
+the stored one applies.
+
+---
+
+## ADR-0012 — Every result explains itself (`Explained<T>`)
+
+**Status:** Accepted (2026-11-23)
+
+**Context.** The spec requires each number to show a confidence level and a
+"Why?" sheet with inputs, formula and source.
+
+**Decision.** No science function returns a bare number. Each returns an
+`Explained<T>`: the value, a `Confidence`, the `Formula` that made it, the
+inputs, and the `Improvement`s that would raise its confidence. The science
+layer holds only enums; the UI maps them to translated text with exhaustive
+`switch`es, and `sources.dart` maps each formula to its citation and how far
+that citation has been checked.
+
+**Consequences.** A "Why?" sheet is built from the value it explains, so the
+two cannot drift apart. Adding a formula without an explanation in both
+languages is a compile error, not a blank sheet. The app tells the rider
+whether a source was actually checked — more honest than most apps, and it
+means unverified numbers cannot quietly pass as settled.
+
+---
+
+## ADR-0013 — Our own readiness questions, not the PAR-Q+
+
+**Status:** Accepted (2026-11-23); wording needs medical review before release
+
+**Context.** The spec asks for a "PAR-Q+ style" check. Summaries of the
+PAR-Q+ terms say it must be used whole and unchanged, needs a commercial
+licence for for-profit use, and may not be built into electronic tools without
+written consent (docs/SCIENCE.md, "Readiness check").
+
+**Decision.** Seven plain-language questions of our own, on the same topics.
+The feature is called "Readiness check" and never claims to be the PAR-Q+.
+
+**Consequences.** No dependency on someone else's licence. The questions carry
+no validation of their own, so they are a prompt to seek advice and nothing
+more: any "yes" recommends seeing a doctor, never blocks, never diagnoses.
+Answers are stored with a questionnaire version so rewording stays traceable.
+
+---
+
+## ADR-0014 — Nothing is stored before consent, and onboarding saves atomically
+
+**Status:** Accepted (2026-11-23)
+
+**Context.** Health and body data are sensitive personal information.
+
+**Decision.** Onboarding answers live only in widget memory until the last
+step. `OnboardingSaver` then writes consents, profile, screening and bike in
+one transaction, consents first, and throws if health-data consent is missing.
+Consent history is append-only: a withdrawal is a new row, never an edit.
+
+**Consequences.** A crash mid-save cannot leave a profile without a consent on
+record. Health consent has no off switch while data exists — withdrawing it is
+"Delete everything". Location and notification choices are recorded now; the
+operating-system permission prompts come in Phase 3, in context, when a
+feature first needs them.
+
+---
+
+## ADR-0015 — Location is asked for in Phase 3, not onboarding
+
+**Status:** Accepted (2026-11-23). A deliberate deviation from the spec.
+
+**Context.** The spec marks city/location as an onboarding essential. Nothing
+in Phase 1 uses it; weather arrives in Phase 3.
+
+**Decision.** Onboarding records the rider's *consent choice* for location but
+does not request the permission or a position.
+
+**Consequences.** We do not hold a location we have no use for (data
+minimisation), and no location plugin is added before it is exercised
+(ADR-0003). Onboarding is shorter. Phase 3 must ask in context.
+
+---
+
+## ADR-0016 — "Delete everything" wipes rows; the reset path destroys the file
+
+**Status:** Accepted (2026-11-23)
+
+**Decision.** From Privacy, "Delete everything" deletes every row with
+`PRAGMA secure_delete = ON` (deleted content is overwritten, not left in free
+pages) and the app returns to onboarding. The startup-error "start over" path
+deletes the database file and the key.
+
+**Consequences.** The normal path needs no app restart and is fully covered by
+widget tests. It keeps the same key; the file-destroying path, which rotates
+it, is used only when the file cannot be opened at all.
+
+---
+
+## ADR-0017 — Export is JSON to the clipboard, for now
+
+**Status:** Accepted (2026-11-23); to revisit
+
+**Decision.** "Export my data" reads every table generically and shows the
+JSON with a copy button.
+
+**Consequences.** No file or share plugin yet (ADR-0003), and a table added in
+a later phase is exported automatically. The cost: a clipboard is a weak place
+for sensitive data, and other apps may read it. A save-to-file flow should
+replace it before release.
+
+---
+
+## ADR-0018 — Forms are never built inside lazy lists
+
+**Status:** Accepted (2026-11-23)
+
+**Context.** A `ListView` builds only the rows near the viewport. A form field
+scrolled off screen does not exist, so `Form.validate()` skips it — an invalid
+value could be saved. Found when the editor tests failed to find off-screen
+fields.
+
+**Decision.** Screens containing a `Form` use `ScrollingColumn` (a
+`SingleChildScrollView` + `Column`). "Label ... value" lines use `LabelValue`
+(a `Wrap`), which drops the value to the next line at large text sizes instead
+of overflowing like a `Row`.
+
+**Consequences.** Every field is always validated. Accessibility tests lay
+each screen out on a very tall, phone-width surface so that every row is built
+and any overflow is caught, in both languages at 200% text.
+
+---
+
+## ADR-0019 — Screenshots are rendered by tests, for review only
+
+**Status:** Accepted (2026-11-23)
+
+**Context.** The development environment has no Android device or emulator,
+and the app can no longer be built for the web (native encrypted SQLite).
+
+**Decision.** `test/screenshots/` renders real screens to PNG with the real
+fonts, on demand. The images are git-ignored and are not compared in CI.
+
+**Consequences.** The UI can be looked at without a phone. It already caught
+three things tests did not: the debug ribbon covering a button, a disabled
+switch that read as "off", and two awkward labels. Pixel-comparison gating was
+rejected: it fails on harmless rendering differences between machines.

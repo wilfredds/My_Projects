@@ -16,7 +16,7 @@ codebase and work inside it.
 | `hiroshi-grill/` | Restaurant reservation app (client work) | Next.js 16, TypeScript, Supabase | Yes — full |
 | `portfolio/` | Personal portfolio site | Static HTML/CSS/JS | No build step |
 | `flare/` | Full-stack build for a client-supplied Figma design (client work) | Next.js 16, TypeScript, Firebase (Auth + Firestore) | Yes — full |
-| `ride_doctor/` | Cycling coach app: diagnoses, trains and race-preps riders | Flutter, Riverpod, go_router (drift + SQLCipher from Phase 1) | Analyze + test, after installing the SDK — see below |
+| `ride_doctor/` | Cycling coach app: diagnoses, trains and race-preps riders | Flutter, Riverpod, go_router, drift on encrypted SQLite | Analyze + test, after installing the SDK — see below |
 
 Each project has its own `CLAUDE.md` (or, for `portfolio/`, a `README.md`)
 with specifics. Read that one before working in it.
@@ -89,7 +89,7 @@ Every project now has a workflow, each path-filtered to its own directory:
 | `deploy-web.yml` | builds `cyclemind_ai` for web and publishes to Pages |
 | `deploy-bike-guide.yml` | publishes `bike-guide-app/` to Pages under `/bike-guide-app/` |
 | `flare-ci.yml` | lint, typecheck, 87 tests, build |
-| `ride-doctor-ci.yml` | format, analyze, 83 tests, coverage thresholds, secret scan, Android debug build (uploads the APK). Runs on every push to any branch, unlike the others |
+| `ride-doctor-ci.yml` | format, analyze, 331 tests, coverage thresholds, secret scan, Android debug build (uploads the APK). Runs on every push to any branch, unlike the others |
 
 Known coverage gaps, so nobody assumes more than is there:
 

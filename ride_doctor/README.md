@@ -5,9 +5,11 @@ symptom to its likely cause, one fix to try, and a re-test — across body, bike
 setup, ride data and weather. Built first for riders in the Philippines (hot,
 humid, rainy), designed for riders anywhere.
 
-**Status:** Phase 0 (foundation) is built. The app launches to a placeholder
-"Today" screen with light/dark themes and English/Filipino. No rider data is
-collected yet.
+**Status:** Phase 1 is built. A new rider completes a four-step setup
+(about you, your riding, readiness check, consents) and gets personal numbers,
+each with a confidence level and a "Why?" explanation: heart-rate zones, power
+zones, a saddle-height starting point, gear cadences, a climb check and a heat
+check. Everything is stored encrypted on the phone, in English or Filipino.
 
 ## Run it
 
