@@ -1,7 +1,8 @@
 name: Ride Doctor CI
 
 # Quality gate for the Ride Doctor Flutter app: formatting, static analysis,
-# tests with coverage thresholds, a secret scan, and an Android debug build.
+# tests with coverage thresholds, a secret scan, an Android debug build and a
+# web preview build.
 #
 # Runs on every push to any branch (not only main), because this project's
 # rule is "CI must pass before a phase is marked done" and phases are built on
@@ -127,3 +128,34 @@ jobs:
           name: ride-doctor-debug-apk
           path: ride_doctor/build/app/outputs/flutter-apk/app-debug.apk
           retention-days: 14
+
+  build-web:
+    name: Web preview build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build
+
+      # SQLite compiled to WebAssembly, checksum-verified.
+      - name: Fetch SQLite for the web
+        run: ./tool/fetch_web_sqlite.sh
+
+      # Proves the app still compiles for the browser: the web build uses a
+      # different storage implementation that the unit tests cannot load.
+      - name: Build web
+        run: flutter build web --no-web-resources-cdn

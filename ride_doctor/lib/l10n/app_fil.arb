@@ -501,5 +501,7 @@
   "unitMetres": "m",
   "raceToday": "Ngayong araw",
   "raceTomorrow": "Bukas",
-  "raceYesterday": "Kahapon"
+  "raceYesterday": "Kahapon",
+  "webPreviewBanner": "Web preview. Walang nase-save: magsisimula ulit kapag ni-reload ang page.",
+  "webPreviewNotice": "Web preview ito. Nananatili lang sa browser tab na ito ang inilalagay mo, hindi ito sine-save o ipinapadala kahit saan, at mawawala kapag ni-reload o isinara ang page. Sa phone app, naka-encrypt at naka-store sa device ang data mo."
 }

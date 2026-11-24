@@ -784,5 +784,7 @@
   "unitMetres": "m",
   "raceToday": "Today",
   "raceTomorrow": "Tomorrow",
-  "raceYesterday": "Yesterday"
+  "raceYesterday": "Yesterday",
+  "webPreviewBanner": "Web preview. Nothing is saved: reloading the page starts over.",
+  "webPreviewNotice": "This is a web preview. What you enter stays in this browser tab, is not saved or sent anywhere, and is gone when you reload or close the page. The phone app stores your data encrypted on the device."
 }

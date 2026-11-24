@@ -79,7 +79,9 @@ class PrivacyScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(4),
               child: Text(
-                l10n.privacyStoredLocally,
+                ref.watch(appStorageProvider).persists
+                    ? l10n.privacyStoredLocally
+                    : l10n.webPreviewNotice,
                 style: theme.textTheme.bodyLarge,
               ),
             ),

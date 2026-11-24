@@ -61,3 +61,6 @@ app.*.map.json
 
 # Rendered by test/screenshots (for review, not comparison).
 /test/screenshots/goldens/
+
+# SQLite for the web preview, downloaded by tool/fetch_web_sqlite.sh.
+/web/sqlite3.wasm

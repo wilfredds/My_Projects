@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:ride_doctor/app/widgets/form_fields.dart';
 import 'package:ride_doctor/core/app/environment.dart';
+import 'package:ride_doctor/core/database/database_providers.dart';
 import 'package:ride_doctor/core/units/display_units.dart';
 import 'package:ride_doctor/features/onboarding/data/onboarding_saver.dart';
 import 'package:ride_doctor/features/onboarding/domain/consent.dart';
@@ -502,7 +503,11 @@ class _ConsentStep extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _Intro(l10n.onboardingConsentIntro),
+        _Intro(
+          state.ref.watch(appStorageProvider).persists
+              ? l10n.onboardingConsentIntro
+              : l10n.webPreviewNotice,
+        ),
         for (final kind in ConsentKind.values)
           SwitchListTile(
             contentPadding: EdgeInsets.zero,

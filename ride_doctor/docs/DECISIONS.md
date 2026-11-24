@@ -490,3 +490,39 @@ stored under version 1 is still there afterwards.
   (Phase 4) and the plan generator (Phase 3).
 - **Skills are read, not tracked.** Self-rated skills and a skills plan were
   not added; nothing would use them yet.
+
+---
+
+## ADR-0025 — A web preview that keeps nothing
+
+**Status:** Accepted (2026-11-24)
+
+**Context.** The owner uses an iPhone. An Android APK cannot be installed on
+it, and a native iOS build needs a Mac and an Apple developer account. The
+only way for the owner to open the app today is in a browser.
+
+**Decision.** The app also builds for the web, as a *preview*. Storage is
+chosen at compile time (`core/database/storage/`): the phone gets the
+encrypted file; the browser gets the same schema in the tab's memory, using
+SQLite compiled to WebAssembly. Nothing is written anywhere, so a reload
+starts over. A strip at the top of every screen says so, and the consent and
+privacy screens replace "stored encrypted on this phone" with wording that is
+true for the preview.
+
+**Why not save in the browser.** A browser has no keystore, so an encryption
+key would sit beside the data it protects. Saving health data there would put
+it somewhere weaker than the app promises. A preview that forgets is honest;
+a "web app" that quietly keeps readiness answers in browser storage is not.
+
+**Consequences.**
+- The two storage implementations cannot be compiled together (the phone side
+  needs `dart:ffi`), so they meet only at the `AppStorage` interface and a
+  conditional import.
+- Unit tests cannot load the browser implementation. It is covered by the
+  `build-web` CI job (it compiles) and was checked by hand in a real browser
+  at iPhone size: full setup, save, Today, My Numbers.
+- `web/sqlite3.wasm` is downloaded by `tool/fetch_web_sqlite.sh` and verified
+  against the checksum the `sqlite3` package pins. It is not committed.
+- If the owner wants to *use* the app on an iPhone rather than preview it,
+  that is a product decision: a real iOS build, or a deliberate, documented
+  web storage design. Until then the phone app remains Android.

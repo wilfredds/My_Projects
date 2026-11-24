@@ -49,6 +49,12 @@ This section is rewritten at the end of every phase to match the shipped code.
   Health-data consent is withdrawn by deleting everything, since the app
   cannot keep a profile without it.
 
+**The web preview** is a way to look at the app in a browser. It keeps what
+you type in that browser tab's memory only: nothing is saved on the device,
+nothing is sent anywhere, and reloading or closing the page erases it. The
+page itself is loaded from wherever it is hosted, like any website, so the
+host sees an ordinary page request but none of what you enter.
+
 **If the encryption key is lost** (for example the phone's secure storage is
 reset), the data cannot be recovered by anyone. The app will say so and offer
 to start over.

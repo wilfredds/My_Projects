@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:ride_doctor/core/database/database_opener.dart';
 import 'package:ride_doctor/core/database/database_providers.dart';
 import 'package:ride_doctor/l10n/l10n.dart';
 
@@ -33,10 +32,7 @@ class StartupErrorScreen extends ConsumerWidget {
   const new({super.key});
 
   Future<void> _reset(WidgetRef ref) async {
-    await destroyEncryptedDatabase(
-      file: await ref.read(databaseFileProvider.future),
-      keyStore: ref.read(keyStoreProvider),
-    );
+    await ref.read(appStorageProvider).destroy();
     ref.invalidate(appDatabaseProvider);
   }
 

@@ -1,6 +1,7 @@
 # Ride Doctor — working notes
 
-A Flutter app (Android first) that is a personal cycling coach: it knows the
+A Flutter app (Android first, with a browser preview) that is a personal
+cycling coach: it knows the
 rider and bike, calculates personal numbers with their sources, prepares
 beginners for a first race, plans each day, and diagnoses problems
 (symptom → cause → one fix → re-test).
@@ -56,6 +57,11 @@ flutter build apk --debug
 # Render the screens to PNG (test/screenshots/goldens/, git-ignored) to look
 # at the UI without a phone:
 flutter test test/screenshots --dart-define=SCREENSHOTS=true --update-goldens
+
+# Web preview (in-memory, nothing is saved - ADR-0025):
+./tool/fetch_web_sqlite.sh                    # once: downloads web/sqlite3.wasm
+flutter run -d chrome                         # or:
+flutter build web --no-web-resources-cdn      # output in build/web
 ```
 
 Generated code (`*.g.dart`, `lib/l10n/generated/`) is **not committed**
@@ -81,7 +87,8 @@ onboarding) must be verified by the owner — say so instead of claiming it.
 
 `.github/workflows/ride-doctor-ci.yml` (repo root), on every push that touches
 `ride_doctor/`: format check → analyze → test → coverage thresholds; a secret
-scan; an Android debug build. A phase is not done until it is green.
+scan; an Android debug build; a web preview build. A phase is not done until
+it is green.
 
 ## Architecture rules
 
@@ -93,7 +100,8 @@ lib/
   core/
     science/  PURE DART formulas, constants, sources
     units/    PURE DART unit conversion and number formatting
-    database/ encrypted drift database, key storage
+    database/ encrypted drift database, key storage; storage/ picks the
+              phone or web-preview implementation at compile time
     app/      clock and id providers
     rules/    PURE DART diagnosis rule engine (Phase 4)
   features/<feature>/{data, domain, presentation}
@@ -101,7 +109,9 @@ lib/
               dev
   l10n/       app_en.arb (template), app_fil.arb
 test/         mirrors lib/
-tool/         check_coverage.dart, setup_remote_flutter.sh
+tool/         check_coverage.dart, setup_remote_flutter.sh,
+              fetch_web_sqlite.sh
+web/          the web preview's page shell
 docs/         DECISIONS.md, SCIENCE.md, PRIVACY.md
 ```
 
@@ -200,6 +210,10 @@ From PROMPT.md sections 3 and 10. These are hard rules.
 - Phases 0–6 free and on-device; LLM budget decided at Phase 7.
 - English + Filipino from the start. The owner reviews Filipino wording,
   especially safety and medical text. Not yet reviewed.
+- **The owner's phone is an iPhone.** They cannot install the Android APK.
+  They look at the app through the web preview (ADR-0025). A real iOS build
+  needs a Mac and an Apple developer account, which they have not said they
+  have.
 - Sensors: none yet (planning to buy) → design for phone-only, `Estimated` and
   `Rough` confidence paths first.
 - Riding time available: stated as about 20 h/week. That is a ceiling, not a
