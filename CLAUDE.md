@@ -8,7 +8,7 @@ codebase and work inside it.
 
 | Directory | What it is | Stack | Build/test here? |
 |---|---|---|---|
-| `autocare/` | Job-management system for a car care shop | Next.js, Prisma, PostgreSQL, next-auth | Yes — full |
+| `autocare/` | Job-management system for car care shops (installable per shop) | Next.js, Prisma, PostgreSQL, next-auth | Yes — full |
 | `rallyready/` | Solo badminton training app | Vite, React, TypeScript, Supabase | Yes — full |
 | `cyclemind_ai/` | AI cycling coach and bike doctor | Flutter, Riverpod, Firebase | **No — no Flutter SDK** |
 | `corruption-reporting-system-final/` | Corruption reporting site | Static HTML/CSS/JS, Firebase | No build step |
@@ -76,7 +76,7 @@ Every project now has a workflow, each path-filtered to its own directory:
 
 | Workflow | Covers |
 |---|---|
-| `autocare-ci.yml` | lint, typecheck, test, migrate, seed, DB tests, build |
+| `autocare-ci.yml` | lint, typecheck, test, migrate, seed, DB tests, build, 27 Playwright e2e tests |
 | `rallyready-ci.yml` | `npm run verify` — typecheck, lint, 557 tests, build |
 | `hiroshi-ci.yml` | lint, 132 tests, build, 43 RLS policy tests against a Postgres service |
 | `firestore-rules-ci.yml` | 144 rules assertions against the real Firestore and Storage emulators |

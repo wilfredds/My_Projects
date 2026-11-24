@@ -41,7 +41,7 @@ export function ConfirmDialog({
         <AlertDialogPrimitive.Content
           className={cn(
             'fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2',
-            'rounded-2xl border border-border bg-card p-6 shadow-2xl',
+            'rounded-2xl border border-border bg-card shadow-surface p-6 shadow-2xl',
             'data-[state=open]:animate-in data-[state=open]:fade-in-0',
           )}
         >

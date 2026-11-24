@@ -226,6 +226,9 @@ model AuditLog {
 
 /// Single-row table holding the shop details printed on every receipt.
 /// Editable from the Settings page by an ADMIN.
+///
+/// Branding (accent, logo) lets each shop that installs AutoCare make it look
+/// like its own: one install per shop, each with its own row here.
 model ShopSetting {
   id        String   @id @default("shop")
   name      String
@@ -233,7 +236,27 @@ model ShopSetting {
   phone     String
   email     String?
   footer    String?
+  /// Tax Identification Number, printed on the receipt when set.
+  tin       String?
+  /// One of the curated accent colours in lib/branding.ts ("kahel", "asul", …).
+  accent    String   @default("kahel")
+  /// The shop's logo as a PNG data URL (resized in the browser, re-checked on
+  /// the server: PNG signature, at most 512×512 and 300 KB). Null = monogram.
+  logo      String?
   updatedAt DateTime @updatedAt
+}
+
+/// A sign-in that has been logged out. Sessions are JWT cookies, which the
+/// server cannot recall; recording the sign-in's id here is what makes "Log
+/// out" final even if a request still in flight re-issues the cookie.
+/// Rows are deleted once expired (see lib/session.ts).
+model RevokedSession {
+  sid       String   @id
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
 }
 
 /// Per-year counter backing the human-readable job number (JOB-2026-0001).

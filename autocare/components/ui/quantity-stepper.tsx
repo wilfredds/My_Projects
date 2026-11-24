@@ -39,7 +39,7 @@ export function QuantityStepper({
         disabled={numeric <= min}
         aria-label={`${label} −1`}
         className={cn(
-          'flex size-16 shrink-0 items-center justify-center rounded-lg border-2 border-border',
+          'flex size-16 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-input shadow-control',
           'bg-background text-foreground hover:bg-accent disabled:opacity-40',
           'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring',
         )}
@@ -55,7 +55,7 @@ export function QuantityStepper({
         onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, ''))}
         onBlur={() => onChange(String(Math.min(max, Math.max(min, Number(value) || min))))}
         className={cn(
-          'min-h-tap w-24 rounded-lg border-2 border-input bg-background text-center text-money',
+          'min-h-tap w-24 rounded-lg border-[1.5px] border-input bg-card shadow-control text-center text-money',
           'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring focus-visible:border-primary',
         )}
       />
@@ -66,7 +66,7 @@ export function QuantityStepper({
         disabled={numeric >= max}
         aria-label={`${label} +1`}
         className={cn(
-          'flex size-16 shrink-0 items-center justify-center rounded-lg border-2 border-border',
+          'flex size-16 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-input shadow-control',
           'bg-background text-foreground hover:bg-accent disabled:opacity-40',
           'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring',
         )}

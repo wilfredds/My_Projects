@@ -62,6 +62,11 @@ export const authConfig = {
         token.tokenVersion = (user as { tokenVersion?: number }).tokenVersion ?? 0;
         token.mustChangePassword =
           (user as { mustChangePassword?: boolean }).mustChangePassword ?? false;
+        // A fresh id for this one sign-in. Logging out records it as revoked
+        // (lib/session.ts), so a cookie that a request still in flight puts
+        // back a moment after logout is refused, without signing the same
+        // person out on their other devices.
+        token.sid = crypto.randomUUID();
       }
       // `update()` from the client (language switch, policy acknowledgement).
       if (trigger === 'update' && session) {
@@ -81,6 +86,7 @@ export const authConfig = {
         session.user.policyAccepted = Boolean(token.policyAccepted);
         session.user.tokenVersion = (token.tokenVersion as number) ?? 0;
         session.user.mustChangePassword = Boolean(token.mustChangePassword);
+        session.user.sid = token.sid as string | undefined;
       }
       return session;
     },

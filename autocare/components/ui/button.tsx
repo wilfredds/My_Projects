@@ -28,14 +28,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary-strong',
+        default: 'bg-primary text-primary-foreground shadow-control hover:bg-primary-strong',
         /** "Record a new job" — the same orange, just the biggest thing on screen. */
-        hero: 'bg-primary text-primary-foreground hover:bg-primary-strong',
-        secondary: 'border-2 border-input bg-card text-foreground hover:bg-accent',
-        outline: 'border-2 border-input bg-card text-foreground hover:bg-accent',
+        hero: 'bg-primary text-primary-foreground shadow-raised hover:bg-primary-strong',
+        secondary: 'border-[1.5px] border-input bg-card text-foreground shadow-control hover:bg-accent',
+        outline: 'border-[1.5px] border-input bg-card text-foreground shadow-control hover:bg-accent',
         ghost: 'text-foreground hover:bg-accent',
         destructive:
-          'border-2 border-destructive bg-card text-destructive hover:bg-destructive-tint',
+          'border-[1.5px] border-destructive bg-card text-destructive shadow-control hover:bg-destructive-tint',
         danger: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         link: 'text-primary-strong underline underline-offset-4 hover:no-underline',
       },

@@ -3,6 +3,7 @@ import { requirePageAdmin } from '@/lib/session';
 import { getShopInfo } from '@/lib/settings';
 import { prisma } from '@/lib/prisma';
 import { SettingsForm } from './settings-form';
+import { PageHeader } from '@/components/ui/page-header';
 
 export const metadata = { title: 'Settings — AutoCare' };
 export const dynamic = 'force-dynamic';
@@ -17,10 +18,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1>{t('title')}</h1>
-        <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
-      </div>
+      <PageHeader title={t('title')} description={t('subtitle')} />
 
       <SettingsForm
         shop={{
@@ -29,7 +27,10 @@ export default async function SettingsPage() {
           phone: shop.phone,
           email: shop.email ?? '',
           footer: shop.footer ?? '',
+          tin: shop.tin ?? '',
         }}
+        accent={shop.accent}
+        logo={shop.logo}
         myLocale={me?.locale ?? 'fil'}
       />
     </div>

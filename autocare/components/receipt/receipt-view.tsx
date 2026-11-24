@@ -4,6 +4,7 @@ import { intlTagFor } from '@/i18n/locales';
 import { formatDate, formatDateTime } from '@/lib/utils';
 import { describeVehicle, type SerializedJob } from '@/lib/jobs';
 import type { ShopInfo } from '@/lib/settings';
+import { ShopLogo } from '@/components/app-shell/shop-logo';
 
 /**
  * The on-screen receipt.
@@ -22,12 +23,18 @@ export async function ReceiptView({ job, shop }: { job: SerializedJob; shop: Sho
   const peso = (v: number) => formatPeso(v, tag);
 
   return (
-    <article className="receipt-sheet mx-auto max-w-3xl rounded-2xl border border-border bg-card p-5 text-lg text-foreground sm:p-8">
-      <header className="border-b-4 border-foreground pb-4 text-center">
+    <article className="receipt-sheet mx-auto max-w-3xl rounded-2xl border border-border bg-card shadow-surface p-5 text-lg text-foreground sm:p-8">
+      <header className="flex flex-col items-center border-b-4 border-foreground pb-4 text-center">
+        {shop.logo ? <ShopLogo name={shop.name} logo={shop.logo} className="mb-2 size-16" /> : null}
         <h1 className="text-2xl font-bold uppercase tracking-wide">{shop.name}</h1>
         <p className="mt-1 text-base leading-snug">{shop.address}</p>
         <p className="text-base">{shop.phone}</p>
         {shop.email ? <p className="text-base">{shop.email}</p> : null}
+        {shop.tin ? (
+          <p className="text-base">
+            {t('tin')}: <span className="num">{shop.tin}</span>
+          </p>
+        ) : null}
       </header>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -143,6 +150,9 @@ export async function ReceiptView({ job, shop }: { job: SerializedJob; shop: Sho
         <p className="text-base">
           {t('printedOn')}: {formatDateTime(new Date(), tag)}
         </p>
+        {/* This app is not a BIR-registered receipting system, so the printout
+            must not pass for an official receipt. */}
+        <p className="pt-2 text-base italic text-muted-foreground">{t('notOfficial')}</p>
       </footer>
     </article>
   );

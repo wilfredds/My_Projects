@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/misc';
 import { RowList } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
 
 export const metadata = { title: 'Activity Log — AutoCare' };
 export const dynamic = 'force-dynamic';
@@ -62,14 +63,11 @@ export default async function AuditPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1>{t('title')}</h1>
-        <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
-      </div>
+      <PageHeader title={t('title')} description={t('subtitle')} />
 
       {/* The list of action types is long, so it folds away; it opens by
           itself when a filter is in use so the current choice stays visible. */}
-      <details className="group rounded-2xl border border-border bg-card" open={action ? true : undefined}>
+      <details className="group rounded-2xl border border-border bg-card shadow-surface" open={action ? true : undefined}>
         <summary className="flex min-h-tap cursor-pointer list-none flex-wrap items-center justify-between gap-3 rounded-2xl px-5 py-3 text-lg font-semibold hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
           <span>
             {t('filterAction')}:{' '}

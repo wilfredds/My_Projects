@@ -53,7 +53,7 @@ export function JobFilters() {
   const extraInUse = Boolean(params.get('status') || params.get('from') || params.get('to'));
 
   return (
-    <form onSubmit={apply} className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-5">
+    <form onSubmit={apply} className="space-y-4 rounded-2xl border border-border bg-card shadow-surface p-4 sm:p-5">
       <Field label={t('searchPlaceholder')} htmlFor="job-search">
         <div className="relative">
           <Search

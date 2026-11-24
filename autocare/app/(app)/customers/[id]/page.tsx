@@ -43,7 +43,10 @@ export default async function CustomerDetailPage({
       // Counts trashed jobs too: those still hold the customer's receipts, and
       // the delete action refuses while any exist.
       _count: { select: { jobs: true } },
-      vehicles: { orderBy: { plateNumber: 'asc' } },
+      vehicles: {
+        orderBy: { plateNumber: 'asc' },
+        include: { _count: { select: { jobs: true } } },
+      },
       jobs: {
         where: notDeleted,
         orderBy: { date: 'desc' },
@@ -144,6 +147,7 @@ export default async function CustomerDetailPage({
                   </span>
                   <VehicleFormDialog
                     lockedCustomerId={customer.id}
+                    canDelete={can.deleteCustomers(user.role) && vehicle._count.jobs === 0}
                     initial={{
                       id: vehicle.id,
                       customerId: customer.id,

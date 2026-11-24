@@ -78,6 +78,34 @@
     /* One shared easing so every motion in the app feels related. */
     --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
   }
+
+  /*
+   * Accent colours a shop can choose in Settings (lib/branding.ts). Each one
+   * replaces only the action colour and the ₱ in the meter; the money states
+   * and neutrals never change. Every set is measured by check-contrast.mjs.
+   * The default, kahel, is the :root block above.
+   */
+  :root[data-accent='asul'] {
+    --primary: 224 76% 48%;
+    --primary-strong: 224 64% 33%;
+    --primary-tint: 223 100% 96%;
+    --ring: 224 76% 48%;
+    --meter-accent: 213 94% 68%;
+  }
+  :root[data-accent='lila'] {
+    --primary: 263 70% 50%;
+    --primary-strong: 263 69% 42%;
+    --primary-tint: 260 100% 96%;
+    --ring: 263 70% 50%;
+    --meter-accent: 255 100% 81%;
+  }
+  :root[data-accent='itim'] {
+    --primary: 45 7% 11%;
+    --primary-strong: 40 9% 6%;
+    --primary-tint: 45 14% 91%;
+    --ring: 45 7% 11%;
+    --meter-accent: 43 82% 61%;
+  }
 }
 
 @layer base {
@@ -107,7 +135,7 @@
     text-wrap: balance;
   }
   h1 {
-    @apply text-3xl font-bold leading-[1.1] tracking-[-0.01em];
+    @apply text-3xl font-bold leading-[1.08] tracking-[-0.015em] sm:text-[2.5rem];
   }
   h2 {
     @apply text-2xl font-bold leading-tight;

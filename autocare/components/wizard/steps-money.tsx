@@ -171,7 +171,7 @@ export function PaymentStep({
       </Field>
 
       {/* Derived figures — shown, never typed. */}
-      <div className="space-y-4 rounded-2xl border border-border bg-card p-5">
+      <div className="space-y-4 rounded-2xl border border-border bg-card shadow-surface p-5">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <span className="text-lg font-semibold text-muted-foreground">{tj('balance')}</span>
           <span className={cn('money ml-auto font-bold', totals.balance > 0 && 'text-destructive')}>
@@ -229,7 +229,7 @@ export function ReviewStep({
     <div className="space-y-8">
       <h2 className="text-xl font-bold">{t('reviewQuestion')}</h2>
 
-      <dl className="space-y-4 rounded-2xl border border-border bg-card p-5">
+      <dl className="space-y-4 rounded-2xl border border-border bg-card shadow-surface p-5">
         <div>
           <dt className="text-base font-semibold text-muted-foreground">{tj('customer')}</dt>
           <dd className="text-xl font-bold [overflow-wrap:anywhere]">{customerName}</dd>
@@ -271,7 +271,7 @@ export function ReviewStep({
         }))}
       />
 
-      <div className="space-y-3 rounded-2xl border border-border bg-card p-5">
+      <div className="space-y-3 rounded-2xl border border-border bg-card shadow-surface p-5">
         {rows.map((row) => (
           <div key={row.label} className="flex items-baseline justify-between gap-4">
             <span className="text-lg text-muted-foreground">{row.label}</span>
@@ -321,7 +321,7 @@ export function ReviewStep({
       </div>
 
       {draft.notes.trim() ? (
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="rounded-2xl border border-border bg-card shadow-surface p-5">
           <p className="text-base font-semibold text-muted-foreground">{tj('notes')}</p>
           <p className="mt-1 whitespace-pre-wrap text-lg">{draft.notes}</p>
         </div>
@@ -345,7 +345,7 @@ function ReviewLines({
       {lines.length === 0 ? (
         <p className="text-lg text-muted-foreground">{empty}</p>
       ) : (
-        <ul className="divide-y divide-border rounded-2xl border border-border bg-card">
+        <ul className="divide-y divide-border rounded-2xl border border-border bg-card shadow-surface">
           {lines.map((line) => (
             <li key={line.key} className="flex items-baseline justify-between gap-4 p-4 sm:px-5">
               <span className="min-w-0 flex-1 text-lg [overflow-wrap:anywhere]">{line.label}</span>

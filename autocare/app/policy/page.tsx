@@ -57,7 +57,7 @@ export default async function PolicyPage({
       </header>
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
-        <div className="space-y-8 rounded-2xl border border-border bg-card p-5 sm:p-8">
+        <div className="space-y-8 rounded-2xl border border-border bg-card shadow-surface p-5 sm:p-8">
           <div className="flex items-start gap-4">
             <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary-tint text-primary-strong">
               <ShieldCheck className="size-9" aria-hidden />

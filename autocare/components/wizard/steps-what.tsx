@@ -162,7 +162,7 @@ export function ServicesStep({
         {services.length === 0 ? (
           <EmptyState title={t('servicesNone')} />
         ) : (
-          <ul className="divide-y divide-border rounded-2xl border border-border bg-card">
+          <ul className="divide-y divide-border rounded-2xl border border-border bg-card shadow-surface">
             {services.map((service) => (
               <li key={service.key} className="flex flex-wrap items-center gap-x-4 gap-y-3 p-4 sm:px-5">
                 <span className="min-w-0 flex-1 basis-full text-lg font-semibold [overflow-wrap:anywhere] sm:basis-0">
@@ -225,7 +225,7 @@ export function PartsStep({
       ) : (
         <ul className="space-y-5">
           {parts.map((part, index) => (
-            <li key={part.key} className="space-y-5 rounded-2xl border border-border bg-card p-5">
+            <li key={part.key} className="space-y-5 rounded-2xl border border-border bg-card shadow-surface p-5">
               <Field label={t('partsName')} htmlFor={`${part.key}-name`}>
                 <Input
                   id={`${part.key}-name`}

@@ -68,7 +68,11 @@
     "errorInactive": "Naka-off po ang account na ito. Pakitawag ang admin.",
     "errorTooMany": "Masyadong madaming subok. Sandali lang po at subukan ulit.",
     "errorGeneric": "Hindi po kayo napapasok ngayon. Pakisubukan ulit.",
-    "footerNote": "Para lang po ito sa mga tao ng {shopName}."
+    "footerNote": "Para lang po ito sa mga tao ng {shopName}.",
+    "setupTitle": "Bagong install ito",
+    "setupBody": "Wala pang account dito. I-set up muna ang shop.",
+    "setupButton": "I-set up ang shop",
+    "tagline": "Kayo ang bahala sa sasakyan. Ang AutoCare ang bahala sa bilang."
   },
   "dashboard": {
     "title": "Home",
@@ -238,7 +242,9 @@
     "deleteBody": "Ang plakang {plate} ay tuluyang mawawala. Hindi na po ito maibabalik.",
     "deleteBlocked": "May {count} na trabaho ang sasakyang ito kaya hindi po ito puwedeng burahin.",
     "editTitle": "Baguhin ang sasakyan",
-    "addTitle": "Bagong sasakyan"
+    "addTitle": "Bagong sasakyan",
+    "deleteButton": "Burahin ang sasakyang ito",
+    "deleteBlockedShort": "May trabaho na po ang sasakyang ito kaya hindi ito puwedeng burahin."
   },
   "services": {
     "title": "Mga Serbisyo",
@@ -339,7 +345,26 @@
     "mySection": "Para sa akin",
     "myLanguage": "Aking wika",
     "saved": "Na-save na ang mga setting.",
-    "preview": "Ganito ang magiging itsura ng itaas ng resibo ninyo."
+    "preview": "Ganito ang magiging itsura ng itaas ng resibo ninyo.",
+    "shopTin": "TIN ng shop",
+    "brandSection": "Itsura ng inyong shop",
+    "brandHint": "Makikita ang logo at kulay sa bawat screen at sa resibo.",
+    "logo": "Logo",
+    "logoChoose": "Pumili ng logo",
+    "logoRemove": "Alisin ang logo",
+    "logoHint": "Larawang PNG, JPG o WebP. Kami na ang magpapaliit nito. Kung wala, ang mga unang letra ng shop ang ipapakita.",
+    "logoSaved": "Na-save na ang logo.",
+    "logoRemoved": "Inalis na ang logo.",
+    "logoError_format": "Hindi po mabasa ang larawang iyan. Subukan ang PNG o JPG.",
+    "logoError_size": "Masyadong malaki po ang larawan. Subukan ang mas maliit.",
+    "logoError_dimensions": "Masyadong malaki po ang larawan. Subukan ang mas maliit.",
+    "accent": "Kulay ng shop",
+    "accentHint": "Ang kulay ng mga pangunahing button. Walang berde, pula o dilaw — para iyon sa bayad at utang.",
+    "accent_kahel": "Kahel",
+    "accent_asul": "Asul",
+    "accent_lila": "Lila",
+    "accent_itim": "Itim at ginto",
+    "accentSaved": "Napalitan na ang kulay."
   },
   "audit": {
     "title": "Talaan ng Ginawa",
@@ -376,7 +401,8 @@
     "action_ACCEPT_POLICY": "Sumang-ayon sa patakaran",
     "action_RESTORE_JOB": "Ibinalik ang trabaho",
     "action_PURGE_JOB": "Tuluyang inalis ang trabaho",
-    "action_CHANGE_OWN_PASSWORD": "Pinalitan ang sariling password"
+    "action_CHANGE_OWN_PASSWORD": "Pinalitan ang sariling password",
+    "action_SHOP_SETUP": "Na-set up ang shop"
   },
   "receipt": {
     "title": "Resibo",
@@ -402,7 +428,9 @@
     "notes": "Paalala",
     "thankYou": "Maraming salamat po sa inyong tiwala. Balik po kayo!",
     "servedBy": "Inasikaso ni",
-    "printedOn": "Ni-print noong"
+    "printedOn": "Ni-print noong",
+    "tin": "TIN",
+    "notOfficial": "Ito ay talaan ng trabaho, hindi opisyal na resibo ng BIR."
   },
   "policy": {
     "title": "Patakaran sa Paggamit",
@@ -446,7 +474,8 @@
   },
   "footer": {
     "rules": "Patakaran sa Paggamit",
-    "copyright": "© {year} {shopName}"
+    "copyright": "© {year} {shopName}",
+    "poweredBy": "Pinapagana ng AutoCare"
   },
   "trash": {
     "title": "Basurahan",
@@ -475,5 +504,29 @@
     "otherDevicesNote": "Kapag pinalitan ninyo ang password, mala-log out po ang lahat ng ibang telepono at kompyuter. Dito po ay mananatili kayong naka-log in.",
     "mustChangeTitle": "Pakigawa po muna ng sarili ninyong password",
     "mustChangeBody": "Iba po ang pumili ng password na ginagamit ninyo. Pumili po ng alam ninyo lang, tapos puwede na kayong magpatuloy."
+  },
+  "setup": {
+    "eyebrow": "Bagong install",
+    "title": "I-set up ang inyong shop",
+    "subtitle": "Tatlong maikling bahagi lang po. Pagkatapos nito, puwede na kayong mag-log in.",
+    "lockedTitle": "Naka-lock pa po ang setup",
+    "lockedBody": "Kailangan munang maglagay ang nag-install ng SETUP_CODE sa hosting (halimbawa, sa Vercel). Pakitawagan po siya.",
+    "codeSection": "Setup code",
+    "codeHint": "Ibinigay po ito ng nag-install ng AutoCare.",
+    "code": "Setup code",
+    "shopSection": "Ang inyong shop",
+    "ownerSection": "Ang inyong account",
+    "ownerHint": "Kayo ang magiging may-ari (admin). Puwede kayong magdagdag ng staff mamaya.",
+    "starterServices": "Lagyan na ng karaniwang serbisyo ng talyer (puwedeng baguhin)",
+    "submit": "Simulan ang AutoCare",
+    "working": "Sini-set up…",
+    "doneTitle": "Handa na ang inyong shop!",
+    "doneBody": "Mag-log in na po gamit ang username na {username} at ang password na pinili ninyo.",
+    "goToLogin": "Pumunta sa Mag-log in",
+    "errorTooMany": "Masyadong madaming subok. Maghintay po ng ilang minuto.",
+    "errorCheckFields": "May kulang o mali po sa form. Pakitingnan ang mga pulang paalala.",
+    "errorCode": "Mali po ang setup code.",
+    "errorDone": "Na-set up na po ang shop na ito. Mag-log in na lang po.",
+    "errorClosed": "Naka-lock po ang setup."
   }
 }

@@ -174,7 +174,7 @@ export function CustomerStep({
       {matches.length === 0 ? (
         <EmptyState title={t('customerNoResults')} />
       ) : (
-        <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+        <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-surface">
           {matches.map((customer) => (
             <li key={customer.id}>
               <button

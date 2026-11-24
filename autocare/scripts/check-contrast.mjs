@@ -24,13 +24,26 @@ if (!root) {
 }
 
 /** `--name: 17 88% 40%;` → { name: [17, 88, 40] } */
-const tokens = {};
-for (const [, name, h, s, l] of root[1].matchAll(
-  /--([\w-]+):\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*;/g,
-)) {
-  tokens[name] = [Number(h), Number(s), Number(l)];
+function readTokens(block) {
+  const out = {};
+  for (const [, name, h, s, l] of block.matchAll(
+    /--([\w-]+):\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*;/g,
+  )) {
+    out[name] = [Number(h), Number(s), Number(l)];
+  }
+  return out;
 }
-tokens.white = [0, 0, 100];
+
+const base = { ...readTokens(root[1]), white: [0, 0, 100] };
+
+/**
+ * Every accent a shop can choose overrides a few tokens on top of :root.
+ * Each one is checked in full, as if it were the only theme.
+ */
+const themes = [{ name: 'kahel (default)', tokens: base }];
+for (const [, accent, block] of css.matchAll(/:root\[data-accent='([\w-]+)'\]\s*\{([\s\S]*?)\}/g)) {
+  themes.push({ name: accent, tokens: { ...base, ...readTokens(block) } });
+}
 
 function hslToRgb([h, s, l]) {
   s /= 100;
@@ -91,19 +104,28 @@ const pairs = [
 ];
 
 let failed = 0;
-const rows = [];
-for (const [fg, bg, min, use] of pairs) {
-  if (!tokens[fg] || !tokens[bg]) {
-    console.error(`Missing token: --${tokens[fg] ? bg : fg}`);
-    failed++;
-    continue;
+for (const theme of themes) {
+  const { tokens } = theme;
+  const rows = [];
+  for (const [fg, bg, min, use] of pairs) {
+    if (!tokens[fg] || !tokens[bg]) {
+      rows.push(`FAIL  missing token --${tokens[fg] ? bg : fg}`);
+      failed++;
+      continue;
+    }
+    const r = ratio(tokens[fg], tokens[bg]);
+    const ok = r >= min;
+    if (!ok) failed++;
+    rows.push(`${ok ? 'pass' : 'FAIL'}  ${r.toFixed(2).padStart(5)}:1  (needs ${min}:1)  ${fg} on ${bg} — ${use}`);
   }
-  const r = ratio(tokens[fg], tokens[bg]);
-  const ok = r >= min;
-  if (!ok) failed++;
-  rows.push(`${ok ? 'pass' : 'FAIL'}  ${r.toFixed(2).padStart(5)}:1  (needs ${min}:1)  ${fg} on ${bg} — ${use}`);
+  console.log(`\n— accent: ${theme.name}`);
+  console.log(rows.join('\n'));
 }
 
-console.log(rows.join('\n'));
-console.log(failed ? `\n${failed} pairing(s) below WCAG AA.` : `\nAll ${pairs.length} pairings meet WCAG AA.`);
+const total = pairs.length * themes.length;
+console.log(
+  failed
+    ? `\n${failed} of ${total} pairings below WCAG AA.`
+    : `\nAll ${total} pairings (${pairs.length} × ${themes.length} accents) meet WCAG AA.`,
+);
 process.exit(failed ? 1 : 0);

@@ -17,7 +17,7 @@
 import assert from 'node:assert/strict';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { resolveSessionUser } from '../lib/session.ts';
+import { resolveSessionUser, revokeSession } from '../lib/session.ts';
 import { notDeleted, onlyDeleted } from '../lib/jobs.ts';
 import { can } from '../lib/rbac.ts';
 
@@ -122,6 +122,24 @@ async function main() {
     assert.ok(resolved, 'a valid token must resolve');
     assert.equal(resolved.username, USERNAME);
     assert.equal(resolved.role, 'STAFF');
+  });
+
+  await check('logging out revokes that sign-in, and only that one', async () => {
+    const loggedOut = `test-sid-${Date.now()}`;
+    const otherDevice = `${loggedOut}-phone`;
+    assert.ok(await resolveSessionUser(user.id, 0, loggedOut), 'valid before logout');
+    await revokeSession(loggedOut, user.id);
+    assert.equal(
+      await resolveSessionUser(user.id, 0, loggedOut),
+      null,
+      'a cookie for a logged-out sign-in must be refused, even if it is set again',
+    );
+    assert.ok(
+      await resolveSessionUser(user.id, 0, otherDevice),
+      'the same person stays signed in on their other devices',
+    );
+    await revokeSession(loggedOut, user.id); // logging out twice is harmless
+    await prisma.revokedSession.deleteMany({ where: { sid: loggedOut } });
   });
 
   await check('a token for an account that no longer exists resolves to nobody', async () => {

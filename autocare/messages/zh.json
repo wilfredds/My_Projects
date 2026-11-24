@@ -68,7 +68,11 @@
     "errorInactive": "此账号已停用，请联系管理员。",
     "errorTooMany": "尝试次数过多，请稍后再试。",
     "errorGeneric": "暂时无法登录，请再试一次。",
-    "footerNote": "本系统仅供 {shopName} 的员工使用。"
+    "footerNote": "本系统仅供 {shopName} 的员工使用。",
+    "setupTitle": "这是全新安装",
+    "setupBody": "目前还没有账号。请先设置店铺。",
+    "setupButton": "设置店铺",
+    "tagline": "车交给您，账交给 AutoCare。"
   },
   "dashboard": {
     "title": "首页",
@@ -238,7 +242,9 @@
     "deleteBody": "车牌 {plate} 将被永久删除，无法恢复。",
     "deleteBlocked": "这辆车有 {count} 张工单，不能删除。",
     "editTitle": "修改车辆",
-    "addTitle": "新车辆"
+    "addTitle": "新车辆",
+    "deleteButton": "删除这辆车",
+    "deleteBlockedShort": "这辆车已有工单记录，不能删除。"
   },
   "services": {
     "title": "服务项目",
@@ -339,7 +345,26 @@
     "mySection": "我的偏好",
     "myLanguage": "我的语言",
     "saved": "设置已保存。",
-    "preview": "您的收据顶部会是这个样子。"
+    "preview": "您的收据顶部会是这个样子。",
+    "shopTin": "店铺 TIN",
+    "brandSection": "店铺外观",
+    "brandHint": "标志和颜色会显示在每个页面和收据上。",
+    "logo": "标志",
+    "logoChoose": "选择标志",
+    "logoRemove": "移除标志",
+    "logoHint": "PNG、JPG 或 WebP 图片，会自动缩小。没有标志时显示店名首字母。",
+    "logoSaved": "标志已保存。",
+    "logoRemoved": "标志已移除。",
+    "logoError_format": "无法读取该图片，请试试 PNG 或 JPG。",
+    "logoError_size": "图片太大，请换一张小一点的。",
+    "logoError_dimensions": "图片太大，请换一张小一点的。",
+    "accent": "店铺颜色",
+    "accentHint": "主要按钮的颜色。绿色、红色和黄色代表付款状态，因此不可选。",
+    "accent_kahel": "橙色",
+    "accent_asul": "蓝色",
+    "accent_lila": "紫色",
+    "accent_itim": "黑金",
+    "accentSaved": "颜色已更改。"
   },
   "audit": {
     "title": "操作记录",
@@ -376,7 +401,8 @@
     "action_ACCEPT_POLICY": "同意守则",
     "action_RESTORE_JOB": "恢复了工单",
     "action_PURGE_JOB": "彻底删除了工单",
-    "action_CHANGE_OWN_PASSWORD": "修改了自己的密码"
+    "action_CHANGE_OWN_PASSWORD": "修改了自己的密码",
+    "action_SHOP_SETUP": "设置店铺"
   },
   "receipt": {
     "title": "收据",
@@ -402,7 +428,9 @@
     "notes": "备注",
     "thankYou": "谢谢您的信任，欢迎再来！",
     "servedBy": "服务人员",
-    "printedOn": "打印时间"
+    "printedOn": "打印时间",
+    "tin": "TIN",
+    "notOfficial": "此文件为工作记录，并非 BIR 正式收据。"
   },
   "policy": {
     "title": "使用守则",
@@ -446,7 +474,8 @@
   },
   "footer": {
     "rules": "使用守则",
-    "copyright": "© {year} {shopName}"
+    "copyright": "© {year} {shopName}",
+    "poweredBy": "由 AutoCare 提供支持"
   },
   "trash": {
     "title": "回收站",
@@ -475,5 +504,29 @@
     "otherDevicesNote": "更改密码后，其他所有手机和电脑都会退出登录。本设备将保持登录状态。",
     "mustChangeTitle": "请先设置您自己的密码",
     "mustChangeBody": "您现在用的密码是别人设置的。改成只有您知道的密码后就可以继续了。"
+  },
+  "setup": {
+    "eyebrow": "全新安装",
+    "title": "设置您的店铺",
+    "subtitle": "只有三个简短部分。完成后即可登录。",
+    "lockedTitle": "设置已锁定",
+    "lockedBody": "安装 AutoCare 的人需要先在托管平台（例如 Vercel）设置 SETUP_CODE。请联系他。",
+    "codeSection": "设置码",
+    "codeHint": "由安装 AutoCare 的人提供。",
+    "code": "设置码",
+    "shopSection": "您的店铺",
+    "ownerSection": "您的账号",
+    "ownerHint": "您将是店主（管理员）。以后可以添加员工。",
+    "starterServices": "帮我加入修车店的常用服务（之后可以修改）",
+    "submit": "开始使用 AutoCare",
+    "working": "正在设置…",
+    "doneTitle": "您的店铺已准备好！",
+    "doneBody": "请使用用户名 {username} 和您选择的密码登录。",
+    "goToLogin": "前往登录",
+    "errorTooMany": "尝试次数太多，请等几分钟。",
+    "errorCheckFields": "表单中有需要修改的地方，请查看红色提示。",
+    "errorCode": "设置码不正确。",
+    "errorDone": "这家店铺已经设置过了，请直接登录。",
+    "errorClosed": "设置已锁定。"
   }
 }

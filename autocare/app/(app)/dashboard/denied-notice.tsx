@@ -9,7 +9,7 @@ export function DeniedNotice() {
   return (
     <div
       role="alert"
-      className="flex items-start gap-4 rounded-lg border-2 border-warning bg-warning/10 p-5"
+      className="flex items-start gap-4 rounded-lg border-2 border-warning/40 bg-warning-tint p-5"
     >
       <ShieldAlert className="mt-0.5 size-8 shrink-0 text-warning" aria-hidden />
       <div>

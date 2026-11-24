@@ -116,6 +116,16 @@ const config: Config = {
       minWidth: {
         tap: '4rem',
       },
+      /**
+       * Depth, used sparingly. Surfaces sit a hair above the page; controls get
+       * a whisper of shadow so an outlined button reads as something to press.
+       * Kept faint on purpose: a screen of heavy shadows is noise to an older eye.
+       */
+      boxShadow: {
+        control: '0 1px 2px rgb(16 15 13 / 0.06)',
+        surface: '0 1px 2px rgb(16 15 13 / 0.04), 0 8px 24px -14px rgb(16 15 13 / 0.14)',
+        raised: '0 2px 6px rgb(16 15 13 / 0.08), 0 18px 40px -18px rgb(16 15 13 / 0.30)',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

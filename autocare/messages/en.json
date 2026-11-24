@@ -68,7 +68,11 @@
     "errorInactive": "This account has been turned off. Please ask your admin for help.",
     "errorTooMany": "Too many attempts. Please wait a moment and try again.",
     "errorGeneric": "We could not log you in right now. Please try again.",
-    "footerNote": "Only staff of {shopName} may use this system."
+    "footerNote": "Only staff of {shopName} may use this system.",
+    "setupTitle": "This is a new install",
+    "setupBody": "There are no accounts yet. Set up the shop first.",
+    "setupButton": "Set up the shop",
+    "tagline": "You take care of the cars. AutoCare takes care of the numbers."
   },
   "dashboard": {
     "title": "Home",
@@ -238,7 +242,9 @@
     "deleteBody": "Plate {plate} will be removed for good. This cannot be undone.",
     "deleteBlocked": "This vehicle has {count} job(s) on record and cannot be deleted.",
     "editTitle": "Edit vehicle",
-    "addTitle": "New vehicle"
+    "addTitle": "New vehicle",
+    "deleteButton": "Delete this vehicle",
+    "deleteBlockedShort": "This vehicle has jobs on record, so it cannot be deleted."
   },
   "services": {
     "title": "Services",
@@ -339,7 +345,26 @@
     "mySection": "My preferences",
     "myLanguage": "My language",
     "saved": "Your settings were saved.",
-    "preview": "This is how the top of your receipt will look."
+    "preview": "This is how the top of your receipt will look.",
+    "shopTin": "Shop TIN",
+    "brandSection": "Your shop's look",
+    "brandHint": "Your logo and colour appear on every screen and on receipts.",
+    "logo": "Logo",
+    "logoChoose": "Choose a logo",
+    "logoRemove": "Remove the logo",
+    "logoHint": "A PNG, JPG or WebP picture; it is resized for you. Without one, the shop's initials are shown.",
+    "logoSaved": "Logo saved.",
+    "logoRemoved": "Logo removed.",
+    "logoError_format": "That picture can't be read. Try a PNG or JPG.",
+    "logoError_size": "That picture is too large. Try a smaller one.",
+    "logoError_dimensions": "That picture is too large. Try a smaller one.",
+    "accent": "Shop colour",
+    "accentHint": "The colour of the main buttons. There is no green, red or yellow: those mean paid and owed.",
+    "accent_kahel": "Orange",
+    "accent_asul": "Blue",
+    "accent_lila": "Violet",
+    "accent_itim": "Black and gold",
+    "accentSaved": "Colour changed."
   },
   "audit": {
     "title": "Activity Log",
@@ -376,7 +401,8 @@
     "action_ACCEPT_POLICY": "Accepted the rules",
     "action_RESTORE_JOB": "Brought a job back",
     "action_PURGE_JOB": "Removed a job for good",
-    "action_CHANGE_OWN_PASSWORD": "Changed own password"
+    "action_CHANGE_OWN_PASSWORD": "Changed own password",
+    "action_SHOP_SETUP": "Shop was set up"
   },
   "receipt": {
     "title": "Receipt",
@@ -402,7 +428,9 @@
     "notes": "Notes",
     "thankYou": "Thank you for your trust. Come again!",
     "servedBy": "Served by",
-    "printedOn": "Printed on"
+    "printedOn": "Printed on",
+    "tin": "TIN",
+    "notOfficial": "This is a job record, not a BIR official receipt."
   },
   "policy": {
     "title": "Rules of Use",
@@ -446,7 +474,8 @@
   },
   "footer": {
     "rules": "Rules of Use",
-    "copyright": "© {year} {shopName}"
+    "copyright": "© {year} {shopName}",
+    "poweredBy": "Powered by AutoCare"
   },
   "trash": {
     "title": "Trash",
@@ -475,5 +504,29 @@
     "otherDevicesNote": "Changing your password signs you out on every other phone or computer. You stay signed in here.",
     "mustChangeTitle": "Please set your own password first",
     "mustChangeBody": "Somebody else chose the password you are using. Pick one only you know, then you can carry on."
+  },
+  "setup": {
+    "eyebrow": "New install",
+    "title": "Set up your shop",
+    "subtitle": "Three short parts. When you finish, you can log in.",
+    "lockedTitle": "Setup is locked",
+    "lockedBody": "Whoever installed AutoCare must first set a SETUP_CODE in the hosting settings (for example, on Vercel). Please ask them.",
+    "codeSection": "Setup code",
+    "codeHint": "The person who installed AutoCare gave you this.",
+    "code": "Setup code",
+    "shopSection": "Your shop",
+    "ownerSection": "Your account",
+    "ownerHint": "You will be the owner (admin). You can add staff later.",
+    "starterServices": "Add the usual repair-shop services for me (you can change them)",
+    "submit": "Start AutoCare",
+    "working": "Setting up…",
+    "doneTitle": "Your shop is ready!",
+    "doneBody": "Log in with the username {username} and the password you chose.",
+    "goToLogin": "Go to log in",
+    "errorTooMany": "Too many tries. Please wait a few minutes.",
+    "errorCheckFields": "Something in the form needs fixing. See the notes in red.",
+    "errorCode": "That setup code is not right.",
+    "errorDone": "This shop is already set up. Please log in.",
+    "errorClosed": "Setup is locked."
   }
 }

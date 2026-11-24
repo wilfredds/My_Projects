@@ -7,6 +7,7 @@ import { formatDateTime } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ChangePasswordForm } from './change-password-form';
+import { PageHeader } from '@/components/ui/page-header';
 
 export const metadata = { title: 'My Account — AutoCare' };
 export const dynamic = 'force-dynamic';
@@ -41,10 +42,7 @@ export default async function AccountPage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1>{t('title')}</h1>
-        <p className="mt-1 text-lg text-muted-foreground">{t('subtitle')}</p>
-      </div>
+      <PageHeader title={t('title')} description={t('subtitle')} />
 
       {forced ? (
         <div

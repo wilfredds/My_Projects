@@ -52,10 +52,26 @@ export function JobWizard({
   const router = useRouter();
 
   const [customers, setCustomers] = React.useState(initialCustomers);
-  const [step, setStep] = React.useState<WizardStep>(
-    initialDraft?.customerId ? 'services' : 'customer',
+
+  // Where to begin. "Copy to a new job" knows the customer AND the vehicle, so
+  // it starts at the services. "Record a job" from a customer's page knows only
+  // the customer: it starts at the vehicle — with it already chosen if they
+  // have just one — because a job cannot be saved without one.
+  const [draft, setDraft] = React.useState<JobDraft>(() => {
+    const start = { ...emptyDraft(), ...initialDraft };
+    if (start.customerId && !start.vehicleId) {
+      const owner = initialCustomers.find((c) => c.id === start.customerId);
+      if (owner?.vehicles.length === 1) start.vehicleId = owner.vehicles[0]!.id;
+    }
+    return start;
+  });
+  const [step, setStep] = React.useState<WizardStep>(() =>
+    initialDraft?.customerId && initialDraft?.vehicleId
+      ? 'services'
+      : initialDraft?.customerId
+        ? 'vehicle'
+        : 'customer',
   );
-  const [draft, setDraft] = React.useState<JobDraft>({ ...emptyDraft(), ...initialDraft });
   const [busy, setBusy] = React.useState(false);
   const [saving, startSaving] = React.useTransition();
   const [saved, setSaved] = React.useState<{ id: string; jobNumber: string } | null>(null);
@@ -159,6 +175,17 @@ export function JobWizard({
   }
 
   function handleSave() {
+    // Belt and braces: never send a job the server must refuse.
+    if (!draft.customerId) {
+      toast.error(t('missingCustomer'));
+      setStep('customer');
+      return;
+    }
+    if (!draft.vehicleId) {
+      toast.error(t('missingVehicle'));
+      setStep('vehicle');
+      return;
+    }
     startSaving(async () => {
       const result = await saveJobAction({
         customerId: draft.customerId ?? '',
@@ -202,8 +229,11 @@ export function JobWizard({
             selectedId={draft.customerId}
             creating={busy}
             onSelect={(customer) => {
-              // Picking someone moves straight on — one tap, one step.
-              patch({ customerId: customer.id, vehicleId: null });
+              // Picking someone moves straight on — one tap, one step. Most
+              // customers have one car, so it is already chosen for them; the
+              // owner only has to look and press Next.
+              const only = customer.vehicles.length === 1 ? customer.vehicles[0]!.id : null;
+              patch({ customerId: customer.id, vehicleId: only });
               setStep('vehicle');
             }}
             onClear={() => patch({ customerId: null, vehicleId: null })}

@@ -10,6 +10,8 @@ declare module 'next-auth' {
       policyAccepted: boolean;
       tokenVersion: number;
       mustChangePassword: boolean;
+      /** This sign-in's own id, so logging out can revoke just this device. */
+      sid?: string;
     } & DefaultSession['user'];
   }
 
@@ -32,6 +34,7 @@ declare module 'next-auth/jwt' {
     policyAccepted?: boolean;
     tokenVersion?: number;
     mustChangePassword?: boolean;
+    sid?: string;
   }
 }
 

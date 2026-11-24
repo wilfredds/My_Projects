@@ -38,6 +38,7 @@ export const AUDIT_ACTIONS = [
   'UPDATE_SETTINGS',
   'EXPORT_DATA',
   'ACCEPT_POLICY',
+  'SHOP_SETUP',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
