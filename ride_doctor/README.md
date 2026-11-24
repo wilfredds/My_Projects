@@ -18,6 +18,13 @@ humid, rainy), designed for riders anywhere.
 
 Everything is stored encrypted on the phone, in English or Filipino.
 
+## Open the web preview
+
+`https://wilfredds.github.io/My_Projects/ride-doctor/` opens the app in any
+browser, including Safari on an iPhone. It is a preview: nothing you enter is
+saved, and reloading the page starts over. It is republished automatically by
+`.github/workflows/deploy-ride-doctor-web.yml`.
+
 ## Run it
 
 You need Flutter 3.50.1 (stable) and an Android device or emulator.

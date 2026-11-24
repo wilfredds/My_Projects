@@ -90,6 +90,11 @@ onboarding) must be verified by the owner — say so instead of claiming it.
 scan; an Android debug build; a web preview build. A phase is not done until
 it is green.
 
+`.github/workflows/deploy-ride-doctor-web.yml` publishes the web preview to
+GitHub Pages at `/ride-doctor/` (the owner approved this on 2026-11-24). It is
+public. This environment cannot reach the Pages site, so a deploy can be
+confirmed here only by the workflow run and the contents of `gh-pages`.
+
 ## Architecture rules
 
 Feature-first clean architecture (PROMPT.md section 5).

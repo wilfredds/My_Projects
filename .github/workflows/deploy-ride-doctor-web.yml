@@ -1,0 +1,90 @@
+name: Deploy Ride Doctor (web preview)
+
+# Builds the Ride Doctor web preview and publishes it to the gh-pages branch
+# under /ride-doctor/, so it is served at
+# https://<owner>.github.io/<repo>/ride-doctor/ and can be opened in any
+# browser - including Safari on an iPhone, where the Android APK cannot go.
+#
+# It is a preview: the web build keeps everything in the browser tab's memory
+# and saves nothing (ride_doctor/docs/DECISIONS.md, ADR-0025).
+
+on:
+  push:
+    branches:
+      - main
+      # The branch Ride Doctor is being built on. Until that work is merged,
+      # this is where the preview comes from; remove this line after merging.
+      - claude/awesome-ramanujan-298r4w
+    paths:
+      - "ride_doctor/**"
+      - ".github/workflows/deploy-ride-doctor-web.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Shared with deploy-web.yml and deploy-bike-guide.yml: all three push to
+# gh-pages, and two concurrent pushes to the same branch race.
+# cancel-in-progress stays false because they publish different directories.
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: ride_doctor
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          # Keep in sync with ride-doctor-ci.yml.
+          flutter-version: "3.50.1"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build
+
+      - name: Fetch SQLite for the web
+        run: ./tool/fetch_web_sqlite.sh
+
+      # base-href must match the path Pages serves this from. The repository
+      # name is read off the event so a rename cannot silently break it (that
+      # happened to the CycleMind demo once).
+      #
+      # --pwa-strategy=none: no service worker. With one, a phone keeps
+      # showing the old build after a new deploy until its cache expires -
+      # the wrong behaviour for a preview meant to show the latest work.
+      #
+      # --no-web-resources-cdn: bundle the rendering engine instead of loading
+      # it from a Google CDN, so the page depends on one host only.
+      - name: Build web preview
+        run: >
+          flutter build web --release
+          --base-href "/${{ github.event.repository.name }}/ride-doctor/"
+          --pwa-strategy=none
+          --no-web-resources-cdn
+
+      - name: Publish to gh-pages under /ride-doctor/
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./ride_doctor/build/web
+          publish_branch: gh-pages
+          destination_dir: ride-doctor
+          # keep_files preserves the CycleMind build at the branch root and
+          # bike-guide-app/ beside this one.
+          keep_files: true
+          commit_message: "deploy(ride-doctor): publish web preview to /ride-doctor/"
