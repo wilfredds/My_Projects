@@ -11,6 +11,8 @@ import { decimalToNumber, startOfDay, endOfDay, formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, Ledger, LedgerRow } from '@/components/ui/card';
 import { Meter } from '@/components/ui/meter';
+import { countDueReminders } from '@/lib/reminder-queries';
+import { shopToday } from '@/lib/reminders';
 import { PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/misc';
 import { JobList, JobRow } from '@/components/jobs/job-row';
@@ -41,6 +43,9 @@ export default async function DashboardPage({
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
+  // Started now, awaited below, so it runs alongside the money queries.
+  const remindersPending = countDueReminders(prisma, shopToday());
+
   const [todayJobs, todayMoney, monthMoney, unpaid, recentJobs, monthlyRows] = await Promise.all([
     prisma.job.count({ where: { ...notDeleted, date: { gte: todayStart, lte: todayEnd } } }),
     prisma.job.aggregate({
@@ -70,6 +75,7 @@ export default async function DashboardPage({
       select: { date: true, amountPaid: true },
     }),
   ]);
+  const reminders = await remindersPending;
 
   // Group into months in JS — 12 rows at most, cheaper than a second round trip.
   const monthly = new Map<string, number>();
@@ -142,6 +148,15 @@ export default async function DashboardPage({
               tone={owed > 0 ? 'owed' : 'default'}
               href={owed > 0 ? '/jobs?status=OWED' : undefined}
             />
+            {/* Customers to call back — only when there is someone to call. */}
+            {reminders.total > 0 ? (
+              <LedgerRow
+                label={t('reminders')}
+                hint={t('remindersHint', { due: reminders.due, total: reminders.total })}
+                value={String(reminders.total)}
+                href="/reminders"
+              />
+            ) : null}
           </Ledger>
         </div>
       </div>

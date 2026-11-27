@@ -62,6 +62,9 @@ screen. May **Bumalik** at **Susunod** sa ibaba.
 - Lalabas po ang mga sasakyan ng customer na iyon, nakasulat ang plaka na parang
   tunay na plaka. **Pindutin ang tama** — magkakaroon ito ng orange na tsek.
 - Kung wala pa, pindutin ang **Magdagdag ng sasakyan** at i-type ang plaka.
+- Sa ilalim, may tanong: **Ilang km na ang takbo ng sasakyan?** Tingnan po ang
+  odometer sa likod ng manibela at i-type ang numero. Puwede pong laktawan,
+  pero kapag may numero, malalaman din kung kailan dapat bumalik sa km.
 
 ### Hakbang 3 — Anong ginawa sa sasakyan?
 
@@ -107,6 +110,10 @@ Pindutin din po kung paano nagbayad: **Cash**, **GCash**, o **Iba pa**.
 
 - Makikita po ninyo ang lahat sa isang screen. Pakitingnan po kung tama.
 - May mali? Pindutin ang **Bumalik**.
+- Sa ibaba, may **Kailan po babalik?** Kadalasan, wala na po kayong gagawin
+  dito: kapag **Change Oil**, kusang ilalagay ang **3 buwan** mula ngayon (o
+  5,000 km pa). Kung iba ang gusto ninyo, pindutin ang **1 buwan**, **6 buwan**,
+  **1 taon** o **Walang paalala**.
 - Tama na? Pindutin ang orange na **I-save ang Trabaho**.
 
 Lalabas po ang **"Na-save na!"** — tapos na po.
@@ -137,7 +144,8 @@ sa itim na kahon, parang metro ng gasolinahan.
 
 Nasa resibo po ang logo at pangalan ng shop, address, numero ninyo, TIN (kung
 nailagay sa **Mga Setting**), ang lahat ng ginawa, ang mga piyesa, at ang
-kabuuan.
+kabuuan. Kung may **susunod na balik**, nasa kahong may putol-putol na guhit
+ito — parang sticker ng change oil sa salamin.
 
 > Sa ibaba ng resibo nakasulat po: *"Ito ay talaan ng trabaho, hindi opisyal na
 > resibo ng BIR."* Totoo po iyon — kung kailangan ng customer ng opisyal na
@@ -169,6 +177,36 @@ Suki na po at ganoon din ang ginagawa tuwing buwan?
 2. Pindutin ang **Kopyahin sa bagong trabaho**.
 3. Handa na po ang lahat — pareho ang customer, sasakyan at serbisyo.
    Baguhin na lang po kung may kailangang baguhin, tapos i-save.
+
+---
+
+## 6-A. Babalikan — mga customer na dapat nang bumalik
+
+Ang suki po ang bumubuhay sa shop. Kaya may **Babalikan** sa gilid (sa
+cellphone, nasa **Menu**).
+
+Lalabas po rito ang bawat sasakyang **dapat nang bumalik** — halimbawa, tatlong
+buwan na mula nang mag-change oil — pati ang mga **malapit na** (sa loob ng
+dalawang linggo). Sa **Home**, may **Babalikan** din kapag may naghihintay.
+
+Sa bawat sasakyan:
+
+- **Tawagan** — tatawag po ang cellphone ninyo mismo.
+- **I-text** — bubukas ang text sa cellphone ninyo, nakasulat na ang mensahe.
+  Basahin lang po, tapos **Send**. Sa sarili ninyong numero manggagaling, kaya
+  kilala kayo ng customer. Walang dagdag na bayad sa AutoCare.
+- **Tapos na** — kapag natawagan o na-text na. Mawawala na po siya sa listahan.
+  Napindot nang mali? Pindutin agad ang **Ibalik** sa ibaba ng screen.
+
+Kapag bumalik na ang sasakyan para sa serbisyong iyon (halimbawa, nag-change
+oil ulit) at naitala ninyo ang bagong trabaho, **kusa na pong mawawala** ang
+luma sa Babalikan — may bago na kasing petsa. Kung carwash lang ang ipinagawa,
+**mananatili** po siya sa listahan, para maipaalala ninyo ang change oil
+habang nandiyan ang sasakyan.
+
+> Gusto ninyong baguhin kung gaano katagal bago bumalik ang isang serbisyo?
+> Sa **Mga Serbisyo**, pindutin ang **Baguhin** sa serbisyong iyon, tapos
+> piliin sa **Kailan dapat bumalik ang sasakyan?**
 
 ---
 

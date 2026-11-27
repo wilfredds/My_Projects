@@ -59,8 +59,9 @@ Open the site. The login page says **"Bagong install ito"** and offers
    nobody else knows it;
 4. leave **"Lagyan na ng karaniwang serbisyo ng talyer"** ticked to start with
    ten common services (change oil, tune-up, brakes, underchassis, alignment,
-   tires, vulcanizing, battery, aircon, carwash) at typical prices. They are
-   all editable.
+   tires, vulcanizing, battery, aircon, carwash) at typical prices, each
+   already knowing how often it comes back (change oil: 3 months or
+   5,000 km). All of it is editable.
 
 The owner then logs in, reads the rules of use once, and is in.
 
@@ -115,6 +116,9 @@ Vercel → the shop's project → **Settings → Domains**.
   record as CSV (opens in Excel) or JSON, at any time.
 - **Backups.** Neon keeps a restore history of the database (how far back
   depends on the plan). Exporting a copy once a month is a sensible extra.
+- **Babalikan.** Cars due back for their next service are listed with Call and
+  Text buttons. Both use the phone in the owner's hand — its own number and its
+  normal call and text rates — so there is no SMS service to sign up for.
 - **Languages.** Filipino, English, Español, 日本語, 한국어 and 中文, chosen per
   person.
 - **Phones.** It is a website, so there is nothing to install. On Android,

@@ -11,7 +11,13 @@ import { Separator } from '@/components/ui/misc';
 import { cn, formatDate } from '@/lib/utils';
 import { formatPeso, computeLineTotal, type JobTotals } from '@/lib/calc';
 import { intlTagFor } from '@/i18n/locales';
-import type { DraftPart, DraftService, JobDraft, MechanicOption } from './wizard-types';
+import {
+  parseKm,
+  type DraftPart,
+  type DraftService,
+  type JobDraft,
+  type MechanicOption,
+} from './wizard-types';
 
 /* ------------------------------------------------------------------ step 5 */
 
@@ -217,6 +223,7 @@ export function ReviewStep({
   const t = useTranslations('wizard');
   const tj = useTranslations('job');
   const tag = intlTagFor(useLocale());
+  const odometerKm = parseKm(draft.odometer);
 
   const rows: { label: string; value: string; tone?: 'muted' | 'negative' }[] = [
     { label: tj('servicesTotal'), value: formatPeso(totals.servicesTotal, tag) },
@@ -243,6 +250,12 @@ export function ReviewStep({
           {/* The draft holds "2026-11-09"; read it as a local date, not UTC. */}
           <dd className="text-lg">{draft.date ? formatDate(`${draft.date}T00:00:00`, tag) : ''}</dd>
         </div>
+        {odometerKm !== null ? (
+          <div>
+            <dt className="text-base font-semibold text-muted-foreground">{tj('odometer')}</dt>
+            <dd className="num text-lg">{new Intl.NumberFormat(tag).format(odometerKm)} km</dd>
+          </div>
+        ) : null}
         {mechanicName ? (
           <div>
             <dt className="text-base font-semibold text-muted-foreground">{tj('mechanic')}</dt>

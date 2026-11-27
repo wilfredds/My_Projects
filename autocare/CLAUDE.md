@@ -14,11 +14,11 @@ Tailwind · Radix/shadcn · next-intl · Zod · react-hook-form
 ```bash
 npm run lint        # next lint
 npm run typecheck   # tsc --noEmit
-npm test            # money maths and branding, no database
-npm run test:db     # job integrity, security, access control, setup — needs PostgreSQL
+npm test            # money maths, branding, reminder rules — no database
+npm run test:db     # job integrity, security, access control, setup, reminders — needs PostgreSQL
 npm run test:all    # both
 npm run build       # prisma generate && next build
-npm run test:e2e    # 27 Playwright tests against the built app — run build first
+npm run test:e2e    # 31 Playwright tests against the built app — run build first
 npm run dev
 node scripts/check-contrast.mjs   # WCAG AA for every colour pairing × 4 accents
 ```
@@ -74,6 +74,14 @@ installing. The hook copies `.env.example` if it is missing.
 - **No default accounts for other shops.** `lib/setup.ts` + `/setup` create
   the first owner, only while the `User` table is empty and `SETUP_CODE` is
   set. `npm run seed` and `prisma/bootstrap.sql` are HI-OCTEN's alone.
+- **Service reminders (Babalikan).** `lib/reminders.ts` is pure (calendar
+  months, shortest interval, the shop's "today", tel:/sms: links) and is used
+  by both the wizard and the server. `lib/reminder-queries.ts` holds the one
+  SQL definition of "on the list" — shared by the page and the dashboard count;
+  keep it that way. A reminder drops off when the same car has a newer live
+  job with its own next visit (so a carwash never cancels a change-oil
+  reminder). Dates are `@db.Date` handled as "YYYY-MM-DD" in UTC — never format them
+  with a timezone that could shift the day.
 - **Branding is per install, in `ShopSetting`:** `accent` (one of
   `lib/branding.ts`'s four — green, red and amber are reserved for money
   states), `logo` (a PNG data URL checked by `lib/logo.ts`) and `tin`. The

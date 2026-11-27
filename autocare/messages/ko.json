@@ -53,7 +53,8 @@
     "policy": "이용 수칙",
     "menu": "메뉴",
     "trash": "휴지통",
-    "account": "내 계정"
+    "account": "내 계정",
+    "reminders": "재방문"
   },
   "login": {
     "title": "로그인",
@@ -86,7 +87,9 @@
     "recentJobs": "최근 작업",
     "noJobsYet": "아직 기록된 작업이 없습니다.",
     "monthlyChart": "월별 매출",
-    "jobsCount": "{count, plural, other {#건}}"
+    "jobsCount": "{count, plural, other {#건}}",
+    "reminders": "재방문",
+    "remindersHint": "{due, plural, =0 {곧 다가옴} other {#대 방문 시기}}"
   },
   "job": {
     "job": "작업",
@@ -121,7 +124,8 @@
     "method_GCASH": "GCash",
     "method_OTHER": "기타",
     "duplicate": "새 작업으로 복사",
-    "duplicateHint": "같은 고객, 차량, 서비스로 새 작업을 시작합니다."
+    "duplicateHint": "같은 고객, 차량, 서비스로 새 작업을 시작합니다.",
+    "odometer": "주행거리"
   },
   "jobs": {
     "title": "작업",
@@ -196,7 +200,22 @@
     "grandTotal": "합계",
     "missingCustomer": "먼저 고객을 선택하세요.",
     "missingVehicle": "먼저 차량을 선택하세요.",
-    "leaveWarning": "이 작업은 아직 저장되지 않았습니다. 그래도 나갈까요?"
+    "leaveWarning": "이 작업은 아직 저장되지 않았습니다. 그래도 나갈까요?",
+    "odometerLabel": "주행거리(계기판)",
+    "odometerHint": "핸들 뒤 계기판에 있습니다. 비워 두어도 됩니다.",
+    "odometerLast": "마지막 기록: {km} km",
+    "odometerLower": "마지막 기록 {km} km보다 낮습니다. 다시 확인해 주세요.",
+    "nextVisitTitle": "다음 방문은 언제인가요?",
+    "nextVisitHint": "영수증에 인쇄되며, 날짜가 가까워지면 '재방문'에 표시됩니다.",
+    "nextVisitOrKm": "또는 {km} km 중 먼저 오는 때",
+    "nextVisitKmOnly": "{km} km에",
+    "nextVisitBasis": "기준: {services}",
+    "nextVisitNoBasis": "이 서비스들에는 정해진 재방문 주기가 없습니다. 원하시면 아래에서 고르세요.",
+    "reminderAuto": "서비스 기준",
+    "reminderMonths": "{count}개월",
+    "reminderYear": "1년",
+    "reminderNone": "알림 없음",
+    "reminderKeep": "그대로 두기"
   },
   "customers": {
     "title": "고객",
@@ -265,7 +284,16 @@
     "editTitle": "서비스 수정",
     "addTitle": "새 서비스",
     "readOnlyNote": "관리자만 이 목록을 바꿀 수 있습니다.",
-    "duplicateName": "같은 이름의 서비스가 이미 있습니다."
+    "duplicateName": "같은 이름의 서비스가 이미 있습니다.",
+    "remindTitle": "다음 방문 시기",
+    "remindHint": "'재방문'용: 이 서비스가 있는 작업에는 다음 방문일이 자동으로 들어갑니다.",
+    "remindMonths": "몇 개월 후",
+    "remindNone": "필요 없음",
+    "remindYear": "1년",
+    "remindEveryMonths": "{count}개월",
+    "remindKm": "또는 몇 km 후",
+    "remindsEvery": "{count}개월 후 재방문",
+    "remindsEveryKm": "{count}개월 또는 {km} km 후 재방문"
   },
   "reports": {
     "title": "보고서",
@@ -402,7 +430,9 @@
     "action_RESTORE_JOB": "작업을 되돌림",
     "action_PURGE_JOB": "작업을 완전히 삭제",
     "action_CHANGE_OWN_PASSWORD": "본인 비밀번호 변경",
-    "action_SHOP_SETUP": "가게 설정"
+    "action_SHOP_SETUP": "가게 설정",
+    "action_CLOSE_REMINDER": "재방문 알림 완료",
+    "action_REOPEN_REMINDER": "재방문 알림 다시 열기"
   },
   "receipt": {
     "title": "영수증",
@@ -430,7 +460,11 @@
     "servedBy": "담당",
     "printedOn": "인쇄 날짜",
     "tin": "TIN",
-    "notOfficial": "이 문서는 작업 기록이며 BIR 공식 영수증이 아닙니다."
+    "notOfficial": "이 문서는 작업 기록이며 BIR 공식 영수증이 아닙니다.",
+    "odometer": "주행거리",
+    "nextVisit": "다음 점검",
+    "nextVisitKm": "또는 {km} km 중 먼저 오는 때",
+    "nextVisitAtKm": "{km} km에"
   },
   "policy": {
     "title": "이용 수칙",
@@ -470,7 +504,9 @@
     "partNameRequired": "부품 이름을 입력하세요.",
     "quantityMin": "1개 이상이어야 합니다.",
     "amountPaidTooHigh": "받은 금액이 합계보다 큽니다. 확인해 주세요.",
-    "discountTooHigh": "할인이 청구액보다 큽니다."
+    "discountTooHigh": "할인이 청구액보다 큽니다.",
+    "invalidDate": "날짜가 올바르지 않습니다.",
+    "nextVisitKmTooLow": "다음 방문 km는 현재 주행거리보다 커야 합니다."
   },
   "footer": {
     "rules": "이용 수칙",
@@ -528,5 +564,34 @@
     "errorCode": "설정 코드가 맞지 않습니다.",
     "errorDone": "이 가게는 이미 설정되었습니다. 로그인하세요.",
     "errorClosed": "설정이 잠겨 있습니다."
+  },
+  "reminders": {
+    "title": "재방문",
+    "subtitle": "방문 시기가 된 차량입니다. 여기서 차주에게 전화나 문자를 보내세요.",
+    "empty": "지금은 재방문할 차량이 없습니다.",
+    "emptyHint": "작업에 다음 방문일이 있으면 그 날짜 2주 전부터 여기에 표시됩니다.",
+    "dueNow": "방문 시기",
+    "comingUp": "곧 다가옴",
+    "overdue": "{days}일 지남",
+    "dueToday": "오늘",
+    "dueIn": "{days, plural, =1 {내일} other {#일 후}}",
+    "dueOn": "다음 방문: {date}",
+    "dueOnLabel": "방문 예정일",
+    "orKm": "또는 {km} km",
+    "lastVisit": "마지막 방문: {date}",
+    "lastVisitLabel": "마지막 작업",
+    "phoneLabel": "전화번호",
+    "noPhone": "전화번호 없음",
+    "addPhone": "전화번호 추가",
+    "call": "전화",
+    "text": "문자",
+    "callName": "{name}님께 전화",
+    "textName": "{name}님께 문자",
+    "done": "완료",
+    "doneName": "{name}님 완료",
+    "closed": "목록에서 뺐습니다.",
+    "reopened": "목록에 다시 넣었습니다.",
+    "undo": "되돌리기",
+    "smsBody": "{name}님, 안녕하세요! {shop}입니다. 차량 {plate}의 다음 점검 시기가 되었습니다. 예약은 문자나 전화로 해 주세요. 감사합니다!"
   }
 }

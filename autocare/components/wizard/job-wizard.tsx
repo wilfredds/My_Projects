@@ -15,9 +15,14 @@ import { TotalBar } from './total-bar';
 import { CustomerStep, VehicleStep } from './steps-who';
 import { ServicesStep, PartsStep } from './steps-what';
 import { ChargesStep, PaymentStep, ReviewStep } from './steps-money';
+import { NextVisitCard } from './next-visit';
+import { planNextVisit } from '@/lib/reminders';
 import {
   WIZARD_STEPS,
   emptyDraft,
+  parseKm,
+  reminderErrorKey,
+  withIntervals,
   type CustomerOption,
   type JobDraft,
   type MechanicOption,
@@ -49,6 +54,7 @@ export function JobWizard({
 }) {
   const t = useTranslations('wizard');
   const tcom = useTranslations('common');
+  const terr = useTranslations('errors');
   const router = useRouter();
 
   const [customers, setCustomers] = React.useState(initialCustomers);
@@ -94,6 +100,24 @@ export function JobWizard({
   const selectedCustomer = customers.find((c) => c.id === draft.customerId) ?? null;
   const vehicles: VehicleOption[] = selectedCustomer?.vehicles ?? [];
   const selectedVehicle = vehicles.find((v) => v.id === draft.vehicleId) ?? null;
+
+  // When the car should come back, worked out from the services chosen (the
+  // catalog knows how often each repeats) unless the owner picked otherwise.
+  const intervalServices = React.useMemo(
+    () => withIntervals(draft.services, catalog),
+    [draft.services, catalog],
+  );
+  const nextVisit = React.useMemo(
+    () =>
+      planNextVisit({
+        jobDate: draft.date,
+        odometerKm: parseKm(draft.odometer),
+        services: intervalServices,
+        choice: draft.reminder,
+        kept: draft.keptVisit,
+      }),
+    [draft.date, draft.odometer, draft.reminder, draft.keptVisit, intervalServices],
+  );
 
   const stepIndex = WIZARD_STEPS.indexOf(step);
 
@@ -208,10 +232,15 @@ export function JobWizard({
           serviceName: s.serviceName,
           price: s.price || '0',
         })),
+        odometerKm: draft.odometer,
+        nextVisitOn: nextVisit.on,
+        nextVisitKm: nextVisit.km,
       });
 
       if (!result.ok) {
-        toast.error(tcom('unknownError'));
+        const key = reminderErrorKey(result.fieldErrors);
+        toast.error(key ? terr(key) : tcom('unknownError'));
+        if (key === 'invalidNumber') setStep('vehicle'); // the odometer lives there
         return;
       }
       setSaved(result.data ?? null);
@@ -248,6 +277,8 @@ export function JobWizard({
             creating={busy}
             onSelect={(vehicleId) => patch({ vehicleId })}
             onCreate={handleCreateVehicle}
+            odometer={draft.odometer}
+            onOdometer={(odometer) => patch({ odometer })}
           />
         ) : null}
 
@@ -272,13 +303,21 @@ export function JobWizard({
         ) : null}
 
         {step === 'review' ? (
-          <ReviewStep
-            draft={draft}
-            totals={totals}
-            customerName={selectedCustomer?.fullName ?? ''}
-            vehicleLabel={selectedVehicle ? describeVehicle(selectedVehicle) : ''}
-            mechanicName={mechanics.find((m) => m.id === draft.mechanicId)?.name ?? null}
-          />
+          <div className="space-y-8">
+            <ReviewStep
+              draft={draft}
+              totals={totals}
+              customerName={selectedCustomer?.fullName ?? ''}
+              vehicleLabel={selectedVehicle ? describeVehicle(selectedVehicle) : ''}
+              mechanicName={mechanics.find((m) => m.id === draft.mechanicId)?.name ?? null}
+            />
+            <NextVisitCard
+              plan={nextVisit}
+              choice={draft.reminder}
+              onChoice={(reminder) => patch({ reminder })}
+              services={intervalServices}
+            />
+          </div>
         ) : null}
       </div>
 

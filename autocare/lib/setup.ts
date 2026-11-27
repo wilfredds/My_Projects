@@ -28,17 +28,26 @@ const SETUP_LOCK_KEY = 724_001;
 const BCRYPT_COST = 12;
 const MIN_CODE_LENGTH = 8;
 
-/** Services a talyer or car-care shop usually offers. Prices are editable. */
-export const STARTER_SERVICES: { name: string; defaultPrice: string }[] = [
-  { name: 'Change Oil', defaultPrice: '850.00' },
-  { name: 'Engine Tune-up', defaultPrice: '1800.00' },
-  { name: 'Brake Service', defaultPrice: '1200.00' },
+/**
+ * Services a talyer or car-care shop usually offers. Prices are editable, and
+ * so is how often each one should be repeated — the interval is what the
+ * Babalikan (reminders) list works from.
+ */
+export const STARTER_SERVICES: {
+  name: string;
+  defaultPrice: string;
+  remindAfterMonths?: number;
+  remindAfterKm?: number;
+}[] = [
+  { name: 'Change Oil', defaultPrice: '850.00', remindAfterMonths: 3, remindAfterKm: 5000 },
+  { name: 'Engine Tune-up', defaultPrice: '1800.00', remindAfterMonths: 6, remindAfterKm: 10000 },
+  { name: 'Brake Service', defaultPrice: '1200.00', remindAfterMonths: 6, remindAfterKm: 10000 },
   { name: 'Underchassis Repair', defaultPrice: '1500.00' },
-  { name: 'Wheel Alignment', defaultPrice: '800.00' },
+  { name: 'Wheel Alignment', defaultPrice: '800.00', remindAfterMonths: 6, remindAfterKm: 10000 },
   { name: 'Tire Change', defaultPrice: '400.00' },
   { name: 'Vulcanizing', defaultPrice: '150.00' },
   { name: 'Battery Replacement', defaultPrice: '500.00' },
-  { name: 'Aircon Cleaning', defaultPrice: '1500.00' },
+  { name: 'Aircon Cleaning', defaultPrice: '1500.00', remindAfterMonths: 6 },
   { name: 'Carwash', defaultPrice: '250.00' },
 ];
 

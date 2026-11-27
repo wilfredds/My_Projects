@@ -66,6 +66,11 @@ export interface SerializedJob {
   paymentMethod: 'CASH' | 'GCASH' | 'OTHER' | null;
   notes: string | null;
   createdAt: string;
+  odometerKm: number | null;
+  /** "YYYY-MM-DD", or null. */
+  nextVisitOn: string | null;
+  nextVisitKm: number | null;
+  reminderDoneAt: string | null;
   customer: { id: string; fullName: string; phone: string | null; address: string | null };
   vehicle: {
     id: string;
@@ -97,6 +102,10 @@ export function serializeJob(job: JobWithRelations): SerializedJob {
     paymentMethod: job.paymentMethod,
     notes: job.notes,
     createdAt: job.createdAt.toISOString(),
+    odometerKm: job.odometerKm,
+    nextVisitOn: job.nextVisitOn ? job.nextVisitOn.toISOString().slice(0, 10) : null,
+    nextVisitKm: job.nextVisitKm,
+    reminderDoneAt: job.reminderDoneAt ? job.reminderDoneAt.toISOString() : null,
     customer: {
       id: job.customer.id,
       fullName: job.customer.fullName,

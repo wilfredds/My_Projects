@@ -21,6 +21,7 @@ export async function ReceiptView({ job, shop }: { job: SerializedJob; shop: Sho
   ]);
   const tag = intlTagFor(locale);
   const peso = (v: number) => formatPeso(v, tag);
+  const km = (v: number) => new Intl.NumberFormat(tag).format(v);
 
   return (
     <article className="receipt-sheet mx-auto max-w-3xl rounded-2xl border border-border bg-card shadow-surface p-5 text-lg text-foreground sm:p-8">
@@ -57,6 +58,12 @@ export async function ReceiptView({ job, shop }: { job: SerializedJob; shop: Sho
             <dt className="font-bold">{t('vehicle')}</dt>
             <dd>{describeVehicle(job.vehicle)}</dd>
           </div>
+          {job.odometerKm !== null ? (
+            <div className="flex flex-wrap gap-x-2 sm:justify-end">
+              <dt className="font-bold">{t('odometer')}</dt>
+              <dd className="num">{km(job.odometerKm)} km</dd>
+            </div>
+          ) : null}
           {job.customer.phone ? <dd className="text-base">{job.customer.phone}</dd> : null}
         </dl>
       </div>
@@ -128,6 +135,24 @@ export async function ReceiptView({ job, shop }: { job: SerializedJob; shop: Sho
           <Line label={tj('status')} value={tj(`status_${job.status}` as never)} bold />
         </div>
       </section>
+
+      {/* Like the change-oil sticker on a windshield: when to come back. */}
+      {job.nextVisitOn || job.nextVisitKm ? (
+        <section
+          className="next-visit mt-6 rounded-xl border-2 border-dashed border-foreground px-4 py-3 text-center"
+          aria-label={t('nextVisit')}
+        >
+          <h2 className="text-base font-bold uppercase tracking-wide">{t('nextVisit')}</h2>
+          <p className="text-xl font-bold">
+            {job.nextVisitOn
+              ? formatDate(`${job.nextVisitOn}T00:00:00`, tag)
+              : t('nextVisitAtKm', { km: km(job.nextVisitKm!) })}
+          </p>
+          {job.nextVisitOn && job.nextVisitKm ? (
+            <p className="text-base">{t('nextVisitKm', { km: km(job.nextVisitKm) })}</p>
+          ) : null}
+        </section>
+      ) : null}
 
       {job.notes ? (
         <section className="mt-6 border-t border-border pt-3">

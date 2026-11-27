@@ -120,6 +120,11 @@ model Service {
   name         String   @unique
   defaultPrice Decimal  @db.Decimal(12, 2)
   isActive     Boolean  @default(true)
+  /// When a car should come back after this service ("change oil every 3
+  /// months or 5,000 km"). Either may be null. A job's next visit is worked
+  /// out from the shortest interval among its services — see lib/reminders.ts.
+  remindAfterMonths Int?
+  remindAfterKm     Int?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -151,6 +156,18 @@ model Job {
   paymentMethod PaymentMethod?
   notes         String?
 
+  /// The odometer reading when the car came in, in km.
+  odometerKm   Int?
+  /// When the car is due back, printed on the receipt like a change-oil
+  /// sticker. A calendar date; km is "or at this reading, whichever first".
+  nextVisitOn  DateTime? @db.Date
+  nextVisitKm  Int?
+  /// Set when the shop has contacted the customer about the next visit (or
+  /// chose not to), which takes the job off the Babalikan list. The list also
+  /// drops a job by itself once the same car has a newer job with its own
+  /// next visit.
+  reminderDoneAt DateTime?
+
   createdById String
   createdBy   User     @relation("JobCreatedBy", fields: [createdById], references: [id])
   createdAt   DateTime @default(now())
@@ -175,6 +192,9 @@ model Job {
   @@index([deletedAt])
   /// The dashboard and jobs list always filter live jobs by date.
   @@index([deletedAt, date])
+  /// The Babalikan list: open reminders by due date.
+  @@index([nextVisitOn])
+  @@index([vehicleId, date])
 }
 
 model JobPart {

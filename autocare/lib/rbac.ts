@@ -25,6 +25,7 @@ export const ADMIN_ONLY_PREFIXES = [
 export const AUTHENTICATED_PREFIXES = [
   '/dashboard',
   '/jobs',
+  '/reminders',
   '/customers',
   '/vehicles',
   '/services',
@@ -92,6 +93,7 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', labelKey: 'dashboard', icon: 'home' },
   { href: '/jobs', labelKey: 'jobs', icon: 'clipboard' },
+  { href: '/reminders', labelKey: 'reminders', icon: 'bell' },
   { href: '/customers', labelKey: 'customers', icon: 'users' },
   { href: '/vehicles', labelKey: 'vehicles', icon: 'car' },
   { href: '/services', labelKey: 'services', icon: 'wrench' },

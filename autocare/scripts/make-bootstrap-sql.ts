@@ -135,14 +135,15 @@ INSERT INTO "User" ("id","name","username","passwordHash","role","locale","isAct
 `);
 
   // Service catalog
-  const services = [
+  // With how often each comes back — the same intervals as prisma/seed.ts.
+  const services: { id: string; name: string; price: number; months?: number; km?: number }[] = [
     { id: 'seed-svc-carwash', name: 'Carwash', price: 250 },
-    { id: 'seed-svc-oilchange', name: 'Oil Change', price: 850 },
-    { id: 'seed-svc-tuneup', name: 'Engine Tune-up', price: 1800 },
-    { id: 'seed-svc-brake', name: 'Brake Service', price: 1200 },
+    { id: 'seed-svc-oilchange', name: 'Oil Change', price: 850, months: 3, km: 5000 },
+    { id: 'seed-svc-tuneup', name: 'Engine Tune-up', price: 1800, months: 6, km: 10000 },
+    { id: 'seed-svc-brake', name: 'Brake Service', price: 1200, months: 6, km: 10000 },
     { id: 'seed-svc-tire', name: 'Tire Change', price: 400 },
     { id: 'seed-svc-battery', name: 'Battery Replacement', price: 500 },
-    { id: 'seed-svc-aircon', name: 'Aircon Cleaning', price: 1500 },
+    { id: 'seed-svc-aircon', name: 'Aircon Cleaning', price: 1500, months: 6 },
   ];
 
   parts.push(`
@@ -150,12 +151,12 @@ INSERT INTO "User" ("id","name","username","passwordHash","role","locale","isAct
 -- Starter service catalog
 -- ============================================================
 
-INSERT INTO "Service" ("id","name","defaultPrice","isActive","createdAt","updatedAt") VALUES`);
+INSERT INTO "Service" ("id","name","defaultPrice","isActive","remindAfterMonths","remindAfterKm","createdAt","updatedAt") VALUES`);
   parts.push(
     services
       .map(
         (s) =>
-          `  (${q(s.id)}, ${q(s.name)}, ${money(s.price)}, true, now(), now())`,
+          `  (${q(s.id)}, ${q(s.name)}, ${money(s.price)}, true, ${s.months ?? 'NULL'}, ${s.km ?? 'NULL'}, now(), now())`,
       )
       .join(',\n') + ';',
   );

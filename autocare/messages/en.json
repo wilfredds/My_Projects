@@ -53,7 +53,8 @@
     "policy": "Rules of Use",
     "menu": "Menu",
     "trash": "Trash",
-    "account": "My Account"
+    "account": "My Account",
+    "reminders": "Due Back"
   },
   "login": {
     "title": "Log in",
@@ -86,7 +87,9 @@
     "recentJobs": "Latest jobs",
     "noJobsYet": "No jobs recorded yet.",
     "monthlyChart": "Money each month",
-    "jobsCount": "{count, plural, =0 {no jobs} one {# job} other {# jobs}}"
+    "jobsCount": "{count, plural, =0 {no jobs} one {# job} other {# jobs}}",
+    "reminders": "Due back",
+    "remindersHint": "{due, plural, =0 {Coming up soon} other {# due now}}"
   },
   "job": {
     "job": "Job",
@@ -121,7 +124,8 @@
     "method_GCASH": "GCash",
     "method_OTHER": "Other",
     "duplicate": "Copy to a new job",
-    "duplicateHint": "Start a new job using the same customer, vehicle and services."
+    "duplicateHint": "Start a new job using the same customer, vehicle and services.",
+    "odometer": "Odometer"
   },
   "jobs": {
     "title": "Jobs",
@@ -196,7 +200,22 @@
     "grandTotal": "TOTAL",
     "missingCustomer": "Please choose a customer first.",
     "missingVehicle": "Please choose a vehicle first.",
-    "leaveWarning": "You have not saved this job yet. Leave anyway?"
+    "leaveWarning": "You have not saved this job yet. Leave anyway?",
+    "odometerLabel": "Odometer reading",
+    "odometerHint": "On the dashboard behind the wheel. Can be left blank.",
+    "odometerLast": "Last recorded: {km} km",
+    "odometerLower": "That is lower than the last recorded {km} km. Please check it.",
+    "nextVisitTitle": "When should it come back?",
+    "nextVisitHint": "This is printed on the receipt, and the car appears under Due Back when the date is near.",
+    "nextVisitOrKm": "or at {km} km, whichever comes first",
+    "nextVisitKmOnly": "At {km} km",
+    "nextVisitBasis": "Based on: {services}",
+    "nextVisitNoBasis": "None of these services has a set return interval. Choose one below if you like.",
+    "reminderAuto": "From the services",
+    "reminderMonths": "{count, plural, one {# month} other {# months}}",
+    "reminderYear": "1 year",
+    "reminderNone": "No reminder",
+    "reminderKeep": "Keep as is"
   },
   "customers": {
     "title": "Customers",
@@ -265,7 +284,16 @@
     "editTitle": "Edit service",
     "addTitle": "New service",
     "readOnlyNote": "Only an admin can change this list.",
-    "duplicateName": "There is already a service with that name."
+    "duplicateName": "There is already a service with that name.",
+    "remindTitle": "When should the car come back?",
+    "remindHint": "For Due Back: jobs with this service get their next visit filled in automatically.",
+    "remindMonths": "After how many months",
+    "remindNone": "Not needed",
+    "remindYear": "1 year",
+    "remindEveryMonths": "{count, plural, one {# month} other {# months}}",
+    "remindKm": "Or after how many km",
+    "remindsEvery": "Comes back after {count, plural, one {# month} other {# months}}",
+    "remindsEveryKm": "Comes back after {count, plural, one {# month} other {# months}} or {km} km"
   },
   "reports": {
     "title": "Reports",
@@ -402,7 +430,9 @@
     "action_RESTORE_JOB": "Brought a job back",
     "action_PURGE_JOB": "Removed a job for good",
     "action_CHANGE_OWN_PASSWORD": "Changed own password",
-    "action_SHOP_SETUP": "Shop was set up"
+    "action_SHOP_SETUP": "Shop was set up",
+    "action_CLOSE_REMINDER": "Marked a follow-up done",
+    "action_REOPEN_REMINDER": "Reopened a follow-up"
   },
   "receipt": {
     "title": "Receipt",
@@ -430,7 +460,11 @@
     "servedBy": "Served by",
     "printedOn": "Printed on",
     "tin": "TIN",
-    "notOfficial": "This is a job record, not a BIR official receipt."
+    "notOfficial": "This is a job record, not a BIR official receipt.",
+    "odometer": "Odometer",
+    "nextVisit": "Next service due",
+    "nextVisitKm": "or at {km} km, whichever comes first",
+    "nextVisitAtKm": "At {km} km"
   },
   "policy": {
     "title": "Rules of Use",
@@ -470,7 +504,9 @@
     "partNameRequired": "Please type the name of the part.",
     "quantityMin": "There must be at least 1.",
     "amountPaidTooHigh": "The amount paid is more than the total. Please check it.",
-    "discountTooHigh": "The discount is bigger than the amount due."
+    "discountTooHigh": "The discount is bigger than the amount due.",
+    "invalidDate": "That date is not valid.",
+    "nextVisitKmTooLow": "The next-visit km must be higher than the current odometer reading."
   },
   "footer": {
     "rules": "Rules of Use",
@@ -528,5 +564,34 @@
     "errorCode": "That setup code is not right.",
     "errorDone": "This shop is already set up. Please log in.",
     "errorClosed": "Setup is locked."
+  },
+  "reminders": {
+    "title": "Due Back",
+    "subtitle": "Cars that are due back. Call or text the owner from here.",
+    "empty": "Nobody is due back right now.",
+    "emptyHint": "When a job has a next visit, the car appears here two weeks before the date.",
+    "dueNow": "Due now",
+    "comingUp": "Coming up",
+    "overdue": "{days, plural, one {# day overdue} other {# days overdue}}",
+    "dueToday": "Today",
+    "dueIn": "{days, plural, =1 {Tomorrow} other {In # days}}",
+    "dueOn": "Due back: {date}",
+    "dueOnLabel": "Due date",
+    "orKm": "or at {km} km",
+    "lastVisit": "Last visit: {date}",
+    "lastVisitLabel": "Last job",
+    "phoneLabel": "Phone",
+    "noPhone": "No phone number",
+    "addPhone": "Add a phone number",
+    "call": "Call",
+    "text": "Text",
+    "callName": "Call {name}",
+    "textName": "Text {name}",
+    "done": "Done",
+    "doneName": "Done with {name}",
+    "closed": "Taken off the list.",
+    "reopened": "Put back on the list.",
+    "undo": "Undo",
+    "smsBody": "Good day, {name}! This is {shop}. A friendly reminder that your vehicle {plate} is due for its next service. Just text or call us to book a time. Thank you!"
   }
 }

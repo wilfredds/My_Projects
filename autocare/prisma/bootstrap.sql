@@ -320,6 +320,40 @@ CREATE TABLE "RevokedSession" (
 
 CREATE INDEX "RevokedSession_expiresAt_idx" ON "RevokedSession"("expiresAt");
 
+-- ============================================================
+-- schema from prisma/migrations/20261124090000_service_reminders/migration.sql
+-- ============================================================
+
+-- Service reminders ("Babalikan"): the odometer reading on a job, when the car
+-- is due back, and how often each catalog service should be repeated.
+-- Only adds columns and indexes; nothing existing is changed or removed.
+
+-- AlterTable
+ALTER TABLE "Job" ADD COLUMN     "nextVisitKm" INTEGER,
+ADD COLUMN     "nextVisitOn" DATE,
+ADD COLUMN     "odometerKm" INTEGER,
+ADD COLUMN     "reminderDoneAt" TIMESTAMP(3);
+
+-- AlterTable
+ALTER TABLE "Service" ADD COLUMN     "remindAfterKm" INTEGER,
+ADD COLUMN     "remindAfterMonths" INTEGER;
+
+-- CreateIndex
+CREATE INDEX "Job_nextVisitOn_idx" ON "Job"("nextVisitOn");
+
+-- CreateIndex
+CREATE INDEX "Job_vehicleId_date_idx" ON "Job"("vehicleId", "date");
+
+-- Starting intervals for the common services, so reminders work on day one.
+-- These fill the columns created above (all NULL until now); the owner can
+-- change or clear them on the Services page.
+UPDATE "Service" SET "remindAfterMonths" = 3, "remindAfterKm" = 5000
+  WHERE lower("name") IN ('change oil', 'oil change', 'palit langis');
+UPDATE "Service" SET "remindAfterMonths" = 6, "remindAfterKm" = 10000
+  WHERE lower("name") IN ('engine tune-up', 'tune-up', 'tune up', 'wheel alignment', 'brake service');
+UPDATE "Service" SET "remindAfterMonths" = 6
+  WHERE lower("name") IN ('aircon cleaning', 'aircon service');
+
 
 -- ============================================================
 -- Prisma migration bookkeeping
@@ -343,6 +377,7 @@ INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name"
 INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, '4715f9e066040cfb865f4ea0a96de72fd3be64fa4025685a5d1b33480bb953b2', now(), '20260806123853_soft_delete_and_session_revocation', now(), 1);
 INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, '3959fe54284bb3c6921fa7dfef0e09544c598bc21340ce9cd4bd0f72762c6aa2', now(), '20261123090000_shop_branding', now(), 1);
 INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, 'c7b800db0826db0c778ddaf3c6832c937b3a557d44505f6c7e36a659ce3c4ad5', now(), '20261123120000_revoked_sessions', now(), 1);
+INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, 'fb236cc4d4c73a855bd48158f5c62b71c79090c8b9a1e2dd10c8b0bb6b621ad3', now(), '20261124090000_service_reminders', now(), 1);
 
 
 -- ============================================================
@@ -365,22 +400,22 @@ INSERT INTO "ShopSetting" ("id","name","address","phone","updatedAt") VALUES
 -- ============================================================
 
 INSERT INTO "User" ("id","name","username","passwordHash","role","locale","isActive","failedLoginAttempts","tokenVersion","mustChangePassword","createdAt","updatedAt") VALUES
-  ('seed-user-raul',   'RAUL V. SANTOS',            'raul',   '$2a$12$BZgwNocjf.P.dD9FW/VjB.NOs8vrx4jBGj9EawjhdJC8QWJ51VRf6',   'ADMIN', 'fil', true, 0, 0, true, now(), now()),
-  ('seed-user-france', 'Francis Wilfred Antiporda', 'france', '$2a$12$9007GyLt2bX113uRO6MyuOPhRNeN4oP9DYMekSwpO6NLAXFFjfF2W', 'ADMIN', 'fil', true, 0, 0, true, now(), now());
+  ('seed-user-raul',   'RAUL V. SANTOS',            'raul',   '$2a$12$D24TWJg2C1cl7ByYH2i44e60eDrgfBn0XxpK5nsvHRB7NkpUHS9iO',   'ADMIN', 'fil', true, 0, 0, true, now(), now()),
+  ('seed-user-france', 'Francis Wilfred Antiporda', 'france', '$2a$12$CfHmWiflyPBXLstZATEly.l.EeQPylaadix2DKpGmguYHQGFsVrRy', 'ADMIN', 'fil', true, 0, 0, true, now(), now());
 
 
 -- ============================================================
 -- Starter service catalog
 -- ============================================================
 
-INSERT INTO "Service" ("id","name","defaultPrice","isActive","createdAt","updatedAt") VALUES
-  ('seed-svc-carwash', 'Carwash', 250.00, true, now(), now()),
-  ('seed-svc-oilchange', 'Oil Change', 850.00, true, now(), now()),
-  ('seed-svc-tuneup', 'Engine Tune-up', 1800.00, true, now(), now()),
-  ('seed-svc-brake', 'Brake Service', 1200.00, true, now(), now()),
-  ('seed-svc-tire', 'Tire Change', 400.00, true, now(), now()),
-  ('seed-svc-battery', 'Battery Replacement', 500.00, true, now(), now()),
-  ('seed-svc-aircon', 'Aircon Cleaning', 1500.00, true, now(), now());
+INSERT INTO "Service" ("id","name","defaultPrice","isActive","remindAfterMonths","remindAfterKm","createdAt","updatedAt") VALUES
+  ('seed-svc-carwash', 'Carwash', 250.00, true, NULL, NULL, now(), now()),
+  ('seed-svc-oilchange', 'Oil Change', 850.00, true, 3, 5000, now(), now()),
+  ('seed-svc-tuneup', 'Engine Tune-up', 1800.00, true, 6, 10000, now(), now()),
+  ('seed-svc-brake', 'Brake Service', 1200.00, true, 6, 10000, now(), now()),
+  ('seed-svc-tire', 'Tire Change', 400.00, true, NULL, NULL, now(), now()),
+  ('seed-svc-battery', 'Battery Replacement', 500.00, true, NULL, NULL, now(), now()),
+  ('seed-svc-aircon', 'Aircon Cleaning', 1500.00, true, 6, NULL, now(), now());
 
 
 -- ============================================================

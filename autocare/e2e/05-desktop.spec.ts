@@ -13,6 +13,7 @@ test('main pages work at desktop width', async ({ page }) => {
   const nav = page.getByRole('navigation', { name: t.nav.menu });
   for (const [label, path] of [
     [t.nav.jobs, '/jobs'],
+    [t.nav.reminders, '/reminders'],
     [t.nav.customers, '/customers'],
     [t.nav.vehicles, '/vehicles'],
     [t.nav.services, '/services'],

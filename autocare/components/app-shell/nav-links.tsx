@@ -14,6 +14,7 @@ import {
   Settings,
   History,
   Trash2,
+  BellRing,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -30,6 +31,7 @@ const ICONS: Record<string, LucideIcon> = {
   settings: Settings,
   history: History,
   trash: Trash2,
+  bell: BellRing,
 };
 
 /**
