@@ -83,18 +83,23 @@ ScienceSource? sourceFor(Formula formula) => switch (formula) {
     'index classification, not yet checked against PAGASA directly.',
     SourceStatus.partly,
   ),
-  // Phase 3. Statuses are provisional until the source check is recorded in
-  // docs/SCIENCE.md (TODO(verify) there until then).
+  // Foster 2001 has no open copy; the multiplication was read in two open
+  // reviews that reproduce it (docs/SCIENCE.md 7.9).
   Formula.sessionRpeLoad => const ScienceSource(
     'Foster C, Florhaug JA, Franklin J, et al. A new approach to monitoring '
-    'exercise training. J Strength Cond Res. 2001;15(1):109-115.',
-    SourceStatus.unverified,
+    'exercise training. J Strength Cond Res. 2001;15(1):109-115, as '
+    'described in Haddad M, et al. Front Neurosci. 2017;11:612. '
+    'doi:10.3389/fnins.2017.00612',
+    SourceStatus.partly,
   ),
+  // The 1.5 comes from team sports and is disputed; SCIENCE.md 7.9 says
+  // why the app still uses it, and only as a nudge.
   Formula.loadTrend => const ScienceSource(
-    'Comparing a week with the weeks before it is a coaching rule of thumb '
-    'from team-sport studies of the acute:chronic workload ratio; later work '
-    'questions it as an injury predictor.',
-    SourceStatus.unverified,
+    'Rule of thumb from team-sport research: Gabbett TJ. Br J Sports Med. '
+    '2016;50(5):273-280. doi:10.1136/bjsports-2015-095788. Not tested in '
+    'cyclists or beginners, and disputed: Impellizzeri FM, et al. Int J '
+    'Sports Physiol Perform. 2020;15(6):907-913. doi:10.1123/ijspp.2019-0864',
+    SourceStatus.partly,
   ),
   Formula.carbohydrateByDuration => const ScienceSource(
     'Thomas DT, Erdman KA, Burke LM. Nutrition and Athletic Performance. '

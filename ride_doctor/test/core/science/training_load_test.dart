@@ -38,6 +38,12 @@ void main() {
       expect(sessionLoad(effort: 10, minutes: 20).value, 200);
     });
 
+    test('matches the worked example printed in the source', () {
+      // Haddad M, et al. Front Neurosci. 2017;11:612 (PMC5673663), which
+      // describes Foster's method: 87 minutes at a rating of 4 is 348.
+      expect(sessionLoad(effort: 4, minutes: 87).value, 348);
+    });
+
     test('rejects ratings outside 0-10 and impossible lengths', () {
       expect(() => sessionLoad(effort: 11, minutes: 60), throwsArgumentError);
       expect(() => sessionLoad(effort: -1, minutes: 60), throwsArgumentError);
