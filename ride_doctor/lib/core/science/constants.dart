@@ -110,6 +110,11 @@ const int usualWindowDays = 28;
 /// why it only ever softens a day and never blocks one.
 const double bigWeekRatio = 1.5;
 
+/// A usual week smaller than this (about 30 easy minutes) is too small to
+/// divide by: a short ride would read as several "usual weeks". Our own
+/// threshold, not from a source (SCIENCE.md 7.9).
+const int minUsualWeekLoad = 100;
+
 // --- 7.11 Hydration (docs/SCIENCE.md 7.11) ---------------------------------
 
 /// Body-mass loss during a ride above which drinking was probably too little.

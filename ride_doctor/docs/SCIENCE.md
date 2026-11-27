@@ -270,6 +270,115 @@ dominates.
 **Tests.** `test/core/science/climb_test.dart`: reference values worked
 independently, plus round-trip (power → speed → power) across grades.
 
+## 7.9 Training load (session effort rating)
+
+**Formula.** The load of one ride is the rider's rating of the whole ride,
+0 (rest) to 10 (maximal), times its length in minutes. A 60-minute ride rated
+5 is 300. The app calls these "effort points". They are compared only with
+the same rider's own earlier weeks, never between riders, and there is no
+target number.
+
+**Source — Partly.** Foster C, Florhaug JA, Franklin J, Gottschall L,
+Hrovatin LA, Parker S, Doleshal P, Dodge C. A new approach to monitoring
+exercise training. *J Strength Cond Res.* 2001;15(1):109-115. PMID 11708692.
+Its abstract (read) names the session-RPE method and reports that, in steady
+and interval cycling and in basketball, session-RPE scores related
+consistently to a heart-rate-based score but were higher in absolute terms. The
+abstract does not state the multiplication; no open copy of the paper was
+found. The multiplication was read in two open reviews that describe the
+method: Haddad M, Stylianides G, Djaoui L, Dellal A, Chamari K. *Front
+Neurosci.* 2017;11:612. doi:10.3389/fnins.2017.00612 ("TL(A.U.)=RPE x session
+duration (min)"), and Yang S, Yin Y, Qiu Z, Meng Q. *Front Neurosci.*
+2024;18:1341972. doi:10.3389/fnins.2024.1341972. Haddad's worked example,
+87 minutes rated 4 = 348, is a test.
+
+**In cyclists — Verified (abstracts).** Session-RPE load tracked heart-rate
+and power-based load closely in professional and well-trained cyclists
+(Rodriguez-Marroyo JA, et al. *J Strength Cond Res.* 2012;26(8):2249-2257;
+van Erp T, et al. *Int J Sports Physiol Perform.* 2019;14(4):493-500). No
+study of beginners or recreational cyclists was found.
+
+**The rating scale — Partly.** Foster's modified CR-10: 0 Rest, 1 Very, very
+easy, 2 Easy, 3 Moderate, 4 Somewhat hard, 5 Hard, 7 Very hard, 10 Maximal;
+6, 8 and 9 have no label. Reproduced identically in Haddad 2017 (Table 1) and
+Yang 2024 (Table 4); Foster 2001 itself was not opened. **`TODO(verify)`
+before release:** whether this wording needs a licence in a for-profit app.
+The scale descends from Borg's CR-10, and the rights holder's site could not
+be opened — the same open question as the PAR-Q+. The Filipino labels are our
+own translation and unvalidated; Haddad notes that a translated scale can be
+less reliable.
+
+**When to ask — Verified (abstract).** Session RPE has traditionally been
+asked about 30 minutes after a session. In 15 well-trained cyclists, ratings
+taken from 5 minutes to 24 hours afterwards did not differ (Christen J,
+Foster C, Porcari JP, Mikat RP. *Int J Sports Physiol Perform.*
+2016;11(8):1088-1093. doi:10.1123/ijspp.2015-0438). That supports asking in
+the evening check-in. That study used a visual analogue scale, not the CR-10.
+
+**"Bigger week than usual" — a rule of thumb, Partly.** Our definition:
+
+- *Recent*: the last 7 days, today included (a rolling window, so the flag
+  works on a Monday too).
+- *Usual week*: the average of the four 7-day blocks before those 7 days.
+  The recent days are **not** part of the average (an "uncoupled" ratio): an
+  average that contains its own top partly compares a week with itself.
+- *Flag*: recent ÷ usual **above 1.5**. The spec says "exceeds ~1.5×"; at
+  exactly 1.5 the app does not flag.
+
+The weekly chart uses calendar weeks (Monday to Sunday) instead, because that
+is how people talk about a week; the flag's wording therefore says "the last
+7 days", not "this week".
+
+Where 1.5 comes from: Gabbett TJ. The training-injury prevention paradox.
+*Br J Sports Med.* 2016;50(5):273-280. doi:10.1136/bjsports-2015-095788 (full
+text read) calls 0.8–1.3 the "sweet spot" and ≥1.5 the "danger zone", from
+cricket, Australian football and rugby league, and writes that "applying these
+recommendations to individual sport athletes should be performed with
+caution". The first study of the ratio (Hulin BT, et al. *Br J Sports Med.*
+2014;48(8):708-712, 28 cricket fast bowlers, abstract) used session-RPE load,
+a 1-week acute and a 4-week chronic window, and reported risk above 200%, not
+a 1.5 cut-off.
+
+Why the app does not trust it, and only nudges:
+
+- "There is no evidence supporting the use of ACWR in training-load-management
+  systems or for training recommendations aimed at reducing injury risk"
+  (Impellizzeri FM, et al. *Int J Sports Physiol Perform.* 2020;15(6):907-913.
+  doi:10.1123/ijspp.2019-0864; abstract).
+- Whether it "works" depends on arbitrary analysis choices: only 23 of 108
+  analyses were significant in one cohort (Dalen-Lorentsen T, et al. *J Orthop
+  Sports Phys Ther.* 2021;51(4):162-173; abstract).
+- In 435 recreational runners a *higher* ratio went with *lower* injury risk
+  (Nakaoka G, et al. *Sports Med.* 2021;51(11):2437-2447; abstract).
+- Including the current week in the average (the "coupled" ratio) is
+  criticised as producing spurious correlation (Lolli L, et al. *Br J Sports
+  Med.* 2019;53(15):921-922 — title and a secondary description only).
+- No study of beginners or recreational cyclists was found.
+
+So the app says "Bigger week than usual" and suggests an easy next ride if the
+legs feel heavy or sleep is poor. It never says "danger zone" or "injury
+risk", never gives odds, never shows 0.8–1.3 as a target, and never blocks a
+session. Red-flag symptoms go to "stop and seek medical care" whatever the
+load.
+
+**When no comparison is shown — our rules.** A 4-week ratio "requires … wait[ing]
+4 weeks before any ratio can be computed", and "each time missing data appear
+… it leads to spurious values in the ratio" (Moussa I, et al. *BMJ Open Sport
+Exerc Med.* 2019;5(1):e000573. doi:10.1136/bmjsem-2019-000573; full text
+read). So the app shows no ratio, with Rough confidence and the reason, when:
+
+| Case | Rule |
+|---|---|
+| Not enough history | The first day the rider logged anything (a ride or a check-in) is after the first day of the 4-week window |
+| Gap in the log | One of the four earlier 7-day blocks has no ride and no check-in. A checked-in day without a ride is a real day off and counts |
+| Too little riding | The usual week is under **100 points** (about 30 easy minutes) — our threshold, so that one short ride cannot read as "several usual weeks" |
+
+**Limits.** A rating is a feeling: heat, poor sleep, illness and stress make
+the same ride feel harder. Points mean nothing between riders. Nothing here
+predicts injury.
+
+**Tests.** `test/core/science/training_load_test.dart`.
+
 ## 7.10 Heat index and heat category
 
 **Formula.** The US National Weather Service algorithm, in °F:
@@ -419,7 +528,6 @@ diagnosis engine in Phase 4; the debrief offers only the symptoms above.
 
 | Id | Topic | Phase |
 |---|---|---|
-| 7.9 | Training load (session RPE) | 3 |
 | 7.11 | Hydration and sweat rate | 3 |
 | 7.12 | Fuelling by duration | 3 |
 
@@ -437,3 +545,5 @@ Needs network access to the named site, or a person with the book:
 8. A source for effort-to-W/kg defaults.
 9. A qualified coach's review of the skills library and drills.
 10. Pre-race meal timing against a sports-nutrition source.
+11. Foster 2001 full text (session RPE), and whether the CR-10 wording needs a
+    licence in a for-profit app.

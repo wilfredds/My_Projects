@@ -109,25 +109,52 @@ List<WeekTotal> weeklyTotals({
   ];
 }
 
+/// Whether the last 7 days can fairly be compared with the usual week, and if
+/// not, why not. Each "not" case is a reason a ratio would mislead; the
+/// research behind them is in SCIENCE.md 7.9.
+enum LoadComparison {
+  /// Four complete, logged weeks with enough riding to divide by.
+  comparable,
+
+  /// The rider started logging less than four weeks before these 7 days.
+  /// Days before they started would count as days off.
+  notEnoughHistory,
+
+  /// One of the four earlier weeks has nothing in the log at all - not a
+  /// ride, not a check-in. That is more likely a gap in logging than a week
+  /// off, and it would make any normal week look big.
+  loggingGap,
+
+  /// The usual week is under [minUsualWeekLoad]; dividing by it would turn a
+  /// short ride into "several usual weeks".
+  tooLittleRiding,
+}
+
 /// The last 7 days compared with the rider's usual week.
 @immutable
 final class LoadTrend {
-  const new({required this.recentLoad, this.usualWeekLoad});
+  const new({
+    required this.recentLoad,
+    required this.comparison,
+    this.usualWeekLoad,
+  }) : assert(
+         comparison != LoadComparison.comparable || usualWeekLoad != null,
+         'a comparable trend needs a usual week',
+       );
 
   /// Load over the last 7 days, today included.
   final int recentLoad;
+
+  final LoadComparison comparison;
 
   /// Average weekly load over the 4 weeks before those 7 days. Null when the
   /// rider has not been logging long enough for an average to mean anything.
   final double? usualWeekLoad;
 
-  /// recentLoad / usualWeekLoad. Null without a usual week to compare with,
-  /// including after four empty weeks (no ratio can be taken from zero).
-  double? get ratio {
-    final usual = usualWeekLoad;
-    if (usual == null || usual == 0) return null;
-    return recentLoad / usual;
-  }
+  /// recentLoad / usualWeekLoad, only when the comparison is fair.
+  double? get ratio => comparison == LoadComparison.comparable
+      ? recentLoad / usualWeekLoad!
+      : null;
 
   /// True when the last 7 days are more than [bigWeekRatio] usual weeks.
   bool get bigWeek {
@@ -138,42 +165,69 @@ final class LoadTrend {
 
 /// How the last 7 days compare with the 4 weeks before them (SCIENCE.md 7.9).
 ///
-/// Needs the rider to have logged since at least the start of those 4 weeks;
-/// otherwise days before they started logging would count as days off, the
-/// usual week would look too small, and every week would look "big".
+/// The two windows do not overlap (an "uncoupled" ratio): a bottom that
+/// includes its own top partly compares a week with itself.
+///
+/// [checkInDays] are days with a check-in but possibly no ride. They tell a
+/// week off (checked in, did not ride) apart from a gap in the log (nothing
+/// at all), and count towards how long the rider has been logging.
 Explained<LoadTrend> loadTrend({
   required Iterable<LoggedRide> rides,
+  required Iterable<CalendarDay> checkInDays,
   required CalendarDay today,
 }) {
   final recentStart = today.addDays(1 - recentWindowDays);
   final usualStart = recentStart.addDays(-usualWindowDays);
+  const usualWeeks = usualWindowDays ~/ 7;
   var recent = 0;
   var usual = 0;
   CalendarDay? firstLogged;
+  final weekHasEntry = List.filled(usualWeeks, false);
+
+  void noteDay(CalendarDay day) {
+    if (firstLogged == null || day.isBefore(firstLogged!)) firstLogged = day;
+    if (!day.isBefore(usualStart) && day.isBefore(recentStart)) {
+      weekHasEntry[usualStart.daysUntil(day) ~/ 7] = true;
+    }
+  }
+
   for (final ride in rides) {
     if (ride.day.isAfter(today)) continue;
-    if (firstLogged == null || ride.day.isBefore(firstLogged)) {
-      firstLogged = ride.day;
-    }
+    noteDay(ride.day);
     if (!ride.day.isBefore(recentStart)) {
       recent += ride.load;
     } else if (!ride.day.isBefore(usualStart)) {
       usual += ride.load;
     }
   }
-  final enoughHistory = firstLogged != null && !firstLogged.isAfter(usualStart);
+  for (final day in checkInDays) {
+    if (!day.isAfter(today)) noteDay(day);
+  }
+
+  final first = firstLogged;
+  final enoughHistory = first != null && !first.isAfter(usualStart);
+  final usualWeek = enoughHistory ? usual / usualWeeks : null;
+  final comparison = switch (usualWeek) {
+    null => LoadComparison.notEnoughHistory,
+    _ when weekHasEntry.contains(false) => LoadComparison.loggingGap,
+    final double week when week < minUsualWeekLoad =>
+      LoadComparison.tooLittleRiding,
+    _ => LoadComparison.comparable,
+  };
   final trend = LoadTrend(
     recentLoad: recent,
-    usualWeekLoad: enoughHistory ? usual / (usualWindowDays / 7) : null,
+    comparison: comparison,
+    usualWeekLoad: usualWeek,
   );
   return Explained(
     value: trend,
-    confidence: enoughHistory ? Confidence.estimated : Confidence.rough,
+    confidence: comparison == LoadComparison.comparable
+        ? Confidence.estimated
+        : Confidence.rough,
     formula: Formula.loadTrend,
     inputs: [
       Input(Quantity.sessionLoad, recent),
-      if (trend.usualWeekLoad case final usualWeek?)
-        Input(Quantity.usualWeekLoad, usualWeek.round()),
+      if (usualWeek != null) Input(Quantity.usualWeekLoad, usualWeek.round()),
     ],
     improvements: const [Improvement.logEveryRide],
   );

@@ -132,16 +132,25 @@ void main() {
   });
 
   group('loadTrend', () {
-    test('a steady rider: this week equals the usual week', () {
-      final trend = loadTrend(rides: steady, today: today);
+    test('a steady rider: the last 7 days equal the usual week', () {
+      final trend = loadTrend(
+        rides: steady,
+        checkInDays: const [],
+        today: today,
+      );
       // Last 7 days (21-27 Nov): Sat 21, Tue 24, Thu 26 = 900.
       expect(trend.value.recentLoad, 900);
       // 24 Oct - 20 Nov: 12 rides = 3600 over 4 weeks = 900 a week.
       expect(trend.value.usualWeekLoad, 900);
+      expect(trend.value.comparison, LoadComparison.comparable);
       expect(trend.value.ratio, 1);
       expect(trend.value.bigWeek, isFalse);
       expect(trend.confidence, Confidence.estimated);
       expect(trend.formula, Formula.loadTrend);
+      expect(trend.inputs, const [
+        Input(Quantity.sessionLoad, 900),
+        Input(Quantity.usualWeekLoad, 900),
+      ]);
     });
 
     test('two extra long hard rides make a big week', () {
@@ -151,6 +160,7 @@ void main() {
           ride(11, 22, minutes: 120, effort: 7),
           ride(11, 25, minutes: 120, effort: 7),
         ],
+        checkInDays: const [],
         today: today,
       );
       expect(trend.value.recentLoad, 900 + 840 + 840);
@@ -161,6 +171,7 @@ void main() {
     test('exactly 1.5 usual weeks is not yet flagged; more is', () {
       final atLimit = loadTrend(
         rides: [...steady, ride(11, 27, minutes: 90)], // +450
+        checkInDays: const [],
         today: today,
       );
       expect(atLimit.value.ratio, 1.5);
@@ -168,44 +179,186 @@ void main() {
 
       final over = loadTrend(
         rides: [...steady, ride(11, 27, minutes: 91)],
+        checkInDays: const [],
         today: today,
       );
       expect(over.value.bigWeek, isTrue);
+    });
+
+    test('the two windows do not overlap (uncoupled)', () {
+      // 400 a week for four weeks, then 600: 1.5 against the four weeks
+      // before. A ratio that counted this week in its own average would
+      // say 600 / 450 = 1.33 instead.
+      final rides = [
+        for (var week = 0; week < 4; week++)
+          LoggedRide(
+            day: CalendarDay(2026, 10, 24).addDays(7 * week),
+            minutes: 80,
+            effort: 5,
+          ),
+        LoggedRide(day: today, minutes: 120, effort: 5),
+      ];
+      final trend = loadTrend(
+        rides: rides,
+        checkInDays: const [],
+        today: today,
+      );
+      expect(trend.value.usualWeekLoad, 400);
+      expect(trend.value.ratio, 1.5);
     });
 
     test('a rider who started logging recently gets no comparison', () {
       final recentOnly = steady
           .where((r) => r.day.isAfter(CalendarDay(2026, 10, 24)))
           .toList();
-      final trend = loadTrend(rides: recentOnly, today: today);
+      final trend = loadTrend(
+        rides: recentOnly,
+        checkInDays: const [],
+        today: today,
+      );
+      expect(trend.value.comparison, LoadComparison.notEnoughHistory);
       expect(trend.value.usualWeekLoad, isNull);
       expect(trend.value.ratio, isNull);
       expect(trend.value.bigWeek, isFalse);
       expect(trend.confidence, Confidence.rough);
+      expect(trend.inputs, const [Input(Quantity.sessionLoad, 900)]);
       expect(trend.improvements, const [Improvement.logEveryRide]);
     });
 
-    test('four empty weeks before this one give no ratio', () {
+    test('a check-in counts towards how long the rider has logged', () {
+      // First ride 27 Oct, but they checked in on 24 Oct, the first day of
+      // the usual window: that is enough history.
+      final fromTuesday = steady
+          .where((r) => r.day.isAfter(CalendarDay(2026, 10, 26)))
+          .toList();
+      final without = loadTrend(
+        rides: fromTuesday,
+        checkInDays: const [],
+        today: today,
+      );
+      expect(without.value.comparison, LoadComparison.notEnoughHistory);
+
+      final withCheckIn = loadTrend(
+        rides: fromTuesday,
+        checkInDays: [CalendarDay(2026, 10, 24)],
+        today: today,
+      );
+      expect(withCheckIn.value.comparison, LoadComparison.comparable);
+      // Lost one ride (Sat 24 Oct): 3300 over 4 weeks.
+      expect(withCheckIn.value.usualWeekLoad, 825);
+    });
+
+    test('an earlier week with nothing logged is a gap, not a big week', () {
+      // Nothing between 31 Oct and 6 Nov: no ride, no check-in.
+      final gap = steady
+          .where(
+            (r) =>
+                r.day.isBefore(CalendarDay(2026, 10, 31)) ||
+                r.day.isAfter(CalendarDay(2026, 11, 6)),
+          )
+          .toList();
+      final trend = loadTrend(rides: gap, checkInDays: const [], today: today);
+      expect(trend.value.comparison, LoadComparison.loggingGap);
+      expect(trend.value.ratio, isNull);
+      expect(trend.value.bigWeek, isFalse);
+      expect(trend.confidence, Confidence.rough);
+      // The average is still reported, with the gap counted as zero.
+      expect(trend.value.usualWeekLoad, 675);
+    });
+
+    test('a checked-in week off is a real week off, so it still compares', () {
+      final gap = steady
+          .where(
+            (r) =>
+                r.day.isBefore(CalendarDay(2026, 10, 31)) ||
+                r.day.isAfter(CalendarDay(2026, 11, 6)),
+          )
+          .toList();
+      final trend = loadTrend(
+        rides: gap,
+        checkInDays: [CalendarDay(2026, 11, 2)], // "rested today"
+        today: today,
+      );
+      expect(trend.value.comparison, LoadComparison.comparable);
+      expect(trend.value.ratio, closeTo(900 / 675, 1e-9));
+    });
+
+    test('a usual week too small to divide by gives no ratio', () {
+      // One 20-minute ride rated 3 in each of the four weeks: 60 a week.
+      final tiny = [
+        for (var week = 0; week < 4; week++)
+          LoggedRide(
+            day: CalendarDay(2026, 10, 24).addDays(7 * week),
+            minutes: 20,
+            effort: 3,
+          ),
+        ride(11, 26),
+      ];
+      final trend = loadTrend(rides: tiny, checkInDays: const [], today: today);
+      expect(trend.value.usualWeekLoad, 60);
+      expect(trend.value.comparison, LoadComparison.tooLittleRiding);
+      expect(trend.value.ratio, isNull);
+      expect(trend.value.bigWeek, isFalse);
+
+      // At the threshold it compares.
+      final enough = [
+        for (var week = 0; week < 4; week++)
+          LoggedRide(
+            day: CalendarDay(2026, 10, 24).addDays(7 * week),
+            minutes: 20,
+            effort: 5,
+          ),
+      ];
+      expect(
+        loadTrend(
+          rides: enough,
+          checkInDays: const [],
+          today: today,
+        ).value.comparison,
+        LoadComparison.comparable,
+      );
+    });
+
+    test('four empty logged weeks: nothing ridden, nothing to compare', () {
       final trend = loadTrend(
         rides: [ride(10, 1), ride(11, 24), ride(11, 26)],
+        checkInDays: [
+          for (var week = 0; week < 4; week++)
+            CalendarDay(2026, 10, 25).addDays(7 * week),
+        ],
         today: today,
       );
       expect(trend.value.usualWeekLoad, 0);
+      expect(trend.value.comparison, LoadComparison.tooLittleRiding);
       expect(trend.value.ratio, isNull);
       expect(trend.value.bigWeek, isFalse);
     });
 
-    test('rides after today are ignored', () {
+    test('rides and check-ins after today are ignored', () {
       final withFuture = loadTrend(
         rides: [...steady, ride(12, 1, minutes: 300, effort: 9)],
+        checkInDays: [CalendarDay(2026, 12, 2)],
         today: today,
       );
       expect(withFuture.value.recentLoad, 900);
+      expect(withFuture.value.comparison, LoadComparison.comparable);
+
+      final futureOnly = loadTrend(
+        rides: const [],
+        checkInDays: [CalendarDay(2026, 12, 2)],
+        today: today,
+      );
+      expect(futureOnly.value.comparison, LoadComparison.notEnoughHistory);
     });
 
     test('no rides at all', () {
-      final trend = loadTrend(rides: const [], today: today);
+      final trend = loadTrend(
+        rides: const [],
+        checkInDays: const [],
+        today: today,
+      );
       expect(trend.value.recentLoad, 0);
+      expect(trend.value.comparison, LoadComparison.notEnoughHistory);
       expect(trend.value.ratio, isNull);
     });
   });
