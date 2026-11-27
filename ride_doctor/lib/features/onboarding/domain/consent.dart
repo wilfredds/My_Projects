@@ -11,9 +11,27 @@ enum ConsentKind {
   notifications,
 }
 
-/// Bump when the consent wording changes; a rider who agreed to version 1 has
-/// not agreed to version 2.
-const consentPolicyVersion = 1;
+/// Which wording of each consent is current.
+///
+/// Bump a kind's number whenever what it covers changes. A rider who agreed
+/// to an older wording has not agreed to the new one, so their earlier "yes"
+/// stops counting and the app asks again.
+///
+/// History:
+/// - healthData 1 (2026-11-20): profile, readiness answers, symptom reports.
+/// - location 1 (2026-11-20): "not used yet; you will be asked again".
+///   location 2 (Phase 3): the chosen town's approximate position is sent to
+///   the weather service (Open-Meteo) to get the forecast.
+/// - notifications 1 (2026-11-20): "not used yet; you will be asked again".
+///   notifications 2 (Phase 3): a morning plan reminder and an evening
+///   check-in reminder, scheduled on the phone.
+extension ConsentPolicy on ConsentKind {
+  int get currentPolicyVersion => switch (this) {
+    ConsentKind.healthData => 1,
+    ConsentKind.location => 2,
+    ConsentKind.notifications => 2,
+  };
+}
 
 @freezed
 abstract class ConsentRecord with _$ConsentRecord {

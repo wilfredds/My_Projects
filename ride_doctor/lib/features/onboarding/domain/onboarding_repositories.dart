@@ -10,7 +10,8 @@ abstract interface class ReadinessRepository {
 
 abstract interface class ConsentRepository {
   /// The current answer for every kind. A kind never asked about is false:
-  /// consent is something given, never assumed.
+  /// consent is something given, never assumed. So is a "yes" given to an
+  /// older wording than the kind's current one.
   Stream<Map<ConsentKind, bool>> watchCurrent();
 
   /// Appends a grant or withdrawal. History is never rewritten.

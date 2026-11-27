@@ -72,10 +72,15 @@ final class DriftConsentRepository implements ConsentRepository {
   Stream<Map<ConsentKind, bool>> watchCurrent() =>
       _oldestFirst.watch().map((rows) {
         final current = {for (final kind in ConsentKind.values) kind: false};
-        // Oldest first, so a later record overwrites an earlier one.
+        // Oldest first, so a later record overwrites an earlier one. A "yes"
+        // only counts if it was given to the current wording: agreeing to
+        // "not used yet" is not agreeing to "sent to a weather service".
         for (final row in rows) {
           final kind = enumFromName(ConsentKind.values, row.kind);
-          if (kind != null) current[kind] = row.granted;
+          if (kind != null) {
+            current[kind] =
+                row.granted && row.policyVersion >= kind.currentPolicyVersion;
+          }
         }
         return current;
       });
@@ -92,7 +97,7 @@ final class DriftConsentRepository implements ConsentRepository {
             updatedAt: now,
             kind: kind.name,
             granted: granted,
-            policyVersion: consentPolicyVersion,
+            policyVersion: kind.currentPolicyVersion,
           ),
         );
   }

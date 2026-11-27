@@ -147,7 +147,44 @@ void main() {
       expect(history.first.recordedAt, DateTime.utc(2026, 11, 23, 8));
       expect(history.last.granted, isFalse);
       expect(history.last.recordedAt, DateTime.utc(2026, 11, 25, 8));
-      expect(history.last.policyVersion, consentPolicyVersion);
+      expect(
+        history.last.policyVersion,
+        ConsentKind.location.currentPolicyVersion,
+      );
+    });
+
+    test('a yes to an older wording no longer counts', () async {
+      // As left by the first version of the app, whose location consent
+      // said "not used yet".
+      await database.customStatement(
+        'INSERT INTO consent_records (id, created_at, updated_at, kind, '
+        "granted, policy_version) VALUES ('old', "
+        "'2026-11-20T08:00:00.000Z', '2026-11-20T08:00:00.000Z', "
+        "'location', 1, 1)",
+      );
+      expect(
+        (await repository.watchCurrent().first)[ConsentKind.location],
+        isFalse,
+      );
+
+      await repository.record(ConsentKind.location, granted: true);
+
+      expect(
+        (await repository.watchCurrent().first)[ConsentKind.location],
+        isTrue,
+      );
+      expect((await repository.history()).last.policyVersion, 2);
+    });
+
+    test('each kind is recorded under its own current wording', () async {
+      for (final kind in ConsentKind.values) {
+        await repository.record(kind, granted: true);
+      }
+
+      final history = await repository.history();
+      for (final record in history) {
+        expect(record.policyVersion, record.kind.currentPolicyVersion);
+      }
     });
 
     test('two changes in the same instant resolve to the later one', () async {

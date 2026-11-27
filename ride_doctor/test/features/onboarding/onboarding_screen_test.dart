@@ -216,7 +216,7 @@ void main() {
     await next(tester);
 
     // Grant only the optional ones.
-    await tapText(tester, 'Use my location');
+    await tapText(tester, 'Use my town for weather');
     await tapText(tester, 'Finish');
 
     expect(find.byType(OnboardingScreen), findsOneWidget);

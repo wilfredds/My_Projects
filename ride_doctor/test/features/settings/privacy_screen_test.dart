@@ -23,7 +23,7 @@ void main() {
 
     expect(find.textContaining('Granted.'), findsOneWidget);
     expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
-    expect(consentSwitch(tester, 'Use my location').value, isFalse);
+    expect(consentSwitch(tester, 'Use my town for weather').value, isFalse);
     expect(consentSwitch(tester, 'Send me reminders').value, isFalse);
   });
 
@@ -48,10 +48,10 @@ void main() {
     final database = await pumpApp(tester);
     await openPrivacy(tester);
 
-    await tapText(tester, 'Use my location');
-    expect(consentSwitch(tester, 'Use my location').value, isTrue);
-    await tapText(tester, 'Use my location');
-    expect(consentSwitch(tester, 'Use my location').value, isFalse);
+    await tapText(tester, 'Use my town for weather');
+    expect(consentSwitch(tester, 'Use my town for weather').value, isTrue);
+    await tapText(tester, 'Use my town for weather');
+    expect(consentSwitch(tester, 'Use my town for weather').value, isFalse);
 
     final location = (await database.select(database.consentRecords).get())
         .where((row) => row.kind == 'location')
