@@ -83,6 +83,29 @@ ScienceSource? sourceFor(Formula formula) => switch (formula) {
     'index classification, not yet checked against PAGASA directly.',
     SourceStatus.partly,
   ),
+  // Phase 3. Statuses are provisional until the source check is recorded in
+  // docs/SCIENCE.md (TODO(verify) there until then).
+  Formula.sessionRpeLoad => const ScienceSource(
+    'Foster C, Florhaug JA, Franklin J, et al. A new approach to monitoring '
+    'exercise training. J Strength Cond Res. 2001;15(1):109-115.',
+    SourceStatus.unverified,
+  ),
+  Formula.loadTrend => const ScienceSource(
+    'Comparing a week with the weeks before it is a coaching rule of thumb '
+    'from team-sport studies of the acute:chronic workload ratio; later work '
+    'questions it as an injury predictor.',
+    SourceStatus.unverified,
+  ),
+  Formula.carbohydrateByDuration => const ScienceSource(
+    'Thomas DT, Erdman KA, Burke LM. Nutrition and Athletic Performance. '
+    'Med Sci Sports Exerc. 2016;48(3):543-568.',
+    SourceStatus.unverified,
+  ),
+  Formula.sweatRate => const ScienceSource(
+    'Sawka MN, et al. Exercise and fluid replacement. Med Sci Sports Exerc. '
+    '2007;39(2):377-390.',
+    SourceStatus.unverified,
+  ),
   Formula.measuredMaxHr ||
   Formula.wattsPerKg ||
   Formula.measuredCircumference ||

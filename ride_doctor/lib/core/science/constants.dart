@@ -91,3 +91,42 @@ const List<double> climbEffortDefaultWattsPerKg = [1.5, 2.0, 2.5];
 
 /// Air density of the standard atmosphere at sea level, 15 degrees C, kg/m^3.
 const double standardAirDensity = 1.225;
+
+// --- 7.9 Training load (docs/SCIENCE.md 7.9) --------------------------------
+
+/// Top of the session effort scale (CR-10: 0 = rest, 10 = maximal).
+const int effortScaleMax = 10;
+
+/// "This week": the last 7 days, today included.
+const int recentWindowDays = 7;
+
+/// "Your usual week": the average of the 4 weeks (28 days) before this one.
+/// Kept separate from the recent 7 days on purpose - a ratio whose bottom
+/// includes its own top is partly comparing a week with itself.
+const int usualWindowDays = 28;
+
+/// A recent week bigger than this many usual weeks is flagged. A coaching
+/// rule of thumb that comes from team-sport studies; see SCIENCE.md 7.9 for
+/// why it only ever softens a day and never blocks one.
+const double bigWeekRatio = 1.5;
+
+// --- 7.11 Hydration (docs/SCIENCE.md 7.11) ---------------------------------
+
+/// Body-mass loss during a ride above which drinking was probably too little.
+const double maxBodyMassLossPercent = 2;
+
+/// One kilogram of body mass lost in a ride is taken as one litre of sweat.
+const double litresPerKgLost = 1;
+
+// --- 7.12 Fuelling (docs/SCIENCE.md 7.12) ----------------------------------
+
+/// Rides shorter than this usually need no food, only water.
+const int fuelFromMinutes = 60;
+
+/// Rides longer than this get the higher range.
+const int longFuelFromMinutes = 150;
+
+const int moderateCarbMinGramsPerHour = 30;
+const int moderateCarbMaxGramsPerHour = 60;
+const int highCarbMinGramsPerHour = 60;
+const int highCarbMaxGramsPerHour = 90;

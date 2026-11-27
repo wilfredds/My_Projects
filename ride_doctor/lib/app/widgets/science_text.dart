@@ -38,6 +38,10 @@ extension ScienceText on AppLocalizations {
     Formula.gearCadence => formulaGearCadenceTitle,
     Formula.climbPowerBalance => formulaClimbPowerBalanceTitle,
     Formula.nwsHeatIndex => formulaNwsHeatIndexTitle,
+    Formula.sessionRpeLoad => formulaSessionRpeLoadTitle,
+    Formula.loadTrend => formulaLoadTrendTitle,
+    Formula.carbohydrateByDuration => formulaCarbohydrateByDurationTitle,
+    Formula.sweatRate => formulaSweatRateTitle,
   };
 
   String formulaHow(Formula formula) => switch (formula) {
@@ -54,6 +58,10 @@ extension ScienceText on AppLocalizations {
     Formula.gearCadence => formulaGearCadenceHow,
     Formula.climbPowerBalance => formulaClimbPowerBalanceHow,
     Formula.nwsHeatIndex => formulaNwsHeatIndexHow,
+    Formula.sessionRpeLoad => formulaSessionRpeLoadHow,
+    Formula.loadTrend => formulaLoadTrendHow,
+    Formula.carbohydrateByDuration => formulaCarbohydrateByDurationHow,
+    Formula.sweatRate => formulaSweatRateHow,
   };
 
   /// What the rider should keep in mind about this formula; null when there
@@ -68,6 +76,10 @@ extension ScienceText on AppLocalizations {
     Formula.etrtoCircumference => formulaEtrtoCircumferenceLimits,
     Formula.climbPowerBalance => formulaClimbPowerBalanceLimits,
     Formula.nwsHeatIndex => formulaNwsHeatIndexLimits,
+    Formula.sessionRpeLoad => formulaSessionRpeLoadLimits,
+    Formula.loadTrend => formulaLoadTrendLimits,
+    Formula.carbohydrateByDuration => formulaCarbohydrateByDurationLimits,
+    Formula.sweatRate => formulaSweatRateLimits,
     Formula.measuredMaxHr ||
     Formula.wattsPerKg ||
     Formula.measuredCircumference ||
@@ -83,6 +95,9 @@ extension ScienceText on AppLocalizations {
     Improvement.confirmCogs => improveConfirmCogs,
     Improvement.getProfessionalFit => improveGetProfessionalFit,
     Improvement.usePowerMeter => improveUsePowerMeter,
+    Improvement.logEveryRide => improveLogEveryRide,
+    Improvement.measureSweatRate => improveMeasureSweatRate,
+    Improvement.practiseFuelling => improvePractiseFuelling,
   };
 
   String inputLabel(Quantity quantity) => switch (quantity) {
@@ -101,6 +116,14 @@ extension ScienceText on AppLocalizations {
     Quantity.gradePercent => inputGradePercent,
     Quantity.temperatureC => inputTemperatureC,
     Quantity.humidityPercent => inputHumidityPercent,
+    Quantity.effortRating => inputEffortRating,
+    Quantity.durationMinutes => inputDurationMinutes,
+    Quantity.sessionLoad => inputSessionLoad,
+    Quantity.usualWeekLoad => inputUsualWeekLoad,
+    Quantity.bodyMassBeforeKg => inputBodyMassBeforeKg,
+    Quantity.bodyMassAfterKg => inputBodyMassAfterKg,
+    Quantity.fluidDrunkLitres => inputFluidDrunkLitres,
+    Quantity.urineLitres => inputUrineLitres,
   };
 
   /// The unit each quantity is held in inside the science layer.
@@ -117,6 +140,11 @@ extension ScienceText on AppLocalizations {
     Quantity.circumferenceMm => 'mm',
     Quantity.gradePercent || Quantity.humidityPercent => '%',
     Quantity.temperatureC => '°C',
+    Quantity.effortRating => unitOutOfTen,
+    Quantity.durationMinutes => unitMinutes,
+    Quantity.sessionLoad || Quantity.usualWeekLoad => unitLoadPoints,
+    Quantity.bodyMassBeforeKg || Quantity.bodyMassAfterKg => 'kg',
+    Quantity.fluidDrunkLitres || Quantity.urineLitres => 'L',
   };
 
   String sourceStatusLabel(SourceStatus status) => switch (status) {

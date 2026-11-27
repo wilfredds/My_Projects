@@ -18,6 +18,10 @@ enum Formula {
   gearCadence,
   climbPowerBalance,
   nwsHeatIndex,
+  sessionRpeLoad,
+  loadTrend,
+  carbohydrateByDuration,
+  sweatRate,
 }
 
 /// The quantities that can feed a calculation, with the unit they are always
@@ -39,6 +43,14 @@ enum Quantity {
   gradePercent,
   temperatureC,
   humidityPercent,
+  effortRating,
+  durationMinutes,
+  sessionLoad,
+  usualWeekLoad,
+  bodyMassBeforeKg,
+  bodyMassAfterKg,
+  fluidDrunkLitres,
+  urineLitres,
 }
 
 /// Something the rider could do to move a result up the confidence ladder.
@@ -51,6 +63,9 @@ enum Improvement {
   confirmCogs,
   getProfessionalFit,
   usePowerMeter,
+  logEveryRide,
+  measureSweatRate,
+  practiseFuelling,
 }
 
 /// One input that went into a calculation.
