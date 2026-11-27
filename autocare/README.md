@@ -22,10 +22,11 @@ at another talyer or car-care shop.
 4. [Logging in](#logging-in)
 5. [Deploying to Vercel + Neon](#deploying-to-vercel--neon)
 6. [How the money maths works](#how-the-money-maths-works)
-7. [Security](#security)
-8. [Languages](#languages)
-9. [Tests](#tests)
-10. [Project layout](#project-layout)
+7. [Service reminders (Babalikan)](#service-reminders-babalikan)
+8. [Security](#security)
+9. [Languages](#languages)
+10. [Tests](#tests)
+11. [Project layout](#project-layout)
 
 ---
 
@@ -34,10 +35,11 @@ at another talyer or car-care shop.
 | Screen | Who | What it is for |
 | --- | --- | --- |
 | **Home** | everyone | Today's jobs and income, this month's income, unpaid total, last 10 jobs, and one very large **Record New Job** button. |
-| **Record New Job** | everyone | The seven-step wizard. One decision per screen. |
+| **Record New Job** | everyone | The seven-step wizard. One decision per screen. Also takes the odometer reading and sets when the car is due back. |
 | **Jobs** | everyone | Search and filter every job; open one to print or download its receipt. |
+| **Babalikan** (Due Back) | everyone | Cars due back for their next service, with Call and Text buttons that use the phone's own dialler and messaging app. |
 | **Customers / Vehicles** | everyone | Add and edit people and their vehicles; see a customer's full history. |
-| **Services** | admin edits, staff views | The catalog of repeatable services and their usual prices. |
+| **Services** | admin edits, staff views | The catalog of repeatable services, their usual prices, and how often each one comes back. |
 | **Reports** | admin | Daily and monthly income, most-used spare parts, top customers, CSV/JSON backup. |
 | **Users** | admin | Create staff accounts, turn them on and off, change passwords, unlock accounts. |
 | **Settings** | admin | The shop's logo and colour, the details and TIN printed on receipts, and your own language. |
@@ -45,8 +47,10 @@ at another talyer or car-care shop.
 
 ### Not built in v1 (by design)
 
-Public customer sign-up, online payments, SMS/email, inventory stock levels and
-multi-branch support are **not** implemented. The database schema leaves room
+Public customer sign-up, online payments, sending SMS or email from the server,
+inventory stock levels and multi-branch support are **not** implemented.
+(Reminders are texted from the shop's own phone — see
+[Service reminders](#service-reminders-babalikan).) The database schema leaves room
 for all of them — see the notes at the top of `prisma/schema.prisma`.
 
 ---
@@ -355,6 +359,45 @@ Arithmetic is done in whole centavos, so adding ten ₱0.07 lines gives exactly
 
 ---
 
+## Service reminders (Babalikan)
+
+Repeat customers keep a talyer going, and a change-oil customer who is not
+reminded often goes elsewhere. So a job can carry the date — and the km — at
+which the car is due back:
+
+- **The catalog knows how often each service repeats.** Change oil: 3 months
+  or 5,000 km. Tune-up, alignment, brakes: 6 months or 10,000 km. Aircon: 6
+  months. The owner can change these on the Services page.
+- **The wizard fills it in.** The vehicle step asks for the odometer reading
+  (optional). The review step shows the next visit worked out from the
+  shortest interval among the services done, and one tap changes it (1, 3, 6
+  or 12 months, or none). `lib/reminders.ts` holds the rules as pure functions,
+  so the browser and the server agree; dates are calendar dates, months are
+  added on the calendar (30 November + 3 months = 28 February).
+- **The receipt prints it** in a dashed box, like the change-oil sticker on a
+  windshield.
+- **The Babalikan page lists who is due**: overdue first, then anyone due in
+  the next two weeks. Call and Text are `tel:` and `sms:` links, so the call
+  or message goes from the shop's own phone and number — no SMS service, no
+  cost, and the text is already written. **Tapos na** takes a car off the
+  list, with an undo in the toast.
+- **A car drops off the list by itself when it comes back for the service**:
+  the new change oil sets a new date, and that replaces the old reminder. A
+  visit that sets no date — a carwash — leaves the reminder standing, so a
+  carwash never cancels a change-oil reminder. Moving the newer job to the
+  Trash brings the old reminder back. This rule is one parameterised SQL
+  query in `lib/reminder-queries.ts`, shared by the list and the dashboard
+  count.
+- "Today" is the shop's date (`SHOP_TIMEZONE`, default Asia/Manila), not the
+  server's — a server in UTC would otherwise still be on yesterday until
+  8 a.m. Manila time.
+
+The migration that added this also filled in the intervals for the common
+service names already in an existing catalog (Oil Change, Tune-up, …), so the
+feature works at an existing shop without anyone configuring it first.
+
+---
+
 ## Security
 
 | Control | Where |
@@ -462,14 +505,14 @@ record, so it follows them to a new device. URLs stay clean — there is no
 ## Tests
 
 ```bash
-npm test         # money maths and branding — no database needed
-npm run test:db  # job integrity, security, access control, first-run setup — needs DATABASE_URL
+npm test         # money maths, branding and reminder rules — no database needed
+npm run test:db  # job integrity, security, access control, setup, reminders — needs DATABASE_URL
 npm run test:all
 npm run typecheck
 npm run build && npm run test:e2e   # the whole app in a real browser
 ```
 
-62 checks in six files, all against real code:
+81 checks in eight files, all against real code:
 
 | File | What it proves |
 | --- | --- |
@@ -479,17 +522,20 @@ npm run build && npm run test:e2e   # the whole app in a real browser
 | `tests/security.test.ts` (11) | the real lockout, audit and hashing code, against a live database |
 | `tests/access-control.test.ts` (18) | session revocation (including per-device logout), soft delete and restore, the capability map |
 | `tests/setup.test.ts` (10) | first-run setup on a throwaway empty database: the code, the one-owner rule, two at once, starter services |
+| `tests/reminders.test.ts` (10) | the next-visit rules: calendar months, shortest interval, the shop's "today", call/text links, server-side validation |
+| `tests/reminders-db.test.ts` (9) | the Babalikan list against a real database: due and coming up, a carwash in between, the car coming back, Trash, "Tapos na" and undo |
 
 ### End-to-end tests
 
-`e2e/` holds 27 Playwright tests that use the built app the way the shop does
+`e2e/` holds 31 Playwright tests that use the built app the way the shop does
 — on a phone-sized screen in Filipino, plus a desktop pass — and fail on any
 browser error or blocked script. They cover logging in, lockout and logout; a
 job recorded through every wizard step, its receipt, PDF, edit, partial
 payment, delete and restore from Trash; customers and vehicles; services, staff
 accounts and a new staff member's first day; settings, logo and colour;
-reports and exports; the activity log; and a brand-new install set up from
-`/setup`.
+reports and exports; the activity log; a brand-new install set up from
+`/setup`; and service reminders, from the odometer reading to the Babalikan
+list's Call, Text and Done.
 
 `npm run test:e2e` first runs `e2e/prepare.ts`, which adds its own test
 accounts to the database in `.env` and creates a second, empty database
@@ -565,6 +611,7 @@ app/
   (app)/                 the signed-in shell (top bar, nav, footer)
     dashboard/           home screen
     jobs/                list, new (wizard), [id] detail, edit, print
+    reminders/           Babalikan — cars due back, with Call / Text / Done
     trash/               deleted jobs — restore or erase (admin only)
     account/             change your own password
     customers/ vehicles/ services/ reports/ users/ settings/ audit/
@@ -586,6 +633,8 @@ lib/
   security-headers.ts    the per-request CSP and its nonce
   setup.ts               first-run setup and the starter services
   branding.ts  logo.ts   the shop's colour choices; the logo checks
+  reminders.ts           next-visit rules (pure); reminder-queries.ts — the Babalikan list
+  odometer.ts            last recorded reading per car
   audit.ts  prisma.ts  settings.ts  jobs.ts  password.ts  rate-limit.ts
   pdf/receipt-pdf.tsx    the A4 PDF
 messages/                fil, en, es, ja, ko, zh

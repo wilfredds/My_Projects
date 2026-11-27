@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requirePageUser } from '@/lib/session';
 import { notDeleted } from '@/lib/jobs';
 import { decimalToNumber } from '@/lib/utils';
+import { lastOdometerByVehicle } from '@/lib/odometer';
 import { JobWizard } from '@/components/wizard/job-wizard';
 import { nextKey, type JobDraft } from '@/components/wizard/wizard-types';
 
@@ -39,7 +40,7 @@ export default async function NewJobPage({
     prisma.service.findMany({
       where: { isActive: true },
       orderBy: { name: 'asc' },
-      select: { id: true, name: true, defaultPrice: true },
+      select: { id: true, name: true, defaultPrice: true, remindAfterMonths: true, remindAfterKm: true },
     }),
     prisma.user.findMany({
       where: { isActive: true },
@@ -47,6 +48,15 @@ export default async function NewJobPage({
       select: { id: true, name: true },
     }),
   ]);
+
+  const lastKm = await lastOdometerByVehicle(
+    prisma,
+    customers.flatMap((c) => c.vehicles.map((v) => v.id)),
+  );
+  const customerOptions = customers.map((c) => ({
+    ...c,
+    vehicles: c.vehicles.map((v) => ({ ...v, lastOdometerKm: lastKm.get(v.id) ?? null })),
+  }));
 
   let initialDraft: Partial<JobDraft> | undefined;
 
@@ -89,11 +99,13 @@ export default async function NewJobPage({
     <div className="space-y-6">
       <h1 className="sr-only">{t('title')}</h1>
       <JobWizard
-        customers={customers}
+        customers={customerOptions}
         catalog={catalog.map((s) => ({
           id: s.id,
           name: s.name,
           defaultPrice: decimalToNumber(s.defaultPrice),
+          remindAfterMonths: s.remindAfterMonths,
+          remindAfterKm: s.remindAfterKm,
         }))}
         mechanics={mechanics}
         initialDraft={initialDraft}

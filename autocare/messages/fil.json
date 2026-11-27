@@ -53,7 +53,8 @@
     "policy": "Patakaran sa Paggamit",
     "menu": "Menu",
     "trash": "Basurahan",
-    "account": "Aking Account"
+    "account": "Aking Account",
+    "reminders": "Babalikan"
   },
   "login": {
     "title": "Mag-log in",
@@ -86,7 +87,9 @@
     "recentJobs": "Pinakabagong trabaho",
     "noJobsYet": "Wala pa pong naitalang trabaho.",
     "monthlyChart": "Pera kada buwan",
-    "jobsCount": "{count, plural, =0 {walang trabaho} one {# trabaho} other {# na trabaho}}"
+    "jobsCount": "{count, plural, =0 {walang trabaho} one {# trabaho} other {# na trabaho}}",
+    "reminders": "Babalikan",
+    "remindersHint": "{due, plural, =0 {Malapit nang bumalik} other {# dapat nang bumalik}}"
   },
   "job": {
     "job": "Trabaho",
@@ -121,7 +124,8 @@
     "method_GCASH": "GCash",
     "method_OTHER": "Iba pa",
     "duplicate": "Kopyahin sa bagong trabaho",
-    "duplicateHint": "Magsimula ng bagong trabaho gamit ang parehong customer, sasakyan at serbisyo."
+    "duplicateHint": "Magsimula ng bagong trabaho gamit ang parehong customer, sasakyan at serbisyo.",
+    "odometer": "Odometer"
   },
   "jobs": {
     "title": "Mga Trabaho",
@@ -196,7 +200,22 @@
     "grandTotal": "KABUUAN",
     "missingCustomer": "Pumili po muna ng customer.",
     "missingVehicle": "Pumili po muna ng sasakyan.",
-    "leaveWarning": "Hindi pa po naka-save ang trabahong ito. Aalis pa rin kayo?"
+    "leaveWarning": "Hindi pa po naka-save ang trabahong ito. Aalis pa rin kayo?",
+    "odometerLabel": "Ilang km na ang takbo ng sasakyan?",
+    "odometerHint": "Nasa odometer sa likod ng manibela. Puwedeng iwanang blangko.",
+    "odometerLast": "Huling naitala: {km} km",
+    "odometerLower": "Mas mababa ito sa huling naitala na {km} km. Pakitingnan po ulit.",
+    "nextVisitTitle": "Kailan po babalik?",
+    "nextVisitHint": "Ilalagay ito sa resibo, at lalabas ang sasakyan sa Babalikan kapag malapit na ang petsa.",
+    "nextVisitOrKm": "o sa {km} km — alinman ang mauna",
+    "nextVisitKmOnly": "Sa {km} km",
+    "nextVisitBasis": "Batay sa: {services}",
+    "nextVisitNoBasis": "Wala sa mga serbisyong ito ang may takdang balik. Pumili sa ibaba kung gusto ninyo.",
+    "reminderAuto": "Batay sa serbisyo",
+    "reminderMonths": "{count, plural, other {# buwan}}",
+    "reminderYear": "1 taon",
+    "reminderNone": "Walang paalala",
+    "reminderKeep": "Huwag baguhin"
   },
   "customers": {
     "title": "Mga Customer",
@@ -265,7 +284,16 @@
     "editTitle": "Baguhin ang serbisyo",
     "addTitle": "Bagong serbisyo",
     "readOnlyNote": "Ang admin lang po ang puwedeng magbago ng listahang ito.",
-    "duplicateName": "May serbisyo na pong ganyan ang pangalan."
+    "duplicateName": "May serbisyo na pong ganyan ang pangalan.",
+    "remindTitle": "Kailan dapat bumalik ang sasakyan?",
+    "remindHint": "Para sa Babalikan: kusang lalagyan ng susunod na balik ang trabahong may serbisyong ito.",
+    "remindMonths": "Pagkalipas ng ilang buwan",
+    "remindNone": "Hindi kailangan",
+    "remindYear": "1 taon",
+    "remindEveryMonths": "{count, plural, other {# buwan}}",
+    "remindKm": "O pagkalipas ng ilang km",
+    "remindsEvery": "Babalik pagkalipas ng {count, plural, other {# buwan}}",
+    "remindsEveryKm": "Babalik pagkalipas ng {count, plural, other {# buwan}} o {km} km"
   },
   "reports": {
     "title": "Mga Ulat",
@@ -402,7 +430,9 @@
     "action_RESTORE_JOB": "Ibinalik ang trabaho",
     "action_PURGE_JOB": "Tuluyang inalis ang trabaho",
     "action_CHANGE_OWN_PASSWORD": "Pinalitan ang sariling password",
-    "action_SHOP_SETUP": "Na-set up ang shop"
+    "action_SHOP_SETUP": "Na-set up ang shop",
+    "action_CLOSE_REMINDER": "Tapos na ang paalala sa pagbalik",
+    "action_REOPEN_REMINDER": "Ibinalik ang paalala sa pagbalik"
   },
   "receipt": {
     "title": "Resibo",
@@ -430,7 +460,11 @@
     "servedBy": "Inasikaso ni",
     "printedOn": "Ni-print noong",
     "tin": "TIN",
-    "notOfficial": "Ito ay talaan ng trabaho, hindi opisyal na resibo ng BIR."
+    "notOfficial": "Ito ay talaan ng trabaho, hindi opisyal na resibo ng BIR.",
+    "odometer": "Odometer",
+    "nextVisit": "Susunod na balik",
+    "nextVisitKm": "o sa {km} km, alinman ang mauna",
+    "nextVisitAtKm": "Sa {km} km"
   },
   "policy": {
     "title": "Patakaran sa Paggamit",
@@ -470,7 +504,9 @@
     "partNameRequired": "Pakilagay po ang pangalan ng piyesa.",
     "quantityMin": "Dapat po ay hindi bababa sa 1.",
     "amountPaidTooHigh": "Mas malaki po ang bayad kaysa sa kabuuan. Pakitingnan ulit.",
-    "discountTooHigh": "Mas malaki po ang bawas kaysa sa dapat bayaran."
+    "discountTooHigh": "Mas malaki po ang bawas kaysa sa dapat bayaran.",
+    "invalidDate": "Hindi po tama ang petsang ito.",
+    "nextVisitKmTooLow": "Dapat po mas mataas ang km ng susunod na balik kaysa sa odometer ngayon."
   },
   "footer": {
     "rules": "Patakaran sa Paggamit",
@@ -528,5 +564,34 @@
     "errorCode": "Mali po ang setup code.",
     "errorDone": "Na-set up na po ang shop na ito. Mag-log in na lang po.",
     "errorClosed": "Naka-lock po ang setup."
+  },
+  "reminders": {
+    "title": "Babalikan",
+    "subtitle": "Mga sasakyang dapat nang bumalik. Tawagan o i-text ang may-ari mula rito.",
+    "empty": "Wala pang babalikan ngayon.",
+    "emptyHint": "Kapag may trabahong may “susunod na balik”, lalabas dito ang sasakyan dalawang linggo bago ang petsa.",
+    "dueNow": "Dapat nang bumalik",
+    "comingUp": "Malapit na",
+    "overdue": "{days, plural, other {Lampas na ng # araw}}",
+    "dueToday": "Ngayong araw",
+    "dueIn": "{days, plural, =1 {Bukas} other {Sa loob ng # araw}}",
+    "dueOn": "Dapat bumalik: {date}",
+    "dueOnLabel": "Petsa ng pagbalik",
+    "orKm": "o sa {km} km",
+    "lastVisit": "Huling dala: {date}",
+    "lastVisitLabel": "Huling trabaho",
+    "phoneLabel": "Telepono",
+    "noPhone": "Walang numero ng telepono",
+    "addPhone": "Ilagay ang numero",
+    "call": "Tawagan",
+    "text": "I-text",
+    "callName": "Tawagan si {name}",
+    "textName": "I-text si {name}",
+    "done": "Tapos na",
+    "doneName": "Tapos na kay {name}",
+    "closed": "Inalis na sa listahan.",
+    "reopened": "Ibinalik sa listahan.",
+    "undo": "Ibalik",
+    "smsBody": "Magandang araw po, {name}! Ito po ang {shop}. Paalala lang po na panahon na ng susunod na serbisyo ng sasakyan ninyong {plate}. Mag-text o tumawag lang po kayo para makapag-schedule. Salamat po!"
   }
 }

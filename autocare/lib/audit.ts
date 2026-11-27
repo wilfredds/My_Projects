@@ -39,6 +39,8 @@ export const AUDIT_ACTIONS = [
   'EXPORT_DATA',
   'ACCEPT_POLICY',
   'SHOP_SETUP',
+  'CLOSE_REMINDER',
+  'REOPEN_REMINDER',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

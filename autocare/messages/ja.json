@@ -53,7 +53,8 @@
     "policy": "利用ルール",
     "menu": "メニュー",
     "trash": "ゴミ箱",
-    "account": "マイアカウント"
+    "account": "マイアカウント",
+    "reminders": "次回来店"
   },
   "login": {
     "title": "ログイン",
@@ -86,7 +87,9 @@
     "recentJobs": "最近の作業",
     "noJobsYet": "まだ作業の記録がありません。",
     "monthlyChart": "月ごとの売上",
-    "jobsCount": "{count, plural, other {#件}}"
+    "jobsCount": "{count, plural, other {#件}}",
+    "reminders": "次回来店",
+    "remindersHint": "{due, plural, =0 {まもなく} other {# 台が時期です}}"
   },
   "job": {
     "job": "作業",
@@ -121,7 +124,8 @@
     "method_GCASH": "GCash",
     "method_OTHER": "その他",
     "duplicate": "新しい作業にコピー",
-    "duplicateHint": "同じお客様・車両・サービスで新しい作業を始めます。"
+    "duplicateHint": "同じお客様・車両・サービスで新しい作業を始めます。",
+    "odometer": "走行距離"
   },
   "jobs": {
     "title": "作業",
@@ -196,7 +200,22 @@
     "grandTotal": "合計",
     "missingCustomer": "先にお客様を選んでください。",
     "missingVehicle": "先に車両を選んでください。",
-    "leaveWarning": "この作業はまだ保存されていません。移動しますか？"
+    "leaveWarning": "この作業はまだ保存されていません。移動しますか？",
+    "odometerLabel": "走行距離（オドメーター）",
+    "odometerHint": "ハンドル奥のメーターに表示されています。空欄でもかまいません。",
+    "odometerLast": "前回の記録: {km} km",
+    "odometerLower": "前回の記録 {km} km より少なくなっています。ご確認ください。",
+    "nextVisitTitle": "次回はいつ来店しますか？",
+    "nextVisitHint": "領収書に印刷され、日付が近づくと「次回来店」に表示されます。",
+    "nextVisitOrKm": "または {km} km のいずれか早いほう",
+    "nextVisitKmOnly": "{km} km で",
+    "nextVisitBasis": "根拠: {services}",
+    "nextVisitNoBasis": "これらのサービスには次回の目安がありません。必要なら下から選んでください。",
+    "reminderAuto": "サービスに合わせる",
+    "reminderMonths": "{count} か月",
+    "reminderYear": "1 年",
+    "reminderNone": "お知らせなし",
+    "reminderKeep": "変更しない"
   },
   "customers": {
     "title": "お客様",
@@ -265,7 +284,16 @@
     "editTitle": "サービスを編集",
     "addTitle": "新しいサービス",
     "readOnlyNote": "この一覧を変更できるのは管理者だけです。",
-    "duplicateName": "同じ名前のサービスがすでにあります。"
+    "duplicateName": "同じ名前のサービスがすでにあります。",
+    "remindTitle": "次回の来店時期",
+    "remindHint": "「次回来店」用: このサービスを含む作業には次回の日付が自動で入ります。",
+    "remindMonths": "何か月後",
+    "remindNone": "不要",
+    "remindYear": "1 年",
+    "remindEveryMonths": "{count} か月",
+    "remindKm": "または何 km 後",
+    "remindsEvery": "{count} か月後に来店",
+    "remindsEveryKm": "{count} か月後または {km} km で来店"
   },
   "reports": {
     "title": "レポート",
@@ -402,7 +430,9 @@
     "action_RESTORE_JOB": "作業を元に戻した",
     "action_PURGE_JOB": "作業を完全に削除した",
     "action_CHANGE_OWN_PASSWORD": "自分のパスワードを変更",
-    "action_SHOP_SETUP": "お店を設定"
+    "action_SHOP_SETUP": "お店を設定",
+    "action_CLOSE_REMINDER": "次回来店のお知らせを完了",
+    "action_REOPEN_REMINDER": "次回来店のお知らせを再開"
   },
   "receipt": {
     "title": "領収書",
@@ -430,7 +460,11 @@
     "servedBy": "担当",
     "printedOn": "印刷日",
     "tin": "TIN",
-    "notOfficial": "これは作業記録であり、BIR の正式な領収書ではありません。"
+    "notOfficial": "これは作業記録であり、BIR の正式な領収書ではありません。",
+    "odometer": "走行距離",
+    "nextVisit": "次回の点検",
+    "nextVisitKm": "または {km} km のいずれか早いほう",
+    "nextVisitAtKm": "{km} km で"
   },
   "policy": {
     "title": "利用ルール",
@@ -470,7 +504,9 @@
     "partNameRequired": "部品名を入力してください。",
     "quantityMin": "1以上にしてください。",
     "amountPaidTooHigh": "支払額が合計を超えています。ご確認ください。",
-    "discountTooHigh": "割引が請求額を超えています。"
+    "discountTooHigh": "割引が請求額を超えています。",
+    "invalidDate": "日付が正しくありません。",
+    "nextVisitKmTooLow": "次回の km は現在の走行距離より大きくしてください。"
   },
   "footer": {
     "rules": "利用ルール",
@@ -528,5 +564,34 @@
     "errorCode": "設定コードが正しくありません。",
     "errorDone": "このお店はすでに設定済みです。ログインしてください。",
     "errorClosed": "設定はロックされています。"
+  },
+  "reminders": {
+    "title": "次回来店",
+    "subtitle": "来店時期を迎えた車です。ここからお客様に電話やメッセージができます。",
+    "empty": "現在、来店時期の車はありません。",
+    "emptyHint": "作業に次回来店日があると、その 2 週間前からここに表示されます。",
+    "dueNow": "時期を迎えた車",
+    "comingUp": "まもなく",
+    "overdue": "{days} 日経過",
+    "dueToday": "今日",
+    "dueIn": "{days, plural, =1 {明日} other {あと # 日}}",
+    "dueOn": "次回来店: {date}",
+    "dueOnLabel": "来店予定日",
+    "orKm": "または {km} km",
+    "lastVisit": "前回の来店: {date}",
+    "lastVisitLabel": "前回の作業",
+    "phoneLabel": "電話番号",
+    "noPhone": "電話番号がありません",
+    "addPhone": "電話番号を追加",
+    "call": "電話",
+    "text": "メッセージ",
+    "callName": "{name} さんに電話",
+    "textName": "{name} さんにメッセージ",
+    "done": "完了",
+    "doneName": "{name} さんは完了",
+    "closed": "リストから外しました。",
+    "reopened": "リストに戻しました。",
+    "undo": "元に戻す",
+    "smsBody": "{name} 様、{shop} です。お車 {plate} の次回点検の時期になりました。ご予約はメッセージかお電話でどうぞ。ありがとうございます。"
   }
 }

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { PASSWORD_RULES } from './password';
 import { localeCodes } from '@/i18n/locales';
+import { addMonths, dateToYmd, isYmd } from './reminders';
 
 /**
  * Every mutation in AutoCare validates its input with one of these schemas —
@@ -33,6 +34,39 @@ const optionalText = (max = 500) =>
     .max(max)
     .optional()
     .transform((v) => (v === '' ? undefined : v));
+
+/**
+ * An optional whole number from a form — an odometer reading, a number of
+ * months: "", null, "45,210", "45 210 km", 45210. Blank means none (null).
+ */
+const optionalWhole = (min: number, max: number) =>
+  z
+    .union([z.string(), z.number(), z.null()])
+    .optional()
+    .transform((v) => {
+      if (v === undefined || v === null) return null;
+      if (typeof v === 'number') return v;
+      const cleaned = v.replace(/[,\s]/g, '').replace(/km$/i, '');
+      return cleaned === '' ? null : Number(cleaned);
+    })
+    .pipe(
+      z
+        .number({ invalid_type_error: 'errors.invalidNumber' })
+        .int('errors.invalidNumber')
+        .min(min, 'errors.invalidNumber')
+        .max(max, 'errors.invalidNumber')
+        .nullable(),
+    );
+
+/** An optional calendar date, "YYYY-MM-DD". Blank means none (null). */
+const optionalYmd = z
+  .union([z.string(), z.null()])
+  .optional()
+  .transform((v) => (v ? v.trim() : null) || null)
+  .refine((v) => v === null || isYmd(v), 'errors.invalidDate');
+
+/** Odometer readings above this are typos, not cars. */
+export const MAX_ODOMETER_KM = 2_000_000;
 
 // ---------------------------------------------------------------- auth
 
@@ -92,6 +126,9 @@ export const serviceSchema = z.object({
   name: z.string().trim().min(1, 'errors.serviceNameRequired').max(80),
   defaultPrice: money,
   isActive: z.coerce.boolean().default(true),
+  /** How often this service should be repeated, for the Babalikan reminders. */
+  remindAfterMonths: optionalWhole(1, 60),
+  remindAfterKm: optionalWhole(100, 200_000),
 });
 export type ServiceInput = z.infer<typeof serviceSchema>;
 
@@ -143,11 +180,38 @@ export const jobSchema = z
     notes: optionalText(2000),
     parts: z.array(jobPartSchema).max(100).default([]),
     services: z.array(jobServiceSchema).max(100).default([]),
+    odometerKm: optionalWhole(0, MAX_ODOMETER_KM),
+    nextVisitOn: optionalYmd,
+    nextVisitKm: optionalWhole(1, MAX_ODOMETER_KM),
   })
   // NOTE: subtotal / total / balance / status are deliberately absent. They are
   // never accepted from the client — the server always recomputes them with
   // lib/calc.ts from the fields above.
   .superRefine((data, ctx) => {
+    // The next visit has to come after the job, and within five years of it.
+    if (data.nextVisitOn) {
+      const jobDay = dateToYmd(data.date);
+      if (data.nextVisitOn <= jobDay || data.nextVisitOn > addMonths(jobDay, 60)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['nextVisitOn'],
+          message: 'errors.invalidDate',
+        });
+      }
+    }
+    // "Come back at 50,000 km" makes no sense for a car already past it.
+    if (
+      data.nextVisitKm !== null &&
+      data.odometerKm !== null &&
+      data.nextVisitKm <= data.odometerKm
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['nextVisitKm'],
+        message: 'errors.nextVisitKmTooLow',
+      });
+    }
+
     const gross =
       data.laborCharge +
       data.expenses +

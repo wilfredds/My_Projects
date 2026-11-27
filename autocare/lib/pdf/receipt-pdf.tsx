@@ -68,6 +68,19 @@ const styles = StyleSheet.create({
 
   notes: { marginTop: 14, borderTopWidth: 0.5, borderTopColor: '#666', paddingTop: 6 },
 
+  nextVisit: {
+    marginTop: 14,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: '#000',
+    borderRadius: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+  },
+  nextVisitTitle: { fontSize: 9, fontFamily: 'Helvetica-Bold', letterSpacing: 0.5 },
+  nextVisitDate: { fontSize: 13, fontFamily: 'Helvetica-Bold', marginTop: 3 },
+
   footer: {
     marginTop: 24,
     borderTopWidth: 1,
@@ -108,6 +121,10 @@ export interface ReceiptLabels {
   servedBy: string;
   tin: string;
   notOfficial: string;
+  odometer: string;
+  nextVisit: string;
+  /** The km part of the next visit, already worded ("o sa 50,210 km, …"). */
+  nextVisitKm: string;
 }
 
 /**
@@ -169,6 +186,14 @@ export function ReceiptPdf({
             ) : null}
             <Text style={styles.metaLabel}>{labels.vehicle}</Text>
             <Text style={styles.metaValue}>{describeVehicle(job.vehicle)}</Text>
+            {job.odometerKm !== null ? (
+              <>
+                <Text style={styles.metaLabel}>{labels.odometer}</Text>
+                <Text style={styles.metaValue}>
+                  {new Intl.NumberFormat(intlTag).format(job.odometerKm)} km
+                </Text>
+              </>
+            ) : null}
           </View>
         </View>
 
@@ -250,6 +275,22 @@ export function ReceiptPdf({
             <Text style={styles.bold}>{labels.statusValue}</Text>
           </View>
         </View>
+
+        {job.nextVisitOn || job.nextVisitKm ? (
+          <View style={styles.nextVisit}>
+            <Text style={styles.nextVisitTitle}>{labels.nextVisit.toUpperCase()}</Text>
+            {job.nextVisitOn ? (
+              <Text style={styles.nextVisitDate}>
+                {formatDate(`${job.nextVisitOn}T00:00:00`, intlTag)}
+              </Text>
+            ) : null}
+            {labels.nextVisitKm ? (
+              <Text style={job.nextVisitOn ? styles.footerLine : styles.nextVisitDate}>
+                {labels.nextVisitKm}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
 
         {job.notes ? (
           <View style={styles.notes}>

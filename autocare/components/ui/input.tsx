@@ -49,6 +49,29 @@ const MoneyInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<
 );
 MoneyInput.displayName = 'MoneyInput';
 
+/** A distance in km (an odometer reading): numeric keypad, "km" shown after it. */
+const KmInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  ({ className, ...props }, ref) => (
+    <div className="relative">
+      <Input
+        ref={ref}
+        inputMode="numeric"
+        type="text"
+        autoComplete="off"
+        className={cn('num pr-16 text-right text-money', className)}
+        {...props}
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground"
+      >
+        km
+      </span>
+    </div>
+  ),
+);
+KmInput.displayName = 'KmInput';
+
 const Textarea = React.forwardRef<
   HTMLTextAreaElement,
   React.TextareaHTMLAttributes<HTMLTextAreaElement>
@@ -67,4 +90,4 @@ const Textarea = React.forwardRef<
 ));
 Textarea.displayName = 'Textarea';
 
-export { Input, MoneyInput, Textarea };
+export { Input, MoneyInput, KmInput, Textarea };

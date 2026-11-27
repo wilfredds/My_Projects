@@ -1,16 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Search, UserPlus, Check, Car, Pencil, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, KmInput } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
 import { EmptyState } from '@/components/ui/misc';
 import { Plate } from '@/components/ui/plate';
 import { cn } from '@/lib/utils';
 import { describeVehicle } from '@/lib/jobs';
-import type { CustomerOption, VehicleOption } from './wizard-types';
+import { intlTagFor } from '@/i18n/locales';
+import { parseKm, type CustomerOption, type VehicleOption } from './wizard-types';
 
 /* ------------------------------------------------------------------ step 1 */
 
@@ -230,6 +231,8 @@ export function VehicleStep({
   onSelect,
   onCreate,
   creating,
+  odometer,
+  onOdometer,
 }: {
   vehicles: VehicleOption[];
   selectedId: string | null;
@@ -241,10 +244,14 @@ export function VehicleStep({
     color: string;
   }) => Promise<void>;
   creating: boolean;
+  odometer: string;
+  onOdometer: (value: string) => void;
 }) {
   const t = useTranslations('wizard');
   const tv = useTranslations('vehicles');
   const tcom = useTranslations('common');
+  const tag = intlTagFor(useLocale());
+  const selected = vehicles.find((v) => v.id === selectedId) ?? null;
 
   const [showNew, setShowNew] = React.useState(vehicles.length === 0);
   const [plateNumber, setPlateNumber] = React.useState('');
@@ -355,11 +362,65 @@ export function VehicleStep({
         })}
       </ul>
 
+      {selected ? (
+        <OdometerField
+          value={odometer}
+          onChange={onOdometer}
+          lastKm={selected.lastOdometerKm ?? null}
+          tag={tag}
+        />
+      ) : null}
+
       <Button variant="secondary" size="lg" className="w-full" onClick={() => setShowNew(true)}>
         <Car aria-hidden />
         <span>{t('vehicleNew')}</span>
       </Button>
     </div>
+  );
+}
+
+/**
+ * The odometer reading, optional. The car's last recorded reading is shown as
+ * a hint, and a reading below it gets a gentle warning (not a block — the
+ * odometer may have been replaced).
+ */
+export function OdometerField({
+  value,
+  onChange,
+  lastKm,
+  tag,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  lastKm: number | null;
+  tag: string;
+}) {
+  const t = useTranslations('wizard');
+  const fmt = (n: number) => new Intl.NumberFormat(tag).format(n);
+  const typed = parseKm(value);
+  const lower = typed !== null && lastKm !== null && typed < lastKm;
+
+  return (
+    <Field
+      label={t('odometerLabel')}
+      hint={lastKm !== null ? t('odometerLast', { km: fmt(lastKm) }) : t('odometerHint')}
+      htmlFor="odometer"
+    >
+      <div className="space-y-2">
+        <KmInput
+          id="odometer"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={lastKm !== null ? fmt(lastKm) : '0'}
+          aria-describedby={lower ? 'odometer-lower' : undefined}
+        />
+        {lower ? (
+          <p id="odometer-lower" className="text-base font-semibold text-warning">
+            {t('odometerLower', { km: fmt(lastKm!) })}
+          </p>
+        ) : null}
+      </div>
+    </Field>
   );
 }
 

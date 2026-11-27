@@ -4,9 +4,10 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Plus, Save, Pencil, Trash2, Power } from 'lucide-react';
+import { Plus, Save, Pencil, Trash2, Power, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input, MoneyInput } from '@/components/ui/input';
+import { Input, MoneyInput, KmInput } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 import { Field } from '@/components/ui/label';
 import {
   Dialog,
@@ -23,9 +24,25 @@ interface ServiceValues {
   name: string;
   defaultPrice: string;
   isActive: boolean;
+  /** Months until the car should come back; '' for none. */
+  remindAfterMonths: string;
+  /** km until the car should come back; '' for none. */
+  remindAfterKm: string;
 }
 
-const EMPTY: ServiceValues = { name: '', defaultPrice: '', isActive: true };
+const EMPTY: ServiceValues = {
+  name: '',
+  defaultPrice: '',
+  isActive: true,
+  remindAfterMonths: '',
+  remindAfterKm: '',
+};
+
+/** The quick picks for months, plus a value set some other way, so it still shows. */
+function monthChoices(current: string): string[] {
+  const base = ['', '1', '3', '6', '12'];
+  return current && !base.includes(current) ? [...base, current] : base;
+}
 
 export function ServiceFormDialog({ initial }: { initial?: ServiceValues }) {
   const t = useTranslations('services');
@@ -102,6 +119,62 @@ export function ServiceFormDialog({ initial }: { initial?: ServiceValues }) {
                 placeholder="0.00"
               />
             </Field>
+
+            {/* How often it repeats — what the Babalikan reminders work from. */}
+            <div
+              role="group"
+              aria-labelledby="sf-remind-title"
+              className="space-y-4 rounded-xl border border-border bg-muted/40 p-4"
+            >
+              <div className="space-y-1">
+                <p id="sf-remind-title" className="text-lg font-semibold">
+                  {t('remindTitle')}
+                </p>
+                <p className="text-base text-muted-foreground">{t('remindHint')}</p>
+              </div>
+              <div className="flex flex-wrap gap-2" role="group" aria-label={t('remindMonths')}>
+                {monthChoices(values.remindAfterMonths).map((m) => {
+                  const active = values.remindAfterMonths === m;
+                  return (
+                    <Button
+                      key={m || 'none'}
+                      type="button"
+                      variant="outline"
+                      size="compact"
+                      aria-pressed={active}
+                      className={cn(active && 'border-primary bg-primary-tint hover:bg-primary-tint')}
+                      onClick={() =>
+                        setValues((v) => ({
+                          ...v,
+                          remindAfterMonths: m,
+                          // No months, no reminder: the km goes too.
+                          remindAfterKm: m ? v.remindAfterKm : '',
+                        }))
+                      }
+                    >
+                      <span>
+                        {m === ''
+                          ? t('remindNone')
+                          : m === '12'
+                            ? t('remindYear')
+                            : t('remindEveryMonths', { count: Number(m) })}
+                      </span>
+                      {active ? <Check aria-hidden strokeWidth={3} className="text-primary-strong" /> : null}
+                    </Button>
+                  );
+                })}
+              </div>
+              {values.remindAfterMonths ? (
+                <Field label={t('remindKm')} hint={tcom('optional')} htmlFor="sf-km">
+                  <KmInput
+                    id="sf-km"
+                    value={values.remindAfterKm}
+                    onChange={(e) => setValues((v) => ({ ...v, remindAfterKm: e.target.value }))}
+                    placeholder="5,000"
+                  />
+                </Field>
+              ) : null}
+            </div>
 
             <DialogFooter>
               <Button type="submit" size="lg" disabled={pending} className="sm:flex-1">

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Save, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,13 +14,20 @@ import { describeVehicle } from '@/lib/jobs';
 import { TotalBar } from '@/components/wizard/total-bar';
 import { ServicesStep, PartsStep } from '@/components/wizard/steps-what';
 import { ChargesStep, PaymentStep } from '@/components/wizard/steps-money';
-import type {
-  DraftPart,
-  DraftService,
-  JobDraft,
-  MechanicOption,
-  ServiceOption,
-  VehicleOption,
+import { OdometerField } from '@/components/wizard/steps-who';
+import { NextVisitCard } from '@/components/wizard/next-visit';
+import { planNextVisit, type NextVisit, type ReminderChoice } from '@/lib/reminders';
+import { intlTagFor } from '@/i18n/locales';
+import {
+  parseKm,
+  reminderErrorKey,
+  withIntervals,
+  type DraftPart,
+  type DraftService,
+  type JobDraft,
+  type MechanicOption,
+  type ServiceOption,
+  type VehicleOption,
 } from '@/components/wizard/wizard-types';
 import { saveJobAction } from '../../actions';
 
@@ -58,11 +65,16 @@ export function EditJobForm({
     notes: string;
     services: DraftService[];
     parts: DraftPart[];
+    odometer: string;
+    reminder: ReminderChoice;
+    keptVisit?: NextVisit;
   };
 }) {
   const t = useTranslations('jobs');
   const tj = useTranslations('job');
   const tcom = useTranslations('common');
+  const terr = useTranslations('errors');
+  const tag = intlTagFor(useLocale());
   const router = useRouter();
 
   const [draft, setDraft] = React.useState<JobDraft>({ customerId, ...initial });
@@ -80,6 +92,23 @@ export function EditJobForm({
       }),
     [draft],
   );
+
+  const intervalServices = React.useMemo(
+    () => withIntervals(draft.services, catalog),
+    [draft.services, catalog],
+  );
+  const nextVisit = React.useMemo(
+    () =>
+      planNextVisit({
+        jobDate: draft.date,
+        odometerKm: parseKm(draft.odometer),
+        services: intervalServices,
+        choice: draft.reminder,
+        kept: draft.keptVisit,
+      }),
+    [draft.date, draft.odometer, draft.reminder, draft.keptVisit, intervalServices],
+  );
+  const vehicle = vehicles.find((v) => v.id === draft.vehicleId) ?? null;
 
   function patch(changes: Partial<JobDraft>) {
     setDraft((prev) => ({ ...prev, ...changes }));
@@ -109,10 +138,14 @@ export function EditJobForm({
           serviceName: s.serviceName,
           price: s.price || '0',
         })),
+        odometerKm: draft.odometer,
+        nextVisitOn: nextVisit.on,
+        nextVisitKm: nextVisit.km,
       });
 
       if (!result.ok) {
-        toast.error(tcom('unknownError'));
+        const key = reminderErrorKey(result.fieldErrors);
+        toast.error(key ? terr(key) : tcom('unknownError'));
         return;
       }
       toast.success(t('updated'));
@@ -153,6 +186,13 @@ export function EditJobForm({
             onChange={(e) => patch({ date: e.target.value })}
           />
         </Field>
+
+        <OdometerField
+          value={draft.odometer}
+          onChange={(odometer) => patch({ odometer })}
+          lastKm={vehicle?.lastOdometerKm ?? null}
+          tag={tag}
+        />
       </section>
 
       <ServicesStep
@@ -166,6 +206,14 @@ export function EditJobForm({
       <ChargesStep draft={draft} onChange={patch} mechanics={mechanics} />
 
       <PaymentStep draft={draft} totals={totals} onChange={patch} />
+
+      <NextVisitCard
+        plan={nextVisit}
+        choice={draft.reminder}
+        onChoice={(reminder) => patch({ reminder })}
+        services={intervalServices}
+        canKeep={Boolean(initial.keptVisit?.on || initial.keptVisit?.km)}
+      />
 
       <TotalBar totals={totals} />
 

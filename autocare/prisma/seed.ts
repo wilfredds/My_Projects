@@ -36,15 +36,23 @@ const SHOP = {
   phone: '09989800388',
 };
 
-/** Starter catalog with sensible Philippine peso prices. */
-const SERVICES: { name: string; defaultPrice: string }[] = [
+/**
+ * Starter catalog with sensible Philippine peso prices, and how often each
+ * service should be repeated (what the Babalikan reminders work from).
+ */
+const SERVICES: {
+  name: string;
+  defaultPrice: string;
+  remindAfterMonths?: number;
+  remindAfterKm?: number;
+}[] = [
   { name: 'Carwash', defaultPrice: '250.00' },
-  { name: 'Oil Change', defaultPrice: '850.00' },
-  { name: 'Engine Tune-up', defaultPrice: '1800.00' },
-  { name: 'Brake Service', defaultPrice: '1200.00' },
+  { name: 'Oil Change', defaultPrice: '850.00', remindAfterMonths: 3, remindAfterKm: 5000 },
+  { name: 'Engine Tune-up', defaultPrice: '1800.00', remindAfterMonths: 6, remindAfterKm: 10000 },
+  { name: 'Brake Service', defaultPrice: '1200.00', remindAfterMonths: 6, remindAfterKm: 10000 },
   { name: 'Tire Change', defaultPrice: '400.00' },
   { name: 'Battery Replacement', defaultPrice: '500.00' },
-  { name: 'Aircon Cleaning', defaultPrice: '1500.00' },
+  { name: 'Aircon Cleaning', defaultPrice: '1500.00', remindAfterMonths: 6 },
 ];
 
 /** Mirrors lib/calc.ts. Kept local so the seed has no app-code dependency. */
@@ -179,7 +187,39 @@ async function main() {
         daysAgo: 1,
       },
     },
+    {
+      // A change oil from about three months ago: now due back, so the
+      // Babalikan list has someone on it in a fresh demo.
+      customer: {
+        fullName: 'Jun Reyes',
+        phone: '09175550123',
+        address: 'Sahud Ulan, Tanza, Cavite',
+      },
+      vehicle: {
+        plateNumber: 'TQW 3310',
+        make: 'Ford',
+        model: 'Ranger',
+        year: 2021,
+        color: 'Gray',
+      },
+      job: {
+        serviceNames: ['Oil Change'],
+        parts: [{ partName: 'Oil Filter', quantity: 1, unitPrice: 320 }],
+        labor: 150,
+        expenses: 0,
+        discount: 0,
+        amountPaid: -1,
+        paymentMethod: 'CASH' as const,
+        daysAgo: 94,
+      },
+    },
   ];
+
+  const odometers: Record<string, number> = {
+    'ABC 1234': 45210,
+    'XYZ 5678': 23880,
+    'TQW 3310': 61500,
+  };
 
   let created = 0;
 
@@ -257,8 +297,23 @@ async function main() {
       continue;
     }
 
+    // The next visit, from the shortest interval among the services done —
+    // the same rule as lib/reminders.ts, kept local like computeTotals.
+    const months = chosen
+      .map((s) => s.remindAfterMonths)
+      .filter((n): n is number => typeof n === 'number');
+    const kms = chosen.map((s) => s.remindAfterKm).filter((n): n is number => typeof n === 'number');
+    const odometerKm = odometers[sample.vehicle.plateNumber] ?? null;
+    const nextVisitOn = months.length
+      ? new Date(Date.UTC(date.getFullYear(), date.getMonth() + Math.min(...months), date.getDate()))
+      : null;
+    const nextVisitKm = odometerKm !== null && kms.length ? odometerKm + Math.min(...kms) : null;
+
     const data: Prisma.JobCreateInput = {
       jobNumber,
+      odometerKm,
+      nextVisitOn,
+      nextVisitKm,
       customer: { connect: { id: customer.id } },
       vehicle: { connect: { id: vehicle.id } },
       mechanic: { connect: { id: raul.id } },
@@ -295,7 +350,7 @@ async function main() {
     created += 1;
   }
 
-  console.log(`   Sample data    ✓  2 customers, 2 vehicles, ${created} job(s)`);
+  console.log(`   Sample data    ✓  ${samples.length} customers, ${samples.length} vehicles, ${created} job(s)`);
 
   console.log(`
 ╔══════════════════════════════════════════════════════════════════╗

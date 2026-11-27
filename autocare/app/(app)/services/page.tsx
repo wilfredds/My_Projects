@@ -1,5 +1,5 @@
 import { getTranslations, getLocale } from 'next-intl/server';
-import { Wrench } from 'lucide-react';
+import { Wrench, CalendarClock } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { requirePageUser } from '@/lib/session';
 import { can } from '@/lib/rbac';
@@ -58,6 +58,19 @@ export default async function ServicesPage() {
                 <p className="money mt-0.5">
                   {formatPeso(decimalToNumber(service.defaultPrice), tag)}
                 </p>
+                {service.remindAfterMonths ? (
+                  <p className="mt-1 flex items-center gap-2 text-base text-muted-foreground">
+                    <CalendarClock className="size-5 shrink-0" aria-hidden />
+                    <span>
+                      {service.remindAfterKm
+                        ? t('remindsEveryKm', {
+                            count: service.remindAfterMonths,
+                            km: new Intl.NumberFormat(tag).format(service.remindAfterKm),
+                          })
+                        : t('remindsEvery', { count: service.remindAfterMonths })}
+                    </span>
+                  </p>
+                ) : null}
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
@@ -71,6 +84,8 @@ export default async function ServicesPage() {
                       name: service.name,
                       defaultPrice: decimalToNumber(service.defaultPrice).toFixed(2),
                       isActive: service.isActive,
+                      remindAfterMonths: service.remindAfterMonths ? String(service.remindAfterMonths) : '',
+                      remindAfterKm: service.remindAfterKm ? String(service.remindAfterKm) : '',
                     }}
                   />
                 ) : null}

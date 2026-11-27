@@ -53,7 +53,8 @@
     "policy": "使用守则",
     "menu": "菜单",
     "trash": "回收站",
-    "account": "我的账户"
+    "account": "我的账户",
+    "reminders": "回访"
   },
   "login": {
     "title": "登录",
@@ -86,7 +87,9 @@
     "recentJobs": "最近的工单",
     "noJobsYet": "还没有记录任何工单。",
     "monthlyChart": "每月收入",
-    "jobsCount": "{count, plural, other {# 单}}"
+    "jobsCount": "{count, plural, other {# 单}}",
+    "reminders": "回访",
+    "remindersHint": "{due, plural, =0 {即将到期} other {# 辆已到期}}"
   },
   "job": {
     "job": "工单",
@@ -121,7 +124,8 @@
     "method_GCASH": "GCash",
     "method_OTHER": "其他",
     "duplicate": "复制成新工单",
-    "duplicateHint": "用同样的客户、车辆和服务开一张新工单。"
+    "duplicateHint": "用同样的客户、车辆和服务开一张新工单。",
+    "odometer": "里程"
   },
   "jobs": {
     "title": "工单",
@@ -196,7 +200,22 @@
     "grandTotal": "合计",
     "missingCustomer": "请先选择客户。",
     "missingVehicle": "请先选择车辆。",
-    "leaveWarning": "这张工单还没保存，仍要离开吗？"
+    "leaveWarning": "这张工单还没保存，仍要离开吗？",
+    "odometerLabel": "里程表读数",
+    "odometerHint": "在方向盘后面的仪表上。可以留空。",
+    "odometerLast": "上次记录：{km} km",
+    "odometerLower": "比上次记录的 {km} km 还少，请再核对一下。",
+    "nextVisitTitle": "下次什么时候回来？",
+    "nextVisitHint": "会印在收据上；日期临近时，车辆会出现在“回访”里。",
+    "nextVisitOrKm": "或到 {km} km，以先到者为准",
+    "nextVisitKmOnly": "到 {km} km 时",
+    "nextVisitBasis": "依据：{services}",
+    "nextVisitNoBasis": "这些服务都没有设定回访周期。需要的话请在下面选择。",
+    "reminderAuto": "按服务",
+    "reminderMonths": "{count} 个月",
+    "reminderYear": "1 年",
+    "reminderNone": "不提醒",
+    "reminderKeep": "保持不变"
   },
   "customers": {
     "title": "客户",
@@ -265,7 +284,16 @@
     "editTitle": "修改服务",
     "addTitle": "新服务",
     "readOnlyNote": "只有管理员可以修改这个列表。",
-    "duplicateName": "已经有同名的服务了。"
+    "duplicateName": "已经有同名的服务了。",
+    "remindTitle": "下次回来的时间",
+    "remindHint": "用于“回访”：含此服务的工单会自动填上下次回来的日期。",
+    "remindMonths": "几个月后",
+    "remindNone": "不需要",
+    "remindYear": "1 年",
+    "remindEveryMonths": "{count} 个月",
+    "remindKm": "或多少 km 后",
+    "remindsEvery": "{count} 个月后回来",
+    "remindsEveryKm": "{count} 个月或 {km} km 后回来"
   },
   "reports": {
     "title": "报表",
@@ -402,7 +430,9 @@
     "action_RESTORE_JOB": "恢复了工单",
     "action_PURGE_JOB": "彻底删除了工单",
     "action_CHANGE_OWN_PASSWORD": "修改了自己的密码",
-    "action_SHOP_SETUP": "设置店铺"
+    "action_SHOP_SETUP": "设置店铺",
+    "action_CLOSE_REMINDER": "完成回访提醒",
+    "action_REOPEN_REMINDER": "重新打开回访提醒"
   },
   "receipt": {
     "title": "收据",
@@ -430,7 +460,11 @@
     "servedBy": "服务人员",
     "printedOn": "打印时间",
     "tin": "TIN",
-    "notOfficial": "此文件为工作记录，并非 BIR 正式收据。"
+    "notOfficial": "此文件为工作记录，并非 BIR 正式收据。",
+    "odometer": "里程",
+    "nextVisit": "下次保养",
+    "nextVisitKm": "或到 {km} km，以先到者为准",
+    "nextVisitAtKm": "到 {km} km 时"
   },
   "policy": {
     "title": "使用守则",
@@ -470,7 +504,9 @@
     "partNameRequired": "请输入配件名称。",
     "quantityMin": "至少要 1 个。",
     "amountPaidTooHigh": "付款金额大于合计，请再核对一下。",
-    "discountTooHigh": "折扣大于应付金额。"
+    "discountTooHigh": "折扣大于应付金额。",
+    "invalidDate": "日期无效。",
+    "nextVisitKmTooLow": "下次回来的里程必须大于当前里程。"
   },
   "footer": {
     "rules": "使用守则",
@@ -528,5 +564,34 @@
     "errorCode": "设置码不正确。",
     "errorDone": "这家店铺已经设置过了，请直接登录。",
     "errorClosed": "设置已锁定。"
+  },
+  "reminders": {
+    "title": "回访",
+    "subtitle": "到期该回来的车辆。可在这里直接给车主打电话或发短信。",
+    "empty": "目前没有需要回访的车辆。",
+    "emptyHint": "工单设有下次回来日期时，车辆会在该日期前两周出现在这里。",
+    "dueNow": "已到期",
+    "comingUp": "即将到期",
+    "overdue": "已过期 {days} 天",
+    "dueToday": "今天",
+    "dueIn": "{days, plural, =1 {明天} other {# 天后}}",
+    "dueOn": "应回来日期：{date}",
+    "dueOnLabel": "回来日期",
+    "orKm": "或 {km} km",
+    "lastVisit": "上次来店：{date}",
+    "lastVisitLabel": "上次工单",
+    "phoneLabel": "电话",
+    "noPhone": "没有电话号码",
+    "addPhone": "添加电话号码",
+    "call": "打电话",
+    "text": "发短信",
+    "callName": "给 {name} 打电话",
+    "textName": "给 {name} 发短信",
+    "done": "完成",
+    "doneName": "{name} 已完成",
+    "closed": "已从列表移除。",
+    "reopened": "已放回列表。",
+    "undo": "撤销",
+    "smsBody": "{name}您好！这里是 {shop}。温馨提醒：您的车辆 {plate} 已到下次保养时间。欢迎发短信或来电预约。谢谢！"
   }
 }

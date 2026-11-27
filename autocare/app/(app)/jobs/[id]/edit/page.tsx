@@ -5,6 +5,8 @@ import { requirePageUser } from '@/lib/session';
 import { notDeleted } from '@/lib/jobs';
 import { decimalToNumber } from '@/lib/utils';
 import { toDateInputValue } from '@/lib/utils';
+import { lastOdometerByVehicle } from '@/lib/odometer';
+import { dateToYmd } from '@/lib/reminders';
 import { EditJobForm } from './edit-job-form';
 
 export const dynamic = 'force-dynamic';
@@ -32,7 +34,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
     prisma.service.findMany({
       where: { isActive: true },
       orderBy: { name: 'asc' },
-      select: { id: true, name: true, defaultPrice: true },
+      select: { id: true, name: true, defaultPrice: true, remindAfterMonths: true, remindAfterKm: true },
     }),
     prisma.user.findMany({
       where: { isActive: true },
@@ -46,6 +48,13 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
     }),
   ]);
 
+  // The hint shows the car's reading from its other jobs, not this one's.
+  const lastKm = await lastOdometerByVehicle(prisma, vehicles.map((v) => v.id), job.id);
+  const kept = {
+    on: job.nextVisitOn ? dateToYmd(job.nextVisitOn) : null,
+    km: job.nextVisitKm,
+  };
+
   return (
     <div className="space-y-6">
       <h1>{t('editTitle', { number: job.jobNumber })}</h1>
@@ -54,11 +63,13 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
         jobId={job.id}
         customerName={job.customer.fullName}
         customerId={job.customerId}
-        vehicles={vehicles}
+        vehicles={vehicles.map((v) => ({ ...v, lastOdometerKm: lastKm.get(v.id) ?? null }))}
         catalog={catalog.map((s) => ({
           id: s.id,
           name: s.name,
           defaultPrice: decimalToNumber(s.defaultPrice),
+          remindAfterMonths: s.remindAfterMonths,
+          remindAfterKm: s.remindAfterKm,
         }))}
         mechanics={mechanics}
         initial={{
@@ -83,6 +94,10 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
             quantity: String(p.quantity),
             unitPrice: decimalToNumber(p.unitPrice).toFixed(2),
           })),
+          odometer: job.odometerKm !== null ? String(job.odometerKm) : '',
+          // Editing never moves an existing date by itself; the owner can.
+          reminder: kept.on || kept.km ? 'keep' : 'none',
+          keptVisit: kept,
         }}
       />
     </div>

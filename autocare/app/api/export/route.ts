@@ -111,6 +111,10 @@ export async function GET(request: Request) {
       'Mechanic',
       'Recorded By',
       'Notes',
+      // Added later; kept at the end so existing spreadsheets still line up.
+      'Odometer (km)',
+      'Next Visit',
+      'Next Visit (km)',
     ],
     jobs.map((job) => [
       job.jobNumber,
@@ -134,6 +138,9 @@ export async function GET(request: Request) {
       job.mechanic?.name ?? '',
       job.createdBy?.name ?? '',
       job.notes ?? '',
+      job.odometerKm ?? '',
+      job.nextVisitOn ? job.nextVisitOn.toISOString().slice(0, 10) : '',
+      job.nextVisitKm ?? '',
     ]),
   );
 

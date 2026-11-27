@@ -53,7 +53,8 @@
     "policy": "Normas de uso",
     "menu": "Menú",
     "trash": "Papelera",
-    "account": "Mi cuenta"
+    "account": "Mi cuenta",
+    "reminders": "Recordatorios"
   },
   "login": {
     "title": "Iniciar sesión",
@@ -86,7 +87,9 @@
     "recentJobs": "Últimos trabajos",
     "noJobsYet": "Todavía no hay trabajos registrados.",
     "monthlyChart": "Dinero por mes",
-    "jobsCount": "{count, plural, =0 {ningún trabajo} one {# trabajo} other {# trabajos}}"
+    "jobsCount": "{count, plural, =0 {ningún trabajo} one {# trabajo} other {# trabajos}}",
+    "reminders": "Recordatorios",
+    "remindersHint": "{due, plural, =0 {Próximos} one {# pendiente ahora} other {# pendientes ahora}}"
   },
   "job": {
     "job": "Trabajo",
@@ -121,7 +124,8 @@
     "method_GCASH": "GCash",
     "method_OTHER": "Otro",
     "duplicate": "Copiar a un trabajo nuevo",
-    "duplicateHint": "Empezar un trabajo nuevo con el mismo cliente, vehículo y servicios."
+    "duplicateHint": "Empezar un trabajo nuevo con el mismo cliente, vehículo y servicios.",
+    "odometer": "Odómetro"
   },
   "jobs": {
     "title": "Trabajos",
@@ -196,7 +200,22 @@
     "grandTotal": "TOTAL",
     "missingCustomer": "Elija primero un cliente.",
     "missingVehicle": "Elija primero un vehículo.",
-    "leaveWarning": "Este trabajo aún no está guardado. ¿Salir igualmente?"
+    "leaveWarning": "Este trabajo aún no está guardado. ¿Salir igualmente?",
+    "odometerLabel": "Lectura del odómetro",
+    "odometerHint": "En el tablero, detrás del volante. Puede dejarse en blanco.",
+    "odometerLast": "Última lectura: {km} km",
+    "odometerLower": "Es menor que la última lectura de {km} km. Revísela, por favor.",
+    "nextVisitTitle": "¿Cuándo debe volver?",
+    "nextVisitHint": "Se imprime en el recibo, y el vehículo aparecerá en Recordatorios cuando se acerque la fecha.",
+    "nextVisitOrKm": "o a los {km} km, lo que ocurra primero",
+    "nextVisitKmOnly": "A los {km} km",
+    "nextVisitBasis": "Según: {services}",
+    "nextVisitNoBasis": "Ninguno de estos servicios tiene un intervalo de regreso. Elija uno abajo si lo desea.",
+    "reminderAuto": "Según el servicio",
+    "reminderMonths": "{count, plural, one {# mes} other {# meses}}",
+    "reminderYear": "1 año",
+    "reminderNone": "Sin recordatorio",
+    "reminderKeep": "Dejar igual"
   },
   "customers": {
     "title": "Clientes",
@@ -265,7 +284,16 @@
     "editTitle": "Editar servicio",
     "addTitle": "Servicio nuevo",
     "readOnlyNote": "Solo un administrador puede cambiar esta lista.",
-    "duplicateName": "Ya existe un servicio con ese nombre."
+    "duplicateName": "Ya existe un servicio con ese nombre.",
+    "remindTitle": "¿Cuándo debe volver el vehículo?",
+    "remindHint": "Para Recordatorios: los trabajos con este servicio reciben su próxima visita automáticamente.",
+    "remindMonths": "Después de cuántos meses",
+    "remindNone": "No hace falta",
+    "remindYear": "1 año",
+    "remindEveryMonths": "{count, plural, one {# mes} other {# meses}}",
+    "remindKm": "O después de cuántos km",
+    "remindsEvery": "Vuelve después de {count, plural, one {# mes} other {# meses}}",
+    "remindsEveryKm": "Vuelve después de {count, plural, one {# mes} other {# meses}} o {km} km"
   },
   "reports": {
     "title": "Informes",
@@ -402,7 +430,9 @@
     "action_RESTORE_JOB": "Recuperó un trabajo",
     "action_PURGE_JOB": "Borró un trabajo definitivamente",
     "action_CHANGE_OWN_PASSWORD": "Cambió su contraseña",
-    "action_SHOP_SETUP": "Se configuró el taller"
+    "action_SHOP_SETUP": "Se configuró el taller",
+    "action_CLOSE_REMINDER": "Marcó un recordatorio como hecho",
+    "action_REOPEN_REMINDER": "Reabrió un recordatorio"
   },
   "receipt": {
     "title": "Recibo",
@@ -430,7 +460,11 @@
     "servedBy": "Atendido por",
     "printedOn": "Impreso el",
     "tin": "TIN",
-    "notOfficial": "Este es un registro del trabajo, no un recibo oficial del BIR."
+    "notOfficial": "Este es un registro del trabajo, no un recibo oficial del BIR.",
+    "odometer": "Odómetro",
+    "nextVisit": "Próximo servicio",
+    "nextVisitKm": "o a los {km} km, lo que ocurra primero",
+    "nextVisitAtKm": "A los {km} km"
   },
   "policy": {
     "title": "Normas de uso",
@@ -470,7 +504,9 @@
     "partNameRequired": "Escriba el nombre del repuesto.",
     "quantityMin": "Debe ser al menos 1.",
     "amountPaidTooHigh": "El pago es mayor que el total. Revíselo.",
-    "discountTooHigh": "El descuento es mayor que el importe debido."
+    "discountTooHigh": "El descuento es mayor que el importe debido.",
+    "invalidDate": "La fecha no es válida.",
+    "nextVisitKmTooLow": "Los km de la próxima visita deben ser mayores que la lectura actual del odómetro."
   },
   "footer": {
     "rules": "Normas de uso",
@@ -528,5 +564,34 @@
     "errorCode": "Ese código de configuración no es correcto.",
     "errorDone": "Este taller ya está configurado. Inicie sesión.",
     "errorClosed": "La configuración está bloqueada."
+  },
+  "reminders": {
+    "title": "Recordatorios",
+    "subtitle": "Vehículos que deben volver. Llame o envíe un mensaje al dueño desde aquí.",
+    "empty": "No hay nadie pendiente por ahora.",
+    "emptyHint": "Cuando un trabajo tiene próxima visita, el vehículo aparece aquí dos semanas antes de la fecha.",
+    "dueNow": "Pendientes ahora",
+    "comingUp": "Próximos",
+    "overdue": "{days, plural, one {# día de retraso} other {# días de retraso}}",
+    "dueToday": "Hoy",
+    "dueIn": "{days, plural, =1 {Mañana} other {En # días}}",
+    "dueOn": "Debe volver: {date}",
+    "dueOnLabel": "Fecha de regreso",
+    "orKm": "o a los {km} km",
+    "lastVisit": "Última visita: {date}",
+    "lastVisitLabel": "Último trabajo",
+    "phoneLabel": "Teléfono",
+    "noPhone": "Sin número de teléfono",
+    "addPhone": "Agregar un número",
+    "call": "Llamar",
+    "text": "Mensaje",
+    "callName": "Llamar a {name}",
+    "textName": "Enviar mensaje a {name}",
+    "done": "Hecho",
+    "doneName": "Hecho con {name}",
+    "closed": "Quitado de la lista.",
+    "reopened": "Devuelto a la lista.",
+    "undo": "Deshacer",
+    "smsBody": "¡Buen día, {name}! Le saluda {shop}. Le recordamos que su vehículo {plate} ya necesita su próximo servicio. Escríbanos o llámenos para agendar. ¡Gracias!"
   }
 }

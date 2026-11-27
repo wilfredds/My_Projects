@@ -21,6 +21,8 @@ export async function saveServiceAction(input: {
   name: string;
   defaultPrice: string;
   isActive: boolean;
+  remindAfterMonths?: string;
+  remindAfterKm?: string;
 }): Promise<ActionResult<{ id: string }>> {
   return guarded(async () => {
     const user = await requireCapability(can.manageServices);
@@ -38,6 +40,9 @@ export async function saveServiceAction(input: {
       name: parsed.data.name,
       defaultPrice: toDecimalString(parsed.data.defaultPrice),
       isActive: parsed.data.isActive,
+      remindAfterMonths: parsed.data.remindAfterMonths,
+      // A km interval only makes sense alongside a months one.
+      remindAfterKm: parsed.data.remindAfterMonths ? parsed.data.remindAfterKm : null,
     };
 
     try {
@@ -55,10 +60,17 @@ export async function saveServiceAction(input: {
         action: isUpdate ? 'UPDATE_SERVICE' : 'CREATE_SERVICE',
         entity: 'Service',
         entityId: service.id,
-        metadata: { name: service.name, defaultPrice: data.defaultPrice, isActive: data.isActive },
+        metadata: {
+          name: service.name,
+          defaultPrice: data.defaultPrice,
+          isActive: data.isActive,
+          remindAfterMonths: data.remindAfterMonths,
+          remindAfterKm: data.remindAfterKm,
+        },
       });
 
       revalidatePath('/services');
+      revalidatePath('/jobs/new');
       return {
         ok: true,
         data: { id: service.id },

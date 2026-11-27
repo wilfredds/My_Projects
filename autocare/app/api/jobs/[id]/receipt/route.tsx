@@ -15,6 +15,10 @@ export const dynamic = 'force-dynamic';
 /** Languages whose text the PDF's built-in fonts can draw. */
 const PDF_LOCALES = new Set(['fil', 'en', 'es']);
 
+function kmText(km: number, locale: string): string {
+  return new Intl.NumberFormat(intlTagFor(locale)).format(km);
+}
+
 /**
  * GET /api/jobs/<id>/receipt — the downloadable PDF receipt.
  *
@@ -77,6 +81,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     servedBy: tr('servedBy'),
     tin: tr('tin'),
     notOfficial: tr('notOfficial'),
+    odometer: tr('odometer'),
+    nextVisit: tr('nextVisit'),
+    nextVisitKm: serialized.nextVisitKm
+      ? serialized.nextVisitOn
+        ? tr('nextVisitKm', { km: kmText(serialized.nextVisitKm, locale) })
+        : tr('nextVisitAtKm', { km: kmText(serialized.nextVisitKm, locale) })
+      : '',
   };
 
   const buffer = await renderToBuffer(

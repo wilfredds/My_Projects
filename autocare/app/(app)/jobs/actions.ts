@@ -14,6 +14,7 @@ import { jobSchema, customerSchema, vehicleSchema, fieldErrors } from '@/lib/val
 import { computeJobTotals, computeLineTotal, toDecimalString } from '@/lib/calc';
 import { nextJobNumber, notDeleted, onlyDeleted } from '@/lib/jobs';
 import { decimalToNumber } from '@/lib/utils';
+import { ymdToDate } from '@/lib/reminders';
 
 /**
  * Job mutations.
@@ -39,6 +40,11 @@ export interface SaveJobInput {
   notes: string;
   parts: { partName: string; quantity: string; unitPrice: string }[];
   services: { serviceId: string | null; serviceName: string; price: string }[];
+  /** Odometer reading in km, as typed ("45,210"); blank for none. */
+  odometerKm?: string;
+  /** "YYYY-MM-DD" the car is due back, or null for no reminder. */
+  nextVisitOn?: string | null;
+  nextVisitKm?: number | null;
 }
 
 export async function saveJobAction(
@@ -102,12 +108,30 @@ export async function saveJobAction(
 
     const isUpdate = Boolean(input.id);
 
+    const reminderFields = {
+      odometerKm: data.odometerKm,
+      nextVisitOn: data.nextVisitOn ? ymdToDate(data.nextVisitOn) : null,
+      nextVisitKm: data.nextVisitKm,
+    };
+
     const job = await prisma.$transaction(async (tx) => {
       if (isUpdate) {
+        const before = await tx.job.findFirst({
+          where: { id: input.id, ...notDeleted },
+          select: { nextVisitOn: true },
+        });
+        if (!before) return null;
+
         // Replace the line items wholesale — simplest correct behaviour, and
         // the job is small enough that it costs nothing.
         await tx.jobPart.deleteMany({ where: { jobId: input.id } });
         await tx.jobService.deleteMany({ where: { jobId: input.id } });
+
+        // A new due date is a new reminder: put it back on the Babalikan list
+        // even if the old one had been marked done.
+        const dueChanged =
+          (before.nextVisitOn?.getTime() ?? null) !==
+          (reminderFields.nextVisitOn?.getTime() ?? null);
 
         return tx.job.update({
           where: { id: input.id },
@@ -118,6 +142,8 @@ export async function saveJobAction(
             date: data.date,
             paymentMethod: data.paymentMethod ?? null,
             notes: data.notes ?? null,
+            ...reminderFields,
+            ...(dueChanged ? { reminderDoneAt: null } : {}),
             ...moneyFields,
             parts: { create: partRows },
             services: { create: serviceRows },
@@ -137,6 +163,7 @@ export async function saveJobAction(
           paymentMethod: data.paymentMethod ?? null,
           notes: data.notes ?? null,
           createdById: user.id,
+          ...reminderFields,
           ...moneyFields,
           parts: { create: partRows },
           services: { create: serviceRows },
@@ -144,6 +171,8 @@ export async function saveJobAction(
         select: { id: true, jobNumber: true },
       });
     });
+
+    if (!job) return { ok: false, messageKey: 'errors.notFound' };
 
     await audit({
       userId: user.id,
@@ -155,6 +184,7 @@ export async function saveJobAction(
 
     revalidatePath('/jobs');
     revalidatePath('/dashboard');
+    revalidatePath('/reminders');
     revalidatePath(`/jobs/${job.id}`);
 
     return {
