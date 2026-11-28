@@ -52,8 +52,22 @@ final class RideWindow {
       '${heatRisk.name}, ${rain.name}${thunderstorm ? ', thunder' : ''})';
 }
 
-/// The weather over [start] .. [start] + [durationMinutes], from the hours
-/// that overlap it. Null when the forecast does not cover the whole ride.
+/// The weather over [start] .. [start] + [durationMinutes]. Null when the
+/// forecast does not cover the whole ride.
+///
+/// Open-Meteo stamps two kinds of value differently (see [HourWeather.time]):
+///
+/// - Temperature and humidity are moments. The ride's heat is the hottest
+///   of every moment from the stamp at or before the start to the stamp at or
+///   after the end - the forecast cannot say what happens between two
+///   stamps, so both edges count.
+/// - Rain chance, gusts and UV describe the hour ending at their stamp. A
+///   ride from 06:00 to 07:30 uses the stamps 07:00 (for 06:00-07:00) and
+///   08:00 (for 07:00-08:00), not 06:00, which is about 05:00-06:00.
+///
+/// A thunderstorm in any of those stamps counts, including the hour just
+/// before the start: storms linger, and lightning is the one risk the app
+/// never trades against heat.
 RideWindow? describeWindow({
   required DayWeather day,
   required DateTime start,
@@ -63,24 +77,28 @@ RideWindow? describeWindow({
     throw ArgumentError.value(durationMinutes, 'durationMinutes', 'not > 0');
   }
   final end = start.add(Duration(minutes: durationMinutes));
-  final overlapping = [
-    for (final hour in day.hours)
-      if (hour.time.isBefore(end) &&
-          hour.time.add(const Duration(hours: 1)).isAfter(start))
-        hour,
-  ];
-  if (overlapping.isEmpty) return null;
-  // Every minute of the ride must be covered by a forecast hour.
-  final firstHour = overlapping.first.time;
-  final lastHourEnd = overlapping.last.time.add(const Duration(hours: 1));
-  if (firstHour.isAfter(start) || lastHourEnd.isBefore(end)) return null;
-  if (overlapping.length != lastHourEnd.difference(firstHour).inHours) {
-    return null; // a gap in the hours
+  final byStamp = {for (final hour in day.hours) hour.time: hour};
+
+  // Wall-clock hour arithmetic through the constructor, so a clock change
+  // could never shift the stamps.
+  DateTime hourAt(DateTime t, int offset) =>
+      DateTime(t.year, t.month, t.day, t.hour + offset);
+  final firstStamp = hourAt(start, 0);
+  final onTheHour = end.minute == 0 && end.second == 0 && end.millisecond == 0;
+  final lastStamp = hourAt(end, onTheHour ? 0 : 1);
+
+  final stamps = <HourWeather>[];
+  for (var t = firstStamp; !t.isAfter(lastStamp); t = hourAt(t, 1)) {
+    final hour = byStamp[t];
+    if (hour == null) return null; // a gap: no answer rather than a guess
+    stamps.add(hour);
   }
+  // The hours the ride is out in end at every stamp after the first.
+  final during = stamps.skip(1).toList();
 
   double? maxOf(double? Function(HourWeather) value) {
     double? result;
-    for (final hour in overlapping) {
+    for (final hour in during) {
       final v = value(hour);
       if (v != null) result = result == null ? v : math.max(result, v);
     }
@@ -89,7 +107,7 @@ RideWindow? describeWindow({
 
   // An hour with unknown rain makes the whole ride's rain unknown, unless
   // another hour already says "likely".
-  final rainKnownEverywhere = overlapping.every(
+  final rainKnownEverywhere = during.every(
     (hour) => hour.rainChancePercent != null,
   );
   final maxRain = maxOf((hour) => hour.rainChancePercent);
@@ -98,7 +116,7 @@ RideWindow? describeWindow({
       ? rainFromKnown
       : RainLevel.unknown;
 
-  final maxHeat = overlapping.map((hour) => hour.heatIndex).reduce(math.max);
+  final maxHeat = stamps.map((hour) => hour.heatIndex).reduce(math.max);
   return RideWindow(
     start: start,
     end: end,
@@ -106,7 +124,7 @@ RideWindow? describeWindow({
     heatRisk: heatRiskFor(maxHeat),
     rain: rain,
     maxRainChancePercent: maxRain,
-    thunderstorm: overlapping.any((hour) => hour.thunderstorm),
+    thunderstorm: stamps.any((hour) => hour.thunderstorm),
     maxUvIndex: maxOf((hour) => hour.uvIndex),
     maxGustKmh: maxOf((hour) => hour.gustKmh),
   );
@@ -119,13 +137,16 @@ const fallbackFirstLightHour = 6;
 const fallbackLastLightHour = 18;
 
 /// Every ride of [durationMinutes] that starts on the hour, fits within
-/// daylight and is fully covered by the forecast, earliest first.
+/// daylight and is fully covered by the forecast, earliest first. With
+/// [notBefore] (usually "now"), rides that would already have started are
+/// left out.
 ///
 /// Riding in the dark is left out on purpose: for beginners on roads it is
 /// the bigger risk than heat.
 List<RideWindow> daylightWindows({
   required DayWeather day,
   required int durationMinutes,
+  DateTime? notBefore,
 }) {
   final date = day.day;
   final light = day.sunrise ?? date.at(fallbackFirstLightHour);
@@ -135,6 +156,7 @@ List<RideWindow> daylightWindows({
     final start = date.at(hour);
     final end = start.add(Duration(minutes: durationMinutes));
     if (start.isBefore(light) || end.isAfter(dark)) continue;
+    if (notBefore != null && start.isBefore(notBefore)) continue;
     final window = describeWindow(
       day: day,
       start: start,

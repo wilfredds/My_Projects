@@ -438,6 +438,148 @@ outdoors" rule is from the spec).
 
 **Tests.** `test/core/science/heat_index_test.dart`.
 
+## 7.11 Drinking and the sweat-rate test
+
+**Formula.** Sweat rate (L/h) = (weight before − weight after + fluid drunk
+− urine passed) ÷ hours, counting 1 kg lost as 1 litre.
+
+**Source for the formula — Verified (full text).** Baker LB. Sweating rate
+and sweat sodium concentration in athletes: a review of methodology and
+intra/interindividual variability. *Sports Med.* 2017;47(Suppl 1):111-128.
+doi:10.1007/s40279-017-0691-5. Table 3: "WBSR = [Body mass PRE-EX – (Body
+mass POST-EX – fluid intake EX + urine output EX)]/exercise duration", which
+is the same sum. Typical rates are about 0.5–2.0 L/h; above 3 L/h is rare
+(about 2% of athletes). Counting **1 kg as 1 litre is our assumption** — no
+opened source states it. Baker also lists what makes the test accurate, which
+the app tells the rider: weigh after emptying the bladder, in minimal dry
+clothing, and write down every drink and toilet stop. The author works for the
+Gatorade Sports Science Institute (PepsiCo).
+
+**Our rules.** A result above **3 L/h** asks the rider to check the entries
+(a forgotten bottle is more likely than a rare sweat rate); it is not
+rejected. Entries outside 30–250 kg, a change of more than 5 kg, drink over
+10 L, urine over 5 L, or a ride under 15 or over 600 minutes are refused as
+typos. A negative total reads as zero.
+
+**The 2% line — Verified (abstract).** "The goal of drinking during exercise
+is to prevent excessive (>2% body weight loss from water deficit)
+dehydration" (American College of Sports Medicine; Sawka MN, Burke LM,
+Eichner ER, Maughan RJ, Montain SJ, Stachenfeld NS. Exercise and fluid
+replacement. *Med Sci Sports Exerc.* 2007;39(2):377-390.
+doi:10.1249/mss.0b013e31802ca597). It is about performance, not a safety
+threshold. So the verdict is: weighed more after → drank too much; lost up to
+2% → about right; lost more → drink a little more next time.
+
+**Drinking advice — Verified (abstracts and full texts).**
+
+- Drinking to thirst may be enough for rides under about 1 h to 90 min, in
+  cool conditions or at low intensity; drink to a plan for longer rides,
+  especially in heat (Kenefick RW. *Sports Med.* 2018;48(Suppl 1):31-37,
+  abstract; GSSI-supported supplement). Where exactly between 60 and 90 min
+  the app switches is our choice.
+- Start hydrated; in heat "some loss of body water is normal" and the aim is
+  to limit it, not replace it all — "without increasing body weight"
+  (Racinais S, et al. IOC consensus statement on sport events in the heat.
+  *Br J Sports Med.* 2023;57(1):8-25. doi:10.1136/bjsports-2022-105942; full
+  text). Before training in heat: about 6 mL/kg every 2–3 h (Racinais S, et
+  al. *Sports Med.* 2015;45(7):925-938; full text).
+- **Do not over-drink.** Over-drinking low-sodium fluids can cause
+  exercise-associated hyponatraemia; "recreational athletes involved in
+  prolonged exercise should be cautious not to overhydrate" (Racinais 2015).
+  The evidence is mostly from marathons, not cycling.
+- For rides over an hour in heat: a drink with 0.5–0.7 g of **sodium** (not
+  salt) per litre (Racinais 2015; IOC 2023). The IOC adds that cramps are
+  "mainly due to premature muscle fatigue … and not salt depletion". Not
+  pushing salt on riders with high blood pressure or kidney disease is our
+  own caution; no opened source covers them.
+
+**Limits.** One test describes one ride's conditions. Breathing and fuel use
+also lose mass (about 5–15%, Baker), which overstates sweat on long rides.
+
+**Tests.** `test/core/science/fuelling_hydration_test.dart`.
+
+## 7.12 Fuelling by ride length
+
+**Rule.** Under 60 min: no food needed. 60 to 150 min: about 30–60 g of
+carbohydrate per hour. Over 150 min: 60–90 g/h, with 90 only from products
+that mix glucose and fructose and that the rider has practised with.
+
+**Source — Verified.** Burke LM, Hawley JA, Wong SH, Jeukendrup AE.
+Carbohydrates for training and competition. *J Sports Sci.* 2011;29 Suppl
+1:S17-27. doi:10.1080/02640414.2011.585473 (abstract): "While 30-60 g · h(-1)
+is an appropriate target for sports of longer duration, events >2.5 h may
+benefit from higher intakes of up to 90 g · h(-1)", and in sustained hard
+efforts of about an hour "small amounts of carbohydrate, including even
+mouth-rinsing, enhance performance". The one-hour bound is from Racinais
+2015 (full text): "30–60 g/h of carbohydrates … for exercise lasting longer
+than 1 h … and up to 90 g/h for events lasting over 2.5 h". Jeukendrup A.
+*Sports Med.* 2014;44 Suppl 1:S25-S33 (full text, GSSI-affiliated author)
+adds that one carbohydrate source is used at up to about 60 g/h and that 90
+"must be" multiple transportable carbohydrates — Partly, because its banded
+figure could not be opened. Do not show finer bands from that figure.
+
+**Our choices.** The bands apply to the planned ride length; exactly 60 min
+gets the middle band. Advice does not scale with body weight (Jeukendrup
+2014: "independent of body weight"). No per-food gram counts (no source).
+"Try new food in training, never first on race day" is standard advice we
+state without a citation. These amounts are for athletes; the app says
+"riding easy? stay near the low end".
+
+**Pre-race meal — Partly.** The race-day timeline's meal at 150 minutes
+before the start (spec: 2–3 h) sits inside the 1–4 h window that Thomas DT,
+Erdman KA, Burke LM (Nutrition and Athletic Performance. *Med Sci Sports
+Exerc.* 2016;48(3):543-568) is reported to give — seen only in secondary
+sources; the statement's full text could not be opened. Keep it low in fat
+and fibre (Jeukendrup AE. *J Sports Sci.* 2011;29 Suppl 1:S91-9, abstract).
+
+**Tests.** `test/core/science/fuelling_hydration_test.dart`.
+
+## Weather: how a forecast becomes a ride window
+
+These are **our conventions** unless a source is named.
+
+**Reading Open-Meteo — Verified (its documentation and server code, read
+from its public repositories).** Temperature and humidity are values at the
+time stamp. Rain chance, rainfall, gusts and UV describe the hour that
+**ends** at the stamp. Times are the town's wall-clock time. Any value can
+be null. Weather codes 95, 96, 97 and 99 are thunderstorms.
+
+**A ride window** (`ride_window.dart`):
+
+- Its heat is the hottest heat index among every stamp from the one at or
+  before the start to the one at or after the end. The forecast cannot say
+  what happens between stamps, so both edges count.
+- Its rain, gusts and UV come from the hours the ride is out in (the stamps
+  after the first). An unknown hour makes the rain unknown, unless another
+  hour already says likely.
+- A thunderstorm at any of those stamps — including the hour before the
+  start — makes it a storm window. Storm windows are never suggested.
+- A gap in the hours gives no answer, not a guess.
+
+**Rain bands.** Under 30% unlikely, 30–59% possible, 60% and up likely. Our
+cut-offs. Open-Meteo defines the probability as more than 0.1 mm in the hour.
+
+**Daylight.** Only rides between sunrise and sunset are suggested; without
+those times, 06:00–18:00 is assumed (close to right all year near the
+equator). Riding in the dark is the bigger risk for a beginner on the road.
+
+**Best window.** Ranked by: no storm, then the lowest PAGASA heat category,
+then the lowest rain band (unknown ranks between unlikely and possible), then
+the start nearest the rider's usual time, then the coolest.
+
+**Freshness.** A forecast under 1 hour old is fresh; up to 12 hours it is
+used with its age shown; after that it is not used.
+
+**UV — Verified (Gies P, et al. *Health Phys.* 2018;114(1):84-90).**
+Low under 3, moderate 3 to under 6, high 6 to under 8, very high 8 to under
+11, extreme 11 and up; protection recommended from 3, extra protection from
+8. The specific measures (shade, sleeves, sunscreen) are our wording.
+
+**Privacy.** Coordinates are rounded to 0.1° (about 11 km) before they are
+stored or sent — our choice, so the service learns the area, not the street.
+
+**Tests.** `test/features/weather/`.
+
 ---
 
 ## Readiness check (not PAR-Q+)
@@ -507,8 +649,8 @@ start time, each step at the middle of the spec's range:
 | Go to the line | 5 | — |
 
 Wake-up is 30 minutes before the meal, or 45 minutes before leaving home if
-that is earlier (a long drive). **`TODO(verify)`**: the meal timing against a
-sports-nutrition source, when 7.12 (fuelling) is done in Phase 3.
+that is earlier (a long drive). The meal timing is inside the 1–4 h window
+reported for Thomas 2016, seen only in secondary sources (7.12, Partly).
 
 **Skills and tactics library.** The 17 cards and their drills are **our own
 wording** of conventional coaching advice, shaped by the list in the spec.
@@ -528,8 +670,7 @@ diagnosis engine in Phase 4; the debrief offers only the symptoms above.
 
 | Id | Topic | Phase |
 |---|---|---|
-| 7.11 | Hydration and sweat rate | 3 |
-| 7.12 | Fuelling by duration | 3 |
+| — | Daily plan rules | 3 (in progress) |
 
 ## Open verification list
 
@@ -544,6 +685,10 @@ Needs network access to the named site, or a person with the book:
 7. Holmes 1994 full text for the knee-angle range (before Phase 6).
 8. A source for effort-to-W/kg defaults.
 9. A qualified coach's review of the skills library and drills.
-10. Pre-race meal timing against a sports-nutrition source.
+10. Pre-race meal timing: Thomas 2016 itself (see 7.12).
 11. Foster 2001 full text (session RPE), and whether the CR-10 wording needs a
     licence in a for-profit app.
+12. Thomas 2016 and Sawka 2007 full texts (pre-meal amounts and timing, the
+    fluid and sodium sections); Jeukendrup 2014 Fig. 1.
+13. A source for counting 1 kg of body mass lost as 1 litre of sweat.
+14. The Philippine emergency number, before the app shows one.

@@ -70,6 +70,11 @@ void _check(SweatTest test) {
   }
 }
 
+/// True when a sweat rate is high enough that the entries are worth a second
+/// look (SCIENCE.md 7.11).
+bool looksUnusuallyHigh(double litresPerHour) =>
+    litresPerHour > unusualSweatRateLitresPerHour;
+
 /// Sweat rate in litres per hour: (weight before - weight after + drink -
 /// urine) / hours, taking 1 kg lost as 1 litre (SCIENCE.md 7.11).
 ///

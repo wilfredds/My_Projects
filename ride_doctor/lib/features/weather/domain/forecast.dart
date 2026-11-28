@@ -2,9 +2,10 @@ import 'package:meta/meta.dart';
 import 'package:ride_doctor/core/science/heat_index.dart';
 import 'package:ride_doctor/core/time/calendar_day.dart';
 
-/// WMO weather codes for thunderstorms (95: thunderstorm; 96 and 99: with
-/// hail). Lightning makes riding outdoors unsafe whatever the heat or rain.
-const Set<int> thunderstormCodes = {95, 96, 99};
+/// WMO weather codes for thunderstorms as Open-Meteo documents them (95:
+/// thunderstorm; 96 and 99: with hail; 97: heavy thunderstorm). Lightning
+/// makes riding outdoors unsafe whatever the heat or rain.
+const Set<int> thunderstormCodes = {95, 96, 97, 99};
 
 /// One hour of forecast at the rider's town.
 ///
@@ -26,7 +27,12 @@ final class HourWeather {
     this.weatherCode,
   });
 
-  /// Start of the hour, as wall-clock time at the town.
+  /// The forecast's time stamp, as wall-clock time at the town.
+  ///
+  /// Open-Meteo reports two kinds of value against it: temperature and
+  /// humidity are the values AT this moment; rain chance, rainfall, gusts,
+  /// UV and the weather code describe the hour that ENDS at this moment.
+  /// `describeWindow` (ride_window.dart) reads each kind accordingly.
   final DateTime time;
   final double temperatureC;
   final double humidityPercent;

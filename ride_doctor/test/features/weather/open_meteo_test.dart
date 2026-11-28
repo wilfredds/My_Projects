@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -9,6 +10,11 @@ import 'package:ride_doctor/features/weather/data/open_meteo.dart';
 import 'package:ride_doctor/features/weather/domain/place.dart';
 
 final fetchedAt = DateTime(2026, 11, 27, 4, 30);
+
+/// A saved Open-Meteo answer (test/fixtures/open_meteo/README.md).
+Map<String, Object?> fixture(String name) =>
+    jsonDecode(File('test/fixtures/open_meteo/$name').readAsStringSync())
+        as Map<String, Object?>;
 
 /// A forecast answer in Open-Meteo's documented shape, built by hand for
 /// these tests: two days, a few hours each.
@@ -81,6 +87,17 @@ void main() {
     test('control characters are stripped and long input is cut', () {
       expect(cleanPlaceQuery('Ca\u0000vite\u0007'), 'Cavite');
       expect(cleanPlaceQuery('x' * 100), hasLength(60));
+    });
+
+    test('only the text before a comma is sent', () {
+      // Text after a comma must match a province exactly, or nothing is
+      // found at all.
+      expect(cleanPlaceQuery('Imus, Cavite Province'), 'Imus');
+      expect(
+        geocodingUri(' Tagaytay , PH').queryParameters['name'],
+        'Tagaytay',
+      );
+      expect(cleanPlaceQuery(', Cavite'), isEmpty);
     });
   });
 
@@ -322,6 +339,83 @@ void main() {
     });
   });
 
+  group('saved real answers', () {
+    test('a forecast with many more variables than ours', () {
+      final forecast = parseForecast(
+        fixture('forecast_many_variables.json'),
+        fetchedAt: fetchedAt,
+      );
+      expect(forecast.timezone, 'Europe/Amsterdam');
+      expect(forecast.days, hasLength(1)); // hours were given for one day
+      final day = forecast.days.single;
+      expect(day.day, CalendarDay(2026, 10, 3));
+      expect(day.sunrise, DateTime(2026, 10, 3, 7, 36));
+      expect(day.sunset, DateTime(2026, 10, 3, 19, 5));
+      expect(day.hours, hasLength(3));
+      final first = day.hours.first;
+      expect(first.time, DateTime(2026, 10, 3));
+      expect(first.temperatureC, 11.8);
+      expect(first.humidityPercent, 87);
+      expect(first.rainChancePercent, 0);
+      expect(first.precipitationMm, 0);
+      expect(first.windKmh, 9.0);
+      expect(first.gustKmh, 14.8);
+      expect(first.uvIndex, 0);
+      expect(first.weatherCode, 0);
+      expect(day.hours.map((h) => h.weatherCode), [0, 1, 1]);
+    });
+
+    test('a forecast without humidity has no hour it can judge', () {
+      // Temperature alone cannot give a heat index, so every hour is left
+      // out rather than guessed.
+      final forecast = parseForecast(
+        fixture('forecast_7day_temperature_only.json'),
+        fetchedAt: fetchedAt,
+      );
+      expect(forecast.days, isEmpty);
+      expect(forecast.timezone, 'America/Sao_Paulo');
+    });
+
+    test('an answer with no hourly data is rejected', () {
+      expect(
+        () => parseForecast(
+          fixture('forecast_daily_nulls.json'),
+          fetchedAt: fetchedAt,
+        ),
+        throwsFormatException,
+      );
+    });
+
+    test('town matches, one with fields left out', () {
+      final places = parsePlaces(fixture('geocoding_enschede.json'));
+      expect(places, hasLength(2));
+      expect(
+        places.first,
+        const Place(
+          name: 'Enschede',
+          latitude: 52.2,
+          longitude: 6.9,
+          region: 'Overijssel',
+          countryCode: 'NL',
+          timezone: 'Europe/Amsterdam',
+        ),
+      );
+      expect(places.last.name, 'Enschede Airport Twente');
+    });
+
+    test('two towns with one name are told apart by their label', () {
+      final places = parsePlaces(fixture('geocoding_paris.json'));
+      expect(places.map((p) => p.label), [
+        'Paris, Île-de-France, FR',
+        'Paris, Texas, US',
+      ]);
+    });
+
+    test('no match', () {
+      expect(parsePlaces(fixture('geocoding_no_match.json')), isEmpty);
+    });
+  });
+
   test('Place equality and description', () {
     const a = Place(name: 'Imus', latitude: 14.4, longitude: 120.9);
     expect(a, const Place(name: 'Imus', latitude: 14.4, longitude: 120.9));
@@ -333,7 +427,13 @@ void main() {
     expect(a.toString(), contains('Imus'));
   });
 
-  test('the credit line names the service', () {
-    expect(openMeteoCredit, contains('Open-Meteo'));
+  test('the credit lines name the services and link over HTTPS', () {
+    expect(openMeteoCredit, 'Weather data by Open-Meteo.com');
+    expect(Uri.parse(openMeteoUrl).scheme, 'https');
+    expect(Uri.parse(openMeteoLicenceUrl).scheme, 'https');
+    expect(
+      geocodingCredit,
+      allOf(contains('Open-Meteo'), contains('GeoNames')),
+    );
   });
 }

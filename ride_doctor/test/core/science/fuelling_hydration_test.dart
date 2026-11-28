@@ -125,6 +125,28 @@ void main() {
     });
   });
 
+  group('looksUnusuallyHigh', () {
+    test('above 3 litres an hour asks the rider to check the entries', () {
+      expect(looksUnusuallyHigh(3), isFalse);
+      expect(looksUnusuallyHigh(3.01), isTrue);
+      expect(looksUnusuallyHigh(0.8), isFalse);
+    });
+
+    test('a forgotten bottle shows up as an unusual rate', () {
+      // 60 min, lost 3.5 kg and "drank nothing": 3.5 L/h.
+      final rate = sweatRate(
+        const SweatTest(
+          weightBeforeKg: 60,
+          weightAfterKg: 56.5,
+          drankLitres: 0,
+          minutes: 60,
+        ),
+      ).value;
+      expect(rate, closeTo(3.5, 1e-9));
+      expect(looksUnusuallyHigh(rate), isTrue);
+    });
+  });
+
   group('drinkingVerdict', () {
     DrinkingVerdict verdict(double before, double after) => drinkingVerdict(
       SweatTest(

@@ -117,11 +117,19 @@ const int minUsualWeekLoad = 100;
 
 // --- 7.11 Hydration (docs/SCIENCE.md 7.11) ---------------------------------
 
-/// Body-mass loss during a ride above which drinking was probably too little.
+/// Body-mass loss during a ride above which drinking was probably too little
+/// ("excessive (>2% body weight loss from water deficit) dehydration",
+/// Sawka 2007). About performance, not a safety limit.
 const double maxBodyMassLossPercent = 2;
 
 /// One kilogram of body mass lost in a ride is taken as one litre of sweat.
+/// Our assumption: no source we opened states it.
 const double litresPerKgLost = 1;
+
+/// Sweat rates above this are rare (about 2% of athletes, Baker 2017), so a
+/// result above it more likely means a drink or toilet stop was not written
+/// down. The app asks the rider to check; it does not reject the result.
+const double unusualSweatRateLitresPerHour = 3;
 
 // --- 7.12 Fuelling (docs/SCIENCE.md 7.12) ----------------------------------
 

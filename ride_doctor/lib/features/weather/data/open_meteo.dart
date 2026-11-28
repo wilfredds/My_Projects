@@ -34,8 +34,8 @@ Uri forecastUri({required double latitude, required double longitude}) =>
       'forecast_days': '$forecastDays',
     });
 
-/// A town search. [query] is what the rider typed; it is trimmed and cut to
-/// 60 characters, and control characters are removed, before it is sent.
+/// A town search. [query] is what the rider typed; see [cleanPlaceQuery] for
+/// what is actually sent.
 Uri geocodingUri(String query) =>
     Uri.https('geocoding-api.open-meteo.com', '/v1/search', {
       'name': cleanPlaceQuery(query),
@@ -44,8 +44,15 @@ Uri geocodingUri(String query) =>
       'format': 'json',
     });
 
+/// Control characters removed, only the text before the first comma, trimmed
+/// and cut to 60 characters.
+///
+/// The comma rule matters: Open-Meteo reads text after a comma as a country
+/// or province that must match exactly, and a near miss ("Imus, Cavite
+/// Province") silently finds nothing.
 String cleanPlaceQuery(String query) {
-  final cleaned = query.replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '').trim();
+  final printable = query.replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '');
+  final cleaned = printable.split(',').first.trim();
   return cleaned.length > 60 ? cleaned.substring(0, 60) : cleaned;
 }
 
@@ -191,9 +198,21 @@ List<Place> parsePlaces(Map<String, Object?> json) {
   return places;
 }
 
-/// The data must be credited to Open-Meteo (CC BY 4.0). Shown wherever its
-/// forecast is shown.
+/// The forecast data must be credited to Open-Meteo (CC BY 4.0), with a link,
+/// next to every place they are shown. This is Open-Meteo's own suggested
+/// wording; it stays in English, like a citation, unless the owner approves
+/// a translation.
 const openMeteoCredit = 'Weather data by Open-Meteo.com';
+const openMeteoUrl = 'https://open-meteo.com/';
+
+/// The licence the forecast data are under.
+const openMeteoLicenceUrl = 'https://creativecommons.org/licenses/by/4.0/';
+
+/// Shown in the town picker: the search is Open-Meteo's, the place data come
+/// from GeoNames.
+const geocodingCredit =
+    'Town search by Open-Meteo.com; location data based on GeoNames '
+    '(geonames.org)';
 
 /// Fetches forecasts and town searches. Network and service errors come out
 /// as [FetchFailure]s from [JsonHttp]; a malformed answer as a

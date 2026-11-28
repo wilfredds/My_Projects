@@ -71,7 +71,7 @@ void main() {
       expect(noon.heatRisk, HeatRisk.danger);
     });
 
-    test('codes 95, 96 and 99 are thunderstorms, others are not', () {
+    test('codes 95, 96, 97 and 99 are thunderstorms, others are not', () {
       HourWeather withCode(int? code) => HourWeather(
         time: date.at(9),
         temperatureC: 30,
@@ -79,7 +79,7 @@ void main() {
         weatherCode: code,
       );
       expect(
-        [95, 96, 99].map((c) => withCode(c).thunderstorm),
+        [95, 96, 97, 99].map((c) => withCode(c).thunderstorm),
         everyElement(isTrue),
       );
       expect(
@@ -103,20 +103,71 @@ void main() {
   });
 
   group('describeWindow', () {
-    test('the hottest hour decides the heat of the ride', () {
-      final window = describeWindow(
+    test('the hottest moment decides the heat, both edges included', () {
+      // 06:00-07:00: the moments 06:00 (28.0) and 07:00 (32.1).
+      final hour = describeWindow(
+        day: cavite(),
+        start: date.at(6),
+        durationMinutes: 60,
+      )!;
+      expect(hour.maxHeatIndexC, closeTo(32.1, 0.01));
+      expect(hour.heatRisk, HeatRisk.caution);
+
+      // 06:00-07:30 is still out at 07:30, between 07:00 (32.1) and 08:00
+      // (35.5); the forecast cannot say which, so 08:00 counts too.
+      final longer = describeWindow(
         day: cavite(),
         start: date.at(6),
         durationMinutes: 90,
       )!;
-      // 06:00-07:30 covers the 06:00 and 07:00 hours: worst is 32.1.
-      expect(window.maxHeatIndexC, closeTo(32.1, 0.01));
-      expect(window.heatRisk, HeatRisk.caution);
-      expect(window.end, date.at(7, 30));
-      expect(window.rain, RainLevel.unlikely);
-      expect(window.thunderstorm, isFalse);
-      expect(window.maxUvIndex, 2);
-      expect(window.maxGustKmh, 20);
+      expect(longer.maxHeatIndexC, closeTo(35.5, 0.05));
+      expect(longer.heatRisk, HeatRisk.extremeCaution);
+      expect(longer.end, date.at(7, 30));
+      expect(longer.rain, RainLevel.unlikely);
+      expect(longer.thunderstorm, isFalse);
+      expect(longer.maxUvIndex, 2);
+      expect(longer.maxGustKmh, 20);
+    });
+
+    test('rain, gusts and UV are read from the hour that ends at a stamp', () {
+      // Rain stamped 07:00 is about 06:00-07:00.
+      final day = cavite(rainOverride: {7: 90});
+      expect(
+        describeWindow(day: day, start: date.at(6), durationMinutes: 60)!.rain,
+        RainLevel.likely,
+      );
+      expect(
+        describeWindow(day: day, start: date.at(7), durationMinutes: 60)!.rain,
+        RainLevel.unlikely,
+      );
+      // UV 11 is stamped 09:00-15:00, i.e. 08:00-15:00. A ride from 08:00
+      // gets it; a ride ending at 08:00 does not.
+      expect(
+        describeWindow(
+          day: cavite(),
+          start: date.at(8),
+          durationMinutes: 60,
+        )!.maxUvIndex,
+        11,
+      );
+      expect(
+        describeWindow(
+          day: cavite(),
+          start: date.at(7),
+          durationMinutes: 60,
+        )!.maxUvIndex,
+        2,
+      );
+    });
+
+    test('a storm in the hour before the start still counts', () {
+      // Code 95 stamped 07:00 is about 06:00-07:00.
+      final window = describeWindow(
+        day: cavite(thunderAt: {7}),
+        start: date.at(7),
+        durationMinutes: 60,
+      )!;
+      expect(window.thunderstorm, isTrue);
     });
 
     test('a ride into a storm hour is a thunderstorm ride', () {
@@ -144,6 +195,11 @@ void main() {
         describeWindow(day: day, start: date.at(8), durationMinutes: 180),
         isNull,
       );
+      // Ends at 09:00, so it needs the 09:00 moment as well.
+      expect(
+        describeWindow(day: day, start: date.at(7), durationMinutes: 120),
+        isNull,
+      );
       expect(
         describeWindow(day: day, start: date.at(10), durationMinutes: 60),
         isNotNull,
@@ -153,6 +209,11 @@ void main() {
     test('a ride past the end of the forecast has no answer', () {
       expect(
         describeWindow(day: cavite(), start: date.at(23), durationMinutes: 90),
+        isNull,
+      );
+      // Ending at midnight needs the next day's 00:00 stamp.
+      expect(
+        describeWindow(day: cavite(), start: date.at(23), durationMinutes: 60),
         isNull,
       );
     });
@@ -168,7 +229,7 @@ void main() {
 
     test('...unless another hour already says likely', () {
       final window = describeWindow(
-        day: cavite(rainOverride: {13: null}),
+        day: cavite(rainOverride: {14: null}),
         start: date.at(13),
         durationMinutes: 120,
       )!;
@@ -211,6 +272,16 @@ void main() {
       expect(windows.first.start, date.at(6));
       expect(windows.last.start, date.at(17));
     });
+
+    test('leaves out rides that would already have started', () {
+      final windows = daylightWindows(
+        day: cavite(),
+        durationMinutes: 60,
+        notBefore: date.at(9, 30),
+      );
+      expect(windows.first.start, date.at(10));
+      expect(windows.last.start, date.at(16));
+    });
   });
 
   group('bestWindow', () {
@@ -224,10 +295,10 @@ void main() {
     });
 
     test('an afternoon rider is pointed to the cooler morning', () {
-      // 16:00 is extreme caution; 06:00 and 07:00 are only caution, and
-      // 07:00 is the nearer of the two.
+      // 16:00 is extreme caution; only 06:00 is caution.
       final best = bestWindow(windows: windows(), preferredStart: date.at(16))!;
-      expect(best.start, date.at(7));
+      expect(best.start, date.at(6));
+      expect(best.heatRisk, HeatRisk.caution);
     });
 
     test('never suggests a thunderstorm window', () {
@@ -249,13 +320,16 @@ void main() {
     });
 
     test('between equally hot windows, the drier one wins', () {
-      // Make 06:00 likely rain; 07:00 is as hot (caution) and dry.
-      final day = cavite(rainOverride: {6: 80});
+      // A storm rules out 06:00. 07:00 and 08:00 are both extreme caution;
+      // 07:00 is preferred but rain is likely in its hour (stamped 08:00).
+      final day = cavite(thunderAt: {6}, rainOverride: {8: 80});
       final best = bestWindow(
         windows: windows(day),
-        preferredStart: date.at(6),
+        preferredStart: date.at(7),
       )!;
-      expect(best.start, date.at(7));
+      expect(best.start, date.at(8));
+      expect(best.heatRisk, HeatRisk.extremeCaution);
+      expect(best.rain, RainLevel.unlikely);
     });
 
     test('no windows in, no window out', () {

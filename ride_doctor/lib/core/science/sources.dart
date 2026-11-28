@@ -102,14 +102,18 @@ ScienceSource? sourceFor(Formula formula) => switch (formula) {
     SourceStatus.partly,
   ),
   Formula.carbohydrateByDuration => const ScienceSource(
-    'Thomas DT, Erdman KA, Burke LM. Nutrition and Athletic Performance. '
-    'Med Sci Sports Exerc. 2016;48(3):543-568.',
-    SourceStatus.unverified,
+    'Burke LM, Hawley JA, Wong SH, Jeukendrup AE. Carbohydrates for training '
+    'and competition. J Sports Sci. 2011;29 Suppl 1:S17-27. '
+    'doi:10.1080/02640414.2011.585473; the 1-hour bound from Racinais S, et '
+    'al. Sports Med. 2015;45(7):925-938. doi:10.1007/s40279-015-0343-6',
+    SourceStatus.verified,
   ),
   Formula.sweatRate => const ScienceSource(
-    'Sawka MN, et al. Exercise and fluid replacement. Med Sci Sports Exerc. '
-    '2007;39(2):377-390.',
-    SourceStatus.unverified,
+    'Baker LB. Sweating rate and sweat sodium concentration in athletes. '
+    'Sports Med. 2017;47(Suppl 1):111-128. doi:10.1007/s40279-017-0691-5. '
+    'The 2% limit: Sawka MN, et al. Med Sci Sports Exerc. '
+    '2007;39(2):377-390. Counting 1 kg as 1 litre is our assumption.',
+    SourceStatus.verified,
   ),
   Formula.measuredMaxHr ||
   Formula.wattsPerKg ||
