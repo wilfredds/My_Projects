@@ -177,8 +177,7 @@ Before any monetised release, review Open-Meteo's licence terms and either buy
 a commercial plan or switch provider.
 
 **Consequences.** Phase 1's heat-index maths is pure and needs no provider at
-all. The licence terms themselves have not been read yet —
-`TODO(verify)` in Phase 3, before the client is written.
+all. The licence terms were read in Phase 3; what they mean is ADR-0026.
 
 ---
 
@@ -526,3 +525,42 @@ a "web app" that quietly keeps readiness answers in browser storage is not.
 - If the owner wants to *use* the app on an iPhone rather than preview it,
   that is a product decision: a real iOS build, or a deliberate, documented
   web storage design. Until then the phone app remains Android.
+
+---
+
+## ADR-0026 — Open-Meteo for development; what its licence allows
+
+**Status:** Accepted (2026-11-28)
+
+**Context.** Phase 3 needs hourly forecasts and a town search. Open-Meteo's
+terms and docs were read from its public website and server repositories
+(the website itself is blocked from the build environment). The free API
+(no key) is for **non-commercial use only**, under 10,000 calls a day,
+5,000 an hour and 600 a minute, counted per IP address. Apps with
+subscriptions or ads are commercial. Forecast data are **CC BY 4.0**: a
+credit with a link next to every place the data are shown. Town-search data
+come from GeoNames, and Open-Meteo's own pages disagree on its licence
+(CC BY on the licence page, CC BY-NC in the geocoding README). Open-Meteo
+keeps server logs that may contain coordinates for 90 days.
+
+**Decision.** Use the free API while the app is in development and the
+preview is free and ad-free. Keep it behind `OpenMeteoClient`, one request
+at a time, cached, with no retry loop on a rate limit. Ask for exactly the
+10 variables the app uses (11 would cost 1.1 calls each). Show "Weather data
+by Open-Meteo.com" with a link wherever forecast data appear, and the GeoNames
+credit in the town picker.
+
+**Consequences.**
+- **Before any commercial release** (subscriptions, ads, or a company's
+  product): buy a commercial plan, switch provider, or self-host. A paid
+  plan needs an API key, and a key must never ship inside the app, so that
+  also means a small backend proxy. Ask Open-Meteo first to settle the
+  geocoding licence and whether a free public beta of a future startup counts
+  as non-commercial — that is ambiguous. None of this is legal advice.
+- A phone network can share one IP address between many people, so another
+  user can use up the daily quota. The app must keep working on a cached
+  forecast and say how old it is.
+- The privacy policy must name Open-Meteo and say what reaches it: the
+  chosen town's rounded coordinates, the typed search text and the device's
+  IP address.
+

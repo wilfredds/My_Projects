@@ -218,7 +218,7 @@
   "consentHealthTitle": "Store my body and health information",
   "consentHealthBody": "Your weight, height, readiness answers and anything you report about pain. Needed to create your profile.",
   "consentLocationTitle": "Use my town for weather",
-  "consentLocationBody": "To show heat and rain for your rides, Ride Doctor sends the approximate position of the town you choose to Open-Meteo, a weather service. It does not read your phone's GPS for this.",
+  "consentLocationBody": "To show heat and rain for your rides, Ride Doctor sends the name you search for, and then the approximate position of the town you choose, to Open-Meteo, a weather service. Its server logs can keep them for up to 90 days. It does not read your phone's GPS.",
   "consentNotificationsTitle": "Send me reminders",
   "consentNotificationsBody": "A morning reminder with today's session and an evening reminder to check in. You choose the times. They are set up on this phone; nothing is sent anywhere.",
   "consentHealthRequired": "Ride Doctor cannot save a profile without this.",

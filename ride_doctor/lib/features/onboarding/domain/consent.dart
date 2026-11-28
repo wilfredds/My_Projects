@@ -20,15 +20,17 @@ enum ConsentKind {
 /// History:
 /// - healthData 1 (2026-11-20): profile, readiness answers, symptom reports.
 /// - location 1 (2026-11-20): "not used yet; you will be asked again".
-///   location 2 (Phase 3): the chosen town's approximate position is sent to
-///   the weather service (Open-Meteo) to get the forecast.
+///   location 2 (2026-11-27, preview only): the chosen town's approximate
+///   position is sent to the weather service (Open-Meteo).
+///   location 3 (2026-11-28): also says the typed search text goes to
+///   Open-Meteo, and that its server logs can keep both for 90 days.
 /// - notifications 1 (2026-11-20): "not used yet; you will be asked again".
 ///   notifications 2 (Phase 3): a morning plan reminder and an evening
 ///   check-in reminder, scheduled on the phone.
 extension ConsentPolicy on ConsentKind {
   int get currentPolicyVersion => switch (this) {
     ConsentKind.healthData => 1,
-    ConsentKind.location => 2,
+    ConsentKind.location => 3,
     ConsentKind.notifications => 2,
   };
 }

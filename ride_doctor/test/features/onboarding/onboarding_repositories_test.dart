@@ -173,7 +173,10 @@ void main() {
         (await repository.watchCurrent().first)[ConsentKind.location],
         isTrue,
       );
-      expect((await repository.history()).last.policyVersion, 2);
+      expect(
+        (await repository.history()).last.policyVersion,
+        ConsentKind.location.currentPolicyVersion,
+      );
     });
 
     test('each kind is recorded under its own current wording', () async {
