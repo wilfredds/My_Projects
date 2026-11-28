@@ -223,12 +223,14 @@ final class OpenMeteoClient {
   final JsonHttp _http;
   final DateTime Function() clock;
 
-  Future<Forecast> forecast(Place place) async {
-    final json = await _http.getJson(
-      forecastUri(latitude: place.latitude, longitude: place.longitude),
-    );
-    return parseForecast(json, fetchedAt: clock());
-  }
+  Future<Forecast> forecast(Place place) async =>
+      parseForecast(await forecastJson(place), fetchedAt: clock());
+
+  /// The raw answer, for keeping. It has passed the JSON checks of
+  /// [JsonHttp] but not [parseForecast]'s; the caller parses it.
+  Future<Map<String, Object?>> forecastJson(Place place) => _http.getJson(
+    forecastUri(latitude: place.latitude, longitude: place.longitude),
+  );
 
   Future<List<Place>> searchPlaces(String query) async {
     if (cleanPlaceQuery(query).length < minPlaceQueryLength) return const [];
