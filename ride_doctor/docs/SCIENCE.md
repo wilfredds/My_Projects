@@ -325,6 +325,14 @@ the evening check-in. That study used a visual analogue scale, not the CR-10.
 - *Flag*: recent ÷ usual **above 1.5**. The spec says "exceeds ~1.5×"; at
   exactly 1.5 the app does not flag.
 
+This exact form is **our own variant**. The published forms are "coupled"
+(this week over the mean of 4 weeks including it) and "uncoupled" (this week
+over the mean of the previous 3 weeks; Gabbett TJ, et al. *Int J Sports Med.*
+2019;40(9):597-600, abstract — which found the two "produce the same injury
+likelihoods" in cricket). Ours uses the previous 4 weeks, so neither paper's
+cut-offs transfer exactly, and there is no fixed conversion between ours and
+the coupled ratio.
+
 The weekly chart uses calendar weeks (Monday to Sunday) instead, because that
 is how people talk about a week; the flag's wording therefore says "the last
 7 days", not "this week".
@@ -353,10 +361,17 @@ Why the app does not trust it, and only nudges:
 - Including the current week in the average (the "coupled" ratio) is
   criticised as producing spurious correlation (Lolli L, et al. *Br J Sports
   Med.* 2019;53(15):921-922 — title and a secondary description only).
+  Uncoupling answers only that complaint: Impellizzeri 2020 calls the ratio
+  "an inaccurate metric … even when uncoupled".
+- In endurance athletes the evidence is mixed: against Nakaoka, a 52-week
+  study of 95 runners, triathletes, swimmers, cyclists and rowers found the
+  lowest risk of new injury or pain at a smoothed ratio of 0.8–1.3 (Johnston
+  R, et al. *Int J Sports Physiol Perform.* 2019;14(5):590-597; abstract).
 - No study of beginners or recreational cyclists was found.
 
 So the app says "Bigger week than usual" and suggests an easy next ride if the
-legs feel heavy or sleep is poor. It never says "danger zone" or "injury
+legs feel heavy or sleep is poor. That suggestion is plain advice, not a
+cited finding. It never says "danger zone" or "injury
 risk", never gives odds, never shows 0.8–1.3 as a target, and never blocks a
 session. Red-flag symptoms go to "stop and seek medical care" whatever the
 load.
@@ -374,8 +389,15 @@ read). So the app shows no ratio, with Rough confidence and the reason, when:
 | Too little riding | The usual week is under **100 points** (about 30 easy minutes) — our threshold, so that one short ride cannot read as "several usual weeks" |
 
 **Limits.** A rating is a feeling: heat, poor sleep, illness and stress make
-the same ride feel harder. Points mean nothing between riders. Nothing here
-predicts injury.
+the same ride feel harder. Heat in particular: 10 men rated the same work
+higher in heat than in cool conditions (steady riding 5.6 vs 4.3; intervals
+7.0 vs 5.1; Green JM, et al. *Med Sci Sports Exerc.* 2007;39(11):2051-2057;
+abstract). So in Cavite a hot week can trip the flag with no more riding;
+the flag's text says so, and the heat adjustment does not count the same
+heat twice. Ratings given in front of a group run higher than ones given
+privately (Minett GM, et al. *Int J Sports Physiol Perform.*
+2022;17(1):106-110; abstract), which is one reason the app asks in private.
+Points mean nothing between riders. Nothing here predicts injury.
 
 **Tests.** `test/core/science/training_load_test.dart`.
 
