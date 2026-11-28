@@ -54,7 +54,8 @@
     "menu": "メニュー",
     "trash": "ゴミ箱",
     "account": "マイアカウント",
-    "reminders": "次回来店"
+    "reminders": "次回来店",
+    "collect": "未収金"
   },
   "login": {
     "title": "ログイン",
@@ -432,7 +433,8 @@
     "action_CHANGE_OWN_PASSWORD": "自分のパスワードを変更",
     "action_SHOP_SETUP": "お店を設定",
     "action_CLOSE_REMINDER": "次回来店のお知らせを完了",
-    "action_REOPEN_REMINDER": "次回来店のお知らせを再開"
+    "action_REOPEN_REMINDER": "次回来店のお知らせを再開",
+    "action_RECEIVE_PAYMENT": "入金を記録"
   },
   "receipt": {
     "title": "領収書",
@@ -593,5 +595,38 @@
     "reopened": "リストに戻しました。",
     "undo": "元に戻す",
     "smsBody": "{name} 様、{shop} です。お車 {plate} の次回点検の時期になりました。ご予約はメッセージかお電話でどうぞ。ありがとうございます。"
+  },
+  "collect": {
+    "title": "未収金",
+    "subtitle": "まだお支払いが残っているお客様です。電話やメッセージで連絡し、入金があればここで記録します。",
+    "empty": "全員お支払い済みです。未収金はありません。",
+    "totalOwed": "未収金の合計",
+    "customerCount": "{count} 人",
+    "owes": "未払い",
+    "stillOwed": "残額",
+    "sinceToday": "今日から",
+    "waitingDays": "{days} 日経過",
+    "noPhone": "電話番号がありません",
+    "addPhone": "電話番号を追加",
+    "call": "電話",
+    "text": "メッセージ",
+    "callName": "{name} さんに電話",
+    "textName": "{name} さんにメッセージ",
+    "smsBody": "{name} 様、{shop} です。{plates} の残額 {amount} についてのご案内です。店頭または GCash でお支払いいただけます。よろしくお願いいたします。"
+  },
+  "payments": {
+    "receive": "入金を記録",
+    "receiveFor": "{number}（{name} 様）の入金を記録",
+    "title": "入金を記録",
+    "payAll": "全額: {amount}",
+    "amount": "今回の入金額",
+    "save": "入金を保存",
+    "receivedPartial": "入金を記録しました。残額: {balance}",
+    "receivedFull": "入金を記録しました。全額支払い済みです。",
+    "received": "入金を記録しました。",
+    "history": "入金履歴",
+    "kind_WITH_JOB": "作業時",
+    "kind_COLLECTED": "後日入金",
+    "kind_ADJUSTMENT": "編集で変更"
   }
 }

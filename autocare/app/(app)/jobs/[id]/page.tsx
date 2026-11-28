@@ -7,7 +7,7 @@ import { requirePageUser } from '@/lib/session';
 import { can } from '@/lib/rbac';
 import { formatPeso } from '@/lib/calc';
 import { intlTagFor } from '@/i18n/locales';
-import { formatDate } from '@/lib/utils';
+import { decimalToNumber, formatDate } from '@/lib/utils';
 import { jobInclude, notDeleted, serializeJob } from '@/lib/jobs';
 import { getShopInfo } from '@/lib/settings';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import { Meter } from '@/components/ui/meter';
 import { Plate } from '@/components/ui/plate';
 import { ReceiptView } from '@/components/receipt/receipt-view';
 import { DeleteJobButton } from './delete-job-button';
+import { ReceivePaymentButton } from '@/components/payments/receive-payment';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,13 +29,19 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const user = await requirePageUser();
   const { id } = await params;
 
-  const [job, shop, tcom, tj, tw, locale] = await Promise.all([
+  const [job, shop, tcom, tj, tw, tp, locale, payments] = await Promise.all([
     prisma.job.findFirst({ where: { id, ...notDeleted }, include: jobInclude }),
     getShopInfo(),
     getTranslations('common'),
     getTranslations('job'),
     getTranslations('wizard'),
+    getTranslations('payments'),
     getLocale(),
+    prisma.payment.findMany({
+      where: { jobId: id },
+      orderBy: [{ receivedOn: 'asc' }, { createdAt: 'asc' }],
+      include: { receivedBy: { select: { name: true } } },
+    }),
   ]);
 
   if (!job) notFound();
@@ -48,6 +55,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   if (serialized.balance > 0) {
     details.push({ label: tj('balance'), value: formatPeso(serialized.balance, tag) });
   }
+  // While money is owed, taking it is this page's main action.
+  const canReceive = serialized.balance > 0 && can.manageJobs(user.role);
 
   return (
     // Phone and tablet: one column. Wide screen: the figures and buttons on
@@ -86,7 +95,24 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         {/* Action bar — every button carries a text label. Print is the one
             solid button; the rest are outlined so it stands out. */}
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-          <Button asChild size="lg" className="sm:col-span-2 xl:col-span-1">
+          {canReceive ? (
+            <ReceivePaymentButton
+              primary
+              className="sm:col-span-2 xl:col-span-1"
+              jobId={job.id}
+              jobNumber={job.jobNumber}
+              customerName={job.customer.fullName}
+              total={serialized.total}
+              amountPaid={serialized.amountPaid}
+              balance={serialized.balance}
+            />
+          ) : null}
+          <Button
+            asChild
+            size="lg"
+            variant={canReceive ? 'outline' : 'default'}
+            className="sm:col-span-2 xl:col-span-1"
+          >
             <Link href={`/jobs/${job.id}/print`}>
               <Printer aria-hidden />
               <span>{tcom('print')}</span>
@@ -114,6 +140,40 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </Link>
           </Button>
         </div>
+
+        {payments.length > 0 ? (
+          <section aria-labelledby="payments-title" className="space-y-3">
+            <h2 id="payments-title" className="text-xl">
+              {tp('history')}
+            </h2>
+            <ul className="divide-y divide-border rounded-2xl border border-border bg-card shadow-surface">
+              {payments.map((payment) => {
+                const amount = decimalToNumber(payment.amount);
+                return (
+                  <li key={payment.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 py-3">
+                    <span className="min-w-0">
+                      <span className="block text-lg">
+                        {formatDate(`${payment.receivedOn.toISOString().slice(0, 10)}T00:00:00`, tag)}
+                      </span>
+                      <span className="block text-base text-muted-foreground">
+                        {[
+                          tp(`kind_${payment.kind}` as never),
+                          payment.method ? tj(`method_${payment.method}` as never) : null,
+                          payment.receivedBy?.name ?? null,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </span>
+                    </span>
+                    <span className={amount < 0 ? 'num ml-auto text-xl font-semibold text-destructive' : 'num ml-auto text-xl font-semibold'}>
+                      {amount < 0 ? `−${formatPeso(-amount, tag)}` : formatPeso(amount, tag)}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ) : null}
 
         {can.deleteJobs(user.role) ? (
           // Delete stays apart from the everyday buttons. On a phone it sits

@@ -54,7 +54,8 @@
     "menu": "Menu",
     "trash": "Trash",
     "account": "My Account",
-    "reminders": "Due Back"
+    "reminders": "Due Back",
+    "collect": "To Collect"
   },
   "login": {
     "title": "Log in",
@@ -432,7 +433,8 @@
     "action_CHANGE_OWN_PASSWORD": "Changed own password",
     "action_SHOP_SETUP": "Shop was set up",
     "action_CLOSE_REMINDER": "Marked a follow-up done",
-    "action_REOPEN_REMINDER": "Reopened a follow-up"
+    "action_REOPEN_REMINDER": "Reopened a follow-up",
+    "action_RECEIVE_PAYMENT": "Received a payment"
   },
   "receipt": {
     "title": "Receipt",
@@ -593,5 +595,38 @@
     "reopened": "Put back on the list.",
     "undo": "Undo",
     "smsBody": "Good day, {name}! This is {shop}. A friendly reminder that your vehicle {plate} is due for its next service. Just text or call us to book a time. Thank you!"
+  },
+  "collect": {
+    "title": "To Collect",
+    "subtitle": "Customers who still owe money. Call or text them, and record the payment here when it comes in.",
+    "empty": "Everyone has paid — nothing to collect.",
+    "totalOwed": "Total to collect",
+    "customerCount": "{count, plural, one {# customer} other {# customers}}",
+    "owes": "Owes",
+    "stillOwed": "Still owed",
+    "sinceToday": "Since today",
+    "waitingDays": "{days, plural, one {# day} other {# days}}",
+    "noPhone": "No phone number",
+    "addPhone": "Add a phone number",
+    "call": "Call",
+    "text": "Text",
+    "callName": "Call {name}",
+    "textName": "Text {name}",
+    "smsBody": "Good day, {name}! This is {shop}. A friendly reminder about the balance of {amount} for {plates}. You can pay here at the shop or by GCash. Thank you!"
+  },
+  "payments": {
+    "receive": "Receive payment",
+    "receiveFor": "Receive payment for {number}, {name}",
+    "title": "Receive payment",
+    "payAll": "Paid in full: {amount}",
+    "amount": "How much was paid now?",
+    "save": "Save payment",
+    "receivedPartial": "Payment received. Still owed: {balance}",
+    "receivedFull": "Received — paid in full!",
+    "received": "Payment received.",
+    "history": "Payments",
+    "kind_WITH_JOB": "With the job",
+    "kind_COLLECTED": "Paid later",
+    "kind_ADJUSTMENT": "Changed by editing"
   }
 }

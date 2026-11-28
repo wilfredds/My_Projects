@@ -41,6 +41,7 @@ export const AUDIT_ACTIONS = [
   'SHOP_SETUP',
   'CLOSE_REMINDER',
   'REOPEN_REMINDER',
+  'RECEIVE_PAYMENT',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

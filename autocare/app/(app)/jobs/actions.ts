@@ -15,6 +15,8 @@ import { computeJobTotals, computeLineTotal, toDecimalString } from '@/lib/calc'
 import { nextJobNumber, notDeleted, onlyDeleted } from '@/lib/jobs';
 import { decimalToNumber } from '@/lib/utils';
 import { ymdToDate } from '@/lib/reminders';
+import { recordPaymentForNewJob, syncPaymentsAfterEdit, receivePayment } from '@/lib/payments';
+import { money } from '@/lib/validation';
 
 /**
  * Job mutations.
@@ -118,7 +120,7 @@ export async function saveJobAction(
       if (isUpdate) {
         const before = await tx.job.findFirst({
           where: { id: input.id, ...notDeleted },
-          select: { nextVisitOn: true },
+          select: { nextVisitOn: true, amountPaid: true, date: true, paymentMethod: true },
         });
         if (!before) return null;
 
@@ -133,7 +135,7 @@ export async function saveJobAction(
           (before.nextVisitOn?.getTime() ?? null) !==
           (reminderFields.nextVisitOn?.getTime() ?? null);
 
-        return tx.job.update({
+        const updated = await tx.job.update({
           where: { id: input.id },
           data: {
             customerId: data.customerId,
@@ -150,10 +152,27 @@ export async function saveJobAction(
           },
           select: { id: true, jobNumber: true },
         });
+
+        // Keep the payment ledger adding up to the new amount paid.
+        await syncPaymentsAfterEdit(tx, {
+          jobId: updated.id,
+          before: {
+            amountPaid: decimalToNumber(before.amountPaid),
+            date: before.date,
+            method: before.paymentMethod,
+          },
+          after: {
+            amountPaid: totals.amountPaid,
+            date: data.date,
+            method: data.paymentMethod ?? null,
+          },
+          userId: user.id,
+        });
+        return updated;
       }
 
       const jobNumber = await nextJobNumber(tx, data.date);
-      return tx.job.create({
+      const created = await tx.job.create({
         data: {
           jobNumber,
           customerId: data.customerId,
@@ -170,6 +189,16 @@ export async function saveJobAction(
         },
         select: { id: true, jobNumber: true },
       });
+
+      // Whatever was paid on the spot, received on the job's own date.
+      await recordPaymentForNewJob(tx, {
+        jobId: created.id,
+        amountPaid: totals.amountPaid,
+        method: data.paymentMethod ?? null,
+        jobDate: data.date,
+        userId: user.id,
+      });
+      return created;
     });
 
     if (!job) return { ok: false, messageKey: 'errors.notFound' };
@@ -185,12 +214,77 @@ export async function saveJobAction(
     revalidatePath('/jobs');
     revalidatePath('/dashboard');
     revalidatePath('/reminders');
+    revalidatePath('/collect');
     revalidatePath(`/jobs/${job.id}`);
 
     return {
       ok: true,
       data: job,
       messageKey: isUpdate ? 'jobs.updated' : 'jobs.saved',
+    };
+  });
+}
+
+/**
+ * "Tumanggap ng bayad": record money handed over later for a job still owed.
+ * Anyone who records jobs can take a payment. The amount cannot be more than
+ * what is still owed, and the job's totals are recomputed from its line items.
+ */
+export async function receivePaymentAction(input: {
+  jobId: string;
+  amount: string;
+  method: 'CASH' | 'GCASH' | 'OTHER' | null;
+}): Promise<ActionResult<{ balance: number; status: 'PAID' | 'UNPAID' | 'PARTIAL' }>> {
+  return guarded(async () => {
+    const user = await requireCapability(can.manageJobs);
+
+    const amount = money.safeParse(input.amount);
+    const method =
+      input.method === 'CASH' || input.method === 'GCASH' || input.method === 'OTHER'
+        ? input.method
+        : null;
+    if (!amount.success || typeof input.jobId !== 'string' || input.jobId.length > 64) {
+      return { ok: false, messageKey: 'errors.invalidNumber' };
+    }
+
+    const result = await receivePayment(prisma, {
+      jobId: input.jobId,
+      amount: amount.data,
+      method,
+      userId: user.id,
+    });
+    if (!result.ok) {
+      const messageKey =
+        result.reason === 'notFound'
+          ? 'errors.notFound'
+          : result.reason === 'tooMuch'
+            ? 'errors.amountPaidTooHigh'
+            : 'errors.invalidNumber';
+      return { ok: false, messageKey };
+    }
+
+    await audit({
+      userId: user.id,
+      action: 'RECEIVE_PAYMENT',
+      entity: 'Job',
+      entityId: input.jobId,
+      metadata: {
+        jobNumber: result.jobNumber,
+        amount: amount.data,
+        method,
+        balanceBefore: result.before.balance,
+        balanceAfter: result.after.balance,
+      },
+    });
+
+    revalidatePath('/jobs');
+    revalidatePath('/dashboard');
+    revalidatePath('/collect');
+    revalidatePath(`/jobs/${input.jobId}`);
+    return {
+      ok: true,
+      data: { balance: result.after.balance, status: result.after.status },
+      messageKey: 'payments.received',
     };
   });
 }

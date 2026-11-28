@@ -162,7 +162,7 @@ Pindutin ang **Mga Trabaho**, tapos:
   o ng **kalagayan** (halimbawa, **May utang pa**).
 
 Pinakamabilis po para sa may utang: sa **Home**, pindutin ang pulang
-**Hindi pa bayad** — lalabas agad ang lahat ng trabahong hindi pa buo ang bayad.
+**Hindi pa bayad** — bubukas ang **Singilin** (basahin ang 6-B).
 
 Puwede rin po: pindutin ang **Mga Customer**, hanapin ang pangalan, at makikita
 ninyo ang **lahat ng trabaho** niya at kung magkano na ang nagastos niya.
@@ -207,6 +207,42 @@ habang nandiyan ang sasakyan.
 > Gusto ninyong baguhin kung gaano katagal bago bumalik ang isang serbisyo?
 > Sa **Mga Serbisyo**, pindutin ang **Baguhin** sa serbisyong iyon, tapos
 > piliin sa **Kailan dapat bumalik ang sasakyan?**
+
+---
+
+## 6-B. Singilin — kapag may utang ang customer
+
+Sa gilid (sa cellphone, nasa **Menu**), pindutin ang **Singilin**. Nandito po
+ang **lahat ng may utang**, isa-isang customer — nauuna ang pinakamatagal nang
+hindi nakakabayad. Makikita po ninyo:
+
+- kung **magkano lahat** ang utang niya, at ilang araw na;
+- ang bawat trabahong may kulang pa;
+- **Tawagan** at **I-text** — nakasulat na ang mensahe, kasama ang halaga.
+  Basahin lang po at **Send**.
+
+### Kapag nagbayad na ang customer
+
+Pindutin ang **Tumanggap ng bayad** sa trabahong iyon (nandito sa Singilin, o
+sa mismong trabaho — ito ang orange na button kapag may kulang pa).
+
+1. Kung **buo** ang binayad: pindutin ang **Bayad na lahat**.
+   Kung **parte lang**: i-type kung magkano.
+2. Piliin kung **Cash**, **GCash** o **Iba pa**.
+3. Pindutin ang **I-save ang bayad**.
+
+Lalabas po kung magkano pa ang kulang. Kapag bayad na lahat, **mawawala na po
+siya** sa Singilin.
+
+> Hindi po tatanggapin ng sistema ang bayad na mas malaki pa sa utang — para
+> walang maling ma-type.
+
+> **Pera ngayong araw** sa Home: ito po ang perang **talagang natanggap
+> ngayong araw** — kasama ang bayad sa lumang utang. Kaya kung may nagbayad
+> ngayon ng utang noong isang linggo, kasama na po iyon sa pera ngayong araw.
+
+Sa bawat trabaho, sa ilalim ng mga button, may **Mga bayad**: kailan dumating
+ang bawat bayad, magkano, at sino ang tumanggap.
 
 ---
 
@@ -296,6 +332,7 @@ Sa **Mga Setting**, sa itaas po, ang **Itsura ng inyong shop**:
 | Nakalimutan ang password | Tawagan si Francis (admin) — bibigyan niya kayo ng bago, tapos papapalitan po kayo agad ng sarili ninyo. |
 | Naka-lock ang account | Maghintay ng 15 minuto, o patulong kay Francis. |
 | Gusto palitan ang password | **Aking Account** → ilagay ang luma at ang bago → **I-save**. |
+| Bumalik ang customer para bayaran ang utang | **Singilin** → hanapin siya → **Tumanggap ng bayad** → **I-save ang bayad**. |
 | Mali ang naitala sa trabaho | Buksan ang trabaho → **Baguhin** → ayusin → **I-save**. |
 | Gusto burahin ang trabaho | Buksan ang trabaho → sa pinakababa, **Burahin** → **Oo, burahin na**. Mapupunta po ito sa **Basurahan**. |
 | **Nabura ko po ang mali!** | **Basurahan** → hanapin → **Ibalik**. Babalik pong buo. Huwag mag-alala. |

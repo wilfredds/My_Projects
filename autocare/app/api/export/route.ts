@@ -53,6 +53,8 @@ export async function GET(request: Request) {
       services: true,
       mechanic: { select: { name: true } },
       createdBy: { select: { name: true } },
+      // Every payment towards the job, with the day it arrived (JSON backup).
+      payments: { orderBy: { createdAt: 'asc' } },
     },
   });
 

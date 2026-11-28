@@ -354,6 +354,64 @@ UPDATE "Service" SET "remindAfterMonths" = 6, "remindAfterKm" = 10000
 UPDATE "Service" SET "remindAfterMonths" = 6
   WHERE lower("name") IN ('aircon cleaning', 'aircon service');
 
+-- ============================================================
+-- schema from prisma/migrations/20261128090000_payment_ledger/migration.sql
+-- ============================================================
+
+-- The payment ledger: one row per payment towards a job, so income can be
+-- counted on the day the money arrived (a debt collected today is today's
+-- money), not only on the day the job was done.
+--
+-- Adds a table and an enum, then copies what is already known: every job with
+-- money paid gets one WITH_JOB payment for that amount, on the job's own date.
+-- Afterwards the payments of every job add up to its "amountPaid", which is
+-- the rule the app keeps from here on. Nothing existing is changed or removed.
+
+-- CreateEnum
+CREATE TYPE "PaymentKind" AS ENUM ('WITH_JOB', 'COLLECTED', 'ADJUSTMENT');
+
+-- CreateTable
+CREATE TABLE "Payment" (
+    "id" TEXT NOT NULL,
+    "jobId" TEXT NOT NULL,
+    "amount" DECIMAL(12,2) NOT NULL,
+    "method" "PaymentMethod",
+    "kind" "PaymentKind" NOT NULL,
+    "receivedOn" DATE NOT NULL,
+    "receivedById" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Payment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "Payment_jobId_idx" ON "Payment"("jobId");
+
+-- CreateIndex
+CREATE INDEX "Payment_receivedOn_idx" ON "Payment"("receivedOn");
+
+-- AddForeignKey
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_receivedById_fkey" FOREIGN KEY ("receivedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+
+-- Backfill: what each job already shows as paid, received on the job's date
+-- (read in the shop's timezone; job dates entered in the app are already the
+-- shop's calendar date at midnight UTC, which this leaves unchanged).
+INSERT INTO "Payment" ("id", "jobId", "amount", "method", "kind", "receivedOn", "receivedById", "createdAt")
+SELECT 'bf_' || j."id",
+       j."id",
+       j."amountPaid",
+       j."paymentMethod",
+       'WITH_JOB',
+       (j."date" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Manila')::date,
+       j."createdById",
+       j."createdAt"
+FROM "Job" j
+WHERE j."amountPaid" <> 0;
+
 
 -- ============================================================
 -- Prisma migration bookkeeping
@@ -378,6 +436,7 @@ INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name"
 INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, '3959fe54284bb3c6921fa7dfef0e09544c598bc21340ce9cd4bd0f72762c6aa2', now(), '20261123090000_shop_branding', now(), 1);
 INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, 'c7b800db0826db0c778ddaf3c6832c937b3a557d44505f6c7e36a659ce3c4ad5', now(), '20261123120000_revoked_sessions', now(), 1);
 INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, 'fb236cc4d4c73a855bd48158f5c62b71c79090c8b9a1e2dd10c8b0bb6b621ad3', now(), '20261124090000_service_reminders', now(), 1);
+INSERT INTO "_prisma_migrations" ("id","checksum","finished_at","migration_name","started_at","applied_steps_count") VALUES (gen_random_uuid()::text, '11aaf19fd67a19f4f06dddf243aa17186da32d74f04784f797b1867faee0db3d', now(), '20261128090000_payment_ledger', now(), 1);
 
 
 -- ============================================================
@@ -400,8 +459,8 @@ INSERT INTO "ShopSetting" ("id","name","address","phone","updatedAt") VALUES
 -- ============================================================
 
 INSERT INTO "User" ("id","name","username","passwordHash","role","locale","isActive","failedLoginAttempts","tokenVersion","mustChangePassword","createdAt","updatedAt") VALUES
-  ('seed-user-raul',   'RAUL V. SANTOS',            'raul',   '$2a$12$D24TWJg2C1cl7ByYH2i44e60eDrgfBn0XxpK5nsvHRB7NkpUHS9iO',   'ADMIN', 'fil', true, 0, 0, true, now(), now()),
-  ('seed-user-france', 'Francis Wilfred Antiporda', 'france', '$2a$12$CfHmWiflyPBXLstZATEly.l.EeQPylaadix2DKpGmguYHQGFsVrRy', 'ADMIN', 'fil', true, 0, 0, true, now(), now());
+  ('seed-user-raul',   'RAUL V. SANTOS',            'raul',   '$2a$12$apAdwSYxZdBkdZwwJs7vIOyTn.6p8pzoYqOJ9YyBRRFCUTW7pnrxi',   'ADMIN', 'fil', true, 0, 0, true, now(), now()),
+  ('seed-user-france', 'Francis Wilfred Antiporda', 'france', '$2a$12$5T.N0j9tkb0mYcIXye9DzeZoZBlpWMOs8HZRW1LUg62ErdTynQO/a', 'ADMIN', 'fil', true, 0, 0, true, now(), now());
 
 
 -- ============================================================
@@ -458,6 +517,12 @@ INSERT INTO "JobService" ("id","jobId","serviceName","price","serviceId") VALUES
 INSERT INTO "JobPart" ("id","jobId","partName","quantity","unitPrice","lineTotal") VALUES
   ('seed-jp-1', 'seed-job-1', 'Oil Filter',             1, 320.00,  320.00),
   ('seed-jp-2', 'seed-job-2', 'Brake Pad (front set)',  1, 1450.00, 1450.00);
+
+-- The payment ledger: the paid job's money, received on its own (Manila) date,
+-- so every job's payments add up to its amountPaid.
+INSERT INTO "Payment" ("id","jobId","amount","method","kind","receivedOn","receivedById","createdAt") VALUES
+  ('seed-pay-2', 'seed-job-2', 4580.00, 'GCASH', 'WITH_JOB',
+   ((now() - interval '1 day') AT TIME ZONE 'Asia/Manila')::date, 'seed-user-france', now());
 
 COMMIT;
 

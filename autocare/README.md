@@ -34,10 +34,11 @@ at another talyer or car-care shop.
 
 | Screen | Who | What it is for |
 | --- | --- | --- |
-| **Home** | everyone | Today's jobs and income, this month's income, unpaid total, last 10 jobs, and one very large **Record New Job** button. |
+| **Home** | everyone | Today's jobs and the money received today and this month, the unpaid total, last 10 jobs, and one very large **Record New Job** button. |
 | **Record New Job** | everyone | The seven-step wizard. One decision per screen. Also takes the odometer reading and sets when the car is due back. |
 | **Jobs** | everyone | Search and filter every job; open one to print or download its receipt. |
 | **Babalikan** (Due Back) | everyone | Cars due back for their next service, with Call and Text buttons that use the phone's own dialler and messaging app. |
+| **Singilin** (To Collect) | everyone | Customers who still owe money, oldest debt first, with Call / Text and **Tumanggap ng bayad** (receive a payment) on each job. |
 | **Customers / Vehicles** | everyone | Add and edit people and their vehicles; see a customer's full history. |
 | **Services** | admin edits, staff views | The catalog of repeatable services, their usual prices, and how often each one comes back. |
 | **Reports** | admin | Daily and monthly income, most-used spare parts, top customers, CSV/JSON backup. |
@@ -357,6 +358,38 @@ Two rules are enforced rather than merely intended:
 Arithmetic is done in whole centavos, so adding ten ₱0.07 lines gives exactly
 ₱0.70.
 
+### When money counts: the payment ledger
+
+`amountPaid` says how much a job has been paid; the `Payment` table says
+*when*. Every peso is one row — paid with the job (`WITH_JOB`), collected
+later with **Tumanggap ng bayad** (`COLLECTED`), or changed by editing the job
+(`ADJUSTMENT`, possibly negative) — dated on the shop's calendar day it
+arrived. The rule, kept inside every transaction that writes either table, is
+
+```
+sum(Payment.amount for a job) == Job.amountPaid
+```
+
+and `tests/payments-db.test.ts` checks it after every kind of write.
+
+- **Income is money received, on the day it arrived.** "Pera ngayong araw",
+  the monthly chart and the reports' "Perang natanggap" sum payments by
+  `receivedOn`, so utang collected today is today's money even if the job was
+  last month's. Payments of a job in the Trash do not count. "Kabuuang
+  siningil" (billed) and the parts and customer lists still follow the job's
+  date — sales by job date, collections by payment date.
+- **"Today" is the shop's day** (`SHOP_TIMEZONE`, default Asia/Manila), for
+  the dashboard and the reports' default range. A server in UTC would
+  otherwise still be on yesterday until 8 a.m.
+- **A later payment can never exceed what is owed**, and two people taking the
+  same payment at once cannot both succeed: `receivePayment` in
+  `lib/payments.ts` locks the job's row (`SELECT … FOR UPDATE`) and recomputes
+  the totals from the line items with `lib/calc.ts`. The test that fires two
+  payments at once fails without the lock.
+- **Existing data was carried over** by the migration that added the table:
+  every job with money paid got one `WITH_JOB` payment for that amount on the
+  job's own date, so past totals did not move.
+
 ---
 
 ## Service reminders (Babalikan)
@@ -512,7 +545,7 @@ npm run typecheck
 npm run build && npm run test:e2e   # the whole app in a real browser
 ```
 
-81 checks in eight files, all against real code:
+94 checks in ten files, all against real code:
 
 | File | What it proves |
 | --- | --- |
@@ -524,10 +557,12 @@ npm run build && npm run test:e2e   # the whole app in a real browser
 | `tests/setup.test.ts` (10) | first-run setup on a throwaway empty database: the code, the one-owner rule, two at once, starter services |
 | `tests/reminders.test.ts` (10) | the next-visit rules: calendar months, shortest interval, the shop's "today", call/text links, server-side validation |
 | `tests/reminders-db.test.ts` (9) | the Babalikan list against a real database: due and coming up, a carwash in between, the car coming back, Trash, "Tapos na" and undo |
+| `tests/collections.test.ts` (5) | Singilin's grouping (per customer, oldest first, centavo sums), days waiting, income by month |
+| `tests/payments-db.test.ts` (8) | the payment ledger: new job, edits, later payments, never more than owed, two at once, Trash, income by day |
 
 ### End-to-end tests
 
-`e2e/` holds 31 Playwright tests that use the built app the way the shop does
+`e2e/` holds 33 Playwright tests that use the built app the way the shop does
 — on a phone-sized screen in Filipino, plus a desktop pass — and fail on any
 browser error or blocked script. They cover logging in, lockout and logout; a
 job recorded through every wizard step, its receipt, PDF, edit, partial
@@ -535,7 +570,8 @@ payment, delete and restore from Trash; customers and vehicles; services, staff
 accounts and a new staff member's first day; settings, logo and colour;
 reports and exports; the activity log; a brand-new install set up from
 `/setup`; and service reminders, from the odometer reading to the Babalikan
-list's Call, Text and Done.
+list's Call, Text and Done; and collecting utang on Singilin, from a part
+payment to paid in full, with the money showing in today's income.
 
 `npm run test:e2e` first runs `e2e/prepare.ts`, which adds its own test
 accounts to the database in `.env` and creates a second, empty database
@@ -612,6 +648,7 @@ app/
     dashboard/           home screen
     jobs/                list, new (wizard), [id] detail, edit, print
     reminders/           Babalikan — cars due back, with Call / Text / Done
+    collect/             Singilin — who still owes, Call / Text, receive a payment
     trash/               deleted jobs — restore or erase (admin only)
     account/             change your own password
     customers/ vehicles/ services/ reports/ users/ settings/ audit/
@@ -635,6 +672,8 @@ lib/
   branding.ts  logo.ts   the shop's colour choices; the logo checks
   reminders.ts           next-visit rules (pure); reminder-queries.ts — the Babalikan list
   odometer.ts            last recorded reading per car
+  payments.ts            the payment ledger; income by the day money arrived
+  collections.ts         Singilin — owed jobs grouped by customer
   audit.ts  prisma.ts  settings.ts  jobs.ts  password.ts  rate-limit.ts
   pdf/receipt-pdf.tsx    the A4 PDF
 messages/                fil, en, es, ja, ko, zh

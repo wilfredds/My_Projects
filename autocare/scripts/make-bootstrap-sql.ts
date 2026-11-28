@@ -210,6 +210,12 @@ INSERT INTO "JobPart" ("id","jobId","partName","quantity","unitPrice","lineTotal
   ('seed-jp-1', 'seed-job-1', 'Oil Filter',             1, 320.00,  320.00),
   ('seed-jp-2', 'seed-job-2', 'Brake Pad (front set)',  1, 1450.00, 1450.00);
 
+-- The payment ledger: the paid job's money, received on its own (Manila) date,
+-- so every job's payments add up to its amountPaid.
+INSERT INTO "Payment" ("id","jobId","amount","method","kind","receivedOn","receivedById","createdAt") VALUES
+  ('seed-pay-2', 'seed-job-2', 4580.00, 'GCASH', 'WITH_JOB',
+   ((now() - interval '1 day') AT TIME ZONE 'Asia/Manila')::date, ${q(franceId)}, now());
+
 COMMIT;
 
 -- Done. Log in as 'raul' or 'france', accept the Rules of Use, then change
