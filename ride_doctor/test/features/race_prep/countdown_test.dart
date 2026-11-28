@@ -124,6 +124,72 @@ void main() {
       }
     });
 
+    test('the taper length follows the notice the rider had', () {
+      DateTime addedDaysBefore(int days) =>
+          DateTime(2027, 3, 14 - days, 20); // an evening, any time works
+      expect(
+        taperDaysFor(addedAt: addedDaysBefore(70), raceStart: raceStart),
+        longTaperDays,
+      );
+      expect(
+        taperDaysFor(addedAt: addedDaysBefore(56), raceStart: raceStart),
+        longTaperDays,
+      );
+      expect(
+        taperDaysFor(addedAt: addedDaysBefore(55), raceStart: raceStart),
+        shortTaperDays,
+      );
+      expect(
+        taperDaysFor(addedAt: addedDaysBefore(14), raceStart: raceStart),
+        shortTaperDays,
+      );
+      expect(
+        taperDaysFor(addedAt: addedDaysBefore(13), raceStart: raceStart),
+        0,
+      );
+    });
+
+    test('a race added 10 weeks out keeps its 2-week taper as it nears', () {
+      final addedAt = DateTime(2027, 1, 3, 20); // 70 days out
+      List<PhaseBlock> at(DateTime now) =>
+          planPhases(now: now, raceStart: raceStart, addedAt: addedAt);
+
+      // 55 days out: today this would be a 1-week taper without the notice.
+      final fiftyFive = at(DateTime(2027, 1, 18, 9));
+      expect(fiftyFive.map((b) => b.phase), [PlanPhase.build, PlanPhase.taper]);
+      expect(fiftyFive.last.days, longTaperDays);
+      expect(
+        planPhases(
+          now: DateTime(2027, 1, 18, 9),
+          raceStart: raceStart,
+        ).last.days,
+        shortTaperDays,
+      );
+
+      // 20 days out: 6 days of build, then the same 14-day taper.
+      final twenty = at(DateTime(2027, 2, 22, 9));
+      expect(twenty.first.days, 6);
+      expect(twenty.last.firstDay, DateTime.utc(2027, 2, 28));
+      expect(twenty.last.days, longTaperDays);
+
+      // Exactly 14 days out: it is all taper, starting today.
+      final fourteen = at(DateTime(2027, 2, 28, 5));
+      expect(fourteen.map((b) => b.phase), [PlanPhase.taper]);
+      expect(fourteen.single.firstDay, DateTime.utc(2027, 2, 28));
+      expect(fourteen.single.days, longTaperDays);
+    });
+
+    test('a race added in race week falls back to the time left', () {
+      // Notice of 10 days means no taper by notice; if the clock is then
+      // moved back weeks, the time left decides instead.
+      final blocks = planPhases(
+        now: DateTime(2027, 2, 1, 9),
+        raceStart: raceStart,
+        addedAt: DateTime(2027, 3, 4, 9),
+      );
+      expect(blocks.last.days, shortTaperDays);
+    });
+
     test('inside two weeks there are no phases', () {
       expect(phasesAt(DateTime(2027, 3, 5)), isEmpty);
       expect(phasesAt(DateTime(2027, 3, 14, 5)), isEmpty);

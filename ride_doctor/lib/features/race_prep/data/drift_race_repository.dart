@@ -173,6 +173,7 @@ final class DriftRaceRepository implements RaceRepository {
     rulesNotes: row.rulesNotes,
     travelMinutes: row.travelMinutes,
     reconAllowed: row.reconAllowed,
+    addedAt: row.createdAt,
   );
 
   RaceDebrief _debrief(RaceDebriefRow row) {

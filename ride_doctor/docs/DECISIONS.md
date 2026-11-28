@@ -612,3 +612,26 @@ reminders survive a reboot or an update. The status-bar icon is kept from
 resource shrinking by `res/raw/keep.xml`. Delivery timing, the reboot
 reschedule and battery-saver behaviour on some phone brands can only be
 checked on a real Android phone, which the owner does not have.
+
+---
+
+## ADR-0028 — The taper's length is fixed by the notice, not by today
+
+**Status:** Accepted (2026-11-28)
+
+**Context.** Phase 2 chose the taper from the countdown mode on the day it
+was viewed: 8 weeks or more → 14 days, less → 7. So the same race had a
+14-day taper on day 56 and a 7-day one on day 55, and the plan's shape
+changed under the rider. Both Phase 3 plan designs found this.
+
+**Decision.** A race carries `addedAt` (from its row's `createdAt`; no
+schema change), and `taperDaysFor(addedAt, raceStart)` gives 14 days for 8
+or more weeks' notice, 7 for 2 to under 8, and 0 for less (it starts in race
+week). The countdown mode is still worked out from today. Editing a race
+never changes when it was added. With exactly 14 days left and a 14-day
+taper, the whole preparation is taper.
+
+**Consequences.** The Phase 2 phase card and the Phase 3 plan use the same
+function, so they cannot disagree. A rider who deletes a race and adds it
+again resets its notice; that is accepted.
+

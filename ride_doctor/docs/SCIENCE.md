@@ -628,8 +628,11 @@ the app and is never a diagnosis.
 
 ## 7.13 Taper
 
-**Rule.** With at least 8 weeks to a race the plan ends with a 14-day taper;
-with 2 to under 8 weeks, a 7-day taper. The advice shown: ride about half the
+**Rule.** A race added with at least 8 weeks' notice ends with a 14-day
+taper; one added with 2 to under 8 weeks' notice, a 7-day taper. The notice
+counts from the day the race was added, not from today, so the taper keeps
+its length as the race nears (before this, a race 56 days away had a 14-day
+taper and the next day a 7-day one). The advice shown: ride about half the
 usual volume and keep a few short hard efforts.
 
 **Source — Verified (abstract).** Bosquet L, Montpetit J, Arvisais D, Mujika

@@ -49,7 +49,24 @@ void main() {
     test('a race round-trips with every field', () async {
       await repository.saveRace(crit);
 
-      expect(await repository.watchRace('race-1').first, crit);
+      // Comes back with the date it was added, which the app sets itself.
+      expect(
+        await repository.watchRace('race-1').first,
+        crit.copyWith(addedAt: DateTime.utc(2026, 11, 23, 8)),
+      );
+    });
+
+    test('editing a race keeps the date it was first added', () async {
+      await repository.saveRace(crit);
+      clock.advance(const Duration(days: 8));
+      // Even if the edited copy claims another date.
+      await repository.saveRace(
+        crit.copyWith(name: 'Renamed', addedAt: DateTime.utc(2027)),
+      );
+
+      final stored = await repository.watchRace('race-1').first;
+      expect(stored!.name, 'Renamed');
+      expect(stored.addedAt, DateTime.utc(2026, 11, 23, 8));
     });
 
     test('the start is stored as wall-clock time with no zone', () async {
@@ -69,7 +86,7 @@ void main() {
       await repository.saveRace(bare);
 
       final stored = await repository.watchRace('race-2').first;
-      expect(stored, bare);
+      expect(stored, bare.copyWith(addedAt: DateTime.utc(2026, 11, 23, 8)));
       expect(stored!.travelMinutes, 30);
       expect(stored.reconAllowed, isTrue);
     });

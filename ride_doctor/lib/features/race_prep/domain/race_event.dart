@@ -31,5 +31,11 @@ abstract class RaceEvent with _$RaceEvent {
 
     /// Whether riders may ride the course before the start.
     @Default(true) bool reconAllowed,
+
+    /// When the rider added the race to the app - how much notice they had.
+    /// Null for a race not saved yet. It fixes the taper's length
+    /// (`taperDaysFor` in countdown.dart), so the plan keeps its shape as
+    /// the race nears.
+    DateTime? addedAt,
   }) = _RaceEvent;
 }

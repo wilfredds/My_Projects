@@ -152,7 +152,11 @@ class _ModeCard extends StatelessWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final material = MaterialLocalizations.of(context);
-    final phases = planPhases(now: now, raceStart: race.startsAt);
+    final phases = planPhases(
+      now: now,
+      raceStart: race.startsAt,
+      addedAt: race.addedAt,
+    );
 
     return SectionCard(
       title: l10n.modeTitle(mode),

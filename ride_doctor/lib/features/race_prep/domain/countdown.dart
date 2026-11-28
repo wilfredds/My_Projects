@@ -78,14 +78,36 @@ const shortTaperDays = 7;
 /// planning convention, not from a source.
 const longBuildBlockDays = 28;
 
+/// How long the taper before a race is, from the notice the rider had: a
+/// race added 8 or more weeks ahead gets the two-week taper, one added 2 to
+/// under 8 weeks ahead gets one week, and a later one none (it starts in
+/// race week).
+///
+/// Taken from when the race was added, not from today: otherwise a race
+/// 56 days away would have a 14-day taper and, one day later, a 7-day one -
+/// the plan would change shape under the rider for no reason.
+int taperDaysFor({required DateTime addedAt, required DateTime raceStart}) {
+  // The database keeps the moment in UTC; the date that counts is the one
+  // on the rider's calendar when they added it.
+  final notice = daysUntil(now: addedAt.toLocal(), raceStart: raceStart);
+  if (notice >= _longBuildDays) return longTaperDays;
+  if (notice >= _raceWeekDays) return shortTaperDays;
+  return 0;
+}
+
 /// Splits the days from [now] to race day into base, build and taper.
 ///
 /// Only the two "build" modes have phases; nearer the race the answer is an
 /// empty list. Blocks are returned in order and never overlap, and the taper
 /// always ends the day before the race.
+///
+/// With [addedAt], the taper's length follows the notice the rider had
+/// ([taperDaysFor]); without it, the time left today decides, as before a
+/// race is saved.
 List<PhaseBlock> planPhases({
   required DateTime now,
   required DateTime raceStart,
+  DateTime? addedAt,
 }) {
   final mode = countdownMode(now: now, raceStart: raceStart);
   if (mode != CountdownMode.longBuild &&
@@ -101,12 +123,24 @@ List<PhaseBlock> planPhases({
   DateTime back(DateTime from, int days) =>
       DateTime.utc(from.year, from.month, from.day - days);
 
-  final taperDays = mode == CountdownMode.longBuild
+  final byNotice = addedAt == null
+      ? null
+      : taperDaysFor(addedAt: addedAt, raceStart: raceStart);
+  // A race added in race week and somehow still weeks away (the clock moved)
+  // falls back to the time left.
+  final taperDays = byNotice != null && byNotice > 0
+      ? byNotice
+      : mode == CountdownMode.longBuild
       ? longTaperDays
       : shortTaperDays;
   final taperStart = back(dayBeforeRace, taperDays - 1);
-  final taper = PhaseBlock(PlanPhase.taper, taperStart, dayBeforeRace);
   final buildEnd = back(taperStart, 1);
+  // The taper never starts before today: with exactly 14 days left and a
+  // 14-day taper, the whole preparation is taper.
+  if (buildEnd.isBefore(today)) {
+    return [PhaseBlock(PlanPhase.taper, today, dayBeforeRace)];
+  }
+  final taper = PhaseBlock(PlanPhase.taper, taperStart, dayBeforeRace);
 
   if (mode == CountdownMode.compressedBuild) {
     return [PhaseBlock(PlanPhase.build, today, buildEnd), taper];
