@@ -1,4 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The weather forecast (Open-Meteo, over HTTPS). Flutter's template
+         grants this only to debug builds, so without it a release build
+         would silently lose the forecast. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Put the daily reminders back after the phone restarts. Reminders are
+         inexact on purpose, so no exact-alarm permission is asked for.
+         POST_NOTIFICATIONS comes from the notifications plugin and is asked
+         for only when the rider turns a reminder on. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
         android:label="Ride Doctor"
         android:name="${applicationName}"
@@ -33,6 +42,21 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- flutter_local_notifications: shows a scheduled reminder, and
+             reschedules them after a reboot or an app update. -->
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -6,10 +6,16 @@ plugins {
 
 android {
     namespace = "com.ridedoctor.app"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_local_notifications 23 needs at least 37; Flutter 3.50's
+    // default is 36. Only the SDK compiled against changes - minSdk and
+    // targetSdk stay on Flutter's values.
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // flutter_local_notifications relies on desugaring for scheduled
+        // notifications on older Android versions (its setup guide).
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -27,6 +33,9 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Asked for by flutter_local_notifications' setup guide; harmless at
+        // minSdk 24, where multidex is built in.
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -46,4 +55,8 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

@@ -11,22 +11,31 @@ environment:
 # earlier. An unused dependency is an unverified dependency - it can break the
 # build without any of our code exercising it. See docs/DECISIONS.md (ADR-0003).
 dependencies:
+  # Encrypted local database (drift on SQLite3 Multiple Ciphers, ADR-0005).
   drift: ^2.35.4
   flutter:
     sdk: flutter
+  # Phone reminders: the morning plan and the evening check-in (Phase 3).
+  flutter_local_notifications: ^23.0.4
   flutter_localizations:
     sdk: flutter
 
   # State management + compile-safe dependency injection.
   flutter_riverpod: ^3.5.0
 
-  # Declarative, deep-linkable navigation.
+  # Keeps the database key in Android's keystore.
   flutter_secure_storage: ^11.2.0
+  # The phone's time zone, so reminders fire at the rider's local time.
+  flutter_timezone: ^5.1.1
   freezed_annotation: ^3.1.0
+
+  # Declarative, deep-linkable navigation.
   go_router: ^18.1.4
 
-  # Message formatting for the generated localizations.
+  # HTTPS requests to the weather service (Phase 3).
   http: ^1.6.0
+
+  # Message formatting for the generated localizations.
   intl: ^0.20.3
 
   # Material Design widgets. Since Flutter 3.47 these live in their own package;
@@ -40,6 +49,8 @@ dependencies:
   path_provider: ^2.1.6
   riverpod_annotation: ^4.0.8
   sqlite3: ^3.9.1
+  # Time-zone rules, which flutter_local_notifications schedules with.
+  timezone: ^0.11.2
   uuid: ^4.6.0
 
 dev_dependencies:

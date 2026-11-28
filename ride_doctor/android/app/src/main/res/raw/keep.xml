@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Release builds strip resources that no code refers to. The reminder icon
+     is named only as a string in Dart, so without this it would be removed
+     and reminders could fail silently. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_reminder" />

@@ -564,3 +564,51 @@ credit in the town picker.
   chosen town's rounded coordinates, the typed search text and the device's
   IP address.
 
+
+---
+
+## ADR-0027 — Reminders are inexact, dated for a week, and private on the lock screen
+
+**Status:** Accepted (2026-11-28). **Not yet verified on a device.**
+
+**Context.** The spec asks for a morning reminder carrying that day's session,
+heat badge and best window, and an evening check-in reminder, at times the
+rider chooses. From Android 13 notifications are off until the user allows
+them; from Android 14 exact alarms need a permission that is denied by default
+for new installs. flutter_local_notifications 23.0.4 (with timezone 0.11.2 and
+flutter_timezone 5.1.1) was read from its published source.
+
+**Decision.**
+- **Inexact** daily alarms (`inexactAllowWhileIdle`), never exact ones. The
+  app asks for no exact-alarm permission and says "around 05:30": Android
+  promises delivery within an hour, later when the phone saves battery.
+- The notification permission is asked for **only when the rider switches a
+  reminder on**, never at start-up.
+- **One dated reminder per day for 7 days**, so each morning one can say that
+  day's session; after that a plain reminder **repeats daily**, so a rider who
+  does not open the app for a week is still reminded. Everything is planned
+  again whenever the app opens or the plan changes. Fixed ids (1–2 for the
+  repeats, 100–106 and 200–206 for the dated ones) make rescheduling replace
+  rather than duplicate. `planReminders` is pure and tested.
+- **Private on the lock screen** (`NotificationVisibility.private`), and no
+  symptom, pain or illness words in any reminder.
+- A tap may open only the Today or check-in screen (an allow-list), because a
+  notification payload comes back from outside the app.
+- The plugin sits behind `ReminderScheduler`. Tests use a fake: the real
+  plugin throws in a test run. The web preview uses a scheduler that does
+  nothing, because a browser cannot schedule notifications for later and
+  initialising the plugin there would install its own service worker.
+- Time zone: set from the phone at start-up and checked again whenever the
+  app comes back to the foreground, rescheduling if it moved. The plugin does
+  not notice a zone change by itself, so until the app is opened again a
+  traveller's reminder fires at the chosen time in the old zone. The
+  Philippines has one zone and no daylight saving, so this is acceptable.
+
+**Consequences.** `compileSdk` rises to 37 and core-library desugaring is on
+(the plugin requires both). The manifest gains `INTERNET` (which a release
+build needs for the forecast — Flutter's template grants it only to debug
+builds), `RECEIVE_BOOT_COMPLETED`, and the plugin's two receivers, so
+reminders survive a reboot or an update. The status-bar icon is kept from
+resource shrinking by `res/raw/keep.xml`. Delivery timing, the reboot
+reschedule and battery-saver behaviour on some phone brands can only be
+checked on a real Android phone, which the owner does not have.
