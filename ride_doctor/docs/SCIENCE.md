@@ -515,8 +515,14 @@ threshold. So the verdict is: weighed more after → drank too much; lost up to
   pushing salt on riders with high blood pressure or kidney disease is our
   own caution; no opened source covers them.
 
-**Limits.** One test describes one ride's conditions. Breathing and fuel use
-also lose mass (about 5–15%, Baker), which overstates sweat on long rides.
+**For context — Verified (full text).** In vigorous exercise in heat, "1.0
+to 1.5 L/h are common" and "certain individuals can exceed 2.5 L/h"
+(Racinais 2015). After a ride, replace about 100–120% of the mass lost, with
+fluid and salty food (Racinais 2015) — the app shows this with a result.
+
+**Limits.** One test describes one ride's conditions; the same rider varies
+about 5–7% from day to day (Baker). Breathing and fuel use also lose mass
+(about 5–15%, Baker), which overstates sweat on long rides.
 
 **Tests.** `test/core/science/fuelling_hydration_test.dart`.
 
@@ -537,8 +543,11 @@ mouth-rinsing, enhance performance". The one-hour bound is from Racinais
 than 1 h … and up to 90 g/h for events lasting over 2.5 h". Jeukendrup A.
 *Sports Med.* 2014;44 Suppl 1:S25-S33 (full text, GSSI-affiliated author)
 adds that one carbohydrate source is used at up to about 60 g/h and that 90
-"must be" multiple transportable carbohydrates — Partly, because its banded
-figure could not be opened. Do not show finer bands from that figure.
+"must be" multiple transportable carbohydrates — Verified in its full text;
+only its banded Fig. 1 could not be opened, so do not show finer bands from
+it. Its caption says "Aspiring athletes may need to adjust these
+recommendations downwards", which is why the app says "riding easy? stay near
+the low end".
 
 **Our choices.** The bands apply to the planned ride length; exactly 60 min
 gets the middle band. Advice does not scale with body weight (Jeukendrup
@@ -551,8 +560,10 @@ state without a citation. These amounts are for athletes; the app says
 before the start (spec: 2–3 h) sits inside the 1–4 h window that Thomas DT,
 Erdman KA, Burke LM (Nutrition and Athletic Performance. *Med Sci Sports
 Exerc.* 2016;48(3):543-568) is reported to give — seen only in secondary
-sources; the statement's full text could not be opened. Keep it low in fat
-and fibre (Jeukendrup AE. *J Sports Sci.* 2011;29 Suppl 1:S91-9, abstract).
+sources; the statement's full text could not be opened. "Keep it low in fat
+and fibre" is **our inference**: Jeukendrup AE (*J Sports Sci.* 2011;29 Suppl
+1:S91-9, abstract) links fibre, fat and protein to stomach trouble
+"especially in long-distance races", not to the pre-race meal as such.
 
 **Tests.** `test/core/science/fuelling_hydration_test.dart`.
 
@@ -595,7 +606,51 @@ used with its age shown; after that it is not used.
 **UV — Verified (Gies P, et al. *Health Phys.* 2018;114(1):84-90).**
 Low under 3, moderate 3 to under 6, high 6 to under 8, very high 8 to under
 11, extreme 11 and up; protection recommended from 3, extra protection from
-8. The specific measures (shade, sleeves, sunscreen) are our wording.
+8. "Low" is a *rounded* index of 0, 1 or 2 (Lehmann M, et al. *Int J Environ
+Res Public Health.* 2019;16(12):2067), and Open-Meteo sends decimals, so the
+app rounds to a whole number first (2.6 is 3, moderate) — the same rule as
+for the heat index. The specific measures (shade, sleeves, sunscreen) are our
+wording.
+
+## Heat illness: what the app tells a rider
+
+These always come before any training or fit advice, and never suggest
+"push through".
+
+**Stop and get emergency help — Verified signs.** Confusion or
+disorientation, strange or aggressive behaviour, fainting or collapse, a
+seizure, or being drowsy and hard to wake, during or after riding in heat.
+Exertional heat stroke is "exercise-induced hyperthermia … associated with
+central nervous system dysfunction (eg, disorientation, confusion,
+aggressiveness, hysteria, delirium, altered consciousness and irrational
+behaviour)" (Hosokawa Y, et al. *Br J Sports Med.* 2021;55(24):1405-1410;
+full text; also Racinais 2023). The rider cannot measure core temperature,
+so the app never asks for one.
+
+**First aid — Verified, with our bystander wording.** Stop the activity and
+cool the whole body at once; whole-body cold-water immersion is the
+recommended method and outcomes worsen when cooling is delayed beyond about
+30 minutes (Hosokawa 2021; Belval LN, et al. *Prehosp Emerg Care.*
+2018;22(3):392-397; Roberts WO, et al. *Curr Sports Med Rep.*
+2023;22(4):134-149 — abstracts). Ice towels or packs "do not replace more
+aggressive cooling such as CWI" for heat stroke (Racinais 2023), so the app
+does not offer towels as enough. Its text — "call for help, get out of the
+sun, and soak or pour as much cold water over the whole body as you can while
+you wait" — is **our wording** for a roadside, not a medical protocol.
+
+**Do not make a confused person drink.** "Athletes with central nervous
+system disturbances … should not be encouraged to drink until
+exercise-associated hyponatraemia has been excluded" (Racinais 2023): the
+confusion can come from heat stroke or from over-drinking.
+
+**Softer prompt — our rule on sourced signs.** Dizzy, sick, very weak or
+exhausted in the heat: stop, get into shade and cool down; if it does not
+settle, or any sign above appears, get help. Dizziness, vomiting, fatigue and
+weakness appear in Hosokawa's list of presentations but also in milder
+illness; "if it does not settle" is our threshold.
+
+**Not shown yet.** The Philippine emergency number, until it is checked
+(open verification list).
 
 **Privacy.** Coordinates are rounded to 0.1° (about 11 km) before they are
 stored or sent — our choice, so the service learns the area, not the street.

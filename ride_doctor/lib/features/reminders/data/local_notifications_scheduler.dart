@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:ride_doctor/features/reminders/data/reminder_scheduler.dart';
@@ -18,7 +19,7 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
 
   final FlutterLocalNotificationsPlugin _plugin;
   final _taps = StreamController<String>.broadcast();
-  Future<void>? _ready;
+  Future<bool>? _ready;
 
   /// The status-bar icon, kept in release builds by res/raw/keep.xml.
   static const _icon = 'ic_stat_reminder';
@@ -34,20 +35,29 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
   /// the Philippines, where the app is built for. Our own fallback.
   static const _fallbackZone = 'Asia/Manila';
 
-  Future<void> _ensureReady() => _ready ??= _initialise();
+  /// True when the plugin started. False means reminders are unavailable on
+  /// this phone - for example if a release build lost the status-bar icon,
+  /// which makes the plugin refuse to start. The app then carries on without
+  /// reminders instead of failing.
+  Future<bool> _ensureReady() => _ready ??= _initialise();
 
-  Future<void> _initialise() async {
-    tz_data.initializeTimeZones();
-    await _setLocalZone();
-    await _plugin.initialize(
-      settings: const InitializationSettings(
-        android: AndroidInitializationSettings(_icon),
-      ),
-      onDidReceiveNotificationResponse: (response) {
-        final route = _allowedRoute(response.payload);
-        if (route != null) _taps.add(route);
-      },
-    );
+  Future<bool> _initialise() async {
+    try {
+      tz_data.initializeTimeZones();
+      await _setLocalZone();
+      await _plugin.initialize(
+        settings: const InitializationSettings(
+          android: AndroidInitializationSettings(_icon),
+        ),
+        onDidReceiveNotificationResponse: (response) {
+          final route = _allowedRoute(response.payload);
+          if (route != null) _taps.add(route);
+        },
+      );
+      return true;
+    } on PlatformException {
+      return false;
+    }
   }
 
   /// Sets the time zone the reminders are scheduled in. True when it moved.
@@ -72,14 +82,14 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
 
   @override
   Future<NotificationAccess> access() async {
-    await _ensureReady();
+    if (!await _ensureReady()) return NotificationAccess.unsupported;
     final enabled = await _android?.areNotificationsEnabled() ?? false;
     return enabled ? NotificationAccess.granted : NotificationAccess.denied;
   }
 
   @override
   Future<NotificationAccess> requestAccess() async {
-    await _ensureReady();
+    if (!await _ensureReady()) return NotificationAccess.unsupported;
     final android = _android;
     if (android == null) return NotificationAccess.unsupported;
     if (await android.areNotificationsEnabled() ?? false) {
@@ -91,13 +101,13 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
 
   @override
   Future<void> openSystemSettings() async {
-    await _ensureReady();
+    if (!await _ensureReady()) return;
     await _plugin.openAppNotificationSettings();
   }
 
   @override
   Future<void> replaceAll(List<PhoneNotification> notifications) async {
-    await _ensureReady();
+    if (!await _ensureReady()) return;
     await _plugin.cancelAll();
     for (final notification in notifications) {
       final at = notification.at;
@@ -140,7 +150,7 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
 
   @override
   Future<String?> launchRoute() async {
-    await _ensureReady();
+    if (!await _ensureReady()) return null;
     final details = await _plugin.getNotificationAppLaunchDetails();
     if (!(details?.didNotificationLaunchApp ?? false)) return null;
     return _allowedRoute(details?.notificationResponse?.payload);
@@ -151,7 +161,7 @@ final class LocalNotificationsScheduler implements ReminderScheduler {
 
   @override
   Future<bool> syncTimeZone() async {
-    await _ensureReady();
+    if (!await _ensureReady()) return false;
     return await _setLocalZone();
   }
 
