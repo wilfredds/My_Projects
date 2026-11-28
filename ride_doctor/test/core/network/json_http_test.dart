@@ -93,6 +93,20 @@ void main() {
       expect(script.requests, 3);
     });
 
+    test('a timed-out request has its connection closed', () async {
+      final client = _NeverAnswers();
+      final jsonHttp = JsonHttp(
+        client,
+        maxAttempts: 1,
+        timeout: const Duration(milliseconds: 20),
+      );
+
+      await expectLater(jsonHttp.getJson(uri), throwsA(isA<NoConnection>()));
+      expect(client.triggers, hasLength(1));
+      // Completed by the timeout: the connection is told to close.
+      await expectLater(client.triggers.single, completes);
+    });
+
     test('a server error is retried, then reported with its reason', () async {
       final script = Scripted([
         for (var i = 0; i < 3; i++)
@@ -223,4 +237,16 @@ void main() {
     expect(ServerError(uri, 500).toString(), contains('500'));
     expect(BadResponse(uri, 'odd').toString(), contains('odd'));
   });
+}
+
+/// Records each request's abort trigger and never answers. MockClient copies
+/// the request, which loses the trigger, so this test needs its own client.
+final class _NeverAnswers extends http.BaseClient {
+  final triggers = <Future<void>>[];
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) {
+    triggers.add((request as http.Abortable).abortTrigger!);
+    return Completer<http.StreamedResponse>().future;
+  }
 }

@@ -60,7 +60,7 @@ final class BadResponse extends FetchFailure {
 /// backoff").
 ///
 /// - Refuses anything but `https:` - a programming error, so it throws.
-/// - Gives up on one attempt after [timeout].
+/// - Gives up on one attempt after [timeout], and closes its connection.
 /// - Retries dropped connections, timeouts and 5xx answers up to
 ///   [maxAttempts] in total, waiting 0.5 s, then 1 s, then 2 s... between
 ///   attempts. Never retries 4xx answers: those will not change by asking
@@ -97,12 +97,22 @@ final class JsonHttp {
     FetchFailure? lastFailure;
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
       if (attempt > 1) await _sleep(backoff(attempt - 1));
+      // Completing this closes the connection. A timeout on the Future
+      // alone would stop waiting but leave the socket open until the
+      // server gave up.
+      final abort = Completer<void>();
+      final request = http.AbortableRequest(
+        'GET',
+        uri,
+        abortTrigger: abort.future,
+      )..headers['Accept'] = 'application/json';
+      Future<http.Response> fetch() async =>
+          await http.Response.fromStream(await _client.send(request));
       final http.Response response;
       try {
-        response = await _client
-            .get(uri, headers: const {'Accept': 'application/json'})
-            .timeout(timeout);
+        response = await fetch().timeout(timeout);
       } on TimeoutException catch (error) {
+        abort.complete();
         lastFailure = NoConnection(uri, error);
         continue;
       } on http.ClientException catch (error) {
