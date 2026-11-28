@@ -1,7 +1,8 @@
 # Open-Meteo responses used by the tests
 
-Answers from the Open-Meteo API, kept byte for byte, as saved in the test
-suites of two open-source clients. Neither repository says they are live
+Answers from the Open-Meteo API, copied byte for byte from the test suites
+of two open-source clients (which store them pretty-printed, so they are not
+the raw bytes the server sent). Neither repository says they are live
 captures; their server-generated fields (generation times, resolved time
 zones, recorded headers) suggest so, but that is our inference. They are used
 because Open-Meteo's own
