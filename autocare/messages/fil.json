@@ -54,7 +54,8 @@
     "menu": "Menu",
     "trash": "Basurahan",
     "account": "Aking Account",
-    "reminders": "Babalikan"
+    "reminders": "Babalikan",
+    "collect": "Singilin"
   },
   "login": {
     "title": "Mag-log in",
@@ -432,7 +433,8 @@
     "action_CHANGE_OWN_PASSWORD": "Pinalitan ang sariling password",
     "action_SHOP_SETUP": "Na-set up ang shop",
     "action_CLOSE_REMINDER": "Tapos na ang paalala sa pagbalik",
-    "action_REOPEN_REMINDER": "Ibinalik ang paalala sa pagbalik"
+    "action_REOPEN_REMINDER": "Ibinalik ang paalala sa pagbalik",
+    "action_RECEIVE_PAYMENT": "Tumanggap ng bayad"
   },
   "receipt": {
     "title": "Resibo",
@@ -593,5 +595,38 @@
     "reopened": "Ibinalik sa listahan.",
     "undo": "Ibalik",
     "smsBody": "Magandang araw po, {name}! Ito po ang {shop}. Paalala lang po na panahon na ng susunod na serbisyo ng sasakyan ninyong {plate}. Mag-text o tumawag lang po kayo para makapag-schedule. Salamat po!"
+  },
+  "collect": {
+    "title": "Singilin",
+    "subtitle": "Mga customer na may natitirang bayad. Tawagan o i-text sila, at itala rito ang bayad pagdating nito.",
+    "empty": "Bayad na lahat — walang singilin ngayon.",
+    "totalOwed": "Kabuuang singilin",
+    "customerCount": "{count, plural, other {# customer}}",
+    "owes": "Utang",
+    "stillOwed": "Kulang pa",
+    "sinceToday": "Ngayong araw lang",
+    "waitingDays": "{days, plural, other {# araw na}}",
+    "noPhone": "Walang numero ng telepono",
+    "addPhone": "Ilagay ang numero",
+    "call": "Tawagan",
+    "text": "I-text",
+    "callName": "Tawagan si {name}",
+    "textName": "I-text si {name}",
+    "smsBody": "Magandang araw po, {name}! Ito po ang {shop}. Paalala lang po sa natitirang bayad ninyo na {amount} para sa {plates}. Puwede po kayong magbayad dito sa shop o sa GCash. Maraming salamat po!"
+  },
+  "payments": {
+    "receive": "Tumanggap ng bayad",
+    "receiveFor": "Tumanggap ng bayad sa {number} ni {name}",
+    "title": "Tumanggap ng bayad",
+    "payAll": "Bayad na lahat: {amount}",
+    "amount": "Magkano ang binayad ngayon?",
+    "save": "I-save ang bayad",
+    "receivedPartial": "Natanggap na ang bayad. Kulang pa: {balance}",
+    "receivedFull": "Natanggap na — bayad na lahat!",
+    "received": "Natanggap na ang bayad.",
+    "history": "Mga bayad",
+    "kind_WITH_JOB": "Kasabay ng trabaho",
+    "kind_COLLECTED": "Bayad sa utang",
+    "kind_ADJUSTMENT": "Binago sa pag-edit"
   }
 }

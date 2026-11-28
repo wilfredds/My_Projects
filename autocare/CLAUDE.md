@@ -14,11 +14,11 @@ Tailwind · Radix/shadcn · next-intl · Zod · react-hook-form
 ```bash
 npm run lint        # next lint
 npm run typecheck   # tsc --noEmit
-npm test            # money maths, branding, reminder rules — no database
-npm run test:db     # job integrity, security, access control, setup, reminders — needs PostgreSQL
+npm test            # money maths, branding, reminders, collections — no database
+npm run test:db     # integrity, security, access control, setup, reminders, payments — needs PostgreSQL
 npm run test:all    # both
 npm run build       # prisma generate && next build
-npm run test:e2e    # 31 Playwright tests against the built app — run build first
+npm run test:e2e    # 33 Playwright tests against the built app — run build first
 npm run dev
 node scripts/check-contrast.mjs   # WCAG AA for every colour pairing × 4 accents
 ```
@@ -82,6 +82,14 @@ installing. The hook copies `.env.example` if it is missing.
   job with its own next visit (so a carwash never cancels a change-oil
   reminder). Dates are `@db.Date` handled as "YYYY-MM-DD" in UTC — never format them
   with a timezone that could shift the day.
+- **The payment ledger.** `Payment` rows say when each peso arrived; the rule
+  is `sum(Payment.amount) == Job.amountPaid` for every job, kept inside the
+  same transaction as any write to either (`lib/payments.ts`: new job, edit,
+  later payment). Never change `amountPaid` without going through it. Income
+  (dashboard, reports) sums payments by `receivedOn`, a shop calendar date;
+  "today" is `shopToday()`, never the server's date. `receivePayment` locks
+  the job row — keep the `FOR UPDATE`; `tests/payments-db.test.ts` fails
+  without it.
 - **Branding is per install, in `ShopSetting`:** `accent` (one of
   `lib/branding.ts`'s four — green, red and amber are reserved for money
   states), `logo` (a PNG data URL checked by `lib/logo.ts`) and `tin`. The

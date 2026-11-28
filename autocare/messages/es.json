@@ -54,7 +54,8 @@
     "menu": "Menú",
     "trash": "Papelera",
     "account": "Mi cuenta",
-    "reminders": "Recordatorios"
+    "reminders": "Recordatorios",
+    "collect": "Por cobrar"
   },
   "login": {
     "title": "Iniciar sesión",
@@ -432,7 +433,8 @@
     "action_CHANGE_OWN_PASSWORD": "Cambió su contraseña",
     "action_SHOP_SETUP": "Se configuró el taller",
     "action_CLOSE_REMINDER": "Marcó un recordatorio como hecho",
-    "action_REOPEN_REMINDER": "Reabrió un recordatorio"
+    "action_REOPEN_REMINDER": "Reabrió un recordatorio",
+    "action_RECEIVE_PAYMENT": "Recibió un pago"
   },
   "receipt": {
     "title": "Recibo",
@@ -593,5 +595,38 @@
     "reopened": "Devuelto a la lista.",
     "undo": "Deshacer",
     "smsBody": "¡Buen día, {name}! Le saluda {shop}. Le recordamos que su vehículo {plate} ya necesita su próximo servicio. Escríbanos o llámenos para agendar. ¡Gracias!"
+  },
+  "collect": {
+    "title": "Por cobrar",
+    "subtitle": "Clientes que aún deben dinero. Llámelos o envíeles un mensaje, y registre aquí el pago cuando llegue.",
+    "empty": "Todos han pagado: no hay nada por cobrar.",
+    "totalOwed": "Total por cobrar",
+    "customerCount": "{count, plural, one {# cliente} other {# clientes}}",
+    "owes": "Debe",
+    "stillOwed": "Pendiente",
+    "sinceToday": "Desde hoy",
+    "waitingDays": "{days, plural, one {# día} other {# días}}",
+    "noPhone": "Sin número de teléfono",
+    "addPhone": "Agregar un número",
+    "call": "Llamar",
+    "text": "Mensaje",
+    "callName": "Llamar a {name}",
+    "textName": "Enviar mensaje a {name}",
+    "smsBody": "¡Buen día, {name}! Le saluda {shop}. Le recordamos el saldo pendiente de {amount} por {plates}. Puede pagar aquí en el taller o por GCash. ¡Gracias!"
+  },
+  "payments": {
+    "receive": "Recibir pago",
+    "receiveFor": "Recibir pago de {number}, {name}",
+    "title": "Recibir pago",
+    "payAll": "Pago completo: {amount}",
+    "amount": "¿Cuánto pagó ahora?",
+    "save": "Guardar pago",
+    "receivedPartial": "Pago recibido. Pendiente: {balance}",
+    "receivedFull": "Recibido: ¡pagado por completo!",
+    "received": "Pago recibido.",
+    "history": "Pagos",
+    "kind_WITH_JOB": "Con el trabajo",
+    "kind_COLLECTED": "Pagado después",
+    "kind_ADJUSTMENT": "Cambiado al editar"
   }
 }

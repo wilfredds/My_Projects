@@ -329,6 +329,23 @@ async function main() {
       status: totals.status,
       paymentMethod: sample.job.paymentMethod,
       notes: 'Sample job created by the seed script.',
+      // The payment ledger: what was paid, on the job's own (shop) date — the
+      // same rule as lib/payments.ts, so the payments add up to amountPaid.
+      ...(amountPaid > 0
+        ? {
+            payments: {
+              create: {
+                amount: amountPaid.toFixed(2),
+                method: sample.job.paymentMethod,
+                kind: 'WITH_JOB' as const,
+                receivedOn: new Date(
+                  `${new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(date)}T00:00:00Z`,
+                ),
+                receivedBy: { connect: { id: france.id } },
+              },
+            },
+          }
+        : {}),
       services: {
         create: serviceLines.map((s) => ({
           serviceId: s.serviceId,

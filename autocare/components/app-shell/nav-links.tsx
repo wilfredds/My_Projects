@@ -15,6 +15,7 @@ import {
   History,
   Trash2,
   BellRing,
+  Wallet,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -32,6 +33,7 @@ const ICONS: Record<string, LucideIcon> = {
   history: History,
   trash: Trash2,
   bell: BellRing,
+  wallet: Wallet,
 };
 
 /**

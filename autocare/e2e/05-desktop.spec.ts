@@ -14,6 +14,7 @@ test('main pages work at desktop width', async ({ page }) => {
   for (const [label, path] of [
     [t.nav.jobs, '/jobs'],
     [t.nav.reminders, '/reminders'],
+    [t.nav.collect, '/collect'],
     [t.nav.customers, '/customers'],
     [t.nav.vehicles, '/vehicles'],
     [t.nav.services, '/services'],

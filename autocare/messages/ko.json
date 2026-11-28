@@ -54,7 +54,8 @@
     "menu": "메뉴",
     "trash": "휴지통",
     "account": "내 계정",
-    "reminders": "재방문"
+    "reminders": "재방문",
+    "collect": "미수금"
   },
   "login": {
     "title": "로그인",
@@ -432,7 +433,8 @@
     "action_CHANGE_OWN_PASSWORD": "본인 비밀번호 변경",
     "action_SHOP_SETUP": "가게 설정",
     "action_CLOSE_REMINDER": "재방문 알림 완료",
-    "action_REOPEN_REMINDER": "재방문 알림 다시 열기"
+    "action_REOPEN_REMINDER": "재방문 알림 다시 열기",
+    "action_RECEIVE_PAYMENT": "결제를 받음"
   },
   "receipt": {
     "title": "영수증",
@@ -593,5 +595,38 @@
     "reopened": "목록에 다시 넣었습니다.",
     "undo": "되돌리기",
     "smsBody": "{name}님, 안녕하세요! {shop}입니다. 차량 {plate}의 다음 점검 시기가 되었습니다. 예약은 문자나 전화로 해 주세요. 감사합니다!"
+  },
+  "collect": {
+    "title": "미수금",
+    "subtitle": "아직 갚을 돈이 남은 고객입니다. 전화나 문자로 연락하고, 돈이 들어오면 여기서 기록하세요.",
+    "empty": "모두 결제했습니다. 받을 돈이 없습니다.",
+    "totalOwed": "받을 돈 합계",
+    "customerCount": "{count}명",
+    "owes": "미수",
+    "stillOwed": "남은 금액",
+    "sinceToday": "오늘부터",
+    "waitingDays": "{days}일 지남",
+    "noPhone": "전화번호 없음",
+    "addPhone": "전화번호 추가",
+    "call": "전화",
+    "text": "문자",
+    "callName": "{name}님께 전화",
+    "textName": "{name}님께 문자",
+    "smsBody": "{name}님, 안녕하세요! {shop}입니다. {plates}의 남은 금액 {amount} 안내드립니다. 매장이나 GCash로 결제하실 수 있습니다. 감사합니다!"
+  },
+  "payments": {
+    "receive": "결제 받기",
+    "receiveFor": "{number}({name}님) 결제 받기",
+    "title": "결제 받기",
+    "payAll": "전액: {amount}",
+    "amount": "이번에 받은 금액",
+    "save": "결제 저장",
+    "receivedPartial": "결제를 받았습니다. 남은 금액: {balance}",
+    "receivedFull": "결제를 받았습니다. 전액 완료!",
+    "received": "결제를 받았습니다.",
+    "history": "결제 내역",
+    "kind_WITH_JOB": "작업 시",
+    "kind_COLLECTED": "나중에 결제",
+    "kind_ADJUSTMENT": "편집으로 변경"
   }
 }

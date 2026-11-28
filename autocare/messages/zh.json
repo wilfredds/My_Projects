@@ -54,7 +54,8 @@
     "menu": "菜单",
     "trash": "回收站",
     "account": "我的账户",
-    "reminders": "回访"
+    "reminders": "回访",
+    "collect": "待收款"
   },
   "login": {
     "title": "登录",
@@ -432,7 +433,8 @@
     "action_CHANGE_OWN_PASSWORD": "修改了自己的密码",
     "action_SHOP_SETUP": "设置店铺",
     "action_CLOSE_REMINDER": "完成回访提醒",
-    "action_REOPEN_REMINDER": "重新打开回访提醒"
+    "action_REOPEN_REMINDER": "重新打开回访提醒",
+    "action_RECEIVE_PAYMENT": "收款"
   },
   "receipt": {
     "title": "收据",
@@ -593,5 +595,38 @@
     "reopened": "已放回列表。",
     "undo": "撤销",
     "smsBody": "{name}您好！这里是 {shop}。温馨提醒：您的车辆 {plate} 已到下次保养时间。欢迎发短信或来电预约。谢谢！"
+  },
+  "collect": {
+    "title": "待收款",
+    "subtitle": "仍有欠款的客户。可以打电话或发短信提醒，收到钱后在这里记录。",
+    "empty": "都已付清，没有待收款。",
+    "totalOwed": "待收款合计",
+    "customerCount": "{count} 位客户",
+    "owes": "欠款",
+    "stillOwed": "尚欠",
+    "sinceToday": "今天起",
+    "waitingDays": "已 {days} 天",
+    "noPhone": "没有电话号码",
+    "addPhone": "添加电话号码",
+    "call": "打电话",
+    "text": "发短信",
+    "callName": "给 {name} 打电话",
+    "textName": "给 {name} 发短信",
+    "smsBody": "{name}您好！这里是 {shop}。提醒您 {plates} 尚有 {amount} 未付。可在店里或用 GCash 付款。谢谢！"
+  },
+  "payments": {
+    "receive": "收款",
+    "receiveFor": "为 {number}（{name}）收款",
+    "title": "收款",
+    "payAll": "付清：{amount}",
+    "amount": "这次付了多少？",
+    "save": "保存收款",
+    "receivedPartial": "已收款。尚欠：{balance}",
+    "receivedFull": "已收款，已全部付清！",
+    "received": "已收款。",
+    "history": "收款记录",
+    "kind_WITH_JOB": "随工单",
+    "kind_COLLECTED": "事后付款",
+    "kind_ADJUSTMENT": "编辑时更改"
   }
 }

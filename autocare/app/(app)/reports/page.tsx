@@ -5,7 +5,9 @@ import { requirePageAdmin } from '@/lib/session';
 import { formatPeso } from '@/lib/calc';
 import { intlTagFor } from '@/i18n/locales';
 import { notDeleted } from '@/lib/jobs';
-import { decimalToNumber, formatDate, startOfDay, endOfDay } from '@/lib/utils';
+import { decimalToNumber, formatDate } from '@/lib/utils';
+import { byMonth, dayAfter, incomeBetween, incomeByDay, monthStart } from '@/lib/payments';
+import { isYmd, shopToday, ymdToDate } from '@/lib/reminders';
 import { Button } from '@/components/ui/button';
 import { Card, Ledger, LedgerRow, RowList } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/misc';
@@ -32,55 +34,41 @@ export default async function ReportsPage({
   ]);
   const tag = intlTagFor(locale);
 
-  const now = new Date();
-  const parsedFrom = params.from ? new Date(params.from) : null;
-  const parsedTo = params.to ? new Date(params.to) : null;
+  // The range is in the shop's calendar days. With none given: this month.
+  const today = shopToday();
+  const fromYmd = params.from && isYmd(params.from) ? params.from : monthStart(today);
+  const toYmd = params.to && isYmd(params.to) ? params.to : today;
 
-  const from =
-    parsedFrom && !Number.isNaN(parsedFrom.getTime())
-      ? startOfDay(parsedFrom)
-      : startOfDay(new Date(now.getFullYear(), now.getMonth(), 1));
-  const to =
-    parsedTo && !Number.isNaN(parsedTo.getTime()) ? endOfDay(parsedTo) : endOfDay(now);
+  // Billed work follows the job's date; money received follows the day it
+  // arrived (the payment ledger), so a debt collected this month counts as
+  // this month's income even if the job was last month's.
+  const [jobs, totalIncome, daily] = await Promise.all([
+    prisma.job.findMany({
+      where: { ...notDeleted, date: { gte: ymdToDate(fromYmd), lt: dayAfter(toYmd) } },
+      include: {
+        customer: { select: { id: true, fullName: true } },
+        parts: { select: { partName: true, quantity: true, lineTotal: true } },
+      },
+      orderBy: { date: 'asc' },
+    }),
+    incomeBetween(prisma, fromYmd, toYmd),
+    incomeByDay(prisma, fromYmd, toYmd),
+  ]);
 
-  const jobs = await prisma.job.findMany({
-    where: { ...notDeleted, date: { gte: from, lte: to } },
-    include: {
-      customer: { select: { id: true, fullName: true } },
-      parts: { select: { partName: true, quantity: true, lineTotal: true } },
-    },
-    orderBy: { date: 'asc' },
-  });
-
-  const totalIncome = jobs.reduce((s, j) => s + decimalToNumber(j.amountPaid), 0);
   const totalBilled = jobs.reduce((s, j) => s + decimalToNumber(j.total), 0);
   const outstanding = jobs.reduce((s, j) => s + decimalToNumber(j.balance), 0);
 
-  // ---- daily income ------------------------------------------------------
-  const daily = new Map<string, number>();
-  for (const job of jobs) {
-    const key = job.date.toISOString().slice(0, 10);
-    daily.set(key, (daily.get(key) ?? 0) + decimalToNumber(job.amountPaid));
-  }
-  const dailyRows = Array.from(daily.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-
-  // ---- monthly income ----------------------------------------------------
-  const monthly = new Map<string, number>();
-  for (const job of jobs) {
-    const key = `${job.date.getFullYear()}-${String(job.date.getMonth() + 1).padStart(2, '0')}`;
-    monthly.set(key, (monthly.get(key) ?? 0) + decimalToNumber(job.amountPaid));
-  }
-  const monthlyRows = Array.from(monthly.entries())
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([key, value]) => {
-      const [year, month] = key.split('-').map(Number);
-      return {
-        label: new Intl.DateTimeFormat(tag, { month: 'short', year: '2-digit' }).format(
-          new Date(year, month - 1, 1),
-        ),
-        value,
-      };
-    });
+  // ---- daily and monthly income -------------------------------------------
+  const dailyRows = Array.from(daily.entries());
+  const monthlyRows = Array.from(byMonth(daily).entries()).map(([key, value]) => {
+    const [year, month] = key.split('-').map(Number);
+    return {
+      label: new Intl.DateTimeFormat(tag, { month: 'short', year: '2-digit', timeZone: 'UTC' }).format(
+        new Date(Date.UTC(year!, month! - 1, 1)),
+      ),
+      value,
+    };
+  });
 
   // ---- most-used spare parts --------------------------------------------
   // Grouped case-insensitively ("Oil Filter" and "oil filter" are one part),
@@ -129,8 +117,8 @@ export default async function ReportsPage({
       <PageHeader title={t('title')} description={t('subtitle')} />
 
       <ReportRangePicker
-        defaultFrom={from.toISOString().slice(0, 10)}
-        defaultTo={to.toISOString().slice(0, 10)}
+        defaultFrom={fromYmd}
+        defaultTo={toYmd}
       />
 
       <Ledger>
@@ -144,7 +132,7 @@ export default async function ReportsPage({
         <LedgerRow label={t('jobCount')} value={String(jobs.length)} />
       </Ledger>
 
-      {jobs.length === 0 ? (
+      {jobs.length === 0 && daily.size === 0 ? (
         <EmptyState title={t('empty')} />
       ) : (
         <>
@@ -156,7 +144,7 @@ export default async function ReportsPage({
           <ReportList
             title={t('dailyIncome')}
             rows={dailyRows.map(([day, amount]) => ({
-              label: formatDate(new Date(day), tag),
+              label: formatDate(`${day}T00:00:00`, tag),
               value: formatPeso(amount, tag),
             }))}
           />

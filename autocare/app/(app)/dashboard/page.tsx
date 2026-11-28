@@ -7,12 +7,13 @@ import { can } from '@/lib/rbac';
 import { formatPeso } from '@/lib/calc';
 import { intlTagFor } from '@/i18n/locales';
 import { notDeleted } from '@/lib/jobs';
-import { decimalToNumber, startOfDay, endOfDay, formatDate } from '@/lib/utils';
+import { decimalToNumber, formatDate } from '@/lib/utils';
+import { byMonth, dayAfter, incomeBetween, incomeByDay, monthStart } from '@/lib/payments';
 import { Button } from '@/components/ui/button';
 import { Card, Ledger, LedgerRow } from '@/components/ui/card';
 import { Meter } from '@/components/ui/meter';
 import { countDueReminders } from '@/lib/reminder-queries';
-import { shopToday } from '@/lib/reminders';
+import { shopToday, ymdToDate } from '@/lib/reminders';
 import { PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/misc';
 import { JobList, JobRow } from '@/components/jobs/job-row';
@@ -37,25 +38,23 @@ export default async function DashboardPage({
   ]);
   const tag = intlTagFor(locale);
 
-  const now = new Date();
-  const todayStart = startOfDay(now);
-  const todayEnd = endOfDay(now);
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  // "Today" is the shop's calendar day (Asia/Manila by default), not the
+  // server's: a server in UTC would still be on yesterday until 8 a.m.
+  const today = shopToday();
+  const thisMonth = monthStart(today);
+  const chartFrom = monthStart(today, 11);
+  // Job dates are the shop's calendar date at midnight UTC.
+  const todayJobsRange = { gte: ymdToDate(today), lt: dayAfter(today) };
 
-  // Started now, awaited below, so it runs alongside the money queries.
-  const remindersPending = countDueReminders(prisma, shopToday());
+  // Started now, awaited below, so it runs alongside the other queries.
+  const remindersPending = countDueReminders(prisma, today);
 
-  const [todayJobs, todayMoney, monthMoney, unpaid, recentJobs, monthlyRows] = await Promise.all([
-    prisma.job.count({ where: { ...notDeleted, date: { gte: todayStart, lte: todayEnd } } }),
-    prisma.job.aggregate({
-      _sum: { amountPaid: true },
-      where: { ...notDeleted, date: { gte: todayStart, lte: todayEnd } },
-    }),
-    prisma.job.aggregate({
-      _sum: { amountPaid: true },
-      where: { ...notDeleted, date: { gte: monthStart, lte: todayEnd } },
-    }),
+  // Money is counted on the day it arrived (the payment ledger), so a debt
+  // collected today is today's money — see lib/payments.ts.
+  const [todayJobs, todayMoney, monthMoney, unpaid, recentJobs, dailyIncome] = await Promise.all([
+    prisma.job.count({ where: { ...notDeleted, date: todayJobsRange } }),
+    incomeBetween(prisma, today, today),
+    incomeBetween(prisma, thisMonth, today),
     prisma.job.aggregate({
       _sum: { balance: true },
       _count: { _all: true },
@@ -63,38 +62,27 @@ export default async function DashboardPage({
     }),
     prisma.job.findMany({
       where: notDeleted,
-      orderBy: { date: 'desc' },
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
       take: 10,
       include: {
         customer: { select: { fullName: true } },
         vehicle: { select: { plateNumber: true } },
       },
     }),
-    prisma.job.findMany({
-      where: { ...notDeleted, date: { gte: twelveMonthsAgo } },
-      select: { date: true, amountPaid: true },
-    }),
+    incomeByDay(prisma, chartFrom, today),
   ]);
   const reminders = await remindersPending;
 
-  // Group into months in JS — 12 rows at most, cheaper than a second round trip.
-  const monthly = new Map<string, number>();
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - 11 + i, 1);
-    monthly.set(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, 0);
-  }
-  for (const row of monthlyRows) {
-    const key = `${row.date.getFullYear()}-${String(row.date.getMonth() + 1).padStart(2, '0')}`;
-    if (monthly.has(key)) {
-      monthly.set(key, (monthly.get(key) ?? 0) + decimalToNumber(row.amountPaid));
-    }
-  }
-
-  const chartData = Array.from(monthly.entries()).map(([key, value]) => {
+  // Twelve months, oldest first, empty months shown as zero.
+  const months = byMonth(dailyIncome);
+  const chartData = Array.from({ length: 12 }, (_, i) => {
+    const key = monthStart(today, 11 - i).slice(0, 7);
     const [year, month] = key.split('-').map(Number);
     return {
-      label: new Intl.DateTimeFormat(tag, { month: 'short' }).format(new Date(year, month - 1, 1)),
-      value,
+      label: new Intl.DateTimeFormat(tag, { month: 'short', timeZone: 'UTC' }).format(
+        new Date(Date.UTC(year!, month! - 1, 1)),
+      ),
+      value: months.get(key) ?? 0,
     };
   });
 
@@ -106,7 +94,7 @@ export default async function DashboardPage({
 
       <PageHeader
         className="animate-rise"
-        eyebrow={formatDate(now, tag)}
+        eyebrow={formatDate(`${today}T00:00:00`, tag)}
         title={t('greeting', { name: user.name.split(' ')[0] })}
       />
 
@@ -127,7 +115,7 @@ export default async function DashboardPage({
         <div className="space-y-3">
           <Meter
             label={t('todayIncome')}
-            amount={formatPeso(decimalToNumber(todayMoney._sum.amountPaid), tag)}
+            amount={formatPeso(todayMoney, tag)}
             status={
               <span className="rounded-full bg-white/10 px-3 py-1 text-base font-semibold text-white">
                 {t('jobsCount', { count: todayJobs })}
@@ -136,7 +124,7 @@ export default async function DashboardPage({
             details={[
               {
                 label: t('monthIncome'),
-                value: formatPeso(decimalToNumber(monthMoney._sum.amountPaid), tag),
+                value: formatPeso(monthMoney, tag),
               },
             ]}
           />
@@ -146,7 +134,7 @@ export default async function DashboardPage({
               hint={t('jobsCount', { count: unpaid._count._all })}
               value={formatPeso(owed, tag)}
               tone={owed > 0 ? 'owed' : 'default'}
-              href={owed > 0 ? '/jobs?status=OWED' : undefined}
+              href={owed > 0 ? '/collect' : undefined}
             />
             {/* Customers to call back — only when there is someone to call. */}
             {reminders.total > 0 ? (

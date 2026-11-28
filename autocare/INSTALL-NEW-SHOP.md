@@ -119,6 +119,9 @@ Vercel → the shop's project → **Settings → Domains**.
 - **Babalikan.** Cars due back for their next service are listed with Call and
   Text buttons. Both use the phone in the owner's hand — its own number and its
   normal call and text rates — so there is no SMS service to sign up for.
+- **Singilin (utang).** Everyone who still owes is on one page, with Call and
+  Text (the amount already in the message) and **Tumanggap ng bayad** when the
+  money comes in. Money collected later counts as that day's income.
 - **Languages.** Filipino, English, Español, 日本語, 한국어 and 中文, chosen per
   person.
 - **Phones.** It is a website, so there is nothing to install. On Android,
